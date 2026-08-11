@@ -525,7 +525,7 @@
   .regras-dica{font-size:11.5px;color:var(--texto-fraco);line-height:1.6;background:#f7f9fa;border-radius:8px;padding:10px 12px;margin-top:10px;}
   /* ============================= RECEBIMENTO DE CONTAS =============================
      Tela de digitação rápida: o operador escreve o nome do cliente, o total da conta e
-     distribui o que foi pago entre as cinco modalidades. A base de clientes cresce
+     distribui o que foi pago entre as modalidades. A base de clientes cresce
      sozinha — todo nome digitado que ainda não existe vira cadastro no ato. */
   .rec-form{background:#fff;border:1px solid var(--cinza-borda);border-radius:12px;padding:20px 22px 22px;
     box-shadow:0 1px 4px rgba(20,50,80,.06);}
@@ -565,6 +565,20 @@
   .rec-mod .rm-resto{background:none;border:none;padding:2px 0 0;font-family:inherit;font-size:10.5px;
     color:var(--marca);cursor:pointer;text-decoration:underline;visibility:hidden;}
   .rec-mod .rm-resto.mostra{visibility:visible;}
+  /* Modalidade com várias entradas (o cliente que paga em três cartões): as linhas
+     empilham dentro do mesmo quadro. O quadro cresce para baixo, a largura não muda —
+     é o que mantém a grade das modalidades inteira por mais cartões que entrem. */
+  .rec-mod .rm-linha{display:flex;align-items:center;gap:5px;}
+  .rec-mod .rm-linha input{flex:1;min-width:0;}
+  .rec-mod .rm-num{font-size:9.5px;font-weight:700;color:var(--texto-fraco);flex:none;width:11px;text-align:right;}
+  .rec-mod.preenchida .rm-num{color:var(--marca-esc);}
+  .rec-mod .rm-tirar{background:none;border:none;padding:0 1px;font-size:15px;line-height:1;flex:none;
+    color:var(--cinza-borda);cursor:pointer;font-family:inherit;}
+  .rec-mod .rm-tirar:hover{color:var(--vermelho);}
+  .rec-mod .rm-add{display:block;background:none;border:none;padding:5px 0 0;font-family:inherit;font-size:10.5px;
+    color:var(--marca);cursor:pointer;text-decoration:underline;}
+  .rec-mod .rm-soma{font-size:10.5px;color:var(--texto-fraco);padding-top:3px;}
+  .rec-mod.preenchida .rm-soma{color:var(--marca-esc);}
   .rec-somatorio{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;
     background:var(--marca-cl);border:1px solid var(--marca);border-radius:10px;padding:13px 17px;margin:16px 0 0;}
   .rec-somatorio .rs-bloco .rs-rot{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--marca-esc);opacity:.8;}
@@ -706,7 +720,8 @@
       </div>
     </div>
   </nav>
-  <div class="bl-rodape bl-rotulo">Acesso restrito à<br>equipe administrativa</div>
+  <div class="bl-rodape bl-rotulo">Acesso restrito à<br>equipe administrativa
+    <span id="rodapeVersao" style="display:block;margin-top:6px;opacity:.65;"></span></div>
 </aside>
 <div class="fundo-lateral" id="fundoLateral"></div>
 
@@ -928,7 +943,8 @@
       <div>
         <h2>Retirada de caixa</h2>
         <div class="dash-sub">Todo dinheiro que sai do caixa — pagamento de fornecedor, despesa do dia, troco levado ao banco.
-          Informe o valor e o motivo; a retirada entra no fechamento do caixa do mês.</div>
+          Informe o valor e o motivo. A retirada sai sempre do <b>dinheiro</b>, que é como pagamos daqui, e é abatida
+          do dinheiro em caixa no fechamento do mês.</div>
       </div>
     </div>
 
@@ -1012,6 +1028,7 @@
       <option value="pix">Somente com pix</option>
       <option value="senff">Somente com Senff</option>
       <option value="alimentacao">Somente com alimentação</option>
+      <option value="cheque">Somente com cheque</option>
       <option value="parciais">Somente pagamentos parciais</option>
       <option value="sg-pendente">Somente pendentes de baixa no SG</option>
       <option value="sg-baixado">Somente já baixados no SG</option>
@@ -1413,6 +1430,9 @@
     <div class="nuvem-linha"><span>Colaboradores na base</span><b id="nvQtdFunc">—</b></div>
     <div class="nuvem-linha"><span>Meses de folha</span><b id="nvQtdFolha">—</b></div>
     <div class="nuvem-linha"><span>Meses de cartão ponto</span><b id="nvQtdPonto">—</b></div>
+    <div class="nuvem-linha"><span>Caixa (recebimentos / retiradas)</span><b id="nvQtdCaixa">—</b></div>
+    <div class="nuvem-linha"><span>Lançamentos aguardando envio</span><b id="nvFilaCaixa">—</b></div>
+    <div class="nuvem-linha"><span>Versão do sistema</span><b id="nvVersao">—</b></div>
     <div id="nvErroWrap" style="display:none;margin-top:12px;font-size:12px;color:var(--vermelho);"></div>
     <div class="acoes-modal">
       <button class="btn btn-outline" id="btnBaixarNuvem">Recarregar do banco</button>
@@ -1438,6 +1458,12 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    a internet caia. Toda alteração é gravada no cache na hora e enviada ao banco logo
    em seguida, de forma agrupada. ESTADO_INICIAL virou só a semente da primeira carga:
    se o banco já tiver dados, ele é quem manda. */
+/* Versão publicada. Como o sistema roda pelo GitHub Pages em mais de um computador, e o
+   navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
+   versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
+   mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
+const VERSAO_SISTEMA = '11/08/2026 · caixa em tempo real';
+
 const SUPABASE_URL  = 'https://vieafcgghboxwhultile.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_HaMcgvr_2xmWYotvzetmVA_yscPz2eT';
 const LS_KEY = 'rh_sistema_v3';   /* cache local */
@@ -1542,13 +1568,25 @@ function salvarEstado(){
   nuvemTimer = setTimeout(enviarParaNuvem, 1200);
 }
 
+/* O caixa administrativo tem tabelas próprias e grava registro a registro (ver
+   SINCRONIZAÇÃO DO CAIXA). Estas chaves precisam ficar de fora do estado enviado ao
+   rh_config: se fossem junto, uma aba com a cópia velha voltaria a apagar o que outro
+   computador acabou de lançar — que é exatamente o problema que as tabelas resolvem. */
+function estadoParaNuvem(){
+  const copia = Object.assign({}, state);
+  delete copia.clientes;
+  delete copia.recebimentos;
+  delete copia.retiradas;
+  return copia;
+}
+
 async function enviarParaNuvem(){
   if(!db){ statusNuvem('erro','Sem conexão'); nuvemErro='Biblioteca do Supabase não carregou'; return; }
   if(nuvemEnviando){ nuvemRefazer = true; return; }
   nuvemEnviando = true;
   statusNuvem('pendente');
   try{
-    const { error } = await db.rpc('rh_salvar_estado', { p_estado: state });
+    const { error } = await db.rpc('rh_salvar_estado', { p_estado: estadoParaNuvem() });
     if(error) throw error;
     nuvemUltima = new Date();
     statusNuvem('ok');
@@ -1589,6 +1627,13 @@ async function conectarBanco(){
       await enviarParaNuvem();
       if(!nuvemErro) mostrarToast('Base criada no banco com os dados deste navegador');
     }else{
+      /* O que vier do rh_config nestas chaves é do formato antigo do caixa: guarda para
+         migrar logo abaixo, porque a verdade agora são as tabelas caixa_*. */
+      const legadoCaixa = {
+        clientes:     Array.isArray(data.clientes)     ? data.clientes     : [],
+        recebimentos: Array.isArray(data.recebimentos) ? data.recebimentos : [],
+        retiradas:    Array.isArray(data.retiradas)    ? data.retiradas    : []
+      };
       state = data;
       if(!state.mesAtual) state.mesAtual = mesAtualPadrao();
       if(!state.folha) state.folha = {};
@@ -1598,6 +1643,9 @@ async function conectarBanco(){
       reconstruirTela();
       nuvemUltima = new Date();
       statusNuvem('ok');
+      await carregarCaixa(false);
+      await migrarCaixaAntigo(legadoCaixa);
+      ligarAtualizacaoCaixa();
     }
   }catch(e){
     bancoPronto = true;
@@ -1622,6 +1670,11 @@ function abrirModalNuvem(){
   document.getElementById('nvQtdFunc').textContent  = (state.funcionarios||[]).length;
   document.getElementById('nvQtdFolha').textContent = nMeses;
   document.getElementById('nvQtdPonto').textContent = nPonto;
+  document.getElementById('nvQtdCaixa').textContent =
+    (state.recebimentos||[]).length + ' / ' + (state.retiradas||[]).length;
+  const fila = (typeof caixaFila !== 'undefined') ? caixaFila.length : 0;
+  document.getElementById('nvFilaCaixa').textContent = fila ? fila + ' (sobem quando a conexão voltar)' : 'nenhum';
+  document.getElementById('nvVersao').textContent = VERSAO_SISTEMA;
   const errWrap = document.getElementById('nvErroWrap');
   if(nuvemErro){ errWrap.style.display='block'; errWrap.textContent = 'Último erro: ' + nuvemErro; }
   else errWrap.style.display='none';
@@ -1643,6 +1696,7 @@ document.getElementById('btnBaixarNuvem').addEventListener('click', async ()=>{
     state = data;
     if(!state.mesAtual) state.mesAtual = mesAtualPadrao();
     gravarCache(); reconstruirTela();
+    await carregarCaixa(false);
     nuvemUltima = new Date(); statusNuvem('ok');
     document.getElementById('overlayNuvem').classList.remove('show');
     mostrarToast('Dados recarregados do banco');
@@ -1655,6 +1709,12 @@ document.getElementById('btnBaixarNuvem').addEventListener('click', async ()=>{
 document.getElementById('btnEnviarNuvem').addEventListener('click', async ()=>{
   if(!confirm('Enviar os dados deste navegador para o banco?\n\nO conteúdo que está no servidor será substituído por esta versão.')) return;
   clearTimeout(nuvemTimer); nuvemTimer = null;
+  /* No caixa o envio só acrescenta e atualiza registros por id — nunca apaga o que
+     outro computador lançou, porque cada registro tem linha própria. */
+  ['clientes','recebimentos','retiradas'].forEach(tipo=>{
+    (state[tipo] || []).forEach(obj=>{ if(obj && obj.id) enfileirarCaixa('gravar', tipo, obj.id, obj); });
+  });
+  await escoarFilaCaixa();
   await enviarParaNuvem();
   if(nuvemErro){ mostrarToast('Falha ao enviar: ' + nuvemErro); }
   else{
@@ -6929,8 +6989,10 @@ async function emitirDocumento(chave, modo){
 /* ============================= RECEBIMENTO DE CONTAS =============================
    Área nova do sistema, independente do RH: registra o que os clientes pagam das suas
    contas. O lançamento é sempre o mesmo gesto — nome do cliente, total da conta e o
-   que foi pago, distribuído entre as cinco modalidades (o cliente pode usar as cinco
-   no mesmo pagamento). A base de clientes não precisa ser cadastrada antes: todo nome
+   que foi pago, distribuído entre as modalidades de FORMAS_RECEBIMENTO (o cliente pode
+   usar todas no mesmo pagamento) — acrescentar uma modalidade nova é só entrar na lista,
+   que telas, filtros, totais e planilha saem dela. A base de clientes não precisa ser
+   cadastrada antes: todo nome
    digitado que ainda não existe entra na base ao registrar, e da próxima vez já aparece
    sugerido na busca.
 
@@ -6945,10 +7007,15 @@ async function emitirDocumento(chave, modo){
 
 const FORMAS_RECEBIMENTO = [
   {chave:'dinheiro',    rotulo:'Dinheiro',    icone:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>'},
-  {chave:'cartao',      rotulo:'Cartão',      icone:'<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>'},
+  /* multiplo: aceita mais de uma entrada no mesmo pagamento — é o cliente que passa
+     dois, três cartões de débito. O valor gravado em `cartao` continua sendo o total;
+     as parcelas ficam à parte, então nada no resto do sistema precisou mudar. */
+  {chave:'cartao',      rotulo:'Cartão',      multiplo:true, singular:'cartão', plural:'cartões',
+   icone:'<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>'},
   {chave:'pix',         rotulo:'Pix',         icone:'<path d="M12 2.5 21.5 12 12 21.5 2.5 12z"/>'},
   {chave:'senff',       rotulo:'Senff',       icone:'<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="15" x2="11" y2="15"/><line x1="2" y1="9" x2="22" y2="9"/>'},
-  {chave:'alimentacao', rotulo:'Alimentação', icone:'<path d="M6 3v7a2 2 0 0 0 4 0V3"/><line x1="8" y1="10" x2="8" y2="21"/><path d="M17 3c-1.4 1.6-2 3.2-2 5.2s.6 3 2 3 2-1 2-3S18.4 4.6 17 3z"/><line x1="17" y1="11" x2="17" y2="21"/>'}
+  {chave:'alimentacao', rotulo:'Alimentação', icone:'<path d="M6 3v7a2 2 0 0 0 4 0V3"/><line x1="8" y1="10" x2="8" y2="21"/><path d="M17 3c-1.4 1.6-2 3.2-2 5.2s.6 3 2 3 2-1 2-3S18.4 4.6 17 3z"/><line x1="17" y1="11" x2="17" y2="21"/>'},
+  {chave:'cheque',      rotulo:'Cheque',      icone:'<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="9.5" x2="13" y2="9.5"/><path d="M6 15c1.6-2.2 3.2 1.6 4.8-.6"/>'}
 ];
 
 function garantirBaseRecebimentos(){
@@ -6960,6 +7027,178 @@ garantirBaseRecebimentos();
 
 function novoIdRec(prefixo){
   return prefixo + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+
+/* ============================= SINCRONIZAÇÃO DO CAIXA =============================
+   O RH continua indo para o banco como um estado inteiro (rh_salvar_estado). O caixa
+   não pode: dois computadores lançando ao mesmo tempo se sobrescreviam — quem salvasse
+   por último apagava o lançamento do outro. Aqui cada recebimento, retirada e cliente
+   é uma linha própria nas tabelas caixa_*: gravar um não toca nos demais.
+
+   Três garantias:
+   1. Cache local na hora, banco em seguida. Se a internet cair, a gravação fica numa
+      fila no navegador e sobe sozinha quando voltar — o lançamento não se perde.
+   2. O banco avisa (realtime) assim que qualquer computador lança algo, e a tela se
+      atualiza sozinha. Rede de segurança: releitura a cada 30s e ao voltar para a aba.
+   3. As chaves clientes/recebimentos/retiradas saem do estado enviado ao rh_config,
+      senão o modelo antigo continuaria sobrescrevendo por cima. */
+const CAIXA_TABELAS = {
+  clientes:     {tabela:'caixa_clientes',     linha:(o)=> ({id:o.id, nome:o.nome||'', dados:o})},
+  recebimentos: {tabela:'caixa_recebimentos', linha:(o)=> ({id:o.id, data:o.data||null, cliente_id:o.clienteId||null, dados:o})},
+  retiradas:    {tabela:'caixa_retiradas',    linha:(o)=> ({id:o.id, data:o.data||null, dados:o})}
+};
+const LS_FILA_CAIXA = 'rh_caixa_fila';
+let caixaFila = [];            /* gravações que ainda não chegaram ao banco */
+let caixaEscoando = false;
+let caixaLendo = false;
+let caixaTimerLeitura = null;
+let caixaCanal = null;
+
+try{ caixaFila = JSON.parse(localStorage.getItem(LS_FILA_CAIXA) || '[]'); }catch(e){ caixaFila = []; }
+function gravarFilaCaixa(){
+  try{ localStorage.setItem(LS_FILA_CAIXA, JSON.stringify(caixaFila)); }catch(e){}
+}
+
+/* A última ação sobre um registro manda: editar e apagar em seguida não briga na fila. */
+function enfileirarCaixa(acao, tipo, id, obj){
+  caixaFila = caixaFila.filter(p=> !(p.tipo === tipo && p.id === id));
+  caixaFila.push({acao, tipo, id, obj: obj || null});
+  gravarFilaCaixa();
+}
+
+async function escoarFilaCaixa(){
+  if(!db || !caixaFila.length) return true;
+  /* Dois lançamentos seguidos (o cliente novo e o recebimento dele) chamariam o escoamento
+     ao mesmo tempo e mandariam a mesma linha duas vezes — uma vez basta. */
+  if(caixaEscoando) return true;
+  caixaEscoando = true;
+  try{
+    return await escoarFilaCaixaAgora();
+  }finally{
+    caixaEscoando = false;
+  }
+}
+
+/* Vai esvaziando a fila do começo: o que for enfileirado durante o envio entra na mesma
+   passagem, então gravação encadeada (cliente novo + recebimento dele) sobe junta. */
+async function escoarFilaCaixaAgora(){
+  while(caixaFila.length){
+    const p = caixaFila[0];
+    const t = CAIXA_TABELAS[p.tipo];
+    try{
+      let resp;
+      if(p.acao === 'apagar') resp = await db.from(t.tabela).delete().eq('id', p.id);
+      else resp = await db.from(t.tabela).upsert(Object.assign(t.linha(p.obj), {atualizado_em: new Date().toISOString()}));
+      if(resp.error) throw resp.error;
+      caixaFila = caixaFila.filter(x=> x !== p);
+      gravarFilaCaixa();
+    }catch(e){
+      nuvemErro = e.message || String(e);
+      statusNuvem('erro', 'Sem conexão');
+      return false;
+    }
+  }
+  statusNuvem('ok');
+  return true;
+}
+
+async function salvarNoCaixa(tipo, obj){
+  gravarCache();
+  enfileirarCaixa('gravar', tipo, obj.id, obj);
+  statusNuvem('pendente');
+  const ok = await escoarFilaCaixa();
+  if(!ok) mostrarToast('Sem conexão com o banco — o lançamento ficou guardado e sobe sozinho quando voltar');
+}
+
+async function apagarDoCaixa(tipo, id){
+  gravarCache();
+  enfileirarCaixa('apagar', tipo, id, null);
+  statusNuvem('pendente');
+  const ok = await escoarFilaCaixa();
+  if(!ok) mostrarToast('Sem conexão com o banco — a exclusão sobe sozinha quando voltar');
+}
+
+function assinaturaCaixa(){
+  return JSON.stringify([state.clientes, state.recebimentos, state.retiradas]);
+}
+
+function renderCaixaAtual(){
+  if(state.abaAtual === 'recLancar')    renderUltimosRec();
+  if(state.abaAtual === 'recRetirada')  renderUltimasRet();
+  if(state.abaAtual === 'recClientes')  renderClientes();
+  if(state.abaAtual === 'recHistorico') renderHistorico();
+  if(typeof atualizarFichaRec === 'function' && state.abaAtual === 'recLancar') atualizarFichaRec();
+}
+
+async function carregarCaixa(avisar){
+  if(!db || caixaLendo) return;
+  caixaLendo = true;
+  try{
+    await escoarFilaCaixa();   /* o que este navegador deve ao banco vai antes de reler */
+    const [c, r, s] = await Promise.all([
+      db.from('caixa_clientes').select('dados'),
+      db.from('caixa_recebimentos').select('dados'),
+      db.from('caixa_retiradas').select('dados')
+    ]);
+    const err = c.error || r.error || s.error;
+    if(err) throw err;
+    garantirBaseRecebimentos();
+    const antes = assinaturaCaixa();
+    state.clientes     = (c.data || []).map(x=> x.dados).filter(Boolean);
+    state.recebimentos = (r.data || []).map(x=> x.dados).filter(Boolean);
+    state.retiradas    = (s.data || []).map(x=> x.dados).filter(Boolean);
+    gravarCache();
+    if(antes !== assinaturaCaixa()){
+      renderCaixaAtual();
+      if(avisar) mostrarToast('Caixa atualizado com lançamento de outro computador');
+    }
+  }catch(e){
+    nuvemErro = e.message || String(e);
+  }finally{
+    caixaLendo = false;
+  }
+}
+
+/* Registros que ficaram no formato antigo (dentro do rh_config) sobem para as tabelas
+   novas na primeira abertura. É por id, então repetir não duplica nada — e cobre o caso
+   de um computador ainda estar com a versão antiga do arquivo e reenviar os dados. */
+async function migrarCaixaAntigo(legado){
+  if(!db || !legado) return;
+  let subiram = 0;
+  for(const tipo of ['clientes','recebimentos','retiradas']){
+    const atuais = {};
+    (state[tipo] || []).forEach(x=> atuais[x.id] = true);
+    for(const obj of (legado[tipo] || [])){
+      if(!obj || !obj.id || atuais[obj.id]) continue;
+      enfileirarCaixa('gravar', tipo, obj.id, obj);
+      subiram++;
+    }
+  }
+  if(!subiram) return;
+  if(await escoarFilaCaixa()){
+    await carregarCaixa(false);
+    mostrarToast(subiram + ' registro(s) do caixa migrados para o novo formato');
+  }
+}
+
+function agendarLeituraCaixa(){
+  clearTimeout(caixaTimerLeitura);
+  caixaTimerLeitura = setTimeout(()=> carregarCaixa(true), 400);
+}
+
+let caixaAtualizacaoLigada = false;
+function ligarAtualizacaoCaixa(){
+  if(!db || caixaAtualizacaoLigada) return;
+  caixaAtualizacaoLigada = true;
+  try{
+    caixaCanal = db.channel('caixa-administrativo')
+      .on('postgres_changes', {event:'*', schema:'public', table:'caixa_clientes'},     agendarLeituraCaixa)
+      .on('postgres_changes', {event:'*', schema:'public', table:'caixa_recebimentos'}, agendarLeituraCaixa)
+      .on('postgres_changes', {event:'*', schema:'public', table:'caixa_retiradas'},    agendarLeituraCaixa)
+      .subscribe();
+  }catch(e){ /* sem realtime o sistema continua: a releitura periódica cobre */ }
+  setInterval(()=> carregarCaixa(true), 30000);
+  window.addEventListener('focus', ()=> carregarCaixa(true));
 }
 function hojeISO(){
   const d = new Date();
@@ -6975,6 +7214,28 @@ function escHtml(s){
     .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
+/* No balcão ninguém digita com maiúscula, e a base fica com "maria de souza" ao lado de
+   "MARIA DE SOUZA". O nome é arrumado sozinho ao gravar: cada palavra com inicial
+   maiúscula, menos as ligações (de, da, dos…), que em nome próprio vão em minúscula.
+   Vale para hífen e apóstrofo — "maria-clara d'avila" vira "Maria-Clara D'Avila". */
+const LIGACOES_NOME = ['de','da','do','das','dos','e','di','du','del','dello','della','van','von','y'];
+function nomeProprio(txt){
+  const s = String(txt===null||txt===undefined ? '' : txt).trim().replace(/\s+/g,' ').toLocaleLowerCase('pt-BR');
+  if(!s) return '';
+  return s.split(' ').map((palavra, i)=>{
+    if(i > 0 && LIGACOES_NOME.indexOf(palavra) >= 0) return palavra;
+    return palavra.replace(/(^|[-'’.])([a-zà-ÿ])/g, (m, sep, letra)=> sep + letra.toLocaleUpperCase('pt-BR'));
+  }).join(' ');
+}
+
+/* Só entra em ação quando o nome veio inteiro em minúsculas — que é o caso do balcão.
+   Se a pessoa capitalizou alguma coisa, o que ela escreveu é respeitado: nomes com
+   sigla ou grafia própria ("Bar do Zé JB", "MARIA") não são reescritos por conta. */
+function arrumarNome(txt){
+  const s = String(txt===null||txt===undefined ? '' : txt).trim().replace(/\s+/g,' ');
+  return /[A-ZÀ-ÖØ-Þ]/.test(s) ? s : nomeProprio(s);
+}
+
 function clientePorId(id){ return (state.clientes||[]).find(c=> c.id===id) || null; }
 function clientePorNome(nome){
   const n = norm(nome);
@@ -6985,7 +7246,7 @@ function nomeCliente(id){
   const c = clientePorId(id);
   return c ? c.nome : 'Cliente removido';
 }
-/* Quanto entrou no caixa neste lançamento: a soma das cinco modalidades. */
+/* Quanto entrou no caixa neste lançamento: a soma de todas as modalidades. */
 function pagoDoRecebimento(r){
   if(!r) return 0;
   return FORMAS_RECEBIMENTO.reduce((s,f)=> s + toNum(r[f.chave]), 0);
@@ -7046,15 +7307,26 @@ function alternarBaixaSg(id){
     r.sgBaixadoPor = document.getElementById('usuarioLogado').textContent || '';
     mostrarToast('Baixa no SG confirmada — ' + nomeCliente(r.clienteId));
   }
-  salvarEstado();
+  salvarNoCaixa('recebimentos', r);
   renderUltimosRec();
   if(state.abaAtual === 'recHistorico') renderHistorico();
+}
+
+/* Parcelas de uma modalidade de várias entradas (os cartões daquele pagamento).
+   Quando o cliente usou um só, não existe lista: o valor está direto em r[chave]. */
+function parcelasDe(r, chave){
+  const p = r && r.parcelas && r.parcelas[chave];
+  if(!Array.isArray(p)) return [];
+  return p.map(v=> r2(toNum(v))).filter(v=> v > 0);
 }
 
 function resumoFormas(r){
   const usadas = FORMAS_RECEBIMENTO.filter(f=> toNum(r[f.chave]) > 0);
   if(!usadas.length) return '—';
-  return usadas.map(f=> f.rotulo + ' ' + fmtMoeda(toNum(r[f.chave]))).join(' · ');
+  return usadas.map(f=>{
+    const n = parcelasDe(r, f.chave).length;
+    return f.rotulo + ' ' + fmtMoeda(toNum(r[f.chave])) + (n > 1 ? ' (' + n + ' ' + f.plural + ')' : '');
+  }).join(' · ');
 }
 
 /* --------------------------------------------------------------- tela de lançamento */
@@ -7069,30 +7341,96 @@ function montarModsRec(){
   document.getElementById('recMods').innerHTML = FORMAS_RECEBIMENTO.map(f=>
     '<div class="rec-mod" data-mod="'+f.chave+'">' +
       '<div class="rm-topo"><svg viewBox="0 0 24 24">'+f.icone+'</svg>'+f.rotulo+'</div>' +
-      '<input type="text" inputmode="decimal" id="recPg_'+f.chave+'" data-forma="'+f.chave+'" placeholder="0,00">' +
+      (f.multiplo
+        ? '<div class="rm-linhas" data-linhas="'+f.chave+'"></div>' +
+          '<div class="rm-soma" data-soma="'+f.chave+'"></div>' +
+          '<button type="button" class="rm-add" data-add="'+f.chave+'">+ outro '+f.singular+'</button>'
+        : '<input type="text" inputmode="decimal" id="recPg_'+f.chave+'" data-forma="'+f.chave+'" placeholder="0,00">') +
       '<button type="button" class="rm-resto" data-resto="'+f.chave+'">lançar o restante</button>' +
     '</div>'
   ).join('');
+  FORMAS_RECEBIMENTO.filter(f=> f.multiplo).forEach(f=> montarLinhasMod(f.chave, ['']));
+
   document.getElementById('recMods').addEventListener('input', (e)=>{
-    if(e.target.dataset.forma) atualizarSomatorioRec();
+    if(e.target.dataset.forma || e.target.dataset.formaItem) atualizarSomatorioRec();
   });
   document.getElementById('recMods').addEventListener('click', (e)=>{
+    const bAdd = e.target.closest('button[data-add]');
+    if(bAdd){
+      const chave = bAdd.dataset.add;
+      const novas = lerLinhasMod(chave).concat(['']);
+      montarLinhasMod(chave, novas);
+      const campos = camposDaMod(chave);
+      campos[campos.length-1].focus();
+      atualizarSomatorioRec();
+      return;
+    }
+    const bTirar = e.target.closest('button[data-tirar]');
+    if(bTirar){
+      const chave = bTirar.dataset.tirar;
+      const i = parseInt(bTirar.dataset.indice, 10);
+      const restantes = lerLinhasMod(chave).filter((v, k)=> k !== i);
+      montarLinhasMod(chave, restantes.length ? restantes : ['']);
+      atualizarSomatorioRec();
+      return;
+    }
     const btn = e.target.closest('button[data-resto]');
     if(!btn) return;
-    const alvo = document.getElementById('recPg_' + btn.dataset.resto);
-    const outras = FORMAS_RECEBIMENTO.reduce((s,f)=>
-      s + (f.chave===btn.dataset.resto ? 0 : toNum(document.getElementById('recPg_'+f.chave).value)), 0);
+    const chave = btn.dataset.resto;
+    const outras = FORMAS_RECEBIMENTO.reduce((s,f)=> s + (f.chave===chave ? 0 : valorDaMod(f.chave)), 0);
     const resto = r2(toNum(document.getElementById('recTotal').value) - outras);
-    alvo.value = resto > 0 ? resto.toFixed(2).replace('.',',') : '';
+    const texto = resto > 0 ? resto.toFixed(2).replace('.',',') : '';
+    const f = FORMAS_RECEBIMENTO.find(x=> x.chave===chave);
+    let alvo;
+    if(f.multiplo){
+      /* Numa modalidade de várias linhas o restante vai para a primeira que estiver
+         vazia — ou para a última, se todas já tiverem valor. */
+      const campos = camposDaMod(chave);
+      alvo = campos.find(c=> !toNum(c.value)) || campos[campos.length-1];
+    }else{
+      alvo = document.getElementById('recPg_'+chave);
+    }
+    alvo.value = texto;
     atualizarSomatorioRec();
     alvo.focus();
   });
   recModsMontadas = true;
 }
 
+/* --- modalidades de várias entradas (cartão) --- */
+function camposDaMod(chave){
+  return Array.from(document.querySelectorAll('input[data-forma-item="'+chave+'"]'));
+}
+function lerLinhasMod(chave){
+  return camposDaMod(chave).map(c=> c.value);
+}
+function montarLinhasMod(chave, valores){
+  const caixa = document.querySelector('.rm-linhas[data-linhas="'+chave+'"]');
+  if(!caixa) return;
+  const lista = (valores && valores.length) ? valores : [''];
+  const varias = lista.length > 1;
+  caixa.innerHTML = lista.map((v, i)=>{
+    const texto = (v === '' || v === null || v === undefined) ? ''
+      : (toNum(v) ? toNum(v).toFixed(2).replace('.',',') : '');
+    return '<div class="rm-linha">' +
+      (varias ? '<span class="rm-num">'+(i+1)+'</span>' : '') +
+      '<input type="text" inputmode="decimal" data-forma-item="'+chave+'" value="'+texto+'" placeholder="0,00">' +
+      (varias ? '<button type="button" class="rm-tirar" data-tirar="'+chave+'" data-indice="'+i+'" ' +
+                'title="Tirar esta linha">×</button>' : '') +
+      '</div>';
+  }).join('');
+}
+/* Total da modalidade: a soma das linhas, quando ela tem linhas; senão o campo único. */
+function valorDaMod(chave){
+  const campos = camposDaMod(chave);
+  if(campos.length) return r2(campos.reduce((s,c)=> s + toNum(c.value), 0));
+  const unico = document.getElementById('recPg_'+chave);
+  return unico ? r2(toNum(unico.value)) : 0;
+}
+
 function valoresFormasDoForm(){
   const v = {};
-  FORMAS_RECEBIMENTO.forEach(f=> v[f.chave] = r2(toNum(document.getElementById('recPg_'+f.chave).value)));
+  FORMAS_RECEBIMENTO.forEach(f=> v[f.chave] = valorDaMod(f.chave));
   return v;
 }
 
@@ -7108,6 +7446,11 @@ function atualizarSomatorioRec(){
     cx.classList.toggle('preenchida', formas[f.chave] > 0);
     const resto = r2(total - (pago - formas[f.chave]));
     cx.querySelector('.rm-resto').classList.toggle('mostra', total > 0 && resto > 0.004 && formas[f.chave] !== resto);
+    if(f.multiplo){
+      const preenchidas = lerLinhasMod(f.chave).filter(v=> toNum(v) > 0).length;
+      cx.querySelector('.rm-soma[data-soma="'+f.chave+'"]').textContent =
+        preenchidas > 1 ? preenchidas + ' ' + f.plural + ' · ' + fmtMoeda(formas[f.chave]) : '';
+    }
   });
 
   let blocoDif;
@@ -7241,6 +7584,13 @@ function ligarBuscaCliente(){
     atualizarFichaRec();
   });
   inp.addEventListener('focus', abrirSugRec);
+  /* Ao sair do campo o nome digitado já aparece arrumado, para o operador ver como vai
+     ficar gravado. Cliente escolhido na lista não é mexido: ali o nome é o da base. */
+  inp.addEventListener('blur', ()=>{
+    if(recClienteSel) return;
+    const arrumado = arrumarNome(inp.value);
+    if(arrumado !== inp.value) inp.value = arrumado;
+  });
   inp.addEventListener('keydown', (e)=>{
     const n = recSugLista.length;
     if(e.key === 'ArrowDown' && n){ e.preventDefault(); recSugIndice = (recSugIndice+1) % n; marcarSugRec(recSugIndice); }
@@ -7275,7 +7625,10 @@ function limparFormRec(manterCliente){
   document.getElementById('recTotal').value = '';
   document.getElementById('recObs').value = '';
   document.getElementById('recData').value = hojeISO();
-  FORMAS_RECEBIMENTO.forEach(f=> document.getElementById('recPg_'+f.chave).value = '');
+  FORMAS_RECEBIMENTO.forEach(f=>{
+    if(f.multiplo) montarLinhasMod(f.chave, ['']);
+    else document.getElementById('recPg_'+f.chave).value = '';
+  });
   document.getElementById('recAviso').textContent = '';
   atualizarFichaRec();
 }
@@ -7325,7 +7678,7 @@ function renderUltimosRec(){
 function salvarRecebimento(){
   garantirBaseRecebimentos();
   const aviso = document.getElementById('recAviso');
-  const nome = document.getElementById('recCliente').value.trim();
+  const nome = arrumarNome(document.getElementById('recCliente').value);
   const total = r2(toNum(document.getElementById('recTotal').value));
   const formas = valoresFormasDoForm();
   const pago = r2(FORMAS_RECEBIMENTO.reduce((s,f)=> s + formas[f.chave], 0));
@@ -7352,25 +7705,37 @@ function salvarRecebimento(){
     obs: document.getElementById('recObs').value.trim()
   };
   FORMAS_RECEBIMENTO.forEach(f=> dados[f.chave] = formas[f.chave]);
+  /* Guarda o detalhe só quando houve mais de uma entrada na modalidade — com um cartão
+     só, o valor em `cartao` já diz tudo e a lista seria ruído. */
+  const parcelas = {};
+  FORMAS_RECEBIMENTO.filter(f=> f.multiplo).forEach(f=>{
+    const vals = lerLinhasMod(f.chave).map(v=> r2(toNum(v))).filter(v=> v > 0);
+    if(vals.length > 1) parcelas[f.chave] = vals;
+  });
+  dados.parcelas = Object.keys(parcelas).length ? parcelas : null;
+
+  if(novoCadastro) salvarNoCaixa('clientes', cli);
 
   if(recEditandoId){
     const r = (state.recebimentos||[]).find(x=> x.id===recEditandoId);
     if(!r){ mostrarToast('O lançamento não existe mais'); limparFormRec(); return; }
     Object.assign(r, dados, { alteradoEm: new Date().toISOString() });
+    salvarNoCaixa('recebimentos', r);
     mostrarToast('Recebimento de ' + cli.nome + ' corrigido');
   }else{
-    state.recebimentos.push(Object.assign({
+    const novo = Object.assign({
       id: novoIdRec('r_'),
       criadoEm: new Date().toISOString(),
       usuario: document.getElementById('usuarioLogado').textContent || ''
-    }, dados));
+    }, dados);
+    state.recebimentos.push(novo);
+    salvarNoCaixa('recebimentos', novo);
     const dif = r2(total - pago);
     mostrarToast('Recebido ' + fmtMoeda(pago) + ' de ' + cli.nome +
       (dif > 0.004 ? ' — ficou devendo ' + fmtMoeda(dif) : '') +
       (novoCadastro ? ' (cliente cadastrado)' : ''));
   }
 
-  salvarEstado();
   limparFormRec();
   renderUltimosRec();
   document.getElementById('recCliente').focus();
@@ -7388,7 +7753,12 @@ function editarRecebimento(id){
   document.getElementById('recObs').value = r.obs || '';
   FORMAS_RECEBIMENTO.forEach(f=>{
     const v = toNum(r[f.chave]);
-    document.getElementById('recPg_'+f.chave).value = v ? v.toFixed(2).replace('.',',') : '';
+    if(f.multiplo){
+      const p = parcelasDe(r, f.chave);
+      montarLinhasMod(f.chave, p.length ? p : [v || '']);
+    }else{
+      document.getElementById('recPg_'+f.chave).value = v ? v.toFixed(2).replace('.',',') : '';
+    }
   });
   document.getElementById('recEditandoTxt').textContent =
     'Corrigindo o recebimento de ' + nomeCliente(r.clienteId) + ' de ' + dataBR(r.data) + '.';
@@ -7405,7 +7775,7 @@ function excluirRecebimento(id){
     'Valor pago: ' + fmtMoeda(pagoDoRecebimento(r)) + '. O saldo do cliente é recalculado.')) return;
   state.recebimentos = (state.recebimentos||[]).filter(x=> x.id!==id);
   if(recEditandoId === id) limparFormRec();
-  salvarEstado();
+  apagarDoCaixa('recebimentos', id);
   renderUltimosRec();
   if(state.abaAtual === 'recClientes') renderClientes();
   if(state.abaAtual === 'recHistorico') renderHistorico();
@@ -7525,17 +7895,19 @@ function salvarRetirada(){
     const x = (state.retiradas||[]).find(r=> r.id===retEditandoId);
     if(!x){ mostrarToast('A retirada não existe mais'); limparFormRet(); return; }
     Object.assign(x, dados, { alteradoEm: new Date().toISOString() });
+    salvarNoCaixa('retiradas', x);
     mostrarToast('Retirada corrigida');
   }else{
-    state.retiradas.push(Object.assign({
+    const nova = Object.assign({
       id: novoIdRec('s_'),
       criadoEm: new Date().toISOString(),
       usuario: document.getElementById('usuarioLogado').textContent || ''
-    }, dados));
+    }, dados);
+    state.retiradas.push(nova);
+    salvarNoCaixa('retiradas', nova);
     mostrarToast('Retirada de ' + fmtMoeda(valor) + ' registrada');
   }
 
-  salvarEstado();
   limparFormRet();
   renderUltimasRet();
   if(state.abaAtual === 'recHistorico') renderHistorico();
@@ -7564,7 +7936,7 @@ function excluirRetirada(id){
     'Motivo: ' + x.motivo)) return;
   state.retiradas = (state.retiradas||[]).filter(r=> r.id!==id);
   if(retEditandoId === id) limparFormRet();
-  salvarEstado();
+  apagarDoCaixa('retiradas', id);
   renderUltimasRet();
   if(state.abaAtual === 'recHistorico') renderHistorico();
   mostrarToast('Retirada excluída');
@@ -7715,8 +8087,9 @@ document.getElementById('btnCancelarCliente').addEventListener('click', fecharMo
 document.getElementById('formCliente').addEventListener('submit', (e)=>{
   e.preventDefault();
   garantirBaseRecebimentos();
-  const nome = document.getElementById('cliNome').value.trim();
+  const nome = arrumarNome(document.getElementById('cliNome').value);
   if(!nome) return;
+  document.getElementById('cliNome').value = nome;
   const repetido = clientePorNome(nome);
   if(repetido && repetido.id !== cliEditandoId){
     alert('Já existe um cliente com esse nome na base: ' + repetido.nome + '.');
@@ -7728,13 +8101,16 @@ document.getElementById('formCliente').addEventListener('submit', (e)=>{
     obs: document.getElementById('cliObs').value.trim()
   };
   if(cliEditandoId){
-    Object.assign(clientePorId(cliEditandoId), dados);
+    const c = clientePorId(cliEditandoId);
+    Object.assign(c, dados);
+    salvarNoCaixa('clientes', c);
     mostrarToast('Cliente atualizado');
   }else{
-    state.clientes.push(Object.assign({id:novoIdRec('c_'), criadoEm:new Date().toISOString()}, dados));
+    const novo = Object.assign({id:novoIdRec('c_'), criadoEm:new Date().toISOString()}, dados);
+    state.clientes.push(novo);
+    salvarNoCaixa('clientes', novo);
     mostrarToast('Cliente cadastrado');
   }
-  salvarEstado();
   fecharModalCliente();
   renderClientes();
   atualizarFichaRec();
@@ -7752,7 +8128,7 @@ document.getElementById('btnExcluirCliente').addEventListener('click', ()=>{
   }
   if(!confirm('Excluir o cliente ' + c.nome + ' da base?')) return;
   state.clientes = (state.clientes||[]).filter(x=> x.id!==c.id);
-  salvarEstado();
+  apagarDoCaixa('clientes', c.id);
   fecharModalCliente();
   renderClientes();
   mostrarToast('Cliente excluído');
@@ -7837,11 +8213,22 @@ function renderHistorico(){
     '<div class="kpi '+(sobrou<0?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Sobrou em caixa</div>' +
       '<div class="kpi-val">'+fmtMoeda(sobrou)+'</div>' +
       '<div class="kpi-sub">entradas menos retiradas</div></div>' +
-    FORMAS_RECEBIMENTO.map(f=>
-      '<div class="kpi mini kpi-info"><div class="kpi-rot">'+f.rotulo+'</div>' +
-      '<div class="kpi-val">'+fmtMoeda(r2(porForma[f.chave]))+'</div>' +
-      '<div class="kpi-sub">'+ (recebido>0 ? Math.round(porForma[f.chave]/recebido*100)+'% do que entrou' : 'sem movimento') +'</div></div>'
-    ).join('') +
+    FORMAS_RECEBIMENTO.map(f=>{
+      const bruto = r2(porForma[f.chave]);
+      /* A retirada sai sempre do dinheiro: o card do dinheiro mostra o que sobrou na
+         gaveta, não o que passou por ela. As outras modalidades não são tocadas. */
+      if(f.chave === 'dinheiro'){
+        const emCaixa = r2(bruto - saiu);
+        return '<div class="kpi mini '+(emCaixa < 0 ? 'kpi-alerta' : 'kpi-info')+'">' +
+          '<div class="kpi-rot">Dinheiro em caixa</div>' +
+          '<div class="kpi-val">'+fmtMoeda(emCaixa)+'</div>' +
+          '<div class="kpi-sub">'+fmtMoeda(bruto)+' recebido' +
+            (saiu > 0 ? ' menos '+fmtMoeda(saiu)+' retirado' : '') + '</div></div>';
+      }
+      return '<div class="kpi mini kpi-info"><div class="kpi-rot">'+f.rotulo+'</div>' +
+        '<div class="kpi-val">'+fmtMoeda(bruto)+'</div>' +
+        '<div class="kpi-sub">'+ (recebido>0 ? Math.round(bruto/recebido*100)+'% do que entrou' : 'sem movimento') +'</div></div>';
+    }).join('') +
     '<div class="kpi '+(pendentesSg.length?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Pendente de baixa no SG</div>' +
       '<div class="kpi-val">'+pendentesSg.length+'</div>' +
       '<div class="kpi-sub">'+ (pendentesSg.length
@@ -7881,7 +8268,12 @@ function renderHistorico(){
         '<td class="esq"><span class="rec-cli-nome">'+escHtml(nomeCliente(r.clienteId))+'</span>' +
           (r.obs ? '<div class="rec-mini">'+escHtml(r.obs)+'</div>' : '') + '</td>' +
         '<td>'+fmtMoeda(toNum(r.total))+'</td>' +
-        FORMAS_RECEBIMENTO.map(f=> '<td>'+(toNum(r[f.chave]) ? fmtMoeda(toNum(r[f.chave])) : '—')+'</td>').join('') +
+        FORMAS_RECEBIMENTO.map(f=>{
+          if(!toNum(r[f.chave])) return '<td>—</td>';
+          const p = parcelasDe(r, f.chave);
+          return '<td>'+fmtMoeda(toNum(r[f.chave])) +
+            (p.length > 1 ? '<div class="rec-mini">'+p.map(v=> fmtMoeda(v)).join(' + ')+'</div>' : '') + '</td>';
+        }).join('') +
         '<td><b>'+fmtMoeda(pagoDoRecebimento(r))+'</b></td>' +
         '<td><span class="rec-tag '+sit.classe+'">'+sit.rot+'</span>' +
           (dif>0.004 ? '<div class="rec-mini">falta '+fmtMoeda(dif)+'</div>' : '') + '</td>' +
@@ -7916,12 +8308,18 @@ document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=
   if(!doMes.length && !retMes.length){ mostrarToast('Nenhum movimento de caixa em ' + mesLabel(mes)); return; }
 
   const linhas = [['CONTROLE DE CAIXA ADMINISTRATIVO — ' + mesLabel(mes)], []];
+  const multiplas = FORMAS_RECEBIMENTO.filter(f=> f.multiplo);
   linhas.push(['Data','Cliente','Total da conta'].concat(FORMAS_RECEBIMENTO.map(f=> f.rotulo))
+    .concat(multiplas.map(f=> f.plural.charAt(0).toUpperCase()+f.plural.slice(1)+' (detalhe)'))
     .concat(['Total pago','Diferença','Situação','Baixa no SG','Observação']));
   doMes.forEach(r=>{
     const pago = pagoDoRecebimento(r);
     linhas.push([dataBR(r.data), nomeCliente(r.clienteId), r2(toNum(r.total))]
       .concat(FORMAS_RECEBIMENTO.map(f=> r2(toNum(r[f.chave]))))
+      .concat(multiplas.map(f=>{
+        const p = parcelasDe(r, f.chave);
+        return p.length > 1 ? p.map(v=> v.toFixed(2).replace('.',',')).join(' + ') : '';
+      }))
       .concat([r2(pago), r2(toNum(r.total)-pago), situacaoRecebimento(r).rot,
                baixaSgFeita(r) ? 'Baixado em ' + new Date(r.sgBaixadoEm).toLocaleDateString('pt-BR') : 'Pendente',
                r.obs||'']));
@@ -7929,11 +8327,13 @@ document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=
   const soma = (fn)=> r2(doMes.reduce((s,r)=> s + fn(r), 0));
   linhas.push(['TOTAL','', soma(r=> toNum(r.total))]
     .concat(FORMAS_RECEBIMENTO.map(f=> soma(r=> toNum(r[f.chave]))))
+    .concat(multiplas.map(()=> ''))
     .concat([soma(pagoDoRecebimento), soma(r=> toNum(r.total)-pagoDoRecebimento(r)), '',
              doMes.filter(r=> !baixaSgFeita(r)).length + ' pendente(s)', '']));
 
   const ws = XLSX.utils.aoa_to_sheet(linhas);
   ws['!cols'] = [{wch:12},{wch:32},{wch:15}].concat(FORMAS_RECEBIMENTO.map(()=> ({wch:13})))
+    .concat(multiplas.map(()=> ({wch:26})))
     .concat([{wch:13},{wch:13},{wch:13},{wch:20},{wch:30}]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Entradas');
@@ -7946,10 +8346,15 @@ document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=
   if(!retMes.length) linhasRet.push(['—','Nenhuma retirada neste mês','','']);
   linhasRet.push(['TOTAL RETIRADO','', saiu, '']);
   linhasRet.push([]);
+  const emDinheiro = r2(doMes.reduce((s,r)=> s + toNum(r.dinheiro), 0));
   linhasRet.push(['FECHAMENTO DO CAIXA']);
-  linhasRet.push(['Entrou', entrou]);
-  linhasRet.push(['Saiu', saiu]);
+  linhasRet.push(['Entrou (todas as modalidades)', entrou]);
+  linhasRet.push(['Saiu (retiradas, sempre em dinheiro)', saiu]);
   linhasRet.push(['Sobrou', r2(entrou - saiu)]);
+  linhasRet.push([]);
+  linhasRet.push(['Dinheiro recebido', emDinheiro]);
+  linhasRet.push(['Retiradas em dinheiro', saiu]);
+  linhasRet.push(['Dinheiro em caixa', r2(emDinheiro - saiu)]);
   const wsRet = XLSX.utils.aoa_to_sheet(linhasRet);
   wsRet['!cols'] = [{wch:18},{wch:44},{wch:14},{wch:22}];
   XLSX.utils.book_append_sheet(wb, wsRet, 'Retiradas');
@@ -7975,6 +8380,7 @@ document.getElementById('btnExportarClientes').addEventListener('click', ()=>{
 });
 
 /* ============================= INICIALIZAÇÃO ============================= */
+document.getElementById('rodapeVersao').textContent = 'Versão ' + VERSAO_SISTEMA;
 atualizarSalarioBaseComHistorico();
 popularSelectMes();
 renderLista();
