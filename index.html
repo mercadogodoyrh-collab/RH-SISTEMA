@@ -10,14 +10,19 @@
 <style>
   :root{
     --marca:#016d3c; --marca-esc:#014a29; --marca-cl:#e5f3ea;
-    --verde:#1f9d55; --vermelho:#c0392b; --cinza:#ffffff; --cinza-borda:#dde3e8;
+    /* Fundo levemente acinzentado: o branco puro na tela inteira cansa a vista de quem
+       passa o dia no sistema. Os cartões, as tabelas e os campos continuam brancos e é
+       o contraste entre eles e o fundo que separa as áreas — sem precisar de sombra
+       forte nem de borda grossa. */
+    --verde:#1f9d55; --vermelho:#c0392b; --cinza:#eef1f3; --cinza-borda:#e0e6e9;
+    --superficie:#ffffff;
     --texto:#26333d; --texto-fraco:#6b7a86;
   }
   *{box-sizing:border-box;}
   body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--cinza);color:var(--texto);}
-  header{background:#fff;color:var(--marca-esc);padding:14px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:2px solid var(--marca-cl);}
+  header{background:var(--superficie);color:var(--marca-esc);padding:13px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--cinza-borda);}
   header img{height:44px;width:44px;object-fit:contain;border-radius:8px;}
-  header h1{font-size:19px;margin:0;font-weight:700;white-space:nowrap;color:var(--marca-esc);}
+  header h1{font-size:17px;margin:0;font-weight:700;white-space:nowrap;color:var(--marca-esc);}
   .spacer{flex:1;}
   .toolbar{max-width:1180px;margin:18px auto 0;padding:0 20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
   .search-wrap{position:relative;flex:1;min-width:220px;}
@@ -37,8 +42,8 @@
   .tabela-header span:nth-child(3){text-align:right;}
   .tabela-header span:nth-child(4){text-align:right;}
   .grid{display:flex;flex-direction:column;gap:8px;}
-  .card{background:#fff;border:1px solid var(--cinza-borda);border-radius:10px;padding:12px 16px;cursor:pointer;transition:box-shadow .15s, border-color .15s;box-shadow:0 1px 4px rgba(20,50,80,.06);display:grid;grid-template-columns:2fr 1.6fr 1fr 110px;gap:16px;align-items:center;}
-  .card:hover{box-shadow:0 3px 10px rgba(20,50,80,.10);border-color:var(--marca);}
+  .card{background:#fff;border:1px solid var(--cinza-borda);border-radius:10px;padding:12px 16px;cursor:pointer;transition:border-color .15s;display:grid;grid-template-columns:2fr 1.6fr 1fr 110px;gap:16px;align-items:center;}
+  .card:hover{border-color:var(--marca);}
   .card .nome{font-weight:700;font-size:14.5px;margin-bottom:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
   .card .funcao{color:var(--texto-fraco);font-size:12px;}
   .card .col-valor{text-align:right;}
@@ -153,7 +158,7 @@
   .resumo-parcial .rp-valor.rp-desconto{color:var(--vermelho);}
   .liquido-box{background:var(--marca-cl);border:1px solid var(--marca);border-radius:10px;padding:13px 18px;margin:0 0 20px;display:flex;justify-content:space-between;align-items:center;}
   .liquido-box .lb-label{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--marca-esc);}
-  .liquido-box .lb-valor{font-size:22px;font-weight:800;color:var(--marca-esc);letter-spacing:-.01em;}
+  .liquido-box .lb-valor{font-size:18.5px;font-weight:800;color:var(--marca-esc);letter-spacing:-.01em;}
   .inss-sugestao{font-size:11px;color:var(--texto-fraco);margin-top:3px;}
   .inss-sugestao b{color:var(--marca-esc);}
   .encargos-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;background:#f6f9fa;border:1px solid var(--cinza-borda);border-radius:9px;padding:12px 14px;margin:6px 0 10px;}
@@ -247,16 +252,16 @@
 
   /* ============================= DASHBOARD (visão da diretoria) ============================= */
   .dash-topo{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin:4px 0 18px;}
-  .dash-topo h2{margin:0;font-size:20px;color:var(--marca-esc);}
+  .dash-topo h2{margin:0;font-size:17.5px;color:var(--marca-esc);}
   .dash-topo .dash-sub{font-size:12.5px;color:var(--texto-fraco);margin-top:4px;line-height:1.6;}
   .dash-secao{display:flex;align-items:baseline;gap:10px;margin:30px 0 12px;flex-wrap:wrap;}
   .dash-secao h3{margin:0;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--marca);}
   .dash-secao .dash-nota{font-size:11.5px;color:var(--texto-fraco);}
   .kpis-destaque{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:12px;}
   .kpi-big{background:#fff;border:1px solid var(--cinza-borda);border-top:4px solid var(--marca);border-radius:11px;
-    padding:15px 17px;box-shadow:0 1px 5px rgba(20,50,80,.06);}
+    padding:15px 17px;}
   .kpi-big .kb-rot{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--texto-fraco);}
-  .kpi-big .kb-val{font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--marca-esc);margin:6px 0 3px;}
+  .kpi-big .kb-val{font-size:21px;font-weight:800;letter-spacing:-.02em;color:var(--marca-esc);margin:6px 0 3px;}
   .kpi-big .kb-sub{font-size:11.5px;color:var(--texto-fraco);line-height:1.5;}
   .kpi-big.kb-neutro{border-top-color:#8fa3af;} .kpi-big.kb-neutro .kb-val{color:var(--texto);}
   .kpi-big.kb-alerta{border-top-color:#d68910;} .kpi-big.kb-alerta .kb-val{color:#b9770e;}
@@ -273,7 +278,7 @@
   .paineis.um{grid-template-columns:1fr;}
   @media(max-width:980px){.paineis{grid-template-columns:1fr;}}
   .painel{background:#fff;border:1px solid var(--cinza-borda);border-radius:11px;padding:16px 18px 18px;
-    box-shadow:0 1px 5px rgba(20,50,80,.05);}
+    }
   .painel h4{margin:0 0 3px;font-size:14px;color:var(--marca-esc);}
   .painel .p-sub{font-size:11.5px;color:var(--texto-fraco);margin-bottom:14px;line-height:1.5;}
 
@@ -336,7 +341,7 @@
   /* ============================= RELATÓRIOS ============================= */
   .rel-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px;}
   .rel-card{background:#fff;border:1px solid var(--cinza-borda);border-radius:11px;padding:16px 18px 16px;
-    box-shadow:0 1px 5px rgba(20,50,80,.05);display:flex;flex-direction:column;gap:10px;
+    display:flex;flex-direction:column;gap:10px;
     border-left:4px solid var(--marca);}
   .rel-card.rel-falha{border-left-color:var(--vermelho);}
   .rel-card.rel-alerta{border-left-color:#d68910;}
@@ -368,7 +373,7 @@
   .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px;}
   .kpi{background:#fff;border:1px solid var(--cinza-borda);border-left:4px solid var(--cinza-borda);border-radius:9px;padding:10px 12px;}
   .kpi .kpi-rot{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--texto-fraco);}
-  .kpi .kpi-val{font-size:20px;font-weight:700;color:var(--texto);margin:3px 0 1px;}
+  .kpi .kpi-val{font-size:17px;font-weight:700;color:var(--texto);margin:3px 0 1px;}
   .kpi .kpi-sub{font-size:10.5px;color:var(--texto-fraco);}
   .kpi.mini .kpi-val{font-size:16px;}
   .kpi.kpi-ok{border-left-color:var(--verde);} .kpi.kpi-ok .kpi-val{color:var(--verde);}
@@ -528,7 +533,7 @@
      distribui o que foi pago entre as modalidades. A base de clientes cresce
      sozinha — todo nome digitado que ainda não existe vira cadastro no ato. */
   .rec-form{background:#fff;border:1px solid var(--cinza-borda);border-radius:12px;padding:20px 22px 22px;
-    box-shadow:0 1px 4px rgba(20,50,80,.06);}
+    }
   .rec-form h3{margin:0 0 14px;font-size:15px;color:var(--marca-esc);}
   .rec-linha{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin-bottom:16px;align-items:start;}
   .rec-busca-wrap{position:relative;}
@@ -577,12 +582,14 @@
   .rec-mod .rm-tirar:hover{color:var(--vermelho);}
   .rec-mod .rm-add{display:block;background:none;border:none;padding:5px 0 0;font-family:inherit;font-size:10.5px;
     color:var(--marca);cursor:pointer;text-decoration:underline;}
+  .rec-mod .rm-nota{font-size:9.5px;color:var(--texto-fraco);line-height:1.3;margin:2px 0 -2px;}
+  .rec-mod.preenchida .rm-nota{color:var(--marca-esc);opacity:.75;}
   .rec-mod .rm-soma{font-size:10.5px;color:var(--texto-fraco);padding-top:3px;}
   .rec-mod.preenchida .rm-soma{color:var(--marca-esc);}
   .rec-somatorio{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;
     background:var(--marca-cl);border:1px solid var(--marca);border-radius:10px;padding:13px 17px;margin:16px 0 0;}
   .rec-somatorio .rs-bloco .rs-rot{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--marca-esc);opacity:.8;}
-  .rec-somatorio .rs-bloco .rs-val{font-size:21px;font-weight:800;letter-spacing:-.01em;color:var(--marca-esc);margin-top:2px;}
+  .rec-somatorio .rs-bloco .rs-val{font-size:17.5px;font-weight:800;letter-spacing:-.01em;color:var(--marca-esc);margin-top:2px;}
   .rec-somatorio .rs-bloco .rs-nota{font-size:10.5px;color:var(--texto-fraco);margin-top:1px;}
   .rec-somatorio .rs-bloco.rs-falta .rs-val{color:var(--vermelho);}
   .rec-somatorio .rs-bloco.rs-troco .rs-val{color:#b9770e;}
@@ -605,6 +612,45 @@
   .rec-sg:hover{border-color:var(--verde);color:var(--verde);background:#f3fbf6;}
   .rec-sg.ok{background:#e3f7ea;border-color:var(--verde);color:#137a3e;}
   .rec-sg.ok:hover{filter:brightness(.97);}
+  /* Botões de modalidade do Relatório: são o filtro e, ao mesmo tempo, o total de cada
+     forma no mês — é o número que a pessoa compara com o dinheiro físico da gaveta,
+     com os comprovantes de cartão e com os cheques na mão. */
+  .filtro-formas{display:flex;gap:10px;flex-wrap:wrap;margin:0 0 16px;}
+  .btn-forma{flex:1;min-width:152px;background:var(--superficie);border:1px solid var(--cinza-borda);border-radius:11px;
+    padding:12px 15px;cursor:pointer;font-family:inherit;text-align:left;transition:border-color .12s,background .12s;}
+  .btn-forma:hover{border-color:var(--marca);}
+  .btn-forma.ativa{border-color:var(--marca);background:var(--marca-cl);}
+  .btn-forma .bf-rot{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.04em;color:var(--texto-fraco);}
+  .btn-forma.ativa .bf-rot{color:var(--marca-esc);}
+  .btn-forma .bf-rot svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none;}
+  .btn-forma .bf-val{font-size:18.5px;font-weight:800;letter-spacing:-.02em;color:var(--marca-esc);margin:5px 0 2px;}
+  .btn-forma .bf-sub{font-size:11px;color:var(--texto-fraco);}
+  .conferencia{background:var(--marca-cl);border:1px solid var(--marca);border-radius:10px;padding:13px 17px;
+    margin:0 0 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+  .conferencia .cf-rot{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--marca-esc);}
+  .conferencia .cf-val{font-size:21px;font-weight:800;color:var(--marca-esc);letter-spacing:-.02em;}
+  .conferencia .cf-nota{font-size:12px;color:var(--texto-fraco);flex:1;min-width:180px;}
+  .tabela-ponto td.col-destaque, .tabela-ponto th.col-destaque{background:var(--marca-cl);font-weight:700;}
+
+  /* Cliente que passou do limite de débito: a linha inteira fica vermelha, em vermelho
+     cheio mesmo — ela existe para o operador bater o olho e bloquear a compra no SG,
+     então não pode passar despercebida no meio da lista. */
+  .tabela-ponto tbody tr.linha-devedor{background:var(--vermelho);}
+  .tabela-ponto tbody tr.linha-devedor:hover{background:#a5372a;}
+  .tabela-ponto tbody tr.linha-devedor td{color:#fff;font-weight:700;background:transparent;}
+  .tabela-ponto tbody tr.linha-devedor .rec-cli-nome{color:#fff;}
+  .tabela-ponto tbody tr.linha-devedor .rec-mini{color:rgba(255,255,255,.85);font-weight:400;}
+  .tag-bloqueio{display:inline-block;background:#fff;color:var(--vermelho);font-size:9.5px;font-weight:800;
+    padding:2px 7px;border-radius:20px;letter-spacing:.04em;white-space:nowrap;margin-left:7px;vertical-align:middle;}
+
+  /* Semáforo das férias: da esquerda (tranquilo) para a direita (a empresa já deve em dobro) */
+  .fer-tag{font-size:10.5px;padding:3px 9px;border-radius:20px;font-weight:700;white-space:nowrap;display:inline-block;}
+  .fer-tag.formacao{background:#eef3fd;color:#2c5aa0;}
+  .fer-tag.ok{background:#e3f7ea;color:var(--verde);}
+  .fer-tag.vencida{background:#fff8e6;color:#b9770e;}
+  .fer-tag.urgente{background:#fdecea;color:var(--vermelho);}
+  .fer-tag.dobro{background:var(--vermelho);color:#fff;}
   .rec-mini{font-size:11px;color:var(--texto-fraco);}
   .rec-cli-nome{font-weight:700;font-size:13.5px;color:var(--texto);}
   .rec-acoes-linha{display:flex;gap:6px;justify-content:flex-end;}
@@ -678,6 +724,11 @@
           <span class="bl-rotulo">Controle de Ponto</span>
           <span class="bl-sino" id="sinoPonto" style="display:none;">0</span>
         </button>
+        <button class="bl-item bl-filho" data-aba="ferias" title="Férias">
+          <svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="17" rx="2"/><line x1="3" y1="9.5" x2="21" y2="9.5"/><line x1="8" y1="2.5" x2="8" y2="6.5"/><line x1="16" y1="2.5" x2="16" y2="6.5"/><path d="M8.5 15.5l2.5 2.5 4.5-5"/></svg>
+          <span class="bl-rotulo">Férias</span>
+          <span class="bl-sino" id="sinoFerias" style="display:none;">0</span>
+        </button>
         <button class="bl-item bl-filho" data-aba="financeiro" title="Financeiro">
           <svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 6.5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
           <span class="bl-rotulo">Financeiro</span>
@@ -708,14 +759,18 @@
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
           <span class="bl-rotulo">Retirada de Caixa</span>
         </button>
+        <button class="bl-item bl-filho" data-aba="recLancamentos" title="Lançamentos">
+          <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3.5" y1="6" x2="3.51" y2="6"/><line x1="3.5" y1="12" x2="3.51" y2="12"/><line x1="3.5" y1="18" x2="3.51" y2="18"/></svg>
+          <span class="bl-rotulo">Lançamentos</span>
+        </button>
         <button class="bl-item bl-filho" data-aba="recClientes" title="Clientes">
           <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           <span class="bl-rotulo">Clientes</span>
           <span class="bl-sino bl-sino-grupo" id="sinoClientes" style="display:none;">0</span>
         </button>
-        <button class="bl-item bl-filho" data-aba="recHistorico" title="Histórico de Recebimentos">
-          <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3.5" y1="6" x2="3.51" y2="6"/><line x1="3.5" y1="12" x2="3.51" y2="12"/><line x1="3.5" y1="18" x2="3.51" y2="18"/></svg>
-          <span class="bl-rotulo">Histórico</span>
+        <button class="bl-item bl-filho" data-aba="recHistorico" title="Relatório de Caixa">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+          <span class="bl-rotulo">Relatório de Caixa</span>
         </button>
       </div>
     </div>
@@ -826,6 +881,116 @@
     </div>
   </main>
 </div>
+
+<div id="viewFerias" style="display:none;">
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="ferBusca" placeholder="Buscar colaborador nas férias...">
+    </div>
+    <select id="ferFiltro">
+      <option value="pendentes">Pendentes (não gozadas)</option>
+      <option value="todos">Todos os períodos</option>
+      <option value="dobro">Somente prazo estourado (dobro)</option>
+      <option value="vencidas">Somente vencidas</option>
+      <option value="avencer">Somente a vencer em 60 dias</option>
+      <option value="gozadas">Somente férias já gozadas</option>
+    </select>
+    <div class="spacer"></div>
+    <button class="btn btn-outline" id="btnExportarFerias">Exportar controle</button>
+    <button class="btn btn-primary" id="btnNovoFerias">+ Novo período aquisitivo</button>
+  </div>
+  <main>
+    <div class="kpis" id="ferKpis"></div>
+    <div class="lista-info" id="ferInfo"></div>
+    <div id="ferCorpo"></div>
+    <div class="regras-dica" id="ferNota"></div>
+  </main>
+</div>
+
+<!-- Modal do período de férias -->
+<div class="overlay" id="overlayFerias">
+  <div class="modal largo">
+    <button class="modal-close" id="fecharFerias">✕</button>
+    <h2 id="ferTitulo">Período de férias</h2>
+    <div class="sub" id="ferSub"></div>
+    <form id="formFerias">
+      <div class="secao-title">Período aquisitivo</div>
+      <div class="campo-row tres">
+        <div class="campo">
+          <label for="ferNome">Colaborador</label>
+          <input type="text" id="ferNome" list="listaColaboradores" required autocomplete="off">
+          <div class="campo-nota" id="ferVinculo"></div>
+        </div>
+        <div class="campo">
+          <label for="ferInicio">Início do período</label>
+          <input type="date" id="ferInicio" required>
+        </div>
+        <div class="campo">
+          <label for="ferFim">Fim do período</label>
+          <input type="date" id="ferFim">
+          <div class="campo-nota">Em branco, o sistema calcula 12 meses.</div>
+        </div>
+      </div>
+      <div class="rec-ficha" id="ferPrazos" style="margin-bottom:4px;"></div>
+
+      <div class="secao-title">Gozo das férias</div>
+      <div class="campo-row tres">
+        <div class="campo">
+          <label for="ferGozoInicio">Início do gozo</label>
+          <input type="date" id="ferGozoInicio">
+          <div class="campo-nota">Deixe em branco enquanto não houver data marcada.</div>
+        </div>
+        <div class="campo">
+          <label for="ferDias">Dias de férias</label>
+          <input type="number" id="ferDias" min="0" max="30" step="1" placeholder="30">
+        </div>
+        <div class="campo">
+          <label for="ferAbono">Dias vendidos (abono)</label>
+          <input type="number" id="ferAbono" min="0" max="10" step="1" placeholder="0">
+          <div class="campo-nota">Até 1/3 do período — no máximo 10 dias.</div>
+        </div>
+      </div>
+      <div class="campo-row tres">
+        <div class="campo">
+          <label for="ferBase">Salário base do cálculo</label>
+          <input type="text" inputmode="decimal" id="ferBase" placeholder="0,00">
+          <div class="campo-nota" id="ferBaseNota"></div>
+        </div>
+        <div class="campo">
+          <label for="ferMedias">Médias (extras, adicionais)</label>
+          <input type="text" inputmode="decimal" id="ferMedias" placeholder="0,00">
+          <div class="campo-nota">Somam à base, quando houver.</div>
+        </div>
+        <div class="campo">
+          <label for="ferPagoEm">Data do pagamento</label>
+          <input type="date" id="ferPagoEm">
+          <div class="campo-nota" id="ferPagoNota">Até 2 dias antes do início (art. 145).</div>
+        </div>
+      </div>
+      <div class="campo" style="margin-bottom:12px;">
+        <label style="display:flex;align-items:center;gap:8px;text-transform:none;font-size:13px;font-weight:400;">
+          <input type="checkbox" id="ferAdiantou13" style="width:auto;">
+          Pagar junto a 1ª parcela do 13º salário (art. 145 da CLT)
+        </label>
+      </div>
+      <div class="campo" style="margin-bottom:12px;">
+        <label for="ferObs">Observação</label>
+        <input type="text" id="ferObs" placeholder="Ex.: férias coletivas, acordo com o colaborador">
+      </div>
+
+      <div id="ferCalculo"></div>
+
+      <div class="acoes-modal">
+        <button type="button" class="btn btn-vermelho" id="btnExcluirFerias" style="display:none;">Excluir período</button>
+        <button type="button" class="btn btn-outline" id="btnReciboFerias">Gerar recibo em PDF</button>
+        <button type="button" class="btn btn-outline" id="btnCancelarFerias">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+<datalist id="listaColaboradores"></datalist>
 
 <div id="viewFinanceiro" style="display:none;">
   <div class="toolbar">
@@ -982,6 +1147,28 @@
   </main>
 </div>
 
+<!-- ===================== CAIXA ADMINISTRATIVO: lançamentos ===================== -->
+<div id="viewRecLancamentos" style="display:none;">
+  <div class="toolbar">
+    <div class="fin-titulo">Lançamentos de <span id="lanMesLabel"></span></div>
+    <select id="lanMes"></select>
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="lanBusca" placeholder="Buscar cliente...">
+    </div>
+    <select id="lanFiltro">
+      <option value="todos">Todos os lançamentos</option>
+      <option value="sg-pendente">Somente pendentes de baixa no SG</option>
+      <option value="sg-baixado">Somente já baixados no SG</option>
+      <option value="parciais">Somente pagamentos parciais</option>
+    </select>
+  </div>
+  <main>
+    <div class="lista-info" id="lanInfo"></div>
+    <div id="lanCorpo"></div>
+  </main>
+</div>
+
 <!-- ===================== CAIXA ADMINISTRATIVO: clientes ===================== -->
 <div id="viewRecClientes" style="display:none;">
   <div class="toolbar">
@@ -991,14 +1178,17 @@
     </div>
     <select id="cliFiltro">
       <option value="todos">Todos os clientes</option>
-      <option value="devendo">Somente com saldo em aberto</option>
-      <option value="quites">Somente quites</option>
+      <option value="bloqueio">Somente para bloquear no SG (acima de R$ 500)</option>
+      <option value="devendo">Somente quem está devendo</option>
+      <option value="quites">Somente quem está quite</option>
+      <option value="commov">Somente com recebimento lançado</option>
       <option value="semmov">Sem nenhum recebimento</option>
     </select>
     <select id="cliOrdem">
       <option value="alfabetica">Ordem alfabética</option>
-      <option value="maior-saldo">Maior saldo em aberto</option>
+      <option value="maior-saldo">Maior valor devido</option>
       <option value="maior-pago">Maior valor já pago</option>
+      <option value="maisrec">Mais recebimentos</option>
       <option value="recentes">Recebimento mais recente</option>
     </select>
     <div class="spacer"></div>
@@ -1019,16 +1209,10 @@
     <select id="hisMes"></select>
     <div class="search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="hisBusca" placeholder="Buscar cliente no histórico...">
+      <input type="text" id="hisBusca" placeholder="Buscar cliente no relatório...">
     </div>
     <select id="hisFiltro">
-      <option value="todos">Todas as modalidades</option>
-      <option value="dinheiro">Somente com dinheiro</option>
-      <option value="cartao">Somente com cartão</option>
-      <option value="pix">Somente com pix</option>
-      <option value="senff">Somente com Senff</option>
-      <option value="alimentacao">Somente com alimentação</option>
-      <option value="cheque">Somente com cheque</option>
+      <option value="todos">Todas as situações</option>
       <option value="parciais">Somente pagamentos parciais</option>
       <option value="sg-pendente">Somente pendentes de baixa no SG</option>
       <option value="sg-baixado">Somente já baixados no SG</option>
@@ -1037,6 +1221,8 @@
     <button class="btn btn-outline" id="btnExportarRecebimentos">Exportar movimento do caixa</button>
   </div>
   <main>
+    <div class="filtro-formas" id="hisFormas"></div>
+    <div id="hisConferencia"></div>
     <div class="kpis" id="hisKpis"></div>
     <div class="lista-info" id="hisInfo"></div>
     <div id="hisCorpo"></div>
@@ -1462,7 +1648,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '11/08/2026 · caixa em tempo real';
+const VERSAO_SISTEMA = '11/08/2026 · caixa em tempo real + férias';
 
 const SUPABASE_URL  = 'https://vieafcgghboxwhultile.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_HaMcgvr_2xmWYotvzetmVA_yscPz2eT';
@@ -1605,6 +1791,7 @@ function reconstruirTela(){
      migrações antes de qualquer cálculo aparecer na tela. */
   if(typeof migrarValoresPorColaborador === 'function') migrarValoresPorColaborador();
   if(typeof garantirBaseRecebimentos === 'function') garantirBaseRecebimentos();
+  if(typeof garantirBaseFerias === 'function') garantirBaseFerias();
   atualizarSalarioBaseComHistorico();
   if(typeof invalidarPonto === 'function') invalidarPonto();
   popularSelectMes();
@@ -2000,11 +2187,13 @@ document.getElementById('selMes').addEventListener('change', (e)=>{
    recarga do banco), para o painel e o financeiro não ficarem com números velhos. */
 function renderAbaAtual(){
   if(state.abaAtual === 'dashboard' && typeof renderDashboard === 'function') renderDashboard();
+  if(state.abaAtual === 'ferias' && typeof renderFerias === 'function') renderFerias();
   if(state.abaAtual === 'financeiro' && typeof renderFinanceiro === 'function') renderFinanceiro();
   if(state.abaAtual === 'balanco' && typeof renderBalanco === 'function') renderBalanco();
   if(state.abaAtual === 'relatorios' && typeof renderRelatorios === 'function') renderRelatorios();
   if(state.abaAtual === 'recLancar' && typeof renderRecLancar === 'function') renderRecLancar();
   if(state.abaAtual === 'recRetirada' && typeof renderRetiradas === 'function') renderRetiradas();
+  if(state.abaAtual === 'recLancamentos' && typeof renderLancamentos === 'function') renderLancamentos();
   if(state.abaAtual === 'recClientes' && typeof renderClientes === 'function') renderClientes();
   if(state.abaAtual === 'recHistorico' && typeof renderHistorico === 'function') renderHistorico();
   if(typeof atualizarSinoPonto === 'function') atualizarSinoPonto();
@@ -5956,13 +6145,15 @@ const ABAS = {
   dashboard:    {view:'viewDashboard',    titulo:'Painel',                     grupo:'rh'},
   folha:        {view:'viewFolha',        titulo:'Folha de Pagamento',         grupo:'rh'},
   ponto:        {view:'viewPonto',        titulo:'Controle de Ponto',          grupo:'rh'},
+  ferias:       {view:'viewFerias',       titulo:'Férias',                     grupo:'rh'},
   financeiro:   {view:'viewFinanceiro',   titulo:'Financeiro',                 grupo:'rh'},
   balanco:      {view:'viewBalanco',      titulo:'Balanço Mensal',             grupo:'rh'},
   relatorios:   {view:'viewRelatorios',   titulo:'Relatórios',                 grupo:'rh'},
   recLancar:    {view:'viewRecLancar',    titulo:'Lançar Recebimento',         grupo:'rec'},
   recRetirada:  {view:'viewRecRetirada',  titulo:'Retirada de Caixa',          grupo:'rec'},
+  recLancamentos:{view:'viewRecLancamentos', titulo:'Lançamentos',             grupo:'rec'},
   recClientes:  {view:'viewRecClientes',  titulo:'Clientes',                   grupo:'rec'},
-  recHistorico: {view:'viewRecHistorico', titulo:'Histórico do Caixa',         grupo:'rec'}
+  recHistorico: {view:'viewRecHistorico', titulo:'Relatório de Caixa',         grupo:'rec'}
 };
 
 /* Sanfona: abrir uma área fecha a outra, para a barra não virar uma lista comprida. */
@@ -5998,11 +6189,13 @@ function trocarAba(aba){
   abrirGrupo(ABAS[aba].grupo);
   if(aba==='dashboard') renderDashboard();
   if(aba==='ponto') renderPonto();
+  if(aba==='ferias') renderFerias();
   if(aba==='financeiro') renderFinanceiro();
   if(aba==='balanco') renderBalanco();
   if(aba==='relatorios') renderRelatorios();
   if(aba==='recLancar') renderRecLancar();
   if(aba==='recRetirada') renderRetiradas();
+  if(aba==='recLancamentos') renderLancamentos();
   if(aba==='recClientes') renderClientes();
   if(aba==='recHistorico') renderHistorico();
   atualizarSinoPonto();
@@ -6060,14 +6253,16 @@ function atualizarSinoPonto(){
   const rotulo = n > 99 ? '99+' : String(n);
   sino.style.display = n ? '' : 'none';
   sino.textContent = rotulo;
-  /* Com o dropdown do RH fechado o aviso do ponto ficaria escondido: o cabeçalho
-     da área assume o contador enquanto o grupo estiver recolhido. */
+  /* Com o dropdown do RH fechado os avisos ficariam escondidos: o cabeçalho da área
+     assume o contador — ponto e férias somados — enquanto o grupo estiver recolhido. */
+  const nFerias = (typeof atualizarSinoFerias === 'function') ? (atualizarSinoFerias() || 0) : 0;
   const sinoGrupo = document.getElementById('sinoGrupoRh');
   if(sinoGrupo){
     const grupoRh = document.querySelector('.bl-grupo[data-grupo="rh"]');
     const fechado = grupoRh && !grupoRh.classList.contains('aberto');
-    sinoGrupo.style.display = (n && fechado) ? '' : 'none';
-    sinoGrupo.textContent = rotulo;
+    const total = n + nFerias;
+    sinoGrupo.style.display = (total && fechado) ? '' : 'none';
+    sinoGrupo.textContent = total > 99 ? '99+' : String(total);
   }
 }
 
@@ -7011,12 +7206,18 @@ const FORMAS_RECEBIMENTO = [
      dois, três cartões de débito. O valor gravado em `cartao` continua sendo o total;
      as parcelas ficam à parte, então nada no resto do sistema precisou mudar. */
   {chave:'cartao',      rotulo:'Cartão',      multiplo:true, singular:'cartão', plural:'cartões',
+   nota:'débito, crédito, Senff, alimentação',
    icone:'<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>'},
   {chave:'pix',         rotulo:'Pix',         icone:'<path d="M12 2.5 21.5 12 12 21.5 2.5 12z"/>'},
-  {chave:'senff',       rotulo:'Senff',       icone:'<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="15" x2="11" y2="15"/><line x1="2" y1="9" x2="22" y2="9"/>'},
-  {chave:'alimentacao', rotulo:'Alimentação', icone:'<path d="M6 3v7a2 2 0 0 0 4 0V3"/><line x1="8" y1="10" x2="8" y2="21"/><path d="M17 3c-1.4 1.6-2 3.2-2 5.2s.6 3 2 3 2-1 2-3S18.4 4.6 17 3z"/><line x1="17" y1="11" x2="17" y2="21"/>'},
   {chave:'cheque',      rotulo:'Cheque',      icone:'<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="9.5" x2="13" y2="9.5"/><path d="M6 15c1.6-2.2 3.2 1.6 4.8-.6"/>'}
 ];
+
+/* Senff e alimentação eram modalidades separadas até 11/08/2026. Viraram cartão: no
+   balcão é tudo a mesma máquina, e o que interessa é quanto passou em cartão. Como o
+   cartão aceita várias linhas, débito, crédito, Senff e alimentação entram como cartões
+   diferentes do mesmo pagamento. Estas chaves antigas ainda podem aparecer em registro
+   gravado antes da mudança — `unificarCartoesAntigos()` soma cada uma no cartão. */
+const FORMAS_ANTIGAS = ['senff', 'alimentacao'];
 
 function garantirBaseRecebimentos(){
   if(!Array.isArray(state.clientes)) state.clientes = [];
@@ -7047,6 +7248,11 @@ const CAIXA_TABELAS = {
   recebimentos: {tabela:'caixa_recebimentos', linha:(o)=> ({id:o.id, data:o.data||null, cliente_id:o.clienteId||null, dados:o})},
   retiradas:    {tabela:'caixa_retiradas',    linha:(o)=> ({id:o.id, data:o.data||null, dados:o})}
 };
+/* Passando deste valor devido — mais de R$ 500, não exatamente R$ 500 — o cliente sai
+   com a linha inteira vermelha na aba Clientes e a marca BLOQUEAR NO SG: é a lista que
+   o balcão usa para barrar a compra no sistema gerencial. */
+const LIMITE_DEBITO_ALERTA = 500;
+
 const LS_FILA_CAIXA = 'rh_caixa_fila';
 let caixaFila = [];            /* gravações que ainda não chegaram ao banco */
 let caixaEscoando = false;
@@ -7125,6 +7331,7 @@ function assinaturaCaixa(){
 function renderCaixaAtual(){
   if(state.abaAtual === 'recLancar')    renderUltimosRec();
   if(state.abaAtual === 'recRetirada')  renderUltimasRet();
+  if(state.abaAtual === 'recLancamentos') renderLancamentos();
   if(state.abaAtual === 'recClientes')  renderClientes();
   if(state.abaAtual === 'recHistorico') renderHistorico();
   if(typeof atualizarFichaRec === 'function' && state.abaAtual === 'recLancar') atualizarFichaRec();
@@ -7147,6 +7354,7 @@ async function carregarCaixa(avisar){
     state.clientes     = (c.data || []).map(x=> x.dados).filter(Boolean);
     state.recebimentos = (r.data || []).map(x=> x.dados).filter(Boolean);
     state.retiradas    = (s.data || []).map(x=> x.dados).filter(Boolean);
+    unificarCartoesAntigos();
     gravarCache();
     if(antes !== assinaturaCaixa()){
       renderCaixaAtual();
@@ -7249,7 +7457,36 @@ function nomeCliente(id){
 /* Quanto entrou no caixa neste lançamento: a soma de todas as modalidades. */
 function pagoDoRecebimento(r){
   if(!r) return 0;
-  return FORMAS_RECEBIMENTO.reduce((s,f)=> s + toNum(r[f.chave]), 0);
+  /* As chaves antigas entram na soma mesmo antes de serem convertidas em cartão:
+     nenhum registro velho pode aparecer com valor pago menor do que foi recebido. */
+  return FORMAS_RECEBIMENTO.reduce((s,f)=> s + toNum(r[f.chave]), 0)
+       + FORMAS_ANTIGAS.reduce((s,k)=> s + toNum(r[k]), 0);
+}
+
+/* Converte os registros gravados antes da unificação: o que estava em Senff e em
+   alimentação vira cartão, virando linhas separadas do mesmo pagamento quando havia
+   mais de um. Roda em toda leitura e é idempotente — depois de convertido, não acha
+   mais nada. O total pago do lançamento não muda, só sai do lugar. */
+function unificarCartoesAntigos(){
+  let convertidos = 0;
+  (state.recebimentos || []).forEach(r=>{
+    const valores = FORMAS_ANTIGAS.map(k=> r2(toNum(r[k]))).filter(v=> v > 0);
+    const temChaveVelha = FORMAS_ANTIGAS.some(k=> k in r);
+    if(!temChaveVelha) return;
+    if(!valores.length){
+      FORMAS_ANTIGAS.forEach(k=> delete r[k]);   /* só zeros: limpa sem gravar */
+      return;
+    }
+    const jaParcelado = parcelasDe(r, 'cartao');
+    const cartaoAtual = r2(toNum(r.cartao));
+    const linhas = (jaParcelado.length ? jaParcelado : (cartaoAtual > 0 ? [cartaoAtual] : [])).concat(valores);
+    r.cartao = r2(linhas.reduce((s,v)=> s + v, 0));
+    if(linhas.length > 1) r.parcelas = Object.assign({}, r.parcelas || {}, {cartao: linhas});
+    FORMAS_ANTIGAS.forEach(k=> delete r[k]);
+    salvarNoCaixa('recebimentos', r);
+    convertidos++;
+  });
+  return convertidos;
 }
 function recebimentosDoCliente(id){
   return (state.recebimentos||[]).filter(r=> r.clienteId===id);
@@ -7308,8 +7545,7 @@ function alternarBaixaSg(id){
     mostrarToast('Baixa no SG confirmada — ' + nomeCliente(r.clienteId));
   }
   salvarNoCaixa('recebimentos', r);
-  renderUltimosRec();
-  if(state.abaAtual === 'recHistorico') renderHistorico();
+  renderCaixaAtual();
 }
 
 /* Parcelas de uma modalidade de várias entradas (os cartões daquele pagamento).
@@ -7341,6 +7577,7 @@ function montarModsRec(){
   document.getElementById('recMods').innerHTML = FORMAS_RECEBIMENTO.map(f=>
     '<div class="rec-mod" data-mod="'+f.chave+'">' +
       '<div class="rm-topo"><svg viewBox="0 0 24 24">'+f.icone+'</svg>'+f.rotulo+'</div>' +
+      (f.nota ? '<div class="rm-nota">'+f.nota+'</div>' : '') +
       (f.multiplo
         ? '<div class="rm-linhas" data-linhas="'+f.chave+'"></div>' +
           '<div class="rm-soma" data-soma="'+f.chave+'"></div>' +
@@ -7454,8 +7691,8 @@ function atualizarSomatorioRec(){
   });
 
   let blocoDif;
-  if(dif > 0.004) blocoDif = {cls:'rs-falta', rot:'Ficou devendo', val:fmtMoeda(dif), nota:'entra no saldo em aberto do cliente'};
-  else if(dif < -0.004) blocoDif = {cls:'rs-troco', rot:'Pagou a mais', val:fmtMoeda(-dif), nota:'abate saldo antigo ou vira troco'};
+  if(dif > 0.004) blocoDif = {cls:'rs-falta', rot:'Ficou devendo', val:fmtMoeda(dif), nota:'a conta não foi paga por inteiro'};
+  else if(dif < -0.004) blocoDif = {cls:'rs-troco', rot:'Pagou a mais', val:fmtMoeda(-dif), nota:'troco, ou pagamento de conta antiga'};
   else blocoDif = {cls:'rs-quitado', rot:'Diferença', val:fmtMoeda(0), nota:'conta quitada por inteiro'};
 
   const partes = [
@@ -7466,19 +7703,6 @@ function atualizarSomatorioRec(){
       '<div class="rs-nota">'+blocoDif.nota+'</div></div>'
   ];
 
-  if(recClienteSel){
-    const res = resumoCliente(recClienteSel);
-    /* Ao corrigir um lançamento, o valor antigo dele sai da conta do saldo. */
-    let saldoBase = res.saldo;
-    if(recEditandoId){
-      const antigo = (state.recebimentos||[]).find(r=> r.id===recEditandoId);
-      if(antigo && antigo.clienteId===recClienteSel) saldoBase = r2(saldoBase - (toNum(antigo.total) - pagoDoRecebimento(antigo)));
-    }
-    const depois = r2(saldoBase + dif);
-    partes.push('<div class="rs-bloco '+(depois>0.004?'rs-falta':'rs-quitado')+'"><div class="rs-rot">Saldo do cliente depois</div>' +
-      '<div class="rs-val">'+fmtMoeda(Math.abs(depois))+'</div>' +
-      '<div class="rs-nota">'+ (depois>0.004 ? 'continua devendo' : (depois<-0.004 ? 'fica com crédito' : 'fica quite')) +'</div></div>');
-  }
   document.getElementById('recSomatorio').innerHTML = partes.join('');
 }
 
@@ -7488,10 +7712,12 @@ function atualizarFichaRec(){
   const c = clientePorId(recClienteSel);
   const res = resumoCliente(recClienteSel);
   ficha.style.display = '';
+  /* Escolhido o cliente, a sugestão fecha — a barra assume o recado: quanto ele já
+     pagou e quanto ainda deve, à vista do operador enquanto ele digita a conta. */
   ficha.innerHTML =
     '<div>Cliente <b>'+escHtml(c.nome)+'</b>'+ (c.telefone ? ' <span class="rec-mini">· '+escHtml(c.telefone)+'</span>' : '') +'</div>' +
-    '<div class="'+(res.saldo>0.004?'rf-devendo':'')+'">Saldo em aberto <b>'+fmtMoeda(res.saldo>0?res.saldo:0)+'</b></div>' +
-    (res.saldo < -0.004 ? '<div>Crédito <b>'+fmtMoeda(-res.saldo)+'</b></div>' : '') +
+    '<div class="'+(res.saldo>0.004?'rf-devendo':'')+'">Ainda deve <b>' +
+      (res.saldo > 0.004 ? fmtMoeda(res.saldo) : (res.saldo < -0.004 ? 'crédito '+fmtMoeda(-res.saldo) : 'nada')) + '</b></div>' +
     '<div>Já pagou <b>'+fmtMoeda(res.pago)+'</b> em '+res.qtd+' recebimento(s)</div>' +
     (res.ultima ? '<div>Último em <b>'+dataBR(res.ultima)+'</b></div>' : '<div class="rec-mini">Primeiro recebimento deste cliente</div>');
   atualizarSomatorioRec();
@@ -7522,6 +7748,8 @@ function abrirSugRec(){
   achados = achados.slice(0, 8);
   recSugLista = achados.map(c=> ({tipo:'cliente', id:c.id}));
 
+  /* O quanto o cliente deve aparece já na busca: é a hora em que o operador precisa
+     saber, com a pessoa na frente dele. */
   let html = achados.map(c=>{
     const res = resumoCliente(c.id);
     const saldoTxt = res.saldo > 0.004
@@ -7641,17 +7869,22 @@ function renderRecLancar(){
   renderUltimosRec();
 }
 
+/* A lista embaixo do formulário é a fila de trabalho: só o que ainda não foi lançado no
+   SG. Assim que o operador dá a baixa, o lançamento sai da tela — o que sobra ali é
+   exatamente o que falta replicar. O que já foi baixado se consulta no Relatório. */
 function renderUltimosRec(){
   const caixa = document.getElementById('recUltimos');
-  const lista = (state.recebimentos||[]).slice()
-    .sort((a,b)=> String(b.criadoEm||b.data||'').localeCompare(String(a.criadoEm||a.data||'')))
-    .slice(0, 8);
+  const lista = (state.recebimentos||[]).filter(r=> !baixaSgFeita(r))
+    .sort((a,b)=> String(b.data||'').localeCompare(String(a.data||'')) ||
+                  String(b.criadoEm||'').localeCompare(String(a.criadoEm||'')));
   if(!lista.length){
-    caixa.innerHTML = '<h3>Últimos recebimentos</h3><div class="rec-vazio">Nenhum recebimento registrado ainda. ' +
-      'O primeiro lançamento já cria o cliente na base.</div>';
+    caixa.innerHTML = '<h3>Aguardando baixa no SG</h3>' +
+      '<div class="rec-vazio">Nenhum recebimento pendente — está tudo lançado no SG.</div>';
     return;
   }
-  caixa.innerHTML = '<h3>Últimos recebimentos</h3>' +
+  caixa.innerHTML = '<h3>Aguardando baixa no SG</h3>' +
+    '<div class="rec-mini" style="margin:-6px 0 10px;">' + lista.length +
+      ' lançamento(s) ainda não replicado(s) no SG. Confirme a baixa e ele sai desta lista.</div>' +
     '<table class="tabela-ponto"><thead><tr>' +
     '<th class="esq">Data</th><th class="esq">Cliente</th><th>Total da conta</th><th>Pago</th>' +
     '<th class="esq">Modalidades</th><th>Situação</th><th>Baixa no SG</th><th></th></tr></thead><tbody>' +
@@ -7776,10 +8009,7 @@ function excluirRecebimento(id){
   state.recebimentos = (state.recebimentos||[]).filter(x=> x.id!==id);
   if(recEditandoId === id) limparFormRec();
   apagarDoCaixa('recebimentos', id);
-  renderUltimosRec();
-  if(state.abaAtual === 'recClientes') renderClientes();
-  if(state.abaAtual === 'recHistorico') renderHistorico();
-  atualizarFichaRec();
+  renderCaixaAtual();
   mostrarToast('Recebimento excluído');
 }
 
@@ -7956,6 +8186,91 @@ document.getElementById('retMotivo').addEventListener('keydown', (e)=>{
   if(e.key==='Enter'){ e.preventDefault(); document.getElementById('retValor').focus(); }
 });
 
+/* --------------------------------------------------------------- tela de lançamentos
+   Onde se procura um recebimento já registrado para corrigir ou apagar. A tela de
+   Lançar cuida do que está entrando agora, o Relatório mostra os números do mês, e é
+   aqui que se mexe no que já foi lançado. */
+function popularSelectLancamentos(){
+  const sel = document.getElementById('lanMes');
+  const meses = mesesComRecebimento();
+  state.recLancMes = mesPadraoCaixa('lancamentos', state.recLancMes);
+  sel.innerHTML = meses.map(m=> '<option value="'+m+'"'+(m===state.recLancMes?' selected':'')+'>'+mesLabel(m)+'</option>').join('');
+}
+
+function renderLancamentos(){
+  garantirBaseRecebimentos();
+  popularSelectLancamentos();
+  const mes = state.recLancMes;
+  const busca = norm(document.getElementById('lanBusca').value);
+  const filtro = document.getElementById('lanFiltro').value;
+  document.getElementById('lanMesLabel').textContent = mesLabel(mes);
+
+  const doMes = (state.recebimentos||[]).filter(r=> String(r.data||'').slice(0,7) === mes);
+  const lista = doMes.filter(r=>{
+    if(busca && norm(nomeCliente(r.clienteId)).indexOf(busca) < 0) return false;
+    if(filtro === 'sg-pendente') return !baixaSgFeita(r);
+    if(filtro === 'sg-baixado')  return baixaSgFeita(r);
+    if(filtro === 'parciais')    return r2(toNum(r.total) - pagoDoRecebimento(r)) > 0.004;
+    return true;
+  }).sort((a,b)=> String(b.data||'').localeCompare(String(a.data||'')) ||
+                  String(b.criadoEm||'').localeCompare(String(a.criadoEm||'')));
+
+  /* Lançamento com data no futuro é quase sempre erro de digitação — e some da vista,
+     porque a tela abre no mês corrente. Fica avisado aqui, com o mês onde encontrá-lo. */
+  const futuros = (state.recebimentos||[]).filter(r=> String(r.data||'').slice(0,7) > mesAtualPadrao());
+  const mesesFuturos = Array.from(new Set(futuros.map(r=> String(r.data).slice(0,7)))).sort();
+  document.getElementById('lanInfo').innerHTML =
+    escHtml(lista.length + ' de ' + doMes.length + ' lançamento(s) de ' + mesLabel(mes) +
+      '. Clique em Editar para abrir o lançamento no formulário e corrigir.') +
+    (futuros.length
+      ? '<div style="margin-top:6px;color:var(--vermelho);font-weight:700;">' +
+        escHtml(futuros.length + ' lançamento(s) estão datados de ' +
+          mesesFuturos.map(m=> mesLabel(m)).join(', ') + ', mês que ainda não chegou. ' +
+          'Se a data foi digitada errada, escolha esse mês no seletor acima e corrija em Editar — ' +
+          'enquanto isso ele não entra no caixa do mês corrente.') + '</div>'
+      : '');
+
+  const corpo = document.getElementById('lanCorpo');
+  if(!lista.length){
+    corpo.innerHTML = '<div class="rec-vazio">' +
+      (doMes.length ? 'Nenhum lançamento com esse filtro em ' + mesLabel(mes) + '.'
+                    : 'Nenhum recebimento lançado em ' + mesLabel(mes) + '.') + '</div>';
+    return;
+  }
+  corpo.innerHTML = '<table class="tabela-ponto"><thead><tr>' +
+    '<th class="esq">Data</th><th class="esq">Cliente</th><th>Total da conta</th><th>Pago</th>' +
+    '<th class="esq">Modalidades</th><th>Situação</th><th>Baixa no SG</th><th class="esq">Registrado por</th><th></th>' +
+    '</tr></thead><tbody>' +
+    lista.map(r=>{
+      const sit = situacaoRecebimento(r);
+      const dif = r2(toNum(r.total) - pagoDoRecebimento(r));
+      return '<tr>' +
+        '<td class="esq">'+dataBR(r.data)+'</td>' +
+        '<td class="esq"><span class="rec-cli-nome">'+escHtml(nomeCliente(r.clienteId))+'</span>' +
+          (r.obs ? '<div class="rec-mini">'+escHtml(r.obs)+'</div>' : '') + '</td>' +
+        '<td>'+fmtMoeda(toNum(r.total))+'</td>' +
+        '<td><b>'+fmtMoeda(pagoDoRecebimento(r))+'</b></td>' +
+        '<td class="esq rec-mini">'+escHtml(resumoFormas(r))+'</td>' +
+        '<td><span class="rec-tag '+sit.classe+'">'+sit.rot+'</span>' +
+          (dif>0.004 ? '<div class="rec-mini">falta '+fmtMoeda(dif)+'</div>' : '') + '</td>' +
+        '<td>'+botaoBaixaSg(r)+'</td>' +
+        '<td class="esq rec-mini">'+escHtml(r.usuario||'—')+
+          (r.alteradoEm ? '<div class="rec-mini">corrigido em '+new Date(r.alteradoEm).toLocaleDateString('pt-BR')+'</div>' : '') + '</td>' +
+        '<td><div class="rec-acoes-linha">' +
+          '<button class="btn btn-outline btn-sm" data-editar-rec="'+r.id+'">Editar</button>' +
+          '<button class="btn btn-vermelho btn-sm" data-excluir-rec="'+r.id+'">Excluir</button>' +
+        '</div></td></tr>';
+    }).join('') + '</tbody></table>';
+}
+
+document.getElementById('lanMes').addEventListener('change', (e)=>{
+  state.recLancMes = e.target.value;
+  salvarEstado();
+  renderLancamentos();
+});
+document.getElementById('lanBusca').addEventListener('input', renderLancamentos);
+document.getElementById('lanFiltro').addEventListener('change', renderLancamentos);
+
 /* --------------------------------------------------------------- tela de clientes */
 function renderClientes(){
   garantirBaseRecebimentos();
@@ -7963,38 +8278,46 @@ function renderClientes(){
   const filtro = document.getElementById('cliFiltro').value;
   const ordem = document.getElementById('cliOrdem').value;
 
+  /* Da tela de clientes interessam dois números por pessoa: quanto ela já pagou e
+     quanto ainda deve. O detalhe do dinheiro — modalidade, dia, fechamento — é do
+     Relatório de Caixa; aqui é a resposta de balcão: "quanto o fulano deve?". */
   const linhas = (state.clientes||[]).map(c=> Object.assign({cli:c}, resumoCliente(c.id)));
+  const comMovimento = linhas.filter(l=> l.qtd > 0).length;
+  const totalPago   = r2(linhas.reduce((s,l)=> s + l.pago, 0));
+  const totalAberto = r2(linhas.reduce((s,l)=> s + (l.saldo > 0 ? l.saldo : 0), 0));
+  const devendo     = linhas.filter(l=> l.saldo > 0.004).length;
 
-  /* KPIs falam da base inteira, não do que o filtro deixou na tela. */
-  const totalAberto = r2(linhas.reduce((s,l)=> s + (l.saldo>0 ? l.saldo : 0), 0));
-  const totalRecebido = r2(linhas.reduce((s,l)=> s + l.pago, 0));
-  const devendo = linhas.filter(l=> l.saldo > 0.004).length;
   document.getElementById('cliKpis').innerHTML =
     '<div class="kpi"><div class="kpi-rot">Clientes na base</div><div class="kpi-val">'+linhas.length+'</div>' +
-      '<div class="kpi-sub">cadastrados até agora</div></div>' +
-    '<div class="kpi '+(devendo?'kpi-alerta':'kpi-ok')+'"><div class="kpi-rot">Com saldo em aberto</div>' +
-      '<div class="kpi-val">'+devendo+'</div><div class="kpi-sub">clientes devendo</div></div>' +
-    '<div class="kpi '+(totalAberto>0?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Total em aberto</div>' +
-      '<div class="kpi-val">'+fmtMoeda(totalAberto)+'</div><div class="kpi-sub">soma do que falta receber</div></div>' +
-    '<div class="kpi kpi-ok"><div class="kpi-rot">Total já recebido</div>' +
-      '<div class="kpi-val">'+fmtMoeda(totalRecebido)+'</div><div class="kpi-sub">desde o início dos registros</div></div>';
+      '<div class="kpi-sub">'+comMovimento+' já passaram pelo caixa</div></div>' +
+    '<div class="kpi kpi-ok"><div class="kpi-rot">Total já pago</div>' +
+      '<div class="kpi-val">'+fmtMoeda(totalPago)+'</div><div class="kpi-sub">soma de todos os clientes</div></div>' +
+    '<div class="kpi '+(totalAberto>0?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Total ainda devido</div>' +
+      '<div class="kpi-val">'+fmtMoeda(totalAberto)+'</div><div class="kpi-sub">'+devendo+' cliente(s) devendo</div></div>';
 
   let lista = linhas.filter(l=>{
     if(busca && norm(l.cli.nome).indexOf(busca) < 0 && norm(l.cli.telefone).indexOf(busca) < 0) return false;
-    if(filtro==='devendo' && !(l.saldo > 0.004)) return false;
-    if(filtro==='quites' && l.saldo > 0.004) return false;
-    if(filtro==='semmov' && l.qtd) return false;
+    if(filtro==='commov')  return l.qtd > 0;
+    if(filtro==='semmov')  return !l.qtd;
+    if(filtro==='bloqueio') return l.saldo > LIMITE_DEBITO_ALERTA;
+    if(filtro==='devendo') return l.saldo > 0.004;
+    if(filtro==='quites')  return l.qtd > 0 && l.saldo <= 0.004;
     return true;
   });
   lista.sort((a,b)=>{
+    if(ordem==='maisrec')     return b.qtd - a.qtd || a.cli.nome.localeCompare(b.cli.nome,'pt-BR');
     if(ordem==='maior-saldo') return b.saldo - a.saldo || a.cli.nome.localeCompare(b.cli.nome,'pt-BR');
-    if(ordem==='maior-pago')  return b.pago - a.pago  || a.cli.nome.localeCompare(b.cli.nome,'pt-BR');
+    if(ordem==='maior-pago')  return b.pago - a.pago || a.cli.nome.localeCompare(b.cli.nome,'pt-BR');
     if(ordem==='recentes')    return String(b.ultima||'').localeCompare(String(a.ultima||'')) || a.cli.nome.localeCompare(b.cli.nome,'pt-BR');
     return a.cli.nome.localeCompare(b.cli.nome,'pt-BR');
   });
 
+  const acimaDoLimite = linhas.filter(l=> l.saldo > LIMITE_DEBITO_ALERTA).length;
   document.getElementById('cliInfo').textContent =
-    lista.length + ' de ' + linhas.length + ' cliente(s) na tela. Clique em um cliente para ver a ficha e o histórico dele.';
+    lista.length + ' de ' + linhas.length + ' cliente(s) na tela. Clique em um cliente para ver a ficha. ' +
+    (acimaDoLimite ? 'Linha vermelha: ' + acimaDoLimite + ' cliente(s) devendo mais de ' + fmtMoeda(LIMITE_DEBITO_ALERTA) +
+                     ' — bloquear a compra no SG.'
+                   : 'Nenhum cliente devendo mais de ' + fmtMoeda(LIMITE_DEBITO_ALERTA) + '.');
 
   const corpo = document.getElementById('cliCorpo');
   if(!lista.length){
@@ -8005,19 +8328,21 @@ function renderClientes(){
     return;
   }
   corpo.innerHTML = '<table class="tabela-ponto"><thead><tr>' +
-    '<th class="esq">Cliente</th><th class="esq">Telefone</th><th>Recebimentos</th><th>Total das contas</th>' +
-    '<th>Total pago</th><th>Saldo em aberto</th><th>Último</th></tr></thead><tbody>' +
+    '<th class="esq">Cliente</th><th class="esq">Telefone</th>' +
+    '<th>Recebimentos</th><th>Último recebimento</th><th>Total já pago</th><th>Ainda deve</th>' +
+    '</tr></thead><tbody>' +
     lista.map(l=>
-      '<tr data-cliente="'+l.cli.id+'">' +
+      '<tr data-cliente="'+l.cli.id+'"'+(l.saldo > LIMITE_DEBITO_ALERTA ? ' class="linha-devedor"' : '')+'>' +
       '<td class="esq"><span class="rec-cli-nome">'+escHtml(l.cli.nome)+'</span>' +
+        (l.saldo > LIMITE_DEBITO_ALERTA ? '<span class="tag-bloqueio">BLOQUEAR NO SG</span>' : '') +
         (l.cli.obs ? '<div class="rec-mini">'+escHtml(l.cli.obs)+'</div>' : '') + '</td>' +
       '<td class="esq">'+escHtml(l.cli.telefone||'—')+'</td>' +
       '<td>'+l.qtd+'</td>' +
-      '<td>'+fmtMoeda(l.contas)+'</td>' +
+      '<td>'+(l.ultima ? dataBR(l.ultima) : '—')+'</td>' +
       '<td>'+fmtMoeda(l.pago)+'</td>' +
       '<td class="'+(l.saldo>0.004?'cel-critico':'cel-ok')+'">' +
-        (l.saldo>0.004 ? fmtMoeda(l.saldo) : (l.saldo<-0.004 ? 'crédito '+fmtMoeda(-l.saldo) : 'quite')) + '</td>' +
-      '<td>'+(l.ultima ? dataBR(l.ultima) : '—')+'</td></tr>'
+        (l.saldo > 0.004 ? fmtMoeda(l.saldo)
+                         : (l.saldo < -0.004 ? 'crédito ' + fmtMoeda(-l.saldo) : 'nada')) + '</td></tr>'
     ).join('') + '</tbody></table>';
 }
 
@@ -8044,32 +8369,32 @@ function abrirModalCliente(id){
   document.getElementById('cliObs').value = c ? (c.obs||'') : '';
   document.getElementById('btnExcluirCliente').style.display = c ? '' : 'none';
 
+  /* Ficha sem valor nenhum: aqui é cadastro. As datas servem para reconhecer o cliente
+     ("é o que veio semana passada"); quanto ele pagou é assunto do Relatório de Caixa. */
   const ficha = document.getElementById('cliFicha');
   if(!c){ ficha.innerHTML = ''; }
   else{
     const res = resumoCliente(c.id);
-    const lista = recebimentosDoCliente(c.id).slice()
-      .sort((a,b)=> String(b.data||'').localeCompare(String(a.data||''))).slice(0, 12);
+    const datas = recebimentosDoCliente(c.id).slice()
+      .sort((a,b)=> String(b.data||'').localeCompare(String(a.data||''))).slice(0, 8);
     ficha.innerHTML =
-      '<div class="secao-title">Situação</div>' +
+      '<div class="secao-title">Movimento</div>' +
       '<div class="kpis">' +
         '<div class="kpi mini"><div class="kpi-rot">Recebimentos</div><div class="kpi-val">'+res.qtd+'</div></div>' +
-        '<div class="kpi mini"><div class="kpi-rot">Total das contas</div><div class="kpi-val">'+fmtMoeda(res.contas)+'</div></div>' +
-        '<div class="kpi mini kpi-ok"><div class="kpi-rot">Total pago</div><div class="kpi-val">'+fmtMoeda(res.pago)+'</div></div>' +
-        '<div class="kpi mini '+(res.saldo>0.004?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Saldo em aberto</div>' +
-          '<div class="kpi-val">'+(res.saldo>0.004?fmtMoeda(res.saldo):(res.saldo<-0.004?'crédito '+fmtMoeda(-res.saldo):fmtMoeda(0)))+'</div></div>' +
+        '<div class="kpi mini kpi-ok"><div class="kpi-rot">Total já pago</div>' +
+          '<div class="kpi-val">'+fmtMoeda(res.pago)+'</div></div>' +
+        '<div class="kpi mini '+(res.saldo>0.004?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Ainda deve</div>' +
+          '<div class="kpi-val">'+(res.saldo > 0.004 ? fmtMoeda(res.saldo)
+            : (res.saldo < -0.004 ? 'crédito '+fmtMoeda(-res.saldo) : fmtMoeda(0)))+'</div></div>' +
       '</div>' +
-      '<div class="secao-title">Últimos recebimentos</div>' +
-      (lista.length
-        ? '<table class="historico"><thead><tr><th>Data</th><th>Total da conta</th><th>Pago</th><th>Diferença</th><th>Modalidades</th></tr></thead><tbody>' +
-          lista.map(r=>{
-            const dif = r2(toNum(r.total) - pagoDoRecebimento(r));
-            return '<tr><td>'+dataBR(r.data)+'</td><td>'+fmtMoeda(toNum(r.total))+'</td>' +
-              '<td>'+fmtMoeda(pagoDoRecebimento(r))+'</td>' +
-              '<td>'+(Math.abs(dif)<0.005 ? '—' : fmtMoeda(dif))+'</td>' +
-              '<td>'+escHtml(resumoFormas(r))+'</td></tr>';
-          }).join('') + '</tbody></table>'
-        : '<div class="rec-mini">Nenhum recebimento lançado para este cliente.</div>');
+      '<div class="rec-ficha" style="margin-bottom:4px;">' +
+        (res.ultima ? '<div>Último recebimento em <b>'+dataBR(res.ultima)+'</b></div>'
+                    : '<div class="rec-mini">Ainda sem nenhum recebimento</div>') +
+      '</div>' +
+      (datas.length
+        ? '<div class="rec-mini" style="margin-top:8px;">Últimas passagens pelo caixa: ' +
+          datas.map(r=> dataBR(r.data)).join(' · ') + '</div>'
+        : '');
   }
   document.getElementById('overlayCliente').classList.add('show');
   setTimeout(()=> document.getElementById('cliNome').focus(), 60);
@@ -8135,6 +8460,24 @@ document.getElementById('btnExcluirCliente').addEventListener('click', ()=>{
 });
 
 /* --------------------------------------------------------------- histórico do caixa */
+/* Qual mês a tela abre. A cada abertura do sistema começa no MÊS CORRENTE — antes ela
+   abria no mês mais recente com movimento, e bastava um lançamento com a data digitada
+   errada (um "10" no lugar do "08") para a tela abrir num mês solto, escondendo tudo o
+   que o pessoal lançou no mês certo.
+
+   Depois disso quem manda é o seletor: qualquer mês escolhido na mão vale, inclusive
+   mês futuro — é justamente lá que se vai para achar e corrigir o lançamento com data
+   errada. `mesCaixaIniciado` guarda, por tela, se a primeira carga já aconteceu. */
+const mesCaixaIniciado = {};
+function mesPadraoCaixa(chave, guardado){
+  const meses = mesesComRecebimento();
+  const atual = mesAtualPadrao();
+  const primeiraVez = !mesCaixaIniciado[chave];
+  mesCaixaIniciado[chave] = true;
+  if(!primeiraVez && guardado && meses.indexOf(guardado) >= 0) return guardado;
+  return meses.indexOf(atual) >= 0 ? atual : meses[0];
+}
+
 /* Meses que têm movimento de caixa — entrada ou retirada — mais o mês corrente. */
 function mesesComRecebimento(){
   const set = {};
@@ -8149,7 +8492,7 @@ function mesesComRecebimento(){
 function popularSelectHistorico(){
   const sel = document.getElementById('hisMes');
   const meses = mesesComRecebimento();
-  if(!state.recHisMes || meses.indexOf(state.recHisMes) < 0) state.recHisMes = meses[0];
+  state.recHisMes = mesPadraoCaixa('relatorio', state.recHisMes);
   sel.innerHTML = meses.map(m=> '<option value="'+m+'"'+(m===state.recHisMes?' selected':'')+'>'+mesLabel(m)+'</option>').join('');
 }
 
@@ -8163,20 +8506,16 @@ function htmlRetiradasDoMes(retMes, mes){
   const ordenadas = retMes.slice().sort((a,b)=> String(a.data||'').localeCompare(String(b.data||'')));
   return '<div class="rec-bloco"><h3>Retiradas de ' + mesLabel(mes) + '</h3>' +
     '<table class="tabela-ponto"><thead><tr>' +
-    '<th class="esq">Data</th><th class="esq">Motivo</th><th>Valor</th><th class="esq">Registrada por</th><th></th>' +
+    '<th class="esq">Data</th><th class="esq">Motivo</th><th>Valor</th><th class="esq">Registrada por</th>' +
     '</tr></thead><tbody>' +
     ordenadas.map(x=>
       '<tr><td class="esq">'+dataBR(x.data)+'</td>' +
       '<td class="esq"><span class="rec-cli-nome">'+escHtml(x.motivo)+'</span></td>' +
       '<td class="cel-critico">'+fmtMoeda(toNum(x.valor))+'</td>' +
-      '<td class="esq rec-mini">'+escHtml(x.usuario||'—')+'</td>' +
-      '<td><div class="rec-acoes-linha">' +
-        '<button class="btn btn-outline btn-sm" data-editar-ret="'+x.id+'">Editar</button>' +
-        '<button class="btn btn-vermelho btn-sm" data-excluir-ret="'+x.id+'">Excluir</button>' +
-      '</div></td></tr>'
+      '<td class="esq rec-mini">'+escHtml(x.usuario||'—')+'</td></tr>'
     ).join('') +
     '<tr><td class="esq"><b>TOTAL RETIRADO</b></td><td class="esq"></td>' +
-    '<td class="cel-critico"><b>'+fmtMoeda(somaRetiradas(retMes))+'</b></td><td></td><td></td></tr>' +
+    '<td class="cel-critico"><b>'+fmtMoeda(somaRetiradas(retMes))+'</b></td><td></td></tr>' +
     '</tbody></table></div>';
 }
 
@@ -8204,6 +8543,46 @@ function renderHistorico(){
   const saiu = somaRetiradas(retMes);
   const sobrou = r2(recebido - saiu);
 
+  /* Botões grandes por modalidade: cada um mostra quanto entrou naquela forma no mês e,
+     clicado, deixa na tela só os lançamentos que a usaram — é assim que se confere o
+     dinheiro físico da gaveta, os comprovantes de cartão e os cheques. */
+  const formaSel = state.recHisForma || 'todas';
+  document.getElementById('hisFormas').innerHTML =
+    '<button type="button" class="btn-forma'+(formaSel==='todas'?' ativa':'')+'" data-forma-btn="todas">' +
+      '<div class="bf-rot"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>Tudo</div>' +
+      '<div class="bf-val">'+fmtMoeda(r2(recebido))+'</div>' +
+      '<div class="bf-sub">'+doMes.length+' lançamento(s) no mês</div></button>' +
+    FORMAS_RECEBIMENTO.map(f=>{
+      const qtd = doMes.filter(r=> toNum(r[f.chave]) > 0).length;
+      return '<button type="button" class="btn-forma'+(formaSel===f.chave?' ativa':'')+'" data-forma-btn="'+f.chave+'">' +
+        '<div class="bf-rot"><svg viewBox="0 0 24 24">'+f.icone+'</svg>'+f.rotulo+'</div>' +
+        '<div class="bf-val">'+fmtMoeda(r2(porForma[f.chave]))+'</div>' +
+        '<div class="bf-sub">'+qtd+' lançamento(s)</div></button>';
+    }).join('');
+
+  /* Escolhida uma forma, a faixa de conferência mostra o número redondo para bater com
+     o que está na mão — e, no dinheiro, o que sobra depois das retiradas do caixa. */
+  const boxConf = document.getElementById('hisConferencia');
+  if(formaSel === 'todas'){
+    boxConf.innerHTML = '';
+  }else{
+    const f = FORMAS_RECEBIMENTO.find(x=> x.chave === formaSel);
+    const valor = r2(porForma[formaSel]);
+    const qtd = doMes.filter(r=> toNum(r[formaSel]) > 0).length;
+    const notas = {
+      dinheiro: 'Confira com as cédulas e moedas da gaveta. Descontando as retiradas do mês (' +
+                fmtMoeda(saiu) + '), devem sobrar ' + fmtMoeda(r2(valor - saiu)) + ' em espécie.',
+      cartao:   'Confira com os comprovantes das maquininhas — débito, crédito, Senff e alimentação entram aqui.',
+      pix:      'Confira com o extrato da conta.',
+      cheque:   'Confira com os cheques que estão em mãos.'
+    };
+    boxConf.innerHTML = '<div class="conferencia">' +
+      '<div><div class="cf-rot">Total em ' + f.rotulo + ' — ' + mesLabel(mes) + '</div>' +
+      '<div class="cf-val">'+fmtMoeda(valor)+'</div></div>' +
+      '<div class="cf-nota">' + qtd + ' lançamento(s) com ' + f.rotulo.toLowerCase() + '. ' +
+        (notas[formaSel] || '') + '</div></div>';
+  }
+
   document.getElementById('hisKpis').innerHTML =
     '<div class="kpi kpi-ok"><div class="kpi-rot">Entrou no caixa</div><div class="kpi-val">'+fmtMoeda(r2(recebido))+'</div>' +
       '<div class="kpi-sub">'+doMes.length+' lançamento(s) no mês</div></div>' +
@@ -8213,22 +8592,16 @@ function renderHistorico(){
     '<div class="kpi '+(sobrou<0?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Sobrou em caixa</div>' +
       '<div class="kpi-val">'+fmtMoeda(sobrou)+'</div>' +
       '<div class="kpi-sub">entradas menos retiradas</div></div>' +
-    FORMAS_RECEBIMENTO.map(f=>{
-      const bruto = r2(porForma[f.chave]);
-      /* A retirada sai sempre do dinheiro: o card do dinheiro mostra o que sobrou na
-         gaveta, não o que passou por ela. As outras modalidades não são tocadas. */
-      if(f.chave === 'dinheiro'){
-        const emCaixa = r2(bruto - saiu);
-        return '<div class="kpi mini '+(emCaixa < 0 ? 'kpi-alerta' : 'kpi-info')+'">' +
-          '<div class="kpi-rot">Dinheiro em caixa</div>' +
-          '<div class="kpi-val">'+fmtMoeda(emCaixa)+'</div>' +
-          '<div class="kpi-sub">'+fmtMoeda(bruto)+' recebido' +
-            (saiu > 0 ? ' menos '+fmtMoeda(saiu)+' retirado' : '') + '</div></div>';
-      }
-      return '<div class="kpi mini kpi-info"><div class="kpi-rot">'+f.rotulo+'</div>' +
-        '<div class="kpi-val">'+fmtMoeda(bruto)+'</div>' +
-        '<div class="kpi-sub">'+ (recebido>0 ? Math.round(bruto/recebido*100)+'% do que entrou' : 'sem movimento') +'</div></div>';
-    }).join('') +
+    /* O total de cada modalidade agora está nos botões lá em cima; aqui fica só o
+       dinheiro em espécie depois das retiradas, que é outra conta. */
+    (function(){
+      const emCaixa = r2(porForma.dinheiro - saiu);
+      return '<div class="kpi '+(emCaixa < 0 ? 'kpi-alerta' : 'kpi-info')+'">' +
+        '<div class="kpi-rot">Dinheiro em caixa</div>' +
+        '<div class="kpi-val">'+fmtMoeda(emCaixa)+'</div>' +
+        '<div class="kpi-sub">'+fmtMoeda(r2(porForma.dinheiro))+' recebido' +
+          (saiu > 0 ? ' menos '+fmtMoeda(saiu)+' retirado' : '') + '</div></div>';
+    })() +
     '<div class="kpi '+(pendentesSg.length?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Pendente de baixa no SG</div>' +
       '<div class="kpi-val">'+pendentesSg.length+'</div>' +
       '<div class="kpi-sub">'+ (pendentesSg.length
@@ -8237,10 +8610,10 @@ function renderHistorico(){
 
   let lista = doMes.filter(r=>{
     if(busca && norm(nomeCliente(r.clienteId)).indexOf(busca) < 0) return false;
+    if(formaSel !== 'todas' && !(toNum(r[formaSel]) > 0)) return false;
     if(filtro==='parciais') return r2(toNum(r.total) - pagoDoRecebimento(r)) > 0.004;
     if(filtro==='sg-pendente') return !baixaSgFeita(r);
     if(filtro==='sg-baixado') return baixaSgFeita(r);
-    if(filtro!=='todos') return toNum(r[filtro]) > 0;
     return true;
   }).sort((a,b)=> String(b.data||'').localeCompare(String(a.data||'')) ||
                   String(b.criadoEm||'').localeCompare(String(a.criadoEm||'')));
@@ -8258,8 +8631,8 @@ function renderHistorico(){
   }
   corpo.innerHTML = '<table class="tabela-ponto"><thead><tr>' +
     '<th class="esq">Data</th><th class="esq">Cliente</th><th>Total da conta</th>' +
-    FORMAS_RECEBIMENTO.map(f=> '<th>'+f.rotulo+'</th>').join('') +
-    '<th>Pago</th><th>Situação</th><th>Baixa no SG</th><th></th></tr></thead><tbody>' +
+    FORMAS_RECEBIMENTO.map(f=> '<th'+(f.chave===formaSel?' class="col-destaque"':'')+'>'+f.rotulo+'</th>').join('') +
+    '<th>Pago</th><th>Situação</th><th>Baixa no SG</th></tr></thead><tbody>' +
     lista.map(r=>{
       const sit = situacaoRecebimento(r);
       const dif = r2(toNum(r.total) - pagoDoRecebimento(r));
@@ -8269,24 +8642,23 @@ function renderHistorico(){
           (r.obs ? '<div class="rec-mini">'+escHtml(r.obs)+'</div>' : '') + '</td>' +
         '<td>'+fmtMoeda(toNum(r.total))+'</td>' +
         FORMAS_RECEBIMENTO.map(f=>{
-          if(!toNum(r[f.chave])) return '<td>—</td>';
+          const cls = (f.chave===formaSel) ? ' class="col-destaque"' : '';
+          if(!toNum(r[f.chave])) return '<td'+cls+'>—</td>';
           const p = parcelasDe(r, f.chave);
-          return '<td>'+fmtMoeda(toNum(r[f.chave])) +
+          return '<td'+cls+'>'+fmtMoeda(toNum(r[f.chave])) +
             (p.length > 1 ? '<div class="rec-mini">'+p.map(v=> fmtMoeda(v)).join(' + ')+'</div>' : '') + '</td>';
         }).join('') +
         '<td><b>'+fmtMoeda(pagoDoRecebimento(r))+'</b></td>' +
         '<td><span class="rec-tag '+sit.classe+'">'+sit.rot+'</span>' +
           (dif>0.004 ? '<div class="rec-mini">falta '+fmtMoeda(dif)+'</div>' : '') + '</td>' +
-        '<td>'+botaoBaixaSg(r)+'</td>' +
-        '<td><div class="rec-acoes-linha">' +
-          '<button class="btn btn-outline btn-sm" data-editar-rec="'+r.id+'">Editar</button>' +
-          '<button class="btn btn-vermelho btn-sm" data-excluir-rec="'+r.id+'">Excluir</button>' +
-        '</div></td></tr>';
+        '<td>'+ (baixaSgFeita(r) ? '<span class="rec-tag quitado">Baixado</span>'
+                                 : '<span class="rec-tag aberto">Pendente</span>') + '</td></tr>';
     }).join('') +
     '<tr><td class="esq"><b>TOTAL</b></td><td class="esq"></td>' +
     '<td><b>'+fmtMoeda(r2(lista.reduce((s,r)=> s + toNum(r.total), 0)))+'</b></td>' +
-    FORMAS_RECEBIMENTO.map(f=> '<td><b>'+fmtMoeda(r2(lista.reduce((s,r)=> s + toNum(r[f.chave]), 0)))+'</b></td>').join('') +
-    '<td><b>'+fmtMoeda(r2(lista.reduce((s,r)=> s + pagoDoRecebimento(r), 0)))+'</b></td><td></td><td></td><td></td></tr>' +
+    FORMAS_RECEBIMENTO.map(f=> '<td'+(f.chave===formaSel?' class="col-destaque"':'')+'><b>' +
+      fmtMoeda(r2(lista.reduce((s,r)=> s + toNum(r[f.chave]), 0)))+'</b></td>').join('') +
+    '<td><b>'+fmtMoeda(r2(lista.reduce((s,r)=> s + pagoDoRecebimento(r), 0)))+'</b></td><td></td><td></td></tr>' +
     '</tbody></table>' +
     htmlRetiradasDoMes(retMes, mes);
 }
@@ -8298,6 +8670,15 @@ document.getElementById('hisMes').addEventListener('change', (e)=>{
 });
 document.getElementById('hisBusca').addEventListener('input', renderHistorico);
 document.getElementById('hisFiltro').addEventListener('change', renderHistorico);
+document.getElementById('hisFormas').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-forma-btn]');
+  if(!btn) return;
+  /* Clicar de novo no botão já escolhido volta para "Tudo" — sem precisar caçar o
+     botão de limpar filtro. */
+  state.recHisForma = (state.recHisForma === btn.dataset.formaBtn) ? 'todas' : btn.dataset.formaBtn;
+  salvarEstado();
+  renderHistorico();
+});
 
 /* --------------------------------------------------------------- exportações */
 document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=>{
@@ -8366,21 +8747,621 @@ document.getElementById('btnExportarClientes').addEventListener('click', ()=>{
   const linhas = (state.clientes||[]).slice().sort((a,b)=> a.nome.localeCompare(b.nome,'pt-BR'))
     .map(c=>{
       const res = resumoCliente(c.id);
-      return [c.nome, c.telefone||'', res.qtd, r2(res.contas), r2(res.pago), r2(res.saldo),
-              res.ultima ? dataBR(res.ultima) : '', c.obs||''];
+      return [c.nome, c.telefone||'', res.qtd, res.ultima ? dataBR(res.ultima) : '',
+              r2(res.pago), res.saldo > 0.004 ? r2(res.saldo) : 0, c.obs||''];
     });
   if(!linhas.length){ mostrarToast('A base de clientes ainda está vazia'); return; }
   const cab = [['BASE DE CLIENTES — ' + new Date().toLocaleDateString('pt-BR')], [],
-    ['Cliente','Telefone','Recebimentos','Total das contas','Total pago','Saldo em aberto','Último recebimento','Observação']];
+    ['Cliente','Telefone','Recebimentos','Último recebimento','Total já pago','Ainda deve','Observação']];
   const ws = XLSX.utils.aoa_to_sheet(cab.concat(linhas));
-  ws['!cols'] = [{wch:34},{wch:16},{wch:14},{wch:16},{wch:14},{wch:16},{wch:18},{wch:30}];
+  ws['!cols'] = [{wch:34},{wch:16},{wch:14},{wch:18},{wch:15},{wch:14},{wch:30}];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Clientes');
   XLSX.writeFile(wb, 'Clientes_' + hojeISO() + '.xlsx');
 });
 
+/* ============================= FÉRIAS =============================
+   COMO A LEI CONTA (CLT, arts. 129 a 145):
+
+   • Período AQUISITIVO: 12 meses de trabalho. Ao completá-los o colaborador ganha o
+     direito a 30 dias de férias.
+   • Período CONCESSIVO: os 12 meses seguintes ao fim do aquisitivo. É o prazo que a
+     empresa tem para conceder as férias.
+   • Não concedeu dentro do concessivo? O art. 137 manda pagar em dobro.
+   • O pagamento sai até 2 dias antes do início das férias (art. 145).
+   • O colaborador pode vender até 1/3 do período — no máximo 10 dias (art. 143). Esse
+     abono pecuniário não sofre INSS nem IR.
+   • Sobre as férias e o terço constitucional incide INSS (mesma tabela progressiva da
+     folha). O 1/3 é garantia do art. 7º, XVII da Constituição.
+
+   A DATA LIMITE desta tela é a mesma da planilha do escritório: fim do período
+   concessivo menos 61 dias. Confere nos 15 períodos que já estavam controlados — é a
+   data para PROGRAMAR as férias, com folga para o aviso de 30 dias antes e para os 30
+   dias de gozo caberem dentro do prazo legal. */
+
+const FERIAS_LIMITE_DIAS = 61;      /* recuo, em dias, do fim do concessivo */
+const FERIAS_ALERTA_DIAS = 60;      /* a partir daqui a férias entra em "a vencer" */
+
+function pad2(n){ return String(n).padStart(2,'0'); }
+function deISO(iso){ const p = String(iso||'').split('-'); return new Date(+p[0], +p[1]-1, +p[2]); }
+function paraISO(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+function somarDias(iso, n){ const d = deISO(iso); d.setDate(d.getDate()+n); return paraISO(d); }
+/* Soma meses grudando no último dia quando o mês de destino é mais curto
+   (31/01 + 1 mês = 28/02, e não 03/03). */
+function somarMeses(iso, n){
+  const d = deISO(iso), dia = d.getDate();
+  d.setMonth(d.getMonth()+n);
+  if(d.getDate() !== dia) d.setDate(0);
+  return paraISO(d);
+}
+function diasEntre(isoA, isoB){ return Math.round((deISO(isoB) - deISO(isoA)) / 86400000); }
+
+/* Os 15 períodos que o escritório já controlava em planilha. Só entram se a base
+   estiver vazia — depois disso quem manda é o que está gravado. */
+const FERIAS_SEMENTE = [
+  ['Adélia de Fátima Nunes',                  '2025-01-02'],
+  ['Adelita Sacramento Ferreira',             '2025-12-01'],
+  ['Danily Santos Guimarães',                 '2025-01-23'],
+  ['Eliane dos Santos Nicolete',              '2025-08-05'],
+  ['Igor Andrade da Silva',                   '2024-12-16'],
+  ['João Victor Santos Porto',                '2025-03-26'],
+  ['Joyce Bueno da Silva',                    '2025-12-17'],
+  ['Kailaine Aparecida Rosa da Silva Godoy',  '2025-04-07'],
+  ['Maria Betania da Silva Gomes',            '2025-10-22'],
+  ['Marlene Teixeira Alves',                  '2024-11-29'],
+  ['Michel Sacramento de Souza',              '2025-10-01'],
+  ['Muriely Taissa Pereira da Silva',         '2025-07-09'],
+  ['Renan Milani de Lima',                    '2025-01-02'],
+  ['Samuel Lopes',                            '2025-03-20'],
+  ['Sônia da Costa Santos',                   '2025-06-23']
+];
+
+function garantirBaseFerias(){
+  if(!Array.isArray(state.ferias)) state.ferias = [];
+  if(state.ferias.length || state.feriasSemeada) return;
+  FERIAS_SEMENTE.forEach(([nome, inicio])=>{
+    state.ferias.push({
+      id: 'fe_' + norm(nome) + '_' + inicio,
+      nome: nome,
+      funcionarioId: (funcionarioPorNomeFerias(nome) || {}).id || null,
+      inicio: inicio,
+      fim: somarDias(somarMeses(inicio, 12), -1),
+      gozoInicio: '', dias: 0, abonoDias: 0, base: 0, medias: 0,
+      pagoEm: '', adiantou13: false, obs: ''
+    });
+  });
+  state.feriasSemeada = true;
+}
+
+function funcionarioPorNomeFerias(nome){
+  const n = norm(nome);
+  if(!n) return null;
+  return (state.funcionarios||[]).find(f=> norm(f.nome) === n) || null;
+}
+
+/* Todas as datas e a situação de um período, a partir do início do aquisitivo. */
+function prazosFerias(fe){
+  const iniAq  = fe.inicio;
+  const fimAq  = fe.fim || somarDias(somarMeses(iniAq, 12), -1);
+  const iniCon = somarDias(fimAq, 1);
+  const fimCon = somarDias(somarMeses(iniCon, 12), -1);
+  const limite = somarDias(fimCon, -FERIAS_LIMITE_DIAS);
+  const hoje   = hojeISO();
+  const gozada = !!(fe.gozoInicio && toNum(fe.dias) > 0);
+
+  let situacao, rotulo, classe;
+  if(gozada){ situacao='gozada'; rotulo='Gozada'; classe='ok'; }
+  else if(hoje > fimCon){ situacao='dobro'; rotulo='Em dobro'; classe='dobro'; }
+  else if(hoje > limite){ situacao='urgente'; rotulo='Prazo estourando'; classe='urgente'; }
+  else if(hoje > fimAq){ situacao='vencida'; rotulo='Vencida'; classe='vencida'; }
+  else { situacao='formacao'; rotulo='No prazo'; classe='formacao'; }
+
+  return {
+    iniAq, fimAq, iniCon, fimCon, limite, situacao, rotulo, classe, gozada,
+    diasParaLimite: diasEntre(hoje, limite),
+    diasParaFimAq: diasEntre(hoje, fimAq),
+    aVencer: !gozada && diasEntre(hoje, limite) <= FERIAS_ALERTA_DIAS
+  };
+}
+
+/* Cálculo do pagamento. Férias e terço sofrem INSS; o abono vendido não. */
+function valoresFerias(fe){
+  const base  = r2(toNum(fe.base) + toNum(fe.medias));
+  const dias  = Math.min(30, Math.max(0, Math.round(toNum(fe.dias))));
+  const abono = Math.min(10, Math.max(0, Math.round(toNum(fe.abonoDias))));
+  const diaria = base / 30;
+
+  const ferias      = r2(diaria * dias);
+  const terco       = r2(ferias / 3);
+  const abonoValor  = r2(diaria * abono);
+  const tercoAbono  = r2(abonoValor / 3);
+  const tributavel  = r2(ferias + terco);
+  const inss        = r2(calcularINSS(tributavel).valor);
+  const adiant13    = fe.adiantou13 ? r2(base / 2) : 0;
+  const bruto       = r2(ferias + terco + abonoValor + tercoAbono + adiant13);
+  const liquido     = r2(bruto - inss);
+
+  return {base, dias, abono, diaria:r2(diaria), ferias, terco, abonoValor, tercoAbono,
+          tributavel, inss, baseIrrf: r2(Math.max(0, tributavel - inss)),
+          adiant13, bruto, liquido};
+}
+
+function feriasPorId(id){ return (state.ferias||[]).find(f=> f.id===id) || null; }
+
+/* --------------------------------------------------------------- tela */
+function renderFerias(){
+  garantirBaseFerias();
+  const busca = norm(document.getElementById('ferBusca').value);
+  const filtro = document.getElementById('ferFiltro').value;
+
+  const linhas = (state.ferias||[]).map(fe=> ({fe, p: prazosFerias(fe)}));
+  const conta = (s)=> linhas.filter(l=> l.p.situacao===s).length;
+  const aVencer = linhas.filter(l=> l.p.aVencer && l.p.situacao==='formacao').length;
+
+  document.getElementById('ferKpis').innerHTML =
+    '<div class="kpi '+(conta('dobro')?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Prazo estourado</div>' +
+      '<div class="kpi-val">'+conta('dobro')+'</div><div class="kpi-sub">férias devidas em dobro</div></div>' +
+    '<div class="kpi '+(conta('urgente')?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Prazo estourando</div>' +
+      '<div class="kpi-val">'+conta('urgente')+'</div><div class="kpi-sub">passou da data de programar</div></div>' +
+    '<div class="kpi '+(conta('vencida')?'kpi-alerta':'kpi-ok')+'"><div class="kpi-rot">Vencidas</div>' +
+      '<div class="kpi-val">'+conta('vencida')+'</div><div class="kpi-sub">direito adquirido, a conceder</div></div>' +
+    '<div class="kpi '+(aVencer?'kpi-alerta':'')+'"><div class="kpi-rot">A vencer em '+FERIAS_ALERTA_DIAS+' dias</div>' +
+      '<div class="kpi-val">'+aVencer+'</div><div class="kpi-sub">entram na fila em breve</div></div>' +
+    '<div class="kpi"><div class="kpi-rot">No prazo</div><div class="kpi-val">'+conta('formacao')+'</div>' +
+      '<div class="kpi-sub">período ainda em formação</div></div>' +
+    '<div class="kpi kpi-ok"><div class="kpi-rot">Já gozadas</div><div class="kpi-val">'+conta('gozada')+'</div>' +
+      '<div class="kpi-sub">com gozo registrado</div></div>';
+
+  let lista = linhas.filter(l=>{
+    if(busca && norm(l.fe.nome).indexOf(busca) < 0) return false;
+    if(filtro==='pendentes') return l.p.situacao !== 'gozada';
+    if(filtro==='dobro')     return l.p.situacao === 'dobro';
+    if(filtro==='vencidas')  return l.p.situacao === 'vencida';
+    if(filtro==='gozadas')   return l.p.situacao === 'gozada';
+    if(filtro==='avencer')   return l.p.aVencer;
+    return true;
+  });
+  /* Ordem de urgência: quem tem menos dias até o limite aparece primeiro. */
+  const peso = {dobro:0, urgente:1, vencida:2, formacao:3, gozada:4};
+  lista.sort((a,b)=> peso[a.p.situacao] - peso[b.p.situacao] ||
+                     a.p.limite.localeCompare(b.p.limite) ||
+                     a.fe.nome.localeCompare(b.fe.nome,'pt-BR'));
+
+  document.getElementById('ferInfo').textContent =
+    lista.length + ' de ' + linhas.length + ' período(s) na tela. Clique em um período para lançar o gozo e emitir o recibo.';
+
+  const corpo = document.getElementById('ferCorpo');
+  if(!lista.length){
+    corpo.innerHTML = '<div class="rec-vazio">Nenhum período de férias com esse filtro.</div>';
+  }else{
+    corpo.innerHTML = '<table class="tabela-ponto"><thead><tr>' +
+      '<th class="esq">Colaborador</th><th>Período aquisitivo</th><th>Limite para conceder</th>' +
+      '<th>Situação</th><th>Prazo</th><th>Gozo</th><th></th></tr></thead><tbody>' +
+      lista.map(({fe, p})=>{
+        const semCadastro = !funcionarioPorNomeFerias(fe.nome);
+        let prazoTxt;
+        if(p.situacao === 'gozada') prazoTxt = '—';
+        else if(p.situacao === 'dobro') prazoTxt = '<b>' + Math.abs(diasEntre(p.fimCon, hojeISO())) + ' dias vencido</b>';
+        else if(p.diasParaLimite < 0) prazoTxt = '<b>' + Math.abs(p.diasParaLimite) + ' dias além do limite</b>';
+        else prazoTxt = p.diasParaLimite + ' dias';
+        return '<tr data-ferias="'+fe.id+'">' +
+          '<td class="esq"><span class="rec-cli-nome">'+escHtml(fe.nome)+'</span>' +
+            (semCadastro ? '<div class="rec-mini">sem cadastro na folha</div>' : '') + '</td>' +
+          '<td>'+dataBR(p.iniAq)+' a '+dataBR(p.fimAq)+'</td>' +
+          '<td>'+dataBR(p.limite)+'<div class="rec-mini">concessivo até '+dataBR(p.fimCon)+'</div></td>' +
+          '<td><span class="fer-tag '+p.classe+'">'+p.rotulo+'</span></td>' +
+          '<td class="'+(p.situacao==='dobro'||p.situacao==='urgente'?'cel-critico':(p.situacao==='vencida'?'cel-alerta':''))+'">'+prazoTxt+'</td>' +
+          '<td>'+(p.gozada ? dataBR(fe.gozoInicio)+'<div class="rec-mini">'+toNum(fe.dias)+' dia(s)'+(toNum(fe.abonoDias)?' + '+toNum(fe.abonoDias)+' vendidos':'')+'</div>' : '—')+'</td>' +
+          '<td><div class="rec-acoes-linha">' +
+            '<button class="btn btn-outline btn-sm" data-abrir-ferias="'+fe.id+'">Abrir</button>' +
+            (p.gozada ? '<button class="btn btn-verde btn-sm" data-recibo-ferias="'+fe.id+'">Recibo</button>' : '') +
+          '</div></td></tr>';
+      }).join('') + '</tbody></table>';
+  }
+
+  document.getElementById('ferNota').innerHTML =
+    '<b>Como o sistema conta:</b> o período aquisitivo são 12 meses de trabalho; ao fechá-lo o colaborador ganha 30 dias de férias. ' +
+    'A empresa tem os 12 meses seguintes (período concessivo) para conceder — passou disso, o art. 137 da CLT manda pagar em dobro. ' +
+    'A <b>data limite</b> mostrada é o fim do concessivo menos ' + FERIAS_LIMITE_DIAS + ' dias, a mesma conta da planilha do escritório: é o prazo para programar, ' +
+    'deixando espaço para o aviso de 30 dias e para os 30 dias de gozo caberem dentro da lei. ' +
+    'O pagamento sai até 2 dias antes do início (art. 145) e o colaborador pode vender até 10 dias (art. 143).';
+
+  atualizarSinoFerias();
+}
+
+function atualizarSinoFerias(){
+  const sino = document.getElementById('sinoFerias');
+  if(!sino) return;
+  garantirBaseFerias();
+  const n = (state.ferias||[]).filter(fe=>{
+    const p = prazosFerias(fe);
+    return p.situacao==='dobro' || p.situacao==='urgente' || p.situacao==='vencida';
+  }).length;
+  sino.style.display = n ? '' : 'none';
+  sino.textContent = n > 99 ? '99+' : n;
+  return n;
+}
+
+document.getElementById('ferBusca').addEventListener('input', renderFerias);
+document.getElementById('ferFiltro').addEventListener('change', renderFerias);
+document.getElementById('ferCorpo').addEventListener('click', (e)=>{
+  const bRec = e.target.closest('button[data-recibo-ferias]');
+  if(bRec){ e.stopPropagation(); gerarReciboFerias(bRec.dataset.reciboFerias); return; }
+  const bAb = e.target.closest('button[data-abrir-ferias]');
+  if(bAb){ abrirModalFerias(bAb.dataset.abrirFerias); return; }
+  const tr = e.target.closest('tr[data-ferias]');
+  if(tr) abrirModalFerias(tr.dataset.ferias);
+});
+
+/* --------------------------------------------------------------- modal */
+let ferEditandoId = null;
+
+function abrirModalFerias(id){
+  garantirBaseFerias();
+  ferEditandoId = id || null;
+  const fe = id ? feriasPorId(id) : null;
+  document.getElementById('listaColaboradores').innerHTML =
+    (state.funcionarios||[]).map(f=> '<option value="'+escHtml(f.nome)+'">').join('');
+  document.getElementById('ferTitulo').textContent = fe ? 'Férias de ' + fe.nome : 'Novo período aquisitivo';
+  document.getElementById('ferSub').textContent = fe
+    ? 'Confira as datas, lance o gozo e emita o recibo de pagamento.'
+    : 'Informe o colaborador e o início do período aquisitivo; o resto o sistema calcula.';
+  document.getElementById('ferNome').value = fe ? fe.nome : '';
+  document.getElementById('ferInicio').value = fe ? fe.inicio : '';
+  document.getElementById('ferFim').value = fe ? (fe.fim||'') : '';
+  document.getElementById('ferGozoInicio').value = fe ? (fe.gozoInicio||'') : '';
+  document.getElementById('ferDias').value = fe && toNum(fe.dias) ? toNum(fe.dias) : '';
+  document.getElementById('ferAbono').value = fe && toNum(fe.abonoDias) ? toNum(fe.abonoDias) : '';
+  document.getElementById('ferMedias').value = fe && toNum(fe.medias) ? toNum(fe.medias).toFixed(2).replace('.',',') : '';
+  document.getElementById('ferPagoEm').value = fe ? (fe.pagoEm||'') : '';
+  document.getElementById('ferAdiantou13').checked = !!(fe && fe.adiantou13);
+  document.getElementById('ferObs').value = fe ? (fe.obs||'') : '';
+  document.getElementById('btnExcluirFerias').style.display = fe ? '' : 'none';
+  const baseSalvo = fe && toNum(fe.base);
+  document.getElementById('ferBase').value = baseSalvo ? toNum(fe.base).toFixed(2).replace('.',',') : '';
+  atualizarModalFerias();
+  document.getElementById('overlayFerias').classList.add('show');
+}
+
+function fecharModalFerias(){
+  document.getElementById('overlayFerias').classList.remove('show');
+  ferEditandoId = null;
+}
+
+/* Redesenha prazos e cálculo conforme o usuário digita. */
+function atualizarModalFerias(){
+  const fe = lerFormFerias();
+  const vinculo = funcionarioPorNomeFerias(fe.nome);
+  document.getElementById('ferVinculo').textContent = fe.nome
+    ? (vinculo ? 'Vinculado à folha — ' + (vinculo.funcao||'sem função') : 'Sem cadastro na folha: informe o salário base à mão.')
+    : 'A base cresce sozinha: pode digitar um nome que não está na folha.';
+
+  /* Sem base digitada, usa o salário do cadastro. */
+  const campoBase = document.getElementById('ferBase');
+  if(!toNum(campoBase.value) && vinculo && toNum(vinculo.salarioBase)){
+    campoBase.value = toNum(vinculo.salarioBase).toFixed(2).replace('.',',');
+    fe.base = toNum(vinculo.salarioBase);
+  }
+  document.getElementById('ferBaseNota').textContent = vinculo
+    ? 'Salário do cadastro: ' + fmtMoeda(toNum(vinculo.salarioBase))
+    : 'Colaborador sem cadastro — informe o valor.';
+
+  if(!fe.inicio){
+    document.getElementById('ferPrazos').innerHTML = '<span class="rec-mini">Informe o início do período aquisitivo.</span>';
+    document.getElementById('ferCalculo').innerHTML = '';
+    return;
+  }
+  const p = prazosFerias(fe);
+  document.getElementById('ferPrazos').innerHTML =
+    '<div>Aquisitivo <b>'+dataBR(p.iniAq)+' a '+dataBR(p.fimAq)+'</b></div>' +
+    '<div>Concessivo <b>'+dataBR(p.iniCon)+' a '+dataBR(p.fimCon)+'</b></div>' +
+    '<div>Limite para conceder <b>'+dataBR(p.limite)+'</b></div>' +
+    '<div><span class="fer-tag '+p.classe+'">'+p.rotulo+'</span></div>';
+
+  /* Marcou o início do gozo e não disse quantos dias? São os 30 da lei — menos o que
+     tiver vendido em abono. É o caso normal: informou a data, o recibo já sai com o
+     salário cheio mais o terço, sem precisar digitar "30" toda vez. */
+  const campoDias = document.getElementById('ferDias');
+  if((fe.gozoInicio || toNum(fe.abonoDias) > 0) && !toNum(campoDias.value)){
+    campoDias.value = Math.max(0, 30 - Math.min(10, toNum(fe.abonoDias)));
+    fe.dias = toNum(campoDias.value);
+  }
+  /* Pagamento sugerido: 2 dias antes do início do gozo. */
+  const campoPago = document.getElementById('ferPagoEm');
+  if(fe.gozoInicio && !campoPago.value){
+    campoPago.value = somarDias(fe.gozoInicio, -2);
+    fe.pagoEm = campoPago.value;
+  }
+  if(fe.gozoInicio && fe.pagoEm){
+    const atraso = diasEntre(fe.pagoEm, fe.gozoInicio);
+    document.getElementById('ferPagoNota').textContent = atraso >= 2
+      ? 'Dentro do prazo do art. 145 (' + atraso + ' dias antes do início).'
+      : 'Atenção: o art. 145 exige o pagamento até 2 dias antes do início.';
+  }
+
+  const v = valoresFerias(fe);
+  if(!fe.gozoInicio && !v.dias && !v.abono){
+    document.getElementById('ferCalculo').innerHTML =
+      '<div class="secao-title">Pagamento</div>' +
+      '<div class="rec-mini">Informe o início do gozo para o sistema calcular o recibo.</div>';
+    return;
+  }
+  /* Colaborador sem cadastro na folha entra aqui sem salário: melhor dizer o que falta
+     do que mostrar um recibo zerado. */
+  if(v.base <= 0){
+    document.getElementById('ferCalculo').innerHTML =
+      '<div class="secao-title">Pagamento</div>' +
+      '<div class="rec-editando show" style="margin:0;">Informe o <b>salário base do cálculo</b> ali em cima — ' +
+      'este colaborador não tem salário no cadastro da folha, então o sistema não tem de onde puxar.</div>';
+    return;
+  }
+  const fimGozo = fe.gozoInicio && v.dias ? somarDias(fe.gozoInicio, v.dias - 1) : '';
+  document.getElementById('ferCalculo').innerHTML =
+    '<div class="secao-title">Pagamento</div>' +
+    (fimGozo ? '<div class="rec-mini" style="margin-bottom:8px;">Gozo de <b>'+dataBR(fe.gozoInicio)+'</b> a <b>'+dataBR(fimGozo)+'</b>' +
+      (v.abono ? ' · ' + v.abono + ' dia(s) vendidos em abono' : '') + '</div>' : '') +
+    '<div class="resumo-parcial">' +
+      linhaResumoFer('Férias — ' + v.dias + ' dia(s) x ' + fmtMoeda(v.diaria), v.ferias) +
+      linhaResumoFer('1/3 constitucional', v.terco) +
+      (v.abono ? linhaResumoFer('Abono pecuniário — ' + v.abono + ' dia(s)', v.abonoValor) : '') +
+      (v.abono ? linhaResumoFer('1/3 sobre o abono', v.tercoAbono) : '') +
+      (v.adiant13 ? linhaResumoFer('Adiantamento da 1ª parcela do 13º', v.adiant13) : '') +
+      linhaResumoFer('INSS sobre férias + 1/3', -v.inss, true) +
+    '</div>' +
+    '<div class="liquido-box"><span class="lb-label">Líquido a receber</span>' +
+      '<span class="lb-valor">'+fmtMoeda(v.liquido)+'</span></div>' +
+    '<div class="rec-mini">Base de INSS ' + fmtMoeda(v.tributavel) + ' · base de IRRF ' + fmtMoeda(v.baseIrrf) +
+      '. O abono vendido não sofre INSS nem imposto de renda.</div>';
+}
+
+function linhaResumoFer(rot, valor, desconto){
+  return '<div class="rp-item"><span>'+rot+'</span>' +
+    '<span class="rp-valor'+(desconto?' rp-desconto':'')+'">'+fmtMoeda(valor)+'</span></div>';
+}
+
+function lerFormFerias(){
+  const inicio = document.getElementById('ferInicio').value;
+  return {
+    id: ferEditandoId,
+    nome: document.getElementById('ferNome').value.trim(),
+    inicio: inicio,
+    fim: document.getElementById('ferFim').value || (inicio ? somarDias(somarMeses(inicio,12), -1) : ''),
+    gozoInicio: document.getElementById('ferGozoInicio').value,
+    dias: toNum(document.getElementById('ferDias').value),
+    abonoDias: toNum(document.getElementById('ferAbono').value),
+    base: toNum(document.getElementById('ferBase').value),
+    medias: toNum(document.getElementById('ferMedias').value),
+    pagoEm: document.getElementById('ferPagoEm').value,
+    adiantou13: document.getElementById('ferAdiantou13').checked,
+    obs: document.getElementById('ferObs').value.trim()
+  };
+}
+
+['ferNome','ferInicio','ferFim','ferGozoInicio','ferDias','ferAbono','ferBase','ferMedias','ferPagoEm','ferAdiantou13']
+  .forEach(id=> document.getElementById(id).addEventListener('input', atualizarModalFerias));
+document.getElementById('ferAdiantou13').addEventListener('change', atualizarModalFerias);
+
+document.getElementById('btnNovoFerias').addEventListener('click', ()=> abrirModalFerias(null));
+document.getElementById('fecharFerias').addEventListener('click', fecharModalFerias);
+document.getElementById('btnCancelarFerias').addEventListener('click', fecharModalFerias);
+
+document.getElementById('formFerias').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const dados = lerFormFerias();
+  if(!dados.nome || !dados.inicio){ mostrarToast('Informe o colaborador e o início do período'); return; }
+  if(dados.abonoDias > 10){ mostrarToast('O abono é de no máximo 10 dias (art. 143 da CLT)'); return; }
+  if(dados.dias + dados.abonoDias > 30){ mostrarToast('Gozo e abono somados não podem passar de 30 dias'); return; }
+  dados.nome = arrumarNome(dados.nome);
+  dados.funcionarioId = (funcionarioPorNomeFerias(dados.nome) || {}).id || null;
+
+  if(ferEditandoId){
+    Object.assign(feriasPorId(ferEditandoId), dados, {id: ferEditandoId});
+    mostrarToast('Período de férias atualizado');
+  }else{
+    dados.id = 'fe_' + norm(dados.nome) + '_' + dados.inicio;
+    if(feriasPorId(dados.id)){ mostrarToast('Este colaborador já tem um período começando nesta data'); return; }
+    state.ferias.push(dados);
+    mostrarToast('Período de férias cadastrado');
+  }
+  salvarEstado();
+  fecharModalFerias();
+  renderFerias();
+});
+
+document.getElementById('btnExcluirFerias').addEventListener('click', ()=>{
+  const fe = feriasPorId(ferEditandoId);
+  if(!fe) return;
+  if(!confirm('Excluir o período de férias de ' + fe.nome + ' iniciado em ' + dataBR(fe.inicio) + '?')) return;
+  state.ferias = (state.ferias||[]).filter(x=> x.id !== fe.id);
+  salvarEstado();
+  fecharModalFerias();
+  renderFerias();
+  mostrarToast('Período excluído');
+});
+
+document.getElementById('btnReciboFerias').addEventListener('click', ()=>{
+  const dados = lerFormFerias();
+  if(!dados.nome || !dados.gozoInicio || !toNum(dados.dias)){
+    mostrarToast('Informe o início do gozo e os dias de férias antes de emitir o recibo');
+    return;
+  }
+  gerarReciboFerias(null, dados);
+});
+
+/* --------------------------------------------------------------- recibo em PDF */
+async function gerarReciboFerias(id, dadosDiretos){
+  const fe = dadosDiretos || feriasPorId(id);
+  if(!fe){ mostrarToast('Período não encontrado'); return; }
+  if(!fe.gozoInicio || !toNum(fe.dias)){ mostrarToast('Lance o início do gozo e os dias de férias primeiro'); return; }
+  try{
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF({unit:'pt', format:'a4'});
+    desenharReciboFerias(doc, fe, await obterLogoDataURL());
+    doc.save('Recibo_Ferias_' + fe.nome.replace(/\s+/g,'_') + '_' + fe.gozoInicio + '.pdf');
+    mostrarToast('Recibo de férias gerado');
+  }catch(e){
+    console.error(e);
+    mostrarToast('Falha ao gerar o recibo: ' + (e.message || e));
+  }
+}
+
+function desenharReciboFerias(doc, fe, logoDataURL){
+  const v = valoresFerias(fe);
+  const p = prazosFerias(fe);
+  const func = funcionarioPorNomeFerias(fe.nome) || {};
+  const fimGozo = somarDias(fe.gozoInicio, v.dias - 1);
+  const margem = 40; let y = 50;
+  const largura = doc.internal.pageSize.getWidth();
+
+  let xTexto = margem;
+  if(logoDataURL){
+    try{ doc.addImage(logoDataURL, 'PNG', margem, y-26, 40, 40); xTexto = margem + 52; }
+    catch(e){ xTexto = margem; }
+  }
+  doc.setFont('helvetica','bold'); doc.setFontSize(14);
+  doc.text(state.empresa || 'Empresa', xTexto, y);
+  doc.setFontSize(11); doc.setFont('helvetica','normal');
+  doc.text('Recibo de Férias', xTexto, y+16);
+  doc.text('Período aquisitivo: ' + dataBR(p.iniAq) + ' a ' + dataBR(p.fimAq), largura-margem, y+16, {align:'right'});
+  y += 36;
+  doc.setDrawColor(200); doc.line(margem, y, largura-margem, y); y += 20;
+
+  doc.setFont('helvetica','bold'); doc.setFontSize(11);
+  doc.text('Colaborador: ' + fe.nome, margem, y); y += 16;
+  doc.setFont('helvetica','normal'); doc.setFontSize(10);
+  doc.text('Função: ' + (func.funcao || '-'), margem, y);
+  doc.text('CPF: ' + (func.cpf || '-'), largura-margem, y, {align:'right'});
+  y += 14;
+  doc.text('Admissão: ' + (func.admissao || '-'), margem, y);
+  y += 22;
+
+  doc.setFillColor(240,245,248);
+  doc.rect(margem, y-13, largura-2*margem, 46, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(10);
+  doc.text('GOZO DAS FÉRIAS', margem+10, y);
+  doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+  doc.text(v.dias + ' dia(s), de ' + dataBR(fe.gozoInicio) + ' a ' + dataBR(fimGozo), margem+10, y+14);
+  doc.text('Retorno ao trabalho em ' + dataBR(somarDias(fimGozo, 1)) +
+    (v.abono ? '   ·   Abono pecuniário: ' + v.abono + ' dia(s) vendidos' : ''), margem+10, y+27);
+  y += 58;
+
+  function linhaValor(label, valor, negrito){
+    doc.setFont('helvetica', negrito?'bold':'normal');
+    doc.text(label, margem+10, y);
+    doc.text(fmtMoeda(valor), largura-margem-10, y, {align:'right'});
+    y += 16;
+  }
+  function separador(){
+    y += 4; doc.setDrawColor(220); doc.line(margem, y, largura-margem, y); y += 12;
+  }
+
+  doc.setFont('helvetica','bold'); doc.setFontSize(10.5);
+  doc.text('VENCIMENTOS', margem+10, y); y += 16;
+  doc.setFontSize(10.5);
+  linhaValor('Férias — ' + v.dias + ' dia(s) x ' + fmtMoeda(v.diaria), v.ferias);
+  linhaValor('1/3 constitucional (art. 7º, XVII)', v.terco);
+  if(v.abono){
+    linhaValor('Abono pecuniário — ' + v.abono + ' dia(s) (art. 143)', v.abonoValor);
+    linhaValor('1/3 sobre o abono', v.tercoAbono);
+  }
+  if(v.adiant13) linhaValor('Adiantamento da 1ª parcela do 13º (art. 145)', v.adiant13);
+  separador();
+  linhaValor('Total de vencimentos', v.bruto, true);
+  y += 10;
+
+  doc.setFont('helvetica','bold');
+  doc.text('DESCONTOS', margem+10, y); y += 16;
+  linhaValor('INSS sobre férias e 1/3', v.inss);
+  separador();
+  linhaValor('Total de descontos', v.inss, true);
+  y += 14;
+
+  doc.setFillColor(234,242,248);
+  doc.rect(margem, y-14, largura-2*margem, 28, 'F');
+  doc.setFont('helvetica','bold'); doc.setFontSize(12);
+  doc.text('LÍQUIDO A RECEBER', margem+10, y+4);
+  doc.text(fmtMoeda(v.liquido), largura-margem-10, y+4, {align:'right'});
+  y += 42;
+
+  doc.setFont('helvetica','bold'); doc.setFontSize(10);
+  doc.text('DEMONSTRATIVO', margem+10, y); y += 14;
+  doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(120);
+  const colLarg = (largura-2*margem-20)/4;
+  const cab = ['Salário base', 'Base INSS', 'INSS', 'Base IRRF'];
+  const val = [fmtMoeda(v.base), fmtMoeda(v.tributavel), fmtMoeda(v.inss), fmtMoeda(v.baseIrrf)];
+  let x = margem+10;
+  cab.forEach(h=>{ doc.text(h, x, y); x += colLarg; });
+  y += 12; x = margem+10;
+  doc.setFont('helvetica','bold'); doc.setTextColor(0);
+  val.forEach(t=>{ doc.text(t, x, y); x += colLarg; });
+  y += 20;
+
+  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(120);
+  doc.text('O abono pecuniário e o seu 1/3 não sofrem desconto de INSS nem de imposto de renda. ' +
+    'O pagamento das férias deve ocorrer até 2 dias antes do início do gozo (art. 145 da CLT).',
+    margem+10, y, {maxWidth: largura-2*margem-20});
+  doc.setTextColor(0);
+  y += 26;
+
+  if(fe.pagoEm){
+    doc.setFont('helvetica','normal'); doc.setFontSize(9.5);
+    doc.text('Pagamento em ' + dataBR(fe.pagoEm), margem, y);
+    y += 16;
+  }
+  const obs = String(fe.obs || '').trim();
+  if(obs){
+    doc.setFont('helvetica','bold'); doc.setFontSize(9.5);
+    doc.text('Observação:', margem, y);
+    doc.setFont('helvetica','normal');
+    const linhasObs = doc.splitTextToSize(obs, largura - 2*margem - 66);
+    doc.text(linhasObs, margem + 66, y);
+    y += Math.max(18, linhasObs.length * 12 + 6);
+  }
+
+  doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  const declara = 'Recebi da empresa ' + (state.empresa || '') + ' a importância líquida de ' + fmtMoeda(v.liquido) +
+    ' referente às férias do período aquisitivo de ' + dataBR(p.iniAq) + ' a ' + dataBR(p.fimAq) +
+    ', gozadas de ' + dataBR(fe.gozoInicio) + ' a ' + dataBR(fimGozo) + ', dando plena quitação.';
+  doc.text(doc.splitTextToSize(declara, largura - 2*margem), margem, y);
+  y += 40;
+
+  y = Math.max(y, 700);
+  doc.setDrawColor(150);
+  doc.line(margem, y, margem+200, y);
+  doc.line(largura-margem-200, y, largura-margem, y);
+  doc.setFontSize(9.5); doc.setTextColor(90);
+  doc.text('Assinatura do empregador', margem, y+14);
+  doc.text('Assinatura do colaborador', largura-margem-200, y+14);
+  doc.setTextColor(0);
+}
+
+document.getElementById('btnExportarFerias').addEventListener('click', ()=>{
+  garantirBaseFerias();
+  const linhas = (state.ferias||[]).map(fe=>{
+    const p = prazosFerias(fe);
+    const v = valoresFerias(fe);
+    return [fe.nome, dataBR(p.iniAq), dataBR(p.fimAq), dataBR(p.iniCon), dataBR(p.fimCon), dataBR(p.limite),
+            p.rotulo, p.gozada ? '' : p.diasParaLimite,
+            fe.gozoInicio ? dataBR(fe.gozoInicio) : '', toNum(fe.dias) || '', toNum(fe.abonoDias) || '',
+            v.dias ? r2(v.bruto) : '', v.dias ? r2(v.inss) : '', v.dias ? r2(v.liquido) : '',
+            fe.pagoEm ? dataBR(fe.pagoEm) : '', fe.obs || ''];
+  });
+  if(!linhas.length){ mostrarToast('Nenhum período de férias cadastrado'); return; }
+  linhas.sort((a,b)=> a[0].localeCompare(b[0],'pt-BR'));
+  const cab = [['CONTROLE DE FÉRIAS — ' + new Date().toLocaleDateString('pt-BR')], [],
+    ['Colaborador','Aquisitivo início','Aquisitivo fim','Concessivo início','Concessivo fim','Limite para conceder',
+     'Situação','Dias até o limite','Início do gozo','Dias','Dias vendidos','Bruto','INSS','Líquido','Pagamento','Observação']];
+  const ws = XLSX.utils.aoa_to_sheet(cab.concat(linhas));
+  ws['!cols'] = [{wch:38},{wch:17},{wch:16},{wch:17},{wch:16},{wch:19},{wch:17},{wch:15},
+                 {wch:14},{wch:8},{wch:13},{wch:13},{wch:12},{wch:13},{wch:13},{wch:30}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Férias');
+  XLSX.writeFile(wb, 'Controle_Ferias_' + hojeISO() + '.xlsx');
+});
+
 /* ============================= INICIALIZAÇÃO ============================= */
 document.getElementById('rodapeVersao').textContent = 'Versão ' + VERSAO_SISTEMA;
+garantirBaseFerias();
 atualizarSalarioBaseComHistorico();
 popularSelectMes();
 renderLista();
@@ -8390,6 +9371,7 @@ trocarAba('dashboard');
 fecharAoClicarFora('overlayNuvem');
 fecharAoClicarFora('overlayVincular');
 fecharAoClicarFora('overlayCliente');
+fecharAoClicarFora('overlayFerias');
 iniciarAutenticacao();
 </script>
 </body>
