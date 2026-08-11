@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gestão de Colaboradores</title>
+<title>Gestão Administrativa</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
@@ -206,6 +206,21 @@
     display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;padding:0;}
   .btn-hamburguer svg{width:20px;height:20px;stroke:var(--marca-esc);fill:none;stroke-width:2;stroke-linecap:round;}
   .btn-hamburguer:hover{background:var(--marca-cl);border-color:var(--marca);}
+  /* --- Grupos com dropdown: cada área do sistema (RH, Recebimento de Contas) é um
+     cabeçalho que abre e fecha as suas telas. Só o grupo aberto ocupa espaço; o grupo
+     fechado que contém a tela em uso fica marcado, para não se perder na navegação. --- */
+  .bl-grupo{display:flex;flex-direction:column;gap:2px;margin-bottom:4px;}
+  .bl-cabeca{font-size:13.5px;}
+  .bl-seta{margin-left:auto;width:15px !important;height:15px !important;transition:transform .18s ease;opacity:.75;}
+  .bl-grupo.aberto .bl-seta{transform:rotate(180deg);}
+  .bl-cabeca .bl-sino-grupo{margin-left:auto;}
+  .bl-cabeca .bl-sino-grupo + .bl-seta{margin-left:7px;}
+  .bl-cabeca.tem-ativa{background:rgba(255,255,255,.10);color:#fff;}
+  .bl-sub{display:none;flex-direction:column;gap:2px;margin:2px 0 2px 21px;padding-left:9px;
+    border-left:1px solid rgba(255,255,255,.16);}
+  .bl-grupo.aberto .bl-sub{display:flex;}
+  .bl-filho{font-size:13px;padding:9px 11px;}
+  .bl-filho svg{width:16px;height:16px;}
   @media(min-width:901px){
     body.menu-recolhido .barra-lateral{width:70px;}
     body.menu-recolhido .bl-rotulo{display:none;}
@@ -214,6 +229,10 @@
     body.menu-recolhido .bl-item .bl-sino{display:none;}
     body.menu-recolhido .bl-topo{justify-content:center;padding:15px 8px;}
     body.menu-recolhido .area-conteudo{margin-left:70px;}
+    /* Barra recolhida: some com as telas de dentro e deixa só o ícone de cada área.
+       Clicar no ícone reabre a barra já com o grupo aberto (ver alternarMenu). */
+    body.menu-recolhido .bl-sub{display:none !important;}
+    body.menu-recolhido .bl-grupo{margin-bottom:2px;}
   }
   @media(max-width:900px){
     .barra-lateral{transform:translateX(-100%);box-shadow:0 0 30px rgba(0,0,0,.3);}
@@ -500,6 +519,75 @@
   .bal-conf.ok:hover{filter:brightness(1.08);}
   .bal-vazio{background:#fff;border:1px solid var(--cinza-borda);border-radius:10px;padding:26px;text-align:center;color:var(--texto-fraco);font-size:13px;}
   .regras-dica{font-size:11.5px;color:var(--texto-fraco);line-height:1.6;background:#f7f9fa;border-radius:8px;padding:10px 12px;margin-top:10px;}
+  /* ============================= RECEBIMENTO DE CONTAS =============================
+     Tela de digitação rápida: o operador escreve o nome do cliente, o total da conta e
+     distribui o que foi pago entre as cinco modalidades. A base de clientes cresce
+     sozinha — todo nome digitado que ainda não existe vira cadastro no ato. */
+  .rec-form{background:#fff;border:1px solid var(--cinza-borda);border-radius:12px;padding:20px 22px 22px;
+    box-shadow:0 1px 4px rgba(20,50,80,.06);}
+  .rec-form h3{margin:0 0 14px;font-size:15px;color:var(--marca-esc);}
+  .rec-linha{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin-bottom:16px;align-items:start;}
+  .rec-busca-wrap{position:relative;}
+  .rec-busca-wrap input{width:100%;}
+  .rec-sug{position:absolute;top:calc(100% + 4px);left:0;right:0;background:#fff;border:1px solid var(--cinza-borda);
+    border-radius:9px;box-shadow:0 10px 26px rgba(20,50,80,.18);z-index:30;max-height:296px;overflow-y:auto;display:none;}
+  .rec-sug.show{display:block;}
+  .rec-sug-item{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:9px 12px;
+    cursor:pointer;border-bottom:1px solid #f0f3f5;}
+  .rec-sug-item:last-child{border-bottom:none;}
+  .rec-sug-item.marcado{background:var(--marca-cl);}
+  .rec-sug-item .rs-nome{font-weight:700;font-size:13.5px;}
+  .rec-sug-item .rs-info{font-size:11px;color:var(--texto-fraco);margin-top:1px;}
+  .rec-sug-item .rs-saldo{font-size:12px;font-weight:700;white-space:nowrap;color:var(--vermelho);}
+  .rec-sug-item .rs-saldo.zerado{color:var(--verde);}
+  .rec-sug-novo{color:var(--marca);font-weight:700;font-size:13px;display:flex;align-items:center;gap:7px;}
+  .rec-sug-novo svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+  .rec-ficha{background:#f6f9fa;border:1px solid var(--cinza-borda);border-radius:9px;padding:10px 13px;
+    font-size:12.5px;color:var(--texto-fraco);display:flex;gap:20px;flex-wrap:wrap;align-items:center;margin-bottom:16px;}
+  .rec-ficha b{color:var(--texto);font-size:13.5px;}
+  .rec-ficha .rf-devendo b{color:var(--vermelho);}
+  .rec-ficha .spacer{flex:1;}
+  .rec-mods{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:10px;margin-bottom:6px;}
+  .rec-mod{border:1px solid var(--cinza-borda);border-radius:9px;padding:9px 12px 8px;background:#fff;
+    transition:border-color .12s,background .12s;}
+  .rec-mod.preenchida{border-color:var(--marca);background:var(--marca-cl);}
+  .rec-mod .rm-topo{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.03em;color:var(--texto-fraco);}
+  .rec-mod.preenchida .rm-topo{color:var(--marca-esc);}
+  .rec-mod .rm-topo svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none;}
+  .rec-mod input{width:100%;border:none;border-bottom:1px solid var(--cinza-borda);background:none;font-size:17px;
+    font-weight:700;padding:5px 0 3px;font-family:inherit;color:var(--texto);}
+  .rec-mod input:focus{outline:none;border-bottom-color:var(--marca);}
+  .rec-mod .rm-resto{background:none;border:none;padding:2px 0 0;font-family:inherit;font-size:10.5px;
+    color:var(--marca);cursor:pointer;text-decoration:underline;visibility:hidden;}
+  .rec-mod .rm-resto.mostra{visibility:visible;}
+  .rec-somatorio{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;
+    background:var(--marca-cl);border:1px solid var(--marca);border-radius:10px;padding:13px 17px;margin:16px 0 0;}
+  .rec-somatorio .rs-bloco .rs-rot{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--marca-esc);opacity:.8;}
+  .rec-somatorio .rs-bloco .rs-val{font-size:21px;font-weight:800;letter-spacing:-.01em;color:var(--marca-esc);margin-top:2px;}
+  .rec-somatorio .rs-bloco .rs-nota{font-size:10.5px;color:var(--texto-fraco);margin-top:1px;}
+  .rec-somatorio .rs-bloco.rs-falta .rs-val{color:var(--vermelho);}
+  .rec-somatorio .rs-bloco.rs-troco .rs-val{color:#b9770e;}
+  .rec-somatorio .rs-bloco.rs-quitado .rs-val{color:var(--verde);}
+  .rec-acoes{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap;align-items:center;}
+  .rec-acoes .rec-aviso{margin-right:auto;font-size:12px;color:var(--texto-fraco);}
+  .rec-editando{background:#fff8e6;border:1px solid #f0c14b;border-radius:9px;padding:10px 13px;font-size:12.5px;
+    color:#8a6100;margin-bottom:14px;display:none;align-items:center;gap:12px;}
+  .rec-editando.show{display:flex;}
+  .rec-tag{font-size:10.5px;padding:3px 9px;border-radius:20px;font-weight:700;white-space:nowrap;background:#eef3fd;color:#2c5aa0;}
+  .rec-tag.quitado{background:#e3f7ea;color:var(--verde);}
+  .rec-tag.parcial{background:#fff8e6;color:#b9770e;}
+  .rec-tag.aberto{background:#fdecea;color:var(--vermelho);}
+  .rec-mini{font-size:11px;color:var(--texto-fraco);}
+  .rec-cli-nome{font-weight:700;font-size:13.5px;color:var(--texto);}
+  .rec-acoes-linha{display:flex;gap:6px;justify-content:flex-end;}
+  .rec-bloco{background:#fff;border:1px solid var(--cinza-borda);border-radius:11px;padding:16px 18px;margin-top:18px;}
+  .rec-bloco h3{margin:0 0 12px;font-size:14px;color:var(--marca-esc);}
+  .rec-vazio{background:#fff;border:1px solid var(--cinza-borda);border-radius:10px;padding:30px 22px;text-align:center;
+    color:var(--texto-fraco);font-size:13px;}
+  @media(max-width:820px){
+    .rec-linha{grid-template-columns:1fr;}
+  }
   @media(max-width:760px){
     .tabela-ponto{font-size:11px;} .tabela-ponto th,.tabela-ponto td{padding:6px 4px;}
     main{padding:0 10px;}
@@ -510,8 +598,8 @@
 
 <div class="overlay show" id="overlayLogin" style="z-index:200;">
   <div class="modal" style="max-width:360px;margin-top:12vh;">
-    <h2>Gestão de Colaboradores</h2>
-    <div class="sub">Acesso restrito ao departamento pessoal.</div>
+    <h2>Gestão Administrativa</h2>
+    <div class="sub">Mercado e Açougue Godoy — acesso restrito à equipe administrativa.</div>
     <form id="formLogin">
       <div class="campo" style="margin-bottom:12px;">
         <label for="loginUsuario">Usuário</label>
@@ -537,38 +625,71 @@
 <aside class="barra-lateral" id="barraLateral">
   <div class="bl-topo">
     <img src="assets/logo.jpg" alt="Mercado e Açougue Godoy" id="logoSistema">
-    <div class="bl-marca bl-rotulo">Gestão de RH<small>Mercado e Açougue Godoy</small></div>
+    <div class="bl-marca bl-rotulo">Gestão Administrativa<small>Mercado e Açougue Godoy</small></div>
   </div>
   <nav class="bl-nav">
-    <div class="bl-secao bl-rotulo">Visão geral</div>
-    <button class="bl-item ativa" data-aba="dashboard" title="Painel">
-      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
-      <span class="bl-rotulo">Painel</span>
-    </button>
-    <div class="bl-secao bl-rotulo">Departamento pessoal</div>
-    <button class="bl-item" data-aba="folha" title="Folha de Pagamento">
-      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
-      <span class="bl-rotulo">Folha de Pagamento</span>
-    </button>
-    <button class="bl-item" data-aba="ponto" title="Controle de Ponto">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
-      <span class="bl-rotulo">Controle de Ponto</span>
-      <span class="bl-sino" id="sinoPonto" style="display:none;">0</span>
-    </button>
-    <button class="bl-item" data-aba="financeiro" title="Financeiro">
-      <svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 6.5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-      <span class="bl-rotulo">Financeiro</span>
-    </button>
-    <button class="bl-item" data-aba="balanco" title="Balanço Mensal">
-      <svg viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M3 7h18"/><path d="M6.5 7 3.5 14h6z"/><path d="M17.5 7l-3 7h6z"/><path d="M8 21h8"/></svg>
-      <span class="bl-rotulo">Balanço Mensal</span>
-    </button>
-    <button class="bl-item" data-aba="relatorios" title="Relatórios">
-      <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="17" x2="9" y2="13"/><line x1="12.5" y1="17" x2="12.5" y2="10"/><line x1="16" y1="17" x2="16" y2="14"/></svg>
-      <span class="bl-rotulo">Relatórios</span>
-    </button>
+    <div class="bl-secao bl-rotulo">Áreas do sistema</div>
+
+    <div class="bl-grupo aberto" data-grupo="rh">
+      <button class="bl-item bl-cabeca" data-grupo-btn="rh" title="Recursos Humanos" aria-expanded="true">
+        <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span class="bl-rotulo">Recursos Humanos</span>
+        <span class="bl-sino bl-sino-grupo" id="sinoGrupoRh" style="display:none;">0</span>
+        <svg class="bl-seta bl-rotulo" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="bl-sub">
+        <button class="bl-item bl-filho ativa" data-aba="dashboard" title="Painel">
+          <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
+          <span class="bl-rotulo">Painel</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="folha" title="Folha de Pagamento">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+          <span class="bl-rotulo">Folha de Pagamento</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="ponto" title="Controle de Ponto">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>
+          <span class="bl-rotulo">Controle de Ponto</span>
+          <span class="bl-sino" id="sinoPonto" style="display:none;">0</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="financeiro" title="Financeiro">
+          <svg viewBox="0 0 24 24"><line x1="12" y1="2" x2="12" y2="22"/><path d="M17 6.5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          <span class="bl-rotulo">Financeiro</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="balanco" title="Balanço Mensal">
+          <svg viewBox="0 0 24 24"><path d="M12 3v18"/><path d="M3 7h18"/><path d="M6.5 7 3.5 14h6z"/><path d="M17.5 7l-3 7h6z"/><path d="M8 21h8"/></svg>
+          <span class="bl-rotulo">Balanço Mensal</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="relatorios" title="Relatórios">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="17" x2="9" y2="13"/><line x1="12.5" y1="17" x2="12.5" y2="10"/><line x1="16" y1="17" x2="16" y2="14"/></svg>
+          <span class="bl-rotulo">Relatórios</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="bl-grupo" data-grupo="rec">
+      <button class="bl-item bl-cabeca" data-grupo-btn="rec" title="Recebimento de Contas" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><path d="M4 3v18l2.5-1.6L9 21l3-1.6L15 21l2.5-1.6L20 21V3l-2.5 1.6L15 3l-3 1.6L9 3 6.5 4.6z"/><line x1="8" y1="9.5" x2="16" y2="9.5"/><line x1="8" y1="14" x2="13" y2="14"/></svg>
+        <span class="bl-rotulo">Recebimento de Contas</span>
+        <svg class="bl-seta bl-rotulo" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="bl-sub">
+        <button class="bl-item bl-filho" data-aba="recLancar" title="Lançar Recebimento">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          <span class="bl-rotulo">Lançar Recebimento</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="recClientes" title="Clientes">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span class="bl-rotulo">Clientes</span>
+          <span class="bl-sino bl-sino-grupo" id="sinoClientes" style="display:none;">0</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="recHistorico" title="Histórico de Recebimentos">
+          <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3.5" y1="6" x2="3.51" y2="6"/><line x1="3.5" y1="12" x2="3.51" y2="12"/><line x1="3.5" y1="18" x2="3.51" y2="18"/></svg>
+          <span class="bl-rotulo">Histórico</span>
+        </button>
+      </div>
+    </div>
   </nav>
-  <div class="bl-rodape bl-rotulo">Acesso restrito ao<br>departamento pessoal</div>
+  <div class="bl-rodape bl-rotulo">Acesso restrito à<br>equipe administrativa</div>
 </aside>
 <div class="fundo-lateral" id="fundoLateral"></div>
 
@@ -724,7 +845,155 @@
   </main>
 </div>
 
+<!-- ===================== RECEBIMENTO DE CONTAS: lançamento ===================== -->
+<div id="viewRecLancar" style="display:none;">
+  <main>
+    <div class="dash-topo">
+      <div>
+        <h2>Lançar recebimento</h2>
+        <div class="dash-sub">Digite o nome do cliente, o total da conta e distribua o que foi pago entre as modalidades.
+          Cliente novo é cadastrado na hora, e da próxima vez o nome já aparece na busca.</div>
+      </div>
+    </div>
+
+    <div class="rec-editando" id="recEditandoAviso">
+      <span id="recEditandoTxt"></span>
+      <div class="spacer" style="flex:1;"></div>
+      <button class="btn btn-outline btn-sm" id="btnRecCancelarEdicao">Cancelar edição</button>
+    </div>
+
+    <div class="rec-form">
+      <div class="rec-linha">
+        <div class="campo rec-busca-wrap">
+          <label for="recCliente">Cliente</label>
+          <input type="text" id="recCliente" autocomplete="off" spellcheck="false" placeholder="Digite o nome do cliente…">
+          <div class="campo-nota" id="recClienteNota">A base cresce sozinha: nome que ainda não existe é cadastrado ao registrar.</div>
+          <div class="rec-sug" id="recSug"></div>
+        </div>
+        <div class="campo">
+          <label for="recData">Data do recebimento</label>
+          <input type="date" id="recData">
+        </div>
+        <div class="campo">
+          <label for="recTotal">Total da conta</label>
+          <input type="text" inputmode="decimal" id="recTotal" placeholder="0,00">
+          <div class="campo-nota">Quanto o cliente devia nesta conta.</div>
+        </div>
+      </div>
+
+      <div class="rec-ficha" id="recFicha" style="display:none;"></div>
+
+      <div class="secao-title">Modalidades do pagamento</div>
+      <div class="rec-mods" id="recMods"></div>
+
+      <div class="rec-somatorio" id="recSomatorio"></div>
+
+      <div class="campo" style="margin-top:16px;">
+        <label for="recObs">Observação (opcional)</label>
+        <input type="text" id="recObs" placeholder="Ex.: pagou o restante na sexta">
+      </div>
+
+      <div class="rec-acoes">
+        <span class="rec-aviso" id="recAviso"></span>
+        <button class="btn btn-outline" id="btnRecLimpar">Limpar</button>
+        <button class="btn btn-primary" id="btnRecSalvar">Registrar recebimento</button>
+      </div>
+    </div>
+
+    <div class="rec-bloco" id="recUltimos"></div>
+  </main>
+</div>
+
+<!-- ===================== RECEBIMENTO DE CONTAS: clientes ===================== -->
+<div id="viewRecClientes" style="display:none;">
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="cliBusca" placeholder="Buscar cliente por nome ou telefone...">
+    </div>
+    <select id="cliFiltro">
+      <option value="todos">Todos os clientes</option>
+      <option value="devendo">Somente com saldo em aberto</option>
+      <option value="quites">Somente quites</option>
+      <option value="semmov">Sem nenhum recebimento</option>
+    </select>
+    <select id="cliOrdem">
+      <option value="alfabetica">Ordem alfabética</option>
+      <option value="maior-saldo">Maior saldo em aberto</option>
+      <option value="maior-pago">Maior valor já pago</option>
+      <option value="recentes">Recebimento mais recente</option>
+    </select>
+    <div class="spacer"></div>
+    <button class="btn btn-outline" id="btnExportarClientes">Exportar base</button>
+    <button class="btn btn-primary" id="btnNovoCliente">+ Cadastrar Cliente</button>
+  </div>
+  <main>
+    <div class="kpis" id="cliKpis"></div>
+    <div class="lista-info" id="cliInfo"></div>
+    <div id="cliCorpo"></div>
+  </main>
+</div>
+
+<!-- ===================== RECEBIMENTO DE CONTAS: histórico ===================== -->
+<div id="viewRecHistorico" style="display:none;">
+  <div class="toolbar">
+    <div class="fin-titulo">Recebimentos de <span id="hisMesLabel"></span></div>
+    <select id="hisMes"></select>
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="hisBusca" placeholder="Buscar cliente no histórico...">
+    </div>
+    <select id="hisFiltro">
+      <option value="todos">Todas as modalidades</option>
+      <option value="dinheiro">Somente com dinheiro</option>
+      <option value="cartao">Somente com cartão</option>
+      <option value="pix">Somente com pix</option>
+      <option value="senff">Somente com Senff</option>
+      <option value="alimentacao">Somente com alimentação</option>
+      <option value="parciais">Somente pagamentos parciais</option>
+    </select>
+    <div class="spacer"></div>
+    <button class="btn btn-outline" id="btnExportarRecebimentos">Exportar recebimentos</button>
+  </div>
+  <main>
+    <div class="kpis" id="hisKpis"></div>
+    <div class="lista-info" id="hisInfo"></div>
+    <div id="hisCorpo"></div>
+  </main>
+</div>
+
 </div><!-- /area-conteudo -->
+
+<!-- Modal de cadastro / ficha do cliente -->
+<div class="overlay" id="overlayCliente">
+  <div class="modal" style="max-width:640px;">
+    <button class="modal-close" id="fecharCliente">✕</button>
+    <h2 id="cliTitulo">Cadastrar cliente</h2>
+    <div class="sub" id="cliSub">O cadastro serve para o nome aparecer na busca do lançamento.</div>
+    <form id="formCliente">
+      <div class="campo-row">
+        <div class="campo">
+          <label for="cliNome">Nome do cliente</label>
+          <input type="text" id="cliNome" required autocomplete="off">
+        </div>
+        <div class="campo">
+          <label for="cliTelefone">Telefone (opcional)</label>
+          <input type="text" id="cliTelefone" autocomplete="off">
+        </div>
+      </div>
+      <div class="campo" style="margin-bottom:12px;">
+        <label for="cliObs">Observação (opcional)</label>
+        <input type="text" id="cliObs" autocomplete="off" placeholder="Ex.: cliente do bairro, paga toda sexta">
+      </div>
+      <div id="cliFicha"></div>
+      <div class="acoes-modal">
+        <button type="button" class="btn btn-vermelho" id="btnExcluirCliente" style="display:none;">Excluir cliente</button>
+        <button type="button" class="btn btn-outline" id="btnCancelarCliente">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnSalvarCliente">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <input type="file" id="filePonto" accept=".xls,.xlsx">
 
@@ -1112,7 +1381,7 @@ const db = (window.supabase && window.supabase.createClient)
   ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
   : null;   /* se o CDN falhar, o sistema continua rodando só com o cache local */
 
-/* --------- login (departamento pessoal) --------- */
+/* --------- login (equipe administrativa) --------- */
 const NOMES_USUARIO = {
   'andressa.godoi@rh.local': 'Andressa Godoi',
   'cosme.eduardo@rh.local': 'Cosme Eduardo',
@@ -1233,6 +1502,7 @@ function reconstruirTela(){
   /* O state que veio do banco pode estar em formato antigo — reaplica as
      migrações antes de qualquer cálculo aparecer na tela. */
   if(typeof migrarValoresPorColaborador === 'function') migrarValoresPorColaborador();
+  if(typeof garantirBaseRecebimentos === 'function') garantirBaseRecebimentos();
   atualizarSalarioBaseComHistorico();
   if(typeof invalidarPonto === 'function') invalidarPonto();
   popularSelectMes();
@@ -1609,6 +1879,9 @@ function renderAbaAtual(){
   if(state.abaAtual === 'financeiro' && typeof renderFinanceiro === 'function') renderFinanceiro();
   if(state.abaAtual === 'balanco' && typeof renderBalanco === 'function') renderBalanco();
   if(state.abaAtual === 'relatorios' && typeof renderRelatorios === 'function') renderRelatorios();
+  if(state.abaAtual === 'recLancar' && typeof renderRecLancar === 'function') renderRecLancar();
+  if(state.abaAtual === 'recClientes' && typeof renderClientes === 'function') renderClientes();
+  if(state.abaAtual === 'recHistorico' && typeof renderHistorico === 'function') renderHistorico();
   if(typeof atualizarSinoPonto === 'function') atualizarSinoPonto();
 }
 
@@ -5105,7 +5378,7 @@ async function relCriarDoc(def, conteudo, ctx){
     doc.line(margem, altura-margem+6, largura-margem, altura-margem+6);
     doc.setFont('helvetica','normal'); doc.setFontSize(7);
     doc.setTextColor(...REL_CORES.fraco);
-    doc.text('Gestão de Colaboradores · ' + def.titulo + ' · ' + mesLabel(ctx.mes), margem, altura-margem+17);
+    doc.text('Gestão Administrativa · ' + def.titulo + ' · ' + mesLabel(ctx.mes), margem, altura-margem+17);
     doc.text('Página ' + p + ' de ' + nPaginas, largura-margem, altura-margem+17, {align:'right'});
   }
   return doc;
@@ -5549,15 +5822,40 @@ document.getElementById('relGrid').addEventListener('click', (e)=>{
   else emitirRelatorio(btn.dataset.rel, btn.dataset.modo);
 });
 
-/* ============================= NAVEGAÇÃO (barra lateral) ============================= */
+/* ============================= NAVEGAÇÃO (barra lateral) =============================
+   O sistema tem duas áreas de primeiro nível — Recursos Humanos e Recebimento de Contas —
+   e cada uma abre em dropdown as suas telas. `grupo` diz a que área a tela pertence: é o
+   que mantém o dropdown certo aberto e esconde do cabeçalho o que só serve ao RH
+   (a competência do mês e o ajuste de salários não têm sentido no caixa). */
 const ABAS = {
-  dashboard:  {view:'viewDashboard',  titulo:'Painel'},
-  folha:      {view:'viewFolha',      titulo:'Folha de Pagamento'},
-  ponto:      {view:'viewPonto',      titulo:'Controle de Ponto'},
-  financeiro: {view:'viewFinanceiro', titulo:'Financeiro'},
-  balanco:    {view:'viewBalanco',    titulo:'Balanço Mensal'},
-  relatorios: {view:'viewRelatorios', titulo:'Relatórios'}
+  dashboard:    {view:'viewDashboard',    titulo:'Painel',                     grupo:'rh'},
+  folha:        {view:'viewFolha',        titulo:'Folha de Pagamento',         grupo:'rh'},
+  ponto:        {view:'viewPonto',        titulo:'Controle de Ponto',          grupo:'rh'},
+  financeiro:   {view:'viewFinanceiro',   titulo:'Financeiro',                 grupo:'rh'},
+  balanco:      {view:'viewBalanco',      titulo:'Balanço Mensal',             grupo:'rh'},
+  relatorios:   {view:'viewRelatorios',   titulo:'Relatórios',                 grupo:'rh'},
+  recLancar:    {view:'viewRecLancar',    titulo:'Lançar Recebimento',         grupo:'rec'},
+  recClientes:  {view:'viewRecClientes',  titulo:'Clientes',                   grupo:'rec'},
+  recHistorico: {view:'viewRecHistorico', titulo:'Histórico de Recebimentos',  grupo:'rec'}
 };
+
+/* Sanfona: abrir uma área fecha a outra, para a barra não virar uma lista comprida. */
+function abrirGrupo(nome){
+  document.querySelectorAll('.bl-grupo').forEach(g=>{
+    g.classList.toggle('aberto', g.dataset.grupo === nome);
+  });
+  marcarGrupos();
+}
+/* Grupo fechado que contém a tela em uso fica destacado, para não sumir a referência. */
+function marcarGrupos(){
+  document.querySelectorAll('.bl-grupo').forEach(g=>{
+    const cab = g.querySelector('.bl-cabeca');
+    const aberto = g.classList.contains('aberto');
+    cab.setAttribute('aria-expanded', aberto ? 'true' : 'false');
+    cab.classList.toggle('tem-ativa', !aberto && !!g.querySelector('.bl-item.ativa'));
+  });
+  atualizarSinoPonto();
+}
 
 function trocarAba(aba){
   if(!ABAS[aba]) aba = 'dashboard';
@@ -5568,17 +5866,40 @@ function trocarAba(aba){
   document.getElementById('tituloAba').textContent = ABAS[aba].titulo;
   document.querySelectorAll('.bl-item').forEach(t=> t.classList.toggle('ativa', t.dataset.aba===aba));
   document.querySelectorAll('.acoes-folha').forEach(b=> b.style.display = (aba==='folha') ? '' : 'none');
+  const soRh = ABAS[aba].grupo === 'rh';
+  document.getElementById('selMes').style.display = soRh ? '' : 'none';
+  document.getElementById('btnConfigSalarios').style.display = soRh ? '' : 'none';
+  abrirGrupo(ABAS[aba].grupo);
   if(aba==='dashboard') renderDashboard();
   if(aba==='ponto') renderPonto();
   if(aba==='financeiro') renderFinanceiro();
   if(aba==='balanco') renderBalanco();
   if(aba==='relatorios') renderRelatorios();
+  if(aba==='recLancar') renderRecLancar();
+  if(aba==='recClientes') renderClientes();
+  if(aba==='recHistorico') renderHistorico();
   atualizarSinoPonto();
   document.body.classList.remove('menu-aberto');   /* no celular, fecha a gaveta */
   window.scrollTo(0, 0);
   salvarEstado();
 }
-document.querySelectorAll('.bl-item').forEach(t=> t.addEventListener('click', ()=> trocarAba(t.dataset.aba)));
+document.querySelectorAll('.bl-item[data-aba]').forEach(t=> t.addEventListener('click', ()=> trocarAba(t.dataset.aba)));
+
+document.querySelectorAll('.bl-cabeca').forEach(cab=>{
+  cab.addEventListener('click', ()=>{
+    const grupo = cab.parentElement;
+    /* Com a barra recolhida em só ícones não há onde mostrar as telas de dentro:
+       o clique reabre a barra já com a área escolhida aberta. */
+    if(document.body.classList.contains('menu-recolhido') && window.innerWidth > 900){
+      document.body.classList.remove('menu-recolhido');
+      try{ localStorage.setItem(LS_MENU, '0'); }catch(e){}
+      abrirGrupo(grupo.dataset.grupo);
+      return;
+    }
+    if(grupo.classList.contains('aberto')){ grupo.classList.remove('aberto'); marcarGrupos(); }
+    else abrirGrupo(grupo.dataset.grupo);
+  });
+});
 
 /* Hambúrguer: em tela grande recolhe a barra para só os ícones; no celular abre a gaveta.
    A preferência fica só neste navegador — é ajuste de tela, não dado do sistema. */
@@ -5589,6 +5910,7 @@ function alternarMenu(){
   }else{
     const recolhido = document.body.classList.toggle('menu-recolhido');
     try{ localStorage.setItem(LS_MENU, recolhido ? '1' : '0'); }catch(e){}
+    if(!recolhido && state.abaAtual && ABAS[state.abaAtual]) abrirGrupo(ABAS[state.abaAtual].grupo);
   }
 }
 document.getElementById('btnMenu').addEventListener('click', alternarMenu);
@@ -5602,14 +5924,24 @@ function atualizarSinoPonto(){
   const sino = document.getElementById('sinoPonto');
   if(!sino) return;
   const dados = (typeof analisePonto === 'function') ? analisePonto() : null;
-  if(!dados){ sino.style.display = 'none'; return; }
   let n = 0;
-  dados.itens.forEach(it=>{
-    n += (it.a.faltas||0) + (it.a.semBatidaDias||0) + (it.vinculo ? 0 : 1);
-  });
-  if(!n){ sino.style.display = 'none'; return; }
-  sino.style.display = '';
-  sino.textContent = n > 99 ? '99+' : n;
+  if(dados){
+    dados.itens.forEach(it=>{
+      n += (it.a.faltas||0) + (it.a.semBatidaDias||0) + (it.vinculo ? 0 : 1);
+    });
+  }
+  const rotulo = n > 99 ? '99+' : String(n);
+  sino.style.display = n ? '' : 'none';
+  sino.textContent = rotulo;
+  /* Com o dropdown do RH fechado o aviso do ponto ficaria escondido: o cabeçalho
+     da área assume o contador enquanto o grupo estiver recolhido. */
+  const sinoGrupo = document.getElementById('sinoGrupoRh');
+  if(sinoGrupo){
+    const grupoRh = document.querySelector('.bl-grupo[data-grupo="rh"]');
+    const fechado = grupoRh && !grupoRh.classList.contains('aberto');
+    sinoGrupo.style.display = (n && fechado) ? '' : 'none';
+    sinoGrupo.textContent = rotulo;
+  }
 }
 
 /* ============================= PONTO: IMPORTAÇÃO ============================= */
@@ -6527,6 +6859,800 @@ async function emitirDocumento(chave, modo){
   }
 }
 
+/* ============================= RECEBIMENTO DE CONTAS =============================
+   Área nova do sistema, independente do RH: registra o que os clientes pagam das suas
+   contas. O lançamento é sempre o mesmo gesto — nome do cliente, total da conta e o
+   que foi pago, distribuído entre as cinco modalidades (o cliente pode usar as cinco
+   no mesmo pagamento). A base de clientes não precisa ser cadastrada antes: todo nome
+   digitado que ainda não existe entra na base ao registrar, e da próxima vez já aparece
+   sugerido na busca.
+
+   O que ficou pendente de uma conta (total maior que o pago) vira saldo em aberto do
+   cliente — a soma dessas diferenças é o que ele ainda deve. Pagar mais do que o total
+   da conta abate esse saldo antigo (por isso a diferença negativa é tratada como
+   crédito, não como erro).
+
+   Os dados moram em state.clientes e state.recebimentos: como toda chave do estado que
+   não é funcionários/folha/ponto, vão para a tabela rh_config do banco sem precisar de
+   migração, e voltam inteiras no carregamento. */
+
+const FORMAS_RECEBIMENTO = [
+  {chave:'dinheiro',    rotulo:'Dinheiro',    icone:'<rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/>'},
+  {chave:'cartao',      rotulo:'Cartão',      icone:'<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>'},
+  {chave:'pix',         rotulo:'Pix',         icone:'<path d="M12 2.5 21.5 12 12 21.5 2.5 12z"/>'},
+  {chave:'senff',       rotulo:'Senff',       icone:'<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="15" x2="11" y2="15"/><line x1="2" y1="9" x2="22" y2="9"/>'},
+  {chave:'alimentacao', rotulo:'Alimentação', icone:'<path d="M6 3v7a2 2 0 0 0 4 0V3"/><line x1="8" y1="10" x2="8" y2="21"/><path d="M17 3c-1.4 1.6-2 3.2-2 5.2s.6 3 2 3 2-1 2-3S18.4 4.6 17 3z"/><line x1="17" y1="11" x2="17" y2="21"/>'}
+];
+
+function garantirBaseRecebimentos(){
+  if(!Array.isArray(state.clientes)) state.clientes = [];
+  if(!Array.isArray(state.recebimentos)) state.recebimentos = [];
+}
+garantirBaseRecebimentos();
+
+function novoIdRec(prefixo){
+  return prefixo + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+function hojeISO(){
+  const d = new Date();
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+function dataBR(iso){
+  const p = String(iso||'').split('-');
+  return p.length===3 ? p[2]+'/'+p[1]+'/'+p[0] : (iso||'');
+}
+/* Nome de cliente é texto livre digitado no caixa: escapa antes de ir para o HTML. */
+function escHtml(s){
+  return String(s===null||s===undefined ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function clientePorId(id){ return (state.clientes||[]).find(c=> c.id===id) || null; }
+function clientePorNome(nome){
+  const n = norm(nome);
+  if(!n) return null;
+  return (state.clientes||[]).find(c=> norm(c.nome)===n) || null;
+}
+function nomeCliente(id){
+  const c = clientePorId(id);
+  return c ? c.nome : 'Cliente removido';
+}
+/* Quanto entrou no caixa neste lançamento: a soma das cinco modalidades. */
+function pagoDoRecebimento(r){
+  if(!r) return 0;
+  return FORMAS_RECEBIMENTO.reduce((s,f)=> s + toNum(r[f.chave]), 0);
+}
+function recebimentosDoCliente(id){
+  return (state.recebimentos||[]).filter(r=> r.clienteId===id);
+}
+/* Saldo em aberto = soma das diferenças entre o total das contas e o que foi pago.
+   Negativo significa crédito: o cliente pagou mais do que as contas registradas. */
+function resumoCliente(id){
+  const lista = recebimentosDoCliente(id);
+  let pago = 0, contas = 0, ultima = '';
+  lista.forEach(r=>{
+    pago += pagoDoRecebimento(r);
+    contas += toNum(r.total);
+    if(!ultima || String(r.data) > ultima) ultima = String(r.data||'');
+  });
+  return { qtd: lista.length, pago: r2(pago), contas: r2(contas), saldo: r2(contas - pago), ultima };
+}
+function situacaoRecebimento(r){
+  const dif = r2(toNum(r.total) - pagoDoRecebimento(r));
+  if(dif > 0.004) return {classe:'parcial', rot:'Parcial'};
+  if(dif < -0.004) return {classe:'quitado', rot:'Com crédito'};
+  return {classe:'quitado', rot:'Quitado'};
+}
+function resumoFormas(r){
+  const usadas = FORMAS_RECEBIMENTO.filter(f=> toNum(r[f.chave]) > 0);
+  if(!usadas.length) return '—';
+  return usadas.map(f=> f.rotulo + ' ' + fmtMoeda(toNum(r[f.chave]))).join(' · ');
+}
+
+/* --------------------------------------------------------------- tela de lançamento */
+let recClienteSel = null;   /* id do cliente escolhido na busca */
+let recEditandoId = null;   /* lançamento aberto para correção */
+let recSugLista = [];       /* sugestões visíveis no momento */
+let recSugIndice = -1;      /* item marcado pelas setas do teclado */
+let recModsMontadas = false;
+
+function montarModsRec(){
+  if(recModsMontadas) return;
+  document.getElementById('recMods').innerHTML = FORMAS_RECEBIMENTO.map(f=>
+    '<div class="rec-mod" data-mod="'+f.chave+'">' +
+      '<div class="rm-topo"><svg viewBox="0 0 24 24">'+f.icone+'</svg>'+f.rotulo+'</div>' +
+      '<input type="text" inputmode="decimal" id="recPg_'+f.chave+'" data-forma="'+f.chave+'" placeholder="0,00">' +
+      '<button type="button" class="rm-resto" data-resto="'+f.chave+'">lançar o restante</button>' +
+    '</div>'
+  ).join('');
+  document.getElementById('recMods').addEventListener('input', (e)=>{
+    if(e.target.dataset.forma) atualizarSomatorioRec();
+  });
+  document.getElementById('recMods').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button[data-resto]');
+    if(!btn) return;
+    const alvo = document.getElementById('recPg_' + btn.dataset.resto);
+    const outras = FORMAS_RECEBIMENTO.reduce((s,f)=>
+      s + (f.chave===btn.dataset.resto ? 0 : toNum(document.getElementById('recPg_'+f.chave).value)), 0);
+    const resto = r2(toNum(document.getElementById('recTotal').value) - outras);
+    alvo.value = resto > 0 ? resto.toFixed(2).replace('.',',') : '';
+    atualizarSomatorioRec();
+    alvo.focus();
+  });
+  recModsMontadas = true;
+}
+
+function valoresFormasDoForm(){
+  const v = {};
+  FORMAS_RECEBIMENTO.forEach(f=> v[f.chave] = r2(toNum(document.getElementById('recPg_'+f.chave).value)));
+  return v;
+}
+
+function atualizarSomatorioRec(){
+  if(!recModsMontadas) return;   /* nada a somar antes de a tela de lançamento existir */
+  const total = r2(toNum(document.getElementById('recTotal').value));
+  const formas = valoresFormasDoForm();
+  const pago = r2(FORMAS_RECEBIMENTO.reduce((s,f)=> s + formas[f.chave], 0));
+  const dif = r2(total - pago);
+
+  FORMAS_RECEBIMENTO.forEach(f=>{
+    const cx = document.querySelector('.rec-mod[data-mod="'+f.chave+'"]');
+    cx.classList.toggle('preenchida', formas[f.chave] > 0);
+    const resto = r2(total - (pago - formas[f.chave]));
+    cx.querySelector('.rm-resto').classList.toggle('mostra', total > 0 && resto > 0.004 && formas[f.chave] !== resto);
+  });
+
+  let blocoDif;
+  if(dif > 0.004) blocoDif = {cls:'rs-falta', rot:'Ficou devendo', val:fmtMoeda(dif), nota:'entra no saldo em aberto do cliente'};
+  else if(dif < -0.004) blocoDif = {cls:'rs-troco', rot:'Pagou a mais', val:fmtMoeda(-dif), nota:'abate saldo antigo ou vira troco'};
+  else blocoDif = {cls:'rs-quitado', rot:'Diferença', val:fmtMoeda(0), nota:'conta quitada por inteiro'};
+
+  const partes = [
+    '<div class="rs-bloco"><div class="rs-rot">Total da conta</div><div class="rs-val">'+fmtMoeda(total)+'</div></div>',
+    '<div class="rs-bloco"><div class="rs-rot">Quantia paga</div><div class="rs-val">'+fmtMoeda(pago)+'</div>' +
+      '<div class="rs-nota">'+ (pago>0 ? FORMAS_RECEBIMENTO.filter(f=>formas[f.chave]>0).length + ' modalidade(s)' : 'nenhuma modalidade preenchida') +'</div></div>',
+    '<div class="rs-bloco '+blocoDif.cls+'"><div class="rs-rot">'+blocoDif.rot+'</div><div class="rs-val">'+blocoDif.val+'</div>' +
+      '<div class="rs-nota">'+blocoDif.nota+'</div></div>'
+  ];
+
+  if(recClienteSel){
+    const res = resumoCliente(recClienteSel);
+    /* Ao corrigir um lançamento, o valor antigo dele sai da conta do saldo. */
+    let saldoBase = res.saldo;
+    if(recEditandoId){
+      const antigo = (state.recebimentos||[]).find(r=> r.id===recEditandoId);
+      if(antigo && antigo.clienteId===recClienteSel) saldoBase = r2(saldoBase - (toNum(antigo.total) - pagoDoRecebimento(antigo)));
+    }
+    const depois = r2(saldoBase + dif);
+    partes.push('<div class="rs-bloco '+(depois>0.004?'rs-falta':'rs-quitado')+'"><div class="rs-rot">Saldo do cliente depois</div>' +
+      '<div class="rs-val">'+fmtMoeda(Math.abs(depois))+'</div>' +
+      '<div class="rs-nota">'+ (depois>0.004 ? 'continua devendo' : (depois<-0.004 ? 'fica com crédito' : 'fica quite')) +'</div></div>');
+  }
+  document.getElementById('recSomatorio').innerHTML = partes.join('');
+}
+
+function atualizarFichaRec(){
+  const ficha = document.getElementById('recFicha');
+  if(!recClienteSel){ ficha.style.display = 'none'; atualizarSomatorioRec(); return; }
+  const c = clientePorId(recClienteSel);
+  const res = resumoCliente(recClienteSel);
+  ficha.style.display = '';
+  ficha.innerHTML =
+    '<div>Cliente <b>'+escHtml(c.nome)+'</b>'+ (c.telefone ? ' <span class="rec-mini">· '+escHtml(c.telefone)+'</span>' : '') +'</div>' +
+    '<div class="'+(res.saldo>0.004?'rf-devendo':'')+'">Saldo em aberto <b>'+fmtMoeda(res.saldo>0?res.saldo:0)+'</b></div>' +
+    (res.saldo < -0.004 ? '<div>Crédito <b>'+fmtMoeda(-res.saldo)+'</b></div>' : '') +
+    '<div>Já pagou <b>'+fmtMoeda(res.pago)+'</b> em '+res.qtd+' recebimento(s)</div>' +
+    (res.ultima ? '<div>Último em <b>'+dataBR(res.ultima)+'</b></div>' : '<div class="rec-mini">Primeiro recebimento deste cliente</div>');
+  atualizarSomatorioRec();
+}
+
+/* Busca com sugestão: filtra a base pelo que já foi digitado, mostrando o saldo de cada
+   um — é a informação que o operador precisa antes de escolher. O último item oferece
+   cadastrar o nome digitado, para nunca travar o atendimento. */
+function fecharSugRec(){
+  document.getElementById('recSug').classList.remove('show');
+  recSugLista = []; recSugIndice = -1;
+}
+
+function abrirSugRec(){
+  const termo = document.getElementById('recCliente').value.trim();
+  const n = norm(termo);
+  const caixa = document.getElementById('recSug');
+  let achados = (state.clientes||[]).slice();
+  if(n) achados = achados.filter(c=> norm(c.nome).indexOf(n) >= 0 || norm(c.telefone).indexOf(n) >= 0);
+  achados.sort((a,b)=>{
+    if(n){
+      const ia = norm(a.nome).indexOf(n)===0 ? 0 : 1;
+      const ib = norm(b.nome).indexOf(n)===0 ? 0 : 1;
+      if(ia!==ib) return ia-ib;
+    }
+    return a.nome.localeCompare(b.nome,'pt-BR');
+  });
+  achados = achados.slice(0, 8);
+  recSugLista = achados.map(c=> ({tipo:'cliente', id:c.id}));
+
+  let html = achados.map(c=>{
+    const res = resumoCliente(c.id);
+    const saldoTxt = res.saldo > 0.004
+      ? 'deve ' + fmtMoeda(res.saldo)
+      : (res.saldo < -0.004 ? 'crédito ' + fmtMoeda(-res.saldo) : 'quite');
+    return '<div class="rec-sug-item" data-cli="'+c.id+'">' +
+      '<div><div class="rs-nome">'+escHtml(c.nome)+'</div>' +
+      '<div class="rs-info">'+ (c.telefone ? escHtml(c.telefone)+' · ' : '') +
+        (res.qtd ? res.qtd+' recebimento(s) · último em '+dataBR(res.ultima) : 'sem recebimentos ainda') +'</div></div>' +
+      '<div class="rs-saldo '+(res.saldo>0.004?'':'zerado')+'">'+saldoTxt+'</div></div>';
+  }).join('');
+
+  const exato = clientePorNome(termo);
+  if(termo && !exato){
+    recSugLista.push({tipo:'novo'});
+    html += '<div class="rec-sug-item" data-novo="1"><span class="rec-sug-novo">' +
+      '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>' +
+      'Cadastrar “'+escHtml(termo)+'” como cliente novo</span></div>';
+  }
+  if(!html){
+    html = '<div class="rec-sug-item"><span class="rec-mini">Nenhum cliente na base ainda — digite o nome e registre: ele é cadastrado na hora.</span></div>';
+    recSugLista = [];
+  }
+  caixa.innerHTML = html;
+  caixa.classList.add('show');
+  recSugIndice = -1;
+}
+
+function marcarSugRec(i){
+  const itens = document.querySelectorAll('#recSug .rec-sug-item[data-cli], #recSug .rec-sug-item[data-novo]');
+  itens.forEach(el=> el.classList.remove('marcado'));
+  if(i >= 0 && itens[i]){
+    itens[i].classList.add('marcado');
+    itens[i].scrollIntoView({block:'nearest'});
+  }
+}
+
+function escolherSugRec(i){
+  const item = recSugLista[i];
+  if(!item) return;
+  if(item.tipo === 'cliente'){
+    recClienteSel = item.id;
+    document.getElementById('recCliente').value = nomeCliente(item.id);
+  }else{
+    /* “Cadastrar novo”: o cliente só entra na base ao registrar o lançamento —
+       assim ninguém fica com cadastro solto de um atendimento que não terminou. */
+    recClienteSel = null;
+  }
+  fecharSugRec();
+  atualizarFichaRec();
+  document.getElementById('recTotal').focus();
+}
+
+function ligarBuscaCliente(){
+  const inp = document.getElementById('recCliente');
+  inp.addEventListener('input', ()=>{
+    const exato = clientePorNome(inp.value);
+    recClienteSel = exato ? exato.id : null;
+    abrirSugRec();
+    atualizarFichaRec();
+  });
+  inp.addEventListener('focus', abrirSugRec);
+  inp.addEventListener('keydown', (e)=>{
+    const n = recSugLista.length;
+    if(e.key === 'ArrowDown' && n){ e.preventDefault(); recSugIndice = (recSugIndice+1) % n; marcarSugRec(recSugIndice); }
+    else if(e.key === 'ArrowUp' && n){ e.preventDefault(); recSugIndice = (recSugIndice-1+n) % n; marcarSugRec(recSugIndice); }
+    else if(e.key === 'Enter'){
+      if(recSugIndice >= 0){ e.preventDefault(); escolherSugRec(recSugIndice); }
+      else { fecharSugRec(); }
+    }
+    else if(e.key === 'Escape'){ fecharSugRec(); }
+  });
+  /* mousedown (e não click) porque o blur do campo fecha a lista antes do clique. */
+  document.getElementById('recSug').addEventListener('mousedown', (e)=>{
+    const item = e.target.closest('.rec-sug-item');
+    if(!item) return;
+    e.preventDefault();
+    const itens = Array.from(document.querySelectorAll('#recSug .rec-sug-item[data-cli], #recSug .rec-sug-item[data-novo]'));
+    escolherSugRec(itens.indexOf(item));
+  });
+  document.addEventListener('click', (e)=>{
+    if(!e.target.closest('.rec-busca-wrap')) fecharSugRec();
+  });
+}
+
+function limparFormRec(manterCliente){
+  recEditandoId = null;
+  document.getElementById('recEditandoAviso').classList.remove('show');
+  document.getElementById('btnRecSalvar').textContent = 'Registrar recebimento';
+  if(!manterCliente){
+    document.getElementById('recCliente').value = '';
+    recClienteSel = null;
+  }
+  document.getElementById('recTotal').value = '';
+  document.getElementById('recObs').value = '';
+  document.getElementById('recData').value = hojeISO();
+  FORMAS_RECEBIMENTO.forEach(f=> document.getElementById('recPg_'+f.chave).value = '');
+  document.getElementById('recAviso').textContent = '';
+  atualizarFichaRec();
+}
+
+function renderRecLancar(){
+  garantirBaseRecebimentos();
+  montarModsRec();
+  if(!document.getElementById('recData').value) document.getElementById('recData').value = hojeISO();
+  atualizarFichaRec();
+  renderUltimosRec();
+}
+
+function renderUltimosRec(){
+  const caixa = document.getElementById('recUltimos');
+  const lista = (state.recebimentos||[]).slice()
+    .sort((a,b)=> String(b.criadoEm||b.data||'').localeCompare(String(a.criadoEm||a.data||'')))
+    .slice(0, 8);
+  if(!lista.length){
+    caixa.innerHTML = '<h3>Últimos recebimentos</h3><div class="rec-vazio">Nenhum recebimento registrado ainda. ' +
+      'O primeiro lançamento já cria o cliente na base.</div>';
+    return;
+  }
+  caixa.innerHTML = '<h3>Últimos recebimentos</h3>' +
+    '<table class="tabela-ponto"><thead><tr>' +
+    '<th class="esq">Data</th><th class="esq">Cliente</th><th>Total da conta</th><th>Pago</th>' +
+    '<th class="esq">Modalidades</th><th>Situação</th><th></th></tr></thead><tbody>' +
+    lista.map(r=>{
+      const sit = situacaoRecebimento(r);
+      const dif = r2(toNum(r.total) - pagoDoRecebimento(r));
+      return '<tr>' +
+        '<td class="esq">'+dataBR(r.data)+'</td>' +
+        '<td class="esq"><span class="rec-cli-nome">'+escHtml(nomeCliente(r.clienteId))+'</span>' +
+          (r.obs ? '<div class="rec-mini">'+escHtml(r.obs)+'</div>' : '') + '</td>' +
+        '<td>'+fmtMoeda(toNum(r.total))+'</td>' +
+        '<td><b>'+fmtMoeda(pagoDoRecebimento(r))+'</b></td>' +
+        '<td class="esq rec-mini">'+escHtml(resumoFormas(r))+'</td>' +
+        '<td><span class="rec-tag '+sit.classe+'">'+sit.rot+'</span>' +
+          (dif>0.004 ? '<div class="rec-mini">falta '+fmtMoeda(dif)+'</div>' : '') + '</td>' +
+        '<td><div class="rec-acoes-linha">' +
+          '<button class="btn btn-outline btn-sm" data-editar-rec="'+r.id+'">Editar</button>' +
+          '<button class="btn btn-vermelho btn-sm" data-excluir-rec="'+r.id+'">Excluir</button>' +
+        '</div></td></tr>';
+    }).join('') + '</tbody></table>';
+}
+
+function salvarRecebimento(){
+  garantirBaseRecebimentos();
+  const aviso = document.getElementById('recAviso');
+  const nome = document.getElementById('recCliente').value.trim();
+  const total = r2(toNum(document.getElementById('recTotal').value));
+  const formas = valoresFormasDoForm();
+  const pago = r2(FORMAS_RECEBIMENTO.reduce((s,f)=> s + formas[f.chave], 0));
+
+  if(!nome){ aviso.textContent = 'Informe o nome do cliente.'; document.getElementById('recCliente').focus(); return; }
+  if(total <= 0 && pago <= 0){ aviso.textContent = 'Informe o total da conta e a quantia paga.'; return; }
+  if(pago <= 0 && !confirm('Nenhuma modalidade foi preenchida.\n\nRegistrar a conta de ' + fmtMoeda(total) +
+      ' como totalmente em aberto para ' + nome + '?')) return;
+  aviso.textContent = '';
+
+  /* Cliente: o escolhido na busca, o de nome igual ao digitado, ou um cadastro novo. */
+  let cli = recClienteSel ? clientePorId(recClienteSel) : clientePorNome(nome);
+  let novoCadastro = false;
+  if(!cli){
+    cli = { id: novoIdRec('c_'), nome: nome, telefone: '', obs: '', criadoEm: new Date().toISOString() };
+    state.clientes.push(cli);
+    novoCadastro = true;
+  }
+
+  const dados = {
+    clienteId: cli.id,
+    data: document.getElementById('recData').value || hojeISO(),
+    total: total,
+    obs: document.getElementById('recObs').value.trim()
+  };
+  FORMAS_RECEBIMENTO.forEach(f=> dados[f.chave] = formas[f.chave]);
+
+  if(recEditandoId){
+    const r = (state.recebimentos||[]).find(x=> x.id===recEditandoId);
+    if(!r){ mostrarToast('O lançamento não existe mais'); limparFormRec(); return; }
+    Object.assign(r, dados, { alteradoEm: new Date().toISOString() });
+    mostrarToast('Recebimento de ' + cli.nome + ' corrigido');
+  }else{
+    state.recebimentos.push(Object.assign({
+      id: novoIdRec('r_'),
+      criadoEm: new Date().toISOString(),
+      usuario: document.getElementById('usuarioLogado').textContent || ''
+    }, dados));
+    const dif = r2(total - pago);
+    mostrarToast('Recebido ' + fmtMoeda(pago) + ' de ' + cli.nome +
+      (dif > 0.004 ? ' — ficou devendo ' + fmtMoeda(dif) : '') +
+      (novoCadastro ? ' (cliente cadastrado)' : ''));
+  }
+
+  salvarEstado();
+  limparFormRec();
+  renderUltimosRec();
+  document.getElementById('recCliente').focus();
+}
+
+function editarRecebimento(id){
+  const r = (state.recebimentos||[]).find(x=> x.id===id);
+  if(!r) return;
+  trocarAba('recLancar');
+  recEditandoId = id;
+  recClienteSel = r.clienteId;
+  document.getElementById('recCliente').value = nomeCliente(r.clienteId);
+  document.getElementById('recData').value = r.data || hojeISO();
+  document.getElementById('recTotal').value = toNum(r.total) ? toNum(r.total).toFixed(2).replace('.',',') : '';
+  document.getElementById('recObs').value = r.obs || '';
+  FORMAS_RECEBIMENTO.forEach(f=>{
+    const v = toNum(r[f.chave]);
+    document.getElementById('recPg_'+f.chave).value = v ? v.toFixed(2).replace('.',',') : '';
+  });
+  document.getElementById('recEditandoTxt').textContent =
+    'Corrigindo o recebimento de ' + nomeCliente(r.clienteId) + ' de ' + dataBR(r.data) + '.';
+  document.getElementById('recEditandoAviso').classList.add('show');
+  document.getElementById('btnRecSalvar').textContent = 'Salvar alteração';
+  atualizarFichaRec();
+  window.scrollTo(0,0);
+}
+
+function excluirRecebimento(id){
+  const r = (state.recebimentos||[]).find(x=> x.id===id);
+  if(!r) return;
+  if(!confirm('Excluir o recebimento de ' + nomeCliente(r.clienteId) + ' de ' + dataBR(r.data) + '?\n\n' +
+    'Valor pago: ' + fmtMoeda(pagoDoRecebimento(r)) + '. O saldo do cliente é recalculado.')) return;
+  state.recebimentos = (state.recebimentos||[]).filter(x=> x.id!==id);
+  if(recEditandoId === id) limparFormRec();
+  salvarEstado();
+  renderUltimosRec();
+  if(state.abaAtual === 'recClientes') renderClientes();
+  if(state.abaAtual === 'recHistorico') renderHistorico();
+  atualizarFichaRec();
+  mostrarToast('Recebimento excluído');
+}
+
+/* Um só ouvinte para os botões de editar/excluir das três telas da área. */
+document.addEventListener('click', (e)=>{
+  const bE = e.target.closest('button[data-editar-rec]');
+  if(bE){ editarRecebimento(bE.dataset.editarRec); return; }
+  const bX = e.target.closest('button[data-excluir-rec]');
+  if(bX){ excluirRecebimento(bX.dataset.excluirRec); return; }
+});
+
+document.getElementById('btnRecSalvar').addEventListener('click', salvarRecebimento);
+document.getElementById('btnRecLimpar').addEventListener('click', ()=> limparFormRec());
+document.getElementById('btnRecCancelarEdicao').addEventListener('click', ()=>{
+  limparFormRec();
+  mostrarToast('Edição cancelada');
+});
+document.getElementById('recTotal').addEventListener('input', atualizarSomatorioRec);
+/* Enter no total pula direto para a primeira modalidade — o fluxo é sempre esse. */
+document.getElementById('recTotal').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter'){ e.preventDefault(); document.getElementById('recPg_dinheiro').focus(); }
+});
+ligarBuscaCliente();
+/* Monta os campos das modalidades já na carga: excluir um lançamento pelo histórico
+   mexe no somatório da tela de lançamento mesmo que ela ainda não tenha sido aberta. */
+montarModsRec();
+
+/* --------------------------------------------------------------- tela de clientes */
+function renderClientes(){
+  garantirBaseRecebimentos();
+  const busca = norm(document.getElementById('cliBusca').value);
+  const filtro = document.getElementById('cliFiltro').value;
+  const ordem = document.getElementById('cliOrdem').value;
+
+  const linhas = (state.clientes||[]).map(c=> Object.assign({cli:c}, resumoCliente(c.id)));
+
+  /* KPIs falam da base inteira, não do que o filtro deixou na tela. */
+  const totalAberto = r2(linhas.reduce((s,l)=> s + (l.saldo>0 ? l.saldo : 0), 0));
+  const totalRecebido = r2(linhas.reduce((s,l)=> s + l.pago, 0));
+  const devendo = linhas.filter(l=> l.saldo > 0.004).length;
+  document.getElementById('cliKpis').innerHTML =
+    '<div class="kpi"><div class="kpi-rot">Clientes na base</div><div class="kpi-val">'+linhas.length+'</div>' +
+      '<div class="kpi-sub">cadastrados até agora</div></div>' +
+    '<div class="kpi '+(devendo?'kpi-alerta':'kpi-ok')+'"><div class="kpi-rot">Com saldo em aberto</div>' +
+      '<div class="kpi-val">'+devendo+'</div><div class="kpi-sub">clientes devendo</div></div>' +
+    '<div class="kpi '+(totalAberto>0?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Total em aberto</div>' +
+      '<div class="kpi-val">'+fmtMoeda(totalAberto)+'</div><div class="kpi-sub">soma do que falta receber</div></div>' +
+    '<div class="kpi kpi-ok"><div class="kpi-rot">Total já recebido</div>' +
+      '<div class="kpi-val">'+fmtMoeda(totalRecebido)+'</div><div class="kpi-sub">desde o início dos registros</div></div>';
+
+  let lista = linhas.filter(l=>{
+    if(busca && norm(l.cli.nome).indexOf(busca) < 0 && norm(l.cli.telefone).indexOf(busca) < 0) return false;
+    if(filtro==='devendo' && !(l.saldo > 0.004)) return false;
+    if(filtro==='quites' && l.saldo > 0.004) return false;
+    if(filtro==='semmov' && l.qtd) return false;
+    return true;
+  });
+  lista.sort((a,b)=>{
+    if(ordem==='maior-saldo') return b.saldo - a.saldo || a.cli.nome.localeCompare(b.cli.nome,'pt-BR');
+    if(ordem==='maior-pago')  return b.pago - a.pago  || a.cli.nome.localeCompare(b.cli.nome,'pt-BR');
+    if(ordem==='recentes')    return String(b.ultima||'').localeCompare(String(a.ultima||'')) || a.cli.nome.localeCompare(b.cli.nome,'pt-BR');
+    return a.cli.nome.localeCompare(b.cli.nome,'pt-BR');
+  });
+
+  document.getElementById('cliInfo').textContent =
+    lista.length + ' de ' + linhas.length + ' cliente(s) na tela. Clique em um cliente para ver a ficha e o histórico dele.';
+
+  const corpo = document.getElementById('cliCorpo');
+  if(!lista.length){
+    corpo.innerHTML = '<div class="rec-vazio">' +
+      (linhas.length ? 'Nenhum cliente encontrado com esse filtro.'
+                     : 'A base ainda está vazia. Cada recebimento lançado cadastra o cliente automaticamente — ' +
+                       'com o tempo ela se enche sozinha.') + '</div>';
+    return;
+  }
+  corpo.innerHTML = '<table class="tabela-ponto"><thead><tr>' +
+    '<th class="esq">Cliente</th><th class="esq">Telefone</th><th>Recebimentos</th><th>Total das contas</th>' +
+    '<th>Total pago</th><th>Saldo em aberto</th><th>Último</th></tr></thead><tbody>' +
+    lista.map(l=>
+      '<tr data-cliente="'+l.cli.id+'">' +
+      '<td class="esq"><span class="rec-cli-nome">'+escHtml(l.cli.nome)+'</span>' +
+        (l.cli.obs ? '<div class="rec-mini">'+escHtml(l.cli.obs)+'</div>' : '') + '</td>' +
+      '<td class="esq">'+escHtml(l.cli.telefone||'—')+'</td>' +
+      '<td>'+l.qtd+'</td>' +
+      '<td>'+fmtMoeda(l.contas)+'</td>' +
+      '<td>'+fmtMoeda(l.pago)+'</td>' +
+      '<td class="'+(l.saldo>0.004?'cel-critico':'cel-ok')+'">' +
+        (l.saldo>0.004 ? fmtMoeda(l.saldo) : (l.saldo<-0.004 ? 'crédito '+fmtMoeda(-l.saldo) : 'quite')) + '</td>' +
+      '<td>'+(l.ultima ? dataBR(l.ultima) : '—')+'</td></tr>'
+    ).join('') + '</tbody></table>';
+}
+
+document.getElementById('cliBusca').addEventListener('input', renderClientes);
+document.getElementById('cliFiltro').addEventListener('change', renderClientes);
+document.getElementById('cliOrdem').addEventListener('change', renderClientes);
+document.getElementById('cliCorpo').addEventListener('click', (e)=>{
+  const tr = e.target.closest('tr[data-cliente]');
+  if(tr) abrirModalCliente(tr.dataset.cliente);
+});
+
+/* --------------------------------------------------------------- ficha do cliente */
+let cliEditandoId = null;
+
+function abrirModalCliente(id){
+  cliEditandoId = id || null;
+  const c = id ? clientePorId(id) : null;
+  document.getElementById('cliTitulo').textContent = c ? 'Ficha do cliente' : 'Cadastrar cliente';
+  document.getElementById('cliSub').textContent = c
+    ? 'Dados do cliente e histórico de recebimentos.'
+    : 'O cadastro adianta o nome na busca do lançamento — mas não é obrigatório: digitar o nome no lançamento já cadastra.';
+  document.getElementById('cliNome').value = c ? c.nome : '';
+  document.getElementById('cliTelefone').value = c ? (c.telefone||'') : '';
+  document.getElementById('cliObs').value = c ? (c.obs||'') : '';
+  document.getElementById('btnExcluirCliente').style.display = c ? '' : 'none';
+
+  const ficha = document.getElementById('cliFicha');
+  if(!c){ ficha.innerHTML = ''; }
+  else{
+    const res = resumoCliente(c.id);
+    const lista = recebimentosDoCliente(c.id).slice()
+      .sort((a,b)=> String(b.data||'').localeCompare(String(a.data||''))).slice(0, 12);
+    ficha.innerHTML =
+      '<div class="secao-title">Situação</div>' +
+      '<div class="kpis">' +
+        '<div class="kpi mini"><div class="kpi-rot">Recebimentos</div><div class="kpi-val">'+res.qtd+'</div></div>' +
+        '<div class="kpi mini"><div class="kpi-rot">Total das contas</div><div class="kpi-val">'+fmtMoeda(res.contas)+'</div></div>' +
+        '<div class="kpi mini kpi-ok"><div class="kpi-rot">Total pago</div><div class="kpi-val">'+fmtMoeda(res.pago)+'</div></div>' +
+        '<div class="kpi mini '+(res.saldo>0.004?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Saldo em aberto</div>' +
+          '<div class="kpi-val">'+(res.saldo>0.004?fmtMoeda(res.saldo):(res.saldo<-0.004?'crédito '+fmtMoeda(-res.saldo):fmtMoeda(0)))+'</div></div>' +
+      '</div>' +
+      '<div class="secao-title">Últimos recebimentos</div>' +
+      (lista.length
+        ? '<table class="historico"><thead><tr><th>Data</th><th>Total da conta</th><th>Pago</th><th>Diferença</th><th>Modalidades</th></tr></thead><tbody>' +
+          lista.map(r=>{
+            const dif = r2(toNum(r.total) - pagoDoRecebimento(r));
+            return '<tr><td>'+dataBR(r.data)+'</td><td>'+fmtMoeda(toNum(r.total))+'</td>' +
+              '<td>'+fmtMoeda(pagoDoRecebimento(r))+'</td>' +
+              '<td>'+(Math.abs(dif)<0.005 ? '—' : fmtMoeda(dif))+'</td>' +
+              '<td>'+escHtml(resumoFormas(r))+'</td></tr>';
+          }).join('') + '</tbody></table>'
+        : '<div class="rec-mini">Nenhum recebimento lançado para este cliente.</div>');
+  }
+  document.getElementById('overlayCliente').classList.add('show');
+  setTimeout(()=> document.getElementById('cliNome').focus(), 60);
+}
+
+function fecharModalCliente(){
+  document.getElementById('overlayCliente').classList.remove('show');
+  cliEditandoId = null;
+}
+
+document.getElementById('btnNovoCliente').addEventListener('click', ()=> abrirModalCliente(null));
+document.getElementById('fecharCliente').addEventListener('click', fecharModalCliente);
+document.getElementById('btnCancelarCliente').addEventListener('click', fecharModalCliente);
+
+document.getElementById('formCliente').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  garantirBaseRecebimentos();
+  const nome = document.getElementById('cliNome').value.trim();
+  if(!nome) return;
+  const repetido = clientePorNome(nome);
+  if(repetido && repetido.id !== cliEditandoId){
+    alert('Já existe um cliente com esse nome na base: ' + repetido.nome + '.');
+    return;
+  }
+  const dados = {
+    nome: nome,
+    telefone: document.getElementById('cliTelefone').value.trim(),
+    obs: document.getElementById('cliObs').value.trim()
+  };
+  if(cliEditandoId){
+    Object.assign(clientePorId(cliEditandoId), dados);
+    mostrarToast('Cliente atualizado');
+  }else{
+    state.clientes.push(Object.assign({id:novoIdRec('c_'), criadoEm:new Date().toISOString()}, dados));
+    mostrarToast('Cliente cadastrado');
+  }
+  salvarEstado();
+  fecharModalCliente();
+  renderClientes();
+  atualizarFichaRec();
+});
+
+document.getElementById('btnExcluirCliente').addEventListener('click', ()=>{
+  const c = clientePorId(cliEditandoId);
+  if(!c) return;
+  const n = recebimentosDoCliente(c.id).length;
+  if(n){
+    alert('Este cliente tem ' + n + ' recebimento(s) registrado(s) e não pode ser excluído.\n\n' +
+      'Excluir apagaria o histórico do caixa. Se ele não é mais cliente, deixe o cadastro parado — ' +
+      'ele não atrapalha nada.');
+    return;
+  }
+  if(!confirm('Excluir o cliente ' + c.nome + ' da base?')) return;
+  state.clientes = (state.clientes||[]).filter(x=> x.id!==c.id);
+  salvarEstado();
+  fecharModalCliente();
+  renderClientes();
+  mostrarToast('Cliente excluído');
+});
+
+/* --------------------------------------------------------------- histórico do caixa */
+function mesesComRecebimento(){
+  const set = {};
+  (state.recebimentos||[]).forEach(r=>{
+    const m = String(r.data||'').slice(0,7);
+    if(m) set[m] = true;
+  });
+  set[mesAtualPadrao()] = true;
+  return Object.keys(set).sort().reverse();
+}
+
+function popularSelectHistorico(){
+  const sel = document.getElementById('hisMes');
+  const meses = mesesComRecebimento();
+  if(!state.recHisMes || meses.indexOf(state.recHisMes) < 0) state.recHisMes = meses[0];
+  sel.innerHTML = meses.map(m=> '<option value="'+m+'"'+(m===state.recHisMes?' selected':'')+'>'+mesLabel(m)+'</option>').join('');
+}
+
+function renderHistorico(){
+  garantirBaseRecebimentos();
+  popularSelectHistorico();
+  const mes = state.recHisMes;
+  const busca = norm(document.getElementById('hisBusca').value);
+  const filtro = document.getElementById('hisFiltro').value;
+  document.getElementById('hisMesLabel').textContent = mesLabel(mes);
+
+  const doMes = (state.recebimentos||[]).filter(r=> String(r.data||'').slice(0,7) === mes);
+
+  const porForma = {};
+  FORMAS_RECEBIMENTO.forEach(f=> porForma[f.chave] = 0);
+  let recebido = 0, contas = 0;
+  doMes.forEach(r=>{
+    FORMAS_RECEBIMENTO.forEach(f=> porForma[f.chave] += toNum(r[f.chave]));
+    recebido += pagoDoRecebimento(r);
+    contas += toNum(r.total);
+  });
+  const emAberto = r2(contas - recebido);
+
+  document.getElementById('hisKpis').innerHTML =
+    '<div class="kpi kpi-ok"><div class="kpi-rot">Recebido no mês</div><div class="kpi-val">'+fmtMoeda(r2(recebido))+'</div>' +
+      '<div class="kpi-sub">'+doMes.length+' lançamento(s)</div></div>' +
+    '<div class="kpi"><div class="kpi-rot">Total das contas</div><div class="kpi-val">'+fmtMoeda(r2(contas))+'</div>' +
+      '<div class="kpi-sub">valor cobrado no mês</div></div>' +
+    '<div class="kpi '+(emAberto>0.004?'kpi-alerta':'kpi-ok')+'"><div class="kpi-rot">Ficou em aberto</div>' +
+      '<div class="kpi-val">'+fmtMoeda(emAberto>0?emAberto:0)+'</div><div class="kpi-sub">diferença das contas do mês</div></div>' +
+    FORMAS_RECEBIMENTO.map(f=>
+      '<div class="kpi mini kpi-info"><div class="kpi-rot">'+f.rotulo+'</div>' +
+      '<div class="kpi-val">'+fmtMoeda(r2(porForma[f.chave]))+'</div>' +
+      '<div class="kpi-sub">'+ (recebido>0 ? Math.round(porForma[f.chave]/recebido*100)+'% do recebido' : 'sem movimento') +'</div></div>'
+    ).join('');
+
+  let lista = doMes.filter(r=>{
+    if(busca && norm(nomeCliente(r.clienteId)).indexOf(busca) < 0) return false;
+    if(filtro==='parciais') return r2(toNum(r.total) - pagoDoRecebimento(r)) > 0.004;
+    if(filtro!=='todos') return toNum(r[filtro]) > 0;
+    return true;
+  }).sort((a,b)=> String(b.data||'').localeCompare(String(a.data||'')) ||
+                  String(b.criadoEm||'').localeCompare(String(a.criadoEm||'')));
+
+  document.getElementById('hisInfo').textContent =
+    lista.length + ' de ' + doMes.length + ' lançamento(s) de ' + mesLabel(mes) + ' na tela.';
+
+  const corpo = document.getElementById('hisCorpo');
+  if(!lista.length){
+    corpo.innerHTML = '<div class="rec-vazio">' +
+      (doMes.length ? 'Nenhum lançamento com esse filtro em ' + mesLabel(mes) + '.'
+                    : 'Nenhum recebimento lançado em ' + mesLabel(mes) + '.') + '</div>';
+    return;
+  }
+  corpo.innerHTML = '<table class="tabela-ponto"><thead><tr>' +
+    '<th class="esq">Data</th><th class="esq">Cliente</th><th>Total da conta</th>' +
+    FORMAS_RECEBIMENTO.map(f=> '<th>'+f.rotulo+'</th>').join('') +
+    '<th>Pago</th><th>Situação</th><th></th></tr></thead><tbody>' +
+    lista.map(r=>{
+      const sit = situacaoRecebimento(r);
+      const dif = r2(toNum(r.total) - pagoDoRecebimento(r));
+      return '<tr>' +
+        '<td class="esq">'+dataBR(r.data)+'</td>' +
+        '<td class="esq"><span class="rec-cli-nome">'+escHtml(nomeCliente(r.clienteId))+'</span>' +
+          (r.obs ? '<div class="rec-mini">'+escHtml(r.obs)+'</div>' : '') + '</td>' +
+        '<td>'+fmtMoeda(toNum(r.total))+'</td>' +
+        FORMAS_RECEBIMENTO.map(f=> '<td>'+(toNum(r[f.chave]) ? fmtMoeda(toNum(r[f.chave])) : '—')+'</td>').join('') +
+        '<td><b>'+fmtMoeda(pagoDoRecebimento(r))+'</b></td>' +
+        '<td><span class="rec-tag '+sit.classe+'">'+sit.rot+'</span>' +
+          (dif>0.004 ? '<div class="rec-mini">falta '+fmtMoeda(dif)+'</div>' : '') + '</td>' +
+        '<td><div class="rec-acoes-linha">' +
+          '<button class="btn btn-outline btn-sm" data-editar-rec="'+r.id+'">Editar</button>' +
+          '<button class="btn btn-vermelho btn-sm" data-excluir-rec="'+r.id+'">Excluir</button>' +
+        '</div></td></tr>';
+    }).join('') +
+    '<tr><td class="esq"><b>TOTAL</b></td><td class="esq"></td>' +
+    '<td><b>'+fmtMoeda(r2(lista.reduce((s,r)=> s + toNum(r.total), 0)))+'</b></td>' +
+    FORMAS_RECEBIMENTO.map(f=> '<td><b>'+fmtMoeda(r2(lista.reduce((s,r)=> s + toNum(r[f.chave]), 0)))+'</b></td>').join('') +
+    '<td><b>'+fmtMoeda(r2(lista.reduce((s,r)=> s + pagoDoRecebimento(r), 0)))+'</b></td><td></td><td></td></tr>' +
+    '</tbody></table>';
+}
+
+document.getElementById('hisMes').addEventListener('change', (e)=>{
+  state.recHisMes = e.target.value;
+  salvarEstado();
+  renderHistorico();
+});
+document.getElementById('hisBusca').addEventListener('input', renderHistorico);
+document.getElementById('hisFiltro').addEventListener('change', renderHistorico);
+
+/* --------------------------------------------------------------- exportações */
+document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=>{
+  const mes = state.recHisMes;
+  const doMes = (state.recebimentos||[]).filter(r=> String(r.data||'').slice(0,7) === mes)
+    .sort((a,b)=> String(a.data||'').localeCompare(String(b.data||'')));
+  if(!doMes.length){ mostrarToast('Nenhum recebimento em ' + mesLabel(mes)); return; }
+
+  const linhas = [['RECEBIMENTO DE CONTAS — ' + mesLabel(mes)], []];
+  linhas.push(['Data','Cliente','Total da conta'].concat(FORMAS_RECEBIMENTO.map(f=> f.rotulo))
+    .concat(['Total pago','Diferença','Situação','Observação']));
+  doMes.forEach(r=>{
+    const pago = pagoDoRecebimento(r);
+    linhas.push([dataBR(r.data), nomeCliente(r.clienteId), r2(toNum(r.total))]
+      .concat(FORMAS_RECEBIMENTO.map(f=> r2(toNum(r[f.chave]))))
+      .concat([r2(pago), r2(toNum(r.total)-pago), situacaoRecebimento(r).rot, r.obs||'']));
+  });
+  const soma = (fn)=> r2(doMes.reduce((s,r)=> s + fn(r), 0));
+  linhas.push(['TOTAL','', soma(r=> toNum(r.total))]
+    .concat(FORMAS_RECEBIMENTO.map(f=> soma(r=> toNum(r[f.chave]))))
+    .concat([soma(pagoDoRecebimento), soma(r=> toNum(r.total)-pagoDoRecebimento(r)), '', '']));
+
+  const ws = XLSX.utils.aoa_to_sheet(linhas);
+  ws['!cols'] = [{wch:12},{wch:32},{wch:15}].concat(FORMAS_RECEBIMENTO.map(()=> ({wch:13})))
+    .concat([{wch:13},{wch:13},{wch:13},{wch:30}]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Recebimentos');
+  XLSX.writeFile(wb, 'Recebimentos_' + mes + '.xlsx');
+});
+
+document.getElementById('btnExportarClientes').addEventListener('click', ()=>{
+  const linhas = (state.clientes||[]).slice().sort((a,b)=> a.nome.localeCompare(b.nome,'pt-BR'))
+    .map(c=>{
+      const res = resumoCliente(c.id);
+      return [c.nome, c.telefone||'', res.qtd, r2(res.contas), r2(res.pago), r2(res.saldo),
+              res.ultima ? dataBR(res.ultima) : '', c.obs||''];
+    });
+  if(!linhas.length){ mostrarToast('A base de clientes ainda está vazia'); return; }
+  const cab = [['BASE DE CLIENTES — ' + new Date().toLocaleDateString('pt-BR')], [],
+    ['Cliente','Telefone','Recebimentos','Total das contas','Total pago','Saldo em aberto','Último recebimento','Observação']];
+  const ws = XLSX.utils.aoa_to_sheet(cab.concat(linhas));
+  ws['!cols'] = [{wch:34},{wch:16},{wch:14},{wch:16},{wch:14},{wch:16},{wch:18},{wch:30}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Clientes');
+  XLSX.writeFile(wb, 'Clientes_' + hojeISO() + '.xlsx');
+});
+
 /* ============================= INICIALIZAÇÃO ============================= */
 atualizarSalarioBaseComHistorico();
 popularSelectMes();
@@ -6536,6 +7662,7 @@ if(!state.pontoAba) state.pontoAba = 'resumo';
 trocarAba('dashboard');
 fecharAoClicarFora('overlayNuvem');
 fecharAoClicarFora('overlayVincular');
+fecharAoClicarFora('overlayCliente');
 iniciarAutenticacao();
 </script>
 </body>
