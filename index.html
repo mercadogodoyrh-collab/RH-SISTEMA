@@ -210,7 +210,11 @@
      cabeçalho que abre e fecha as suas telas. Só o grupo aberto ocupa espaço; o grupo
      fechado que contém a tela em uso fica marcado, para não se perder na navegação. --- */
   .bl-grupo{display:flex;flex-direction:column;gap:2px;margin-bottom:4px;}
-  .bl-cabeca{font-size:13.5px;}
+  /* O nome da área pode ser comprido demais para uma linha só (Controle de Caixa
+     Administrativo): o cabeçalho quebra em duas, os itens de dentro continuam em uma. */
+  .bl-cabeca{font-size:13.5px;align-items:flex-start;}
+  .bl-cabeca .bl-rotulo{white-space:normal;line-height:1.3;}
+  .bl-cabeca svg{margin-top:1px;}
   .bl-seta{margin-left:auto;width:15px !important;height:15px !important;transition:transform .18s ease;opacity:.75;}
   .bl-grupo.aberto .bl-seta{transform:rotate(180deg);}
   .bl-cabeca .bl-sino-grupo{margin-left:auto;}
@@ -578,6 +582,15 @@
   .rec-tag.quitado{background:#e3f7ea;color:var(--verde);}
   .rec-tag.parcial{background:#fff8e6;color:#b9770e;}
   .rec-tag.aberto{background:#fdecea;color:var(--vermelho);}
+  /* Baixa no SG: marca que o recebimento já foi lançado no sistema gerencial. Não mexe
+     em valor nenhum — é só o registro de que aquele lançamento já foi replicado lá. */
+  .rec-sg{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--cinza-borda);background:#fff;
+    color:var(--texto-fraco);border-radius:20px;padding:5px 11px;font-family:inherit;font-size:11.5px;
+    font-weight:700;cursor:pointer;white-space:nowrap;transition:border-color .12s,background .12s,color .12s;}
+  .rec-sg svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:none;}
+  .rec-sg:hover{border-color:var(--verde);color:var(--verde);background:#f3fbf6;}
+  .rec-sg.ok{background:#e3f7ea;border-color:var(--verde);color:#137a3e;}
+  .rec-sg.ok:hover{filter:brightness(.97);}
   .rec-mini{font-size:11px;color:var(--texto-fraco);}
   .rec-cli-nome{font-weight:700;font-size:13.5px;color:var(--texto);}
   .rec-acoes-linha{display:flex;gap:6px;justify-content:flex-end;}
@@ -667,15 +680,19 @@
     </div>
 
     <div class="bl-grupo" data-grupo="rec">
-      <button class="bl-item bl-cabeca" data-grupo-btn="rec" title="Recebimento de Contas" aria-expanded="false">
-        <svg viewBox="0 0 24 24"><path d="M4 3v18l2.5-1.6L9 21l3-1.6L15 21l2.5-1.6L20 21V3l-2.5 1.6L15 3l-3 1.6L9 3 6.5 4.6z"/><line x1="8" y1="9.5" x2="16" y2="9.5"/><line x1="8" y1="14" x2="13" y2="14"/></svg>
-        <span class="bl-rotulo">Recebimento de Contas</span>
+      <button class="bl-item bl-cabeca" data-grupo-btn="rec" title="Controle de Caixa Administrativo" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="14" rx="2"/><path d="M2.5 10.5h19"/><path d="M8 3.5h8l1.5 2.5h-11z"/><line x1="12" y1="14" x2="12" y2="17"/></svg>
+        <span class="bl-rotulo">Controle de Caixa Administrativo</span>
         <svg class="bl-seta bl-rotulo" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div class="bl-sub">
         <button class="bl-item bl-filho" data-aba="recLancar" title="Lançar Recebimento">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
           <span class="bl-rotulo">Lançar Recebimento</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="recRetirada" title="Retirada de Caixa">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          <span class="bl-rotulo">Retirada de Caixa</span>
         </button>
         <button class="bl-item bl-filho" data-aba="recClientes" title="Clientes">
           <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
@@ -904,7 +921,52 @@
   </main>
 </div>
 
-<!-- ===================== RECEBIMENTO DE CONTAS: clientes ===================== -->
+<!-- ===================== CAIXA ADMINISTRATIVO: retirada ===================== -->
+<div id="viewRecRetirada" style="display:none;">
+  <main>
+    <div class="dash-topo">
+      <div>
+        <h2>Retirada de caixa</h2>
+        <div class="dash-sub">Todo dinheiro que sai do caixa — pagamento de fornecedor, despesa do dia, troco levado ao banco.
+          Informe o valor e o motivo; a retirada entra no fechamento do caixa do mês.</div>
+      </div>
+    </div>
+
+    <div class="rec-editando" id="retEditandoAviso">
+      <span id="retEditandoTxt"></span>
+      <div class="spacer" style="flex:1;"></div>
+      <button class="btn btn-outline btn-sm" id="btnRetCancelarEdicao">Cancelar edição</button>
+    </div>
+
+    <div class="rec-form">
+      <div class="rec-linha">
+        <div class="campo">
+          <label for="retMotivo">Motivo da retirada</label>
+          <input type="text" id="retMotivo" autocomplete="off" placeholder="Ex.: pagamento do fornecedor de hortifruti">
+          <div class="campo-nota">Escreva de um jeito que se entenda daqui a seis meses.</div>
+        </div>
+        <div class="campo">
+          <label for="retData">Data</label>
+          <input type="date" id="retData">
+        </div>
+        <div class="campo">
+          <label for="retValor">Valor retirado</label>
+          <input type="text" inputmode="decimal" id="retValor" placeholder="0,00">
+        </div>
+      </div>
+
+      <div class="rec-acoes">
+        <span class="rec-aviso" id="retAviso"></span>
+        <button class="btn btn-outline" id="btnRetLimpar">Limpar</button>
+        <button class="btn btn-primary" id="btnRetSalvar">Registrar retirada</button>
+      </div>
+    </div>
+
+    <div class="rec-bloco" id="retUltimas"></div>
+  </main>
+</div>
+
+<!-- ===================== CAIXA ADMINISTRATIVO: clientes ===================== -->
 <div id="viewRecClientes" style="display:none;">
   <div class="toolbar">
     <div class="search-wrap">
@@ -937,7 +999,7 @@
 <!-- ===================== RECEBIMENTO DE CONTAS: histórico ===================== -->
 <div id="viewRecHistorico" style="display:none;">
   <div class="toolbar">
-    <div class="fin-titulo">Recebimentos de <span id="hisMesLabel"></span></div>
+    <div class="fin-titulo">Caixa de <span id="hisMesLabel"></span></div>
     <select id="hisMes"></select>
     <div class="search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -951,9 +1013,11 @@
       <option value="senff">Somente com Senff</option>
       <option value="alimentacao">Somente com alimentação</option>
       <option value="parciais">Somente pagamentos parciais</option>
+      <option value="sg-pendente">Somente pendentes de baixa no SG</option>
+      <option value="sg-baixado">Somente já baixados no SG</option>
     </select>
     <div class="spacer"></div>
-    <button class="btn btn-outline" id="btnExportarRecebimentos">Exportar recebimentos</button>
+    <button class="btn btn-outline" id="btnExportarRecebimentos">Exportar movimento do caixa</button>
   </div>
   <main>
     <div class="kpis" id="hisKpis"></div>
@@ -1880,6 +1944,7 @@ function renderAbaAtual(){
   if(state.abaAtual === 'balanco' && typeof renderBalanco === 'function') renderBalanco();
   if(state.abaAtual === 'relatorios' && typeof renderRelatorios === 'function') renderRelatorios();
   if(state.abaAtual === 'recLancar' && typeof renderRecLancar === 'function') renderRecLancar();
+  if(state.abaAtual === 'recRetirada' && typeof renderRetiradas === 'function') renderRetiradas();
   if(state.abaAtual === 'recClientes' && typeof renderClientes === 'function') renderClientes();
   if(state.abaAtual === 'recHistorico' && typeof renderHistorico === 'function') renderHistorico();
   if(typeof atualizarSinoPonto === 'function') atualizarSinoPonto();
@@ -5835,8 +5900,9 @@ const ABAS = {
   balanco:      {view:'viewBalanco',      titulo:'Balanço Mensal',             grupo:'rh'},
   relatorios:   {view:'viewRelatorios',   titulo:'Relatórios',                 grupo:'rh'},
   recLancar:    {view:'viewRecLancar',    titulo:'Lançar Recebimento',         grupo:'rec'},
+  recRetirada:  {view:'viewRecRetirada',  titulo:'Retirada de Caixa',          grupo:'rec'},
   recClientes:  {view:'viewRecClientes',  titulo:'Clientes',                   grupo:'rec'},
-  recHistorico: {view:'viewRecHistorico', titulo:'Histórico de Recebimentos',  grupo:'rec'}
+  recHistorico: {view:'viewRecHistorico', titulo:'Histórico do Caixa',         grupo:'rec'}
 };
 
 /* Sanfona: abrir uma área fecha a outra, para a barra não virar uma lista comprida. */
@@ -5876,6 +5942,7 @@ function trocarAba(aba){
   if(aba==='balanco') renderBalanco();
   if(aba==='relatorios') renderRelatorios();
   if(aba==='recLancar') renderRecLancar();
+  if(aba==='recRetirada') renderRetiradas();
   if(aba==='recClientes') renderClientes();
   if(aba==='recHistorico') renderHistorico();
   atualizarSinoPonto();
@@ -6887,6 +6954,7 @@ const FORMAS_RECEBIMENTO = [
 function garantirBaseRecebimentos(){
   if(!Array.isArray(state.clientes)) state.clientes = [];
   if(!Array.isArray(state.recebimentos)) state.recebimentos = [];
+  if(!Array.isArray(state.retiradas)) state.retiradas = [];
 }
 garantirBaseRecebimentos();
 
@@ -6943,6 +7011,46 @@ function situacaoRecebimento(r){
   if(dif < -0.004) return {classe:'quitado', rot:'Com crédito'};
   return {classe:'quitado', rot:'Quitado'};
 }
+/* --------- baixa no SG (sistema gerencial) ---------
+   O recebimento é lançado aqui e depois replicado no SG. Este botão é só a confirmação
+   de que essa segunda etapa já foi feita: não mexe em valor nenhum, serve para ninguém
+   lançar a mesma conta duas vezes lá nem esquecer alguma para trás. */
+function baixaSgFeita(r){ return !!(r && r.sgBaixadoEm); }
+
+function botaoBaixaSg(r){
+  const feito = baixaSgFeita(r);
+  const titulo = feito
+    ? 'Baixa no SG confirmada em ' + new Date(r.sgBaixadoEm).toLocaleString('pt-BR') +
+      (r.sgBaixadoPor ? ' por ' + r.sgBaixadoPor : '') + ' — clique para desfazer'
+    : 'Confirmar que este recebimento já foi baixado no SG';
+  const icone = feito
+    ? '<svg viewBox="0 0 24 24"><polyline points="4 12.5 9.5 18 20 6.5"/></svg>'
+    : '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>';
+  return '<button type="button" class="rec-sg' + (feito ? ' ok' : '') + '" data-sg="'+r.id+'" ' +
+    'title="'+escHtml(titulo)+'">' + icone + (feito ? 'Baixado no SG' : 'Dar baixa no SG') + '</button>';
+}
+
+function alternarBaixaSg(id){
+  const r = (state.recebimentos||[]).find(x=> x.id===id);
+  if(!r) return;
+  if(baixaSgFeita(r)){
+    /* Marcar é um clique só; desmarcar pergunta, porque desfazer uma baixa já
+       confirmada é o tipo de coisa que se faz sem querer passando o mouse. */
+    if(!confirm('Desfazer a baixa no SG do recebimento de ' + nomeCliente(r.clienteId) +
+      ' de ' + dataBR(r.data) + '?\n\nEle volta para a lista de pendentes.')) return;
+    delete r.sgBaixadoEm;
+    delete r.sgBaixadoPor;
+    mostrarToast('Baixa no SG desfeita');
+  }else{
+    r.sgBaixadoEm = new Date().toISOString();
+    r.sgBaixadoPor = document.getElementById('usuarioLogado').textContent || '';
+    mostrarToast('Baixa no SG confirmada — ' + nomeCliente(r.clienteId));
+  }
+  salvarEstado();
+  renderUltimosRec();
+  if(state.abaAtual === 'recHistorico') renderHistorico();
+}
+
 function resumoFormas(r){
   const usadas = FORMAS_RECEBIMENTO.filter(f=> toNum(r[f.chave]) > 0);
   if(!usadas.length) return '—';
@@ -7193,7 +7301,7 @@ function renderUltimosRec(){
   caixa.innerHTML = '<h3>Últimos recebimentos</h3>' +
     '<table class="tabela-ponto"><thead><tr>' +
     '<th class="esq">Data</th><th class="esq">Cliente</th><th>Total da conta</th><th>Pago</th>' +
-    '<th class="esq">Modalidades</th><th>Situação</th><th></th></tr></thead><tbody>' +
+    '<th class="esq">Modalidades</th><th>Situação</th><th>Baixa no SG</th><th></th></tr></thead><tbody>' +
     lista.map(r=>{
       const sit = situacaoRecebimento(r);
       const dif = r2(toNum(r.total) - pagoDoRecebimento(r));
@@ -7206,6 +7314,7 @@ function renderUltimosRec(){
         '<td class="esq rec-mini">'+escHtml(resumoFormas(r))+'</td>' +
         '<td><span class="rec-tag '+sit.classe+'">'+sit.rot+'</span>' +
           (dif>0.004 ? '<div class="rec-mini">falta '+fmtMoeda(dif)+'</div>' : '') + '</td>' +
+        '<td>'+botaoBaixaSg(r)+'</td>' +
         '<td><div class="rec-acoes-linha">' +
           '<button class="btn btn-outline btn-sm" data-editar-rec="'+r.id+'">Editar</button>' +
           '<button class="btn btn-vermelho btn-sm" data-excluir-rec="'+r.id+'">Excluir</button>' +
@@ -7310,6 +7419,12 @@ document.addEventListener('click', (e)=>{
   if(bE){ editarRecebimento(bE.dataset.editarRec); return; }
   const bX = e.target.closest('button[data-excluir-rec]');
   if(bX){ excluirRecebimento(bX.dataset.excluirRec); return; }
+  const bS = e.target.closest('button[data-sg]');
+  if(bS){ alternarBaixaSg(bS.dataset.sg); return; }
+  const bRE = e.target.closest('button[data-editar-ret]');
+  if(bRE){ editarRetirada(bRE.dataset.editarRet); return; }
+  const bRX = e.target.closest('button[data-excluir-ret]');
+  if(bRX){ excluirRetirada(bRX.dataset.excluirRet); return; }
 });
 
 document.getElementById('btnRecSalvar').addEventListener('click', salvarRecebimento);
@@ -7327,6 +7442,147 @@ ligarBuscaCliente();
 /* Monta os campos das modalidades já na carga: excluir um lançamento pelo histórico
    mexe no somatório da tela de lançamento mesmo que ela ainda não tenha sido aberta. */
 montarModsRec();
+
+/* --------------------------------------------------------------- retiradas do caixa
+   O caixa administrativo não é só entrada: sai dinheiro para pagar fornecedor, cobrir
+   despesa do dia, levar troco ao banco. A retirada é o registro dessa saída — valor e
+   motivo — e entra no fechamento do mês junto com os recebimentos. */
+let retEditandoId = null;
+
+function retiradasDoMes(mes){
+  return (state.retiradas||[]).filter(x=> String(x.data||'').slice(0,7) === mes);
+}
+function somaRetiradas(lista){
+  return r2((lista||[]).reduce((s,x)=> s + toNum(x.valor), 0));
+}
+
+function limparFormRet(){
+  retEditandoId = null;
+  document.getElementById('retEditandoAviso').classList.remove('show');
+  document.getElementById('btnRetSalvar').textContent = 'Registrar retirada';
+  document.getElementById('retMotivo').value = '';
+  document.getElementById('retValor').value = '';
+  document.getElementById('retData').value = hojeISO();
+  document.getElementById('retAviso').textContent = '';
+}
+
+function renderRetiradas(){
+  garantirBaseRecebimentos();
+  if(!document.getElementById('retData').value) document.getElementById('retData').value = hojeISO();
+  renderUltimasRet();
+}
+
+function renderUltimasRet(){
+  const caixa = document.getElementById('retUltimas');
+  const mes = String(document.getElementById('retData').value || hojeISO()).slice(0,7);
+  const doMes = retiradasDoMes(mes);
+  const lista = (state.retiradas||[]).slice()
+    .sort((a,b)=> String(b.data||'').localeCompare(String(a.data||'')) ||
+                  String(b.criadoEm||'').localeCompare(String(a.criadoEm||'')))
+    .slice(0, 12);
+
+  if(!lista.length){
+    caixa.innerHTML = '<h3>Últimas retiradas</h3>' +
+      '<div class="rec-vazio">Nenhuma retirada registrada ainda.</div>';
+    return;
+  }
+  caixa.innerHTML = '<h3>Últimas retiradas</h3>' +
+    '<div class="rec-mini" style="margin:-6px 0 10px;">Saíram ' + fmtMoeda(somaRetiradas(doMes)) +
+      ' do caixa em ' + mesLabel(mes) + ', em ' + doMes.length + ' retirada(s).</div>' +
+    '<table class="tabela-ponto"><thead><tr>' +
+    '<th class="esq">Data</th><th class="esq">Motivo</th><th>Valor</th><th class="esq">Registrada por</th><th></th>' +
+    '</tr></thead><tbody>' +
+    lista.map(x=>
+      '<tr>' +
+      '<td class="esq">'+dataBR(x.data)+'</td>' +
+      '<td class="esq"><span class="rec-cli-nome">'+escHtml(x.motivo)+'</span></td>' +
+      '<td class="cel-critico">'+fmtMoeda(toNum(x.valor))+'</td>' +
+      '<td class="esq rec-mini">'+escHtml(x.usuario||'—')+'</td>' +
+      '<td><div class="rec-acoes-linha">' +
+        '<button class="btn btn-outline btn-sm" data-editar-ret="'+x.id+'">Editar</button>' +
+        '<button class="btn btn-vermelho btn-sm" data-excluir-ret="'+x.id+'">Excluir</button>' +
+      '</div></td></tr>'
+    ).join('') + '</tbody></table>';
+}
+
+function salvarRetirada(){
+  garantirBaseRecebimentos();
+  const aviso = document.getElementById('retAviso');
+  const motivo = document.getElementById('retMotivo').value.trim();
+  const valor = r2(toNum(document.getElementById('retValor').value));
+
+  if(!motivo){ aviso.textContent = 'Informe o motivo da retirada.'; document.getElementById('retMotivo').focus(); return; }
+  if(valor <= 0){ aviso.textContent = 'Informe o valor retirado.'; document.getElementById('retValor').focus(); return; }
+  aviso.textContent = '';
+
+  const dados = {
+    data: document.getElementById('retData').value || hojeISO(),
+    valor: valor,
+    motivo: motivo
+  };
+
+  if(retEditandoId){
+    const x = (state.retiradas||[]).find(r=> r.id===retEditandoId);
+    if(!x){ mostrarToast('A retirada não existe mais'); limparFormRet(); return; }
+    Object.assign(x, dados, { alteradoEm: new Date().toISOString() });
+    mostrarToast('Retirada corrigida');
+  }else{
+    state.retiradas.push(Object.assign({
+      id: novoIdRec('s_'),
+      criadoEm: new Date().toISOString(),
+      usuario: document.getElementById('usuarioLogado').textContent || ''
+    }, dados));
+    mostrarToast('Retirada de ' + fmtMoeda(valor) + ' registrada');
+  }
+
+  salvarEstado();
+  limparFormRet();
+  renderUltimasRet();
+  if(state.abaAtual === 'recHistorico') renderHistorico();
+  document.getElementById('retMotivo').focus();
+}
+
+function editarRetirada(id){
+  const x = (state.retiradas||[]).find(r=> r.id===id);
+  if(!x) return;
+  trocarAba('recRetirada');
+  retEditandoId = id;
+  document.getElementById('retMotivo').value = x.motivo || '';
+  document.getElementById('retData').value = x.data || hojeISO();
+  document.getElementById('retValor').value = toNum(x.valor) ? toNum(x.valor).toFixed(2).replace('.',',') : '';
+  document.getElementById('retEditandoTxt').textContent =
+    'Corrigindo a retirada de ' + fmtMoeda(toNum(x.valor)) + ' de ' + dataBR(x.data) + '.';
+  document.getElementById('retEditandoAviso').classList.add('show');
+  document.getElementById('btnRetSalvar').textContent = 'Salvar alteração';
+  window.scrollTo(0,0);
+}
+
+function excluirRetirada(id){
+  const x = (state.retiradas||[]).find(r=> r.id===id);
+  if(!x) return;
+  if(!confirm('Excluir a retirada de ' + fmtMoeda(toNum(x.valor)) + ' de ' + dataBR(x.data) + '?\n\n' +
+    'Motivo: ' + x.motivo)) return;
+  state.retiradas = (state.retiradas||[]).filter(r=> r.id!==id);
+  if(retEditandoId === id) limparFormRet();
+  salvarEstado();
+  renderUltimasRet();
+  if(state.abaAtual === 'recHistorico') renderHistorico();
+  mostrarToast('Retirada excluída');
+}
+
+document.getElementById('btnRetSalvar').addEventListener('click', salvarRetirada);
+document.getElementById('btnRetLimpar').addEventListener('click', ()=> limparFormRet());
+document.getElementById('btnRetCancelarEdicao').addEventListener('click', ()=>{
+  limparFormRet();
+  mostrarToast('Edição cancelada');
+});
+document.getElementById('retData').addEventListener('change', renderUltimasRet);
+document.getElementById('retValor').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter'){ e.preventDefault(); salvarRetirada(); }
+});
+document.getElementById('retMotivo').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter'){ e.preventDefault(); document.getElementById('retValor').focus(); }
+});
 
 /* --------------------------------------------------------------- tela de clientes */
 function renderClientes(){
@@ -7503,10 +7759,11 @@ document.getElementById('btnExcluirCliente').addEventListener('click', ()=>{
 });
 
 /* --------------------------------------------------------------- histórico do caixa */
+/* Meses que têm movimento de caixa — entrada ou retirada — mais o mês corrente. */
 function mesesComRecebimento(){
   const set = {};
-  (state.recebimentos||[]).forEach(r=>{
-    const m = String(r.data||'').slice(0,7);
+  (state.recebimentos||[]).concat(state.retiradas||[]).forEach(x=>{
+    const m = String(x.data||'').slice(0,7);
     if(m) set[m] = true;
   });
   set[mesAtualPadrao()] = true;
@@ -7520,6 +7777,33 @@ function popularSelectHistorico(){
   sel.innerHTML = meses.map(m=> '<option value="'+m+'"'+(m===state.recHisMes?' selected':'')+'>'+mesLabel(m)+'</option>').join('');
 }
 
+/* As retiradas do mês aparecem inteiras embaixo da tabela de entradas: os filtros de
+   cima são de recebimento (cliente, modalidade) e não teriam sentido aqui. */
+function htmlRetiradasDoMes(retMes, mes){
+  if(!retMes.length){
+    return '<div class="rec-bloco"><h3>Retiradas de ' + mesLabel(mes) + '</h3>' +
+      '<div class="rec-mini">Nenhuma retirada de caixa neste mês.</div></div>';
+  }
+  const ordenadas = retMes.slice().sort((a,b)=> String(a.data||'').localeCompare(String(b.data||'')));
+  return '<div class="rec-bloco"><h3>Retiradas de ' + mesLabel(mes) + '</h3>' +
+    '<table class="tabela-ponto"><thead><tr>' +
+    '<th class="esq">Data</th><th class="esq">Motivo</th><th>Valor</th><th class="esq">Registrada por</th><th></th>' +
+    '</tr></thead><tbody>' +
+    ordenadas.map(x=>
+      '<tr><td class="esq">'+dataBR(x.data)+'</td>' +
+      '<td class="esq"><span class="rec-cli-nome">'+escHtml(x.motivo)+'</span></td>' +
+      '<td class="cel-critico">'+fmtMoeda(toNum(x.valor))+'</td>' +
+      '<td class="esq rec-mini">'+escHtml(x.usuario||'—')+'</td>' +
+      '<td><div class="rec-acoes-linha">' +
+        '<button class="btn btn-outline btn-sm" data-editar-ret="'+x.id+'">Editar</button>' +
+        '<button class="btn btn-vermelho btn-sm" data-excluir-ret="'+x.id+'">Excluir</button>' +
+      '</div></td></tr>'
+    ).join('') +
+    '<tr><td class="esq"><b>TOTAL RETIRADO</b></td><td class="esq"></td>' +
+    '<td class="cel-critico"><b>'+fmtMoeda(somaRetiradas(retMes))+'</b></td><td></td><td></td></tr>' +
+    '</tbody></table></div>';
+}
+
 function renderHistorico(){
   garantirBaseRecebimentos();
   popularSelectHistorico();
@@ -7530,32 +7814,45 @@ function renderHistorico(){
 
   const doMes = (state.recebimentos||[]).filter(r=> String(r.data||'').slice(0,7) === mes);
 
+  /* O histórico responde uma pergunta só: quanto entrou no caixa no mês, e por qual
+     modalidade. Cobrança e saldo de cliente são assunto da tela de Clientes. */
   const porForma = {};
   FORMAS_RECEBIMENTO.forEach(f=> porForma[f.chave] = 0);
-  let recebido = 0, contas = 0;
+  let recebido = 0;
   doMes.forEach(r=>{
     FORMAS_RECEBIMENTO.forEach(f=> porForma[f.chave] += toNum(r[f.chave]));
     recebido += pagoDoRecebimento(r);
-    contas += toNum(r.total);
   });
-  const emAberto = r2(contas - recebido);
+  const pendentesSg = doMes.filter(r=> !baixaSgFeita(r));
+  const retMes = retiradasDoMes(mes);
+  const saiu = somaRetiradas(retMes);
+  const sobrou = r2(recebido - saiu);
 
   document.getElementById('hisKpis').innerHTML =
-    '<div class="kpi kpi-ok"><div class="kpi-rot">Recebido no mês</div><div class="kpi-val">'+fmtMoeda(r2(recebido))+'</div>' +
-      '<div class="kpi-sub">'+doMes.length+' lançamento(s)</div></div>' +
-    '<div class="kpi"><div class="kpi-rot">Total das contas</div><div class="kpi-val">'+fmtMoeda(r2(contas))+'</div>' +
-      '<div class="kpi-sub">valor cobrado no mês</div></div>' +
-    '<div class="kpi '+(emAberto>0.004?'kpi-alerta':'kpi-ok')+'"><div class="kpi-rot">Ficou em aberto</div>' +
-      '<div class="kpi-val">'+fmtMoeda(emAberto>0?emAberto:0)+'</div><div class="kpi-sub">diferença das contas do mês</div></div>' +
+    '<div class="kpi kpi-ok"><div class="kpi-rot">Entrou no caixa</div><div class="kpi-val">'+fmtMoeda(r2(recebido))+'</div>' +
+      '<div class="kpi-sub">'+doMes.length+' lançamento(s) no mês</div></div>' +
+    '<div class="kpi '+(saiu>0?'kpi-critico':'')+'"><div class="kpi-rot">Saiu do caixa</div>' +
+      '<div class="kpi-val">'+fmtMoeda(saiu)+'</div>' +
+      '<div class="kpi-sub">'+retMes.length+' retirada(s) no mês</div></div>' +
+    '<div class="kpi '+(sobrou<0?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Sobrou em caixa</div>' +
+      '<div class="kpi-val">'+fmtMoeda(sobrou)+'</div>' +
+      '<div class="kpi-sub">entradas menos retiradas</div></div>' +
     FORMAS_RECEBIMENTO.map(f=>
       '<div class="kpi mini kpi-info"><div class="kpi-rot">'+f.rotulo+'</div>' +
       '<div class="kpi-val">'+fmtMoeda(r2(porForma[f.chave]))+'</div>' +
-      '<div class="kpi-sub">'+ (recebido>0 ? Math.round(porForma[f.chave]/recebido*100)+'% do recebido' : 'sem movimento') +'</div></div>'
-    ).join('');
+      '<div class="kpi-sub">'+ (recebido>0 ? Math.round(porForma[f.chave]/recebido*100)+'% do que entrou' : 'sem movimento') +'</div></div>'
+    ).join('') +
+    '<div class="kpi '+(pendentesSg.length?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Pendente de baixa no SG</div>' +
+      '<div class="kpi-val">'+pendentesSg.length+'</div>' +
+      '<div class="kpi-sub">'+ (pendentesSg.length
+        ? fmtMoeda(r2(pendentesSg.reduce((s,r)=> s + pagoDoRecebimento(r), 0))) + ' ainda para lançar no SG'
+        : 'tudo baixado no SG') +'</div></div>';
 
   let lista = doMes.filter(r=>{
     if(busca && norm(nomeCliente(r.clienteId)).indexOf(busca) < 0) return false;
     if(filtro==='parciais') return r2(toNum(r.total) - pagoDoRecebimento(r)) > 0.004;
+    if(filtro==='sg-pendente') return !baixaSgFeita(r);
+    if(filtro==='sg-baixado') return baixaSgFeita(r);
     if(filtro!=='todos') return toNum(r[filtro]) > 0;
     return true;
   }).sort((a,b)=> String(b.data||'').localeCompare(String(a.data||'')) ||
@@ -7568,13 +7865,14 @@ function renderHistorico(){
   if(!lista.length){
     corpo.innerHTML = '<div class="rec-vazio">' +
       (doMes.length ? 'Nenhum lançamento com esse filtro em ' + mesLabel(mes) + '.'
-                    : 'Nenhum recebimento lançado em ' + mesLabel(mes) + '.') + '</div>';
+                    : 'Nenhum recebimento lançado em ' + mesLabel(mes) + '.') + '</div>' +
+      htmlRetiradasDoMes(retMes, mes);
     return;
   }
   corpo.innerHTML = '<table class="tabela-ponto"><thead><tr>' +
     '<th class="esq">Data</th><th class="esq">Cliente</th><th>Total da conta</th>' +
     FORMAS_RECEBIMENTO.map(f=> '<th>'+f.rotulo+'</th>').join('') +
-    '<th>Pago</th><th>Situação</th><th></th></tr></thead><tbody>' +
+    '<th>Pago</th><th>Situação</th><th>Baixa no SG</th><th></th></tr></thead><tbody>' +
     lista.map(r=>{
       const sit = situacaoRecebimento(r);
       const dif = r2(toNum(r.total) - pagoDoRecebimento(r));
@@ -7587,6 +7885,7 @@ function renderHistorico(){
         '<td><b>'+fmtMoeda(pagoDoRecebimento(r))+'</b></td>' +
         '<td><span class="rec-tag '+sit.classe+'">'+sit.rot+'</span>' +
           (dif>0.004 ? '<div class="rec-mini">falta '+fmtMoeda(dif)+'</div>' : '') + '</td>' +
+        '<td>'+botaoBaixaSg(r)+'</td>' +
         '<td><div class="rec-acoes-linha">' +
           '<button class="btn btn-outline btn-sm" data-editar-rec="'+r.id+'">Editar</button>' +
           '<button class="btn btn-vermelho btn-sm" data-excluir-rec="'+r.id+'">Excluir</button>' +
@@ -7595,8 +7894,9 @@ function renderHistorico(){
     '<tr><td class="esq"><b>TOTAL</b></td><td class="esq"></td>' +
     '<td><b>'+fmtMoeda(r2(lista.reduce((s,r)=> s + toNum(r.total), 0)))+'</b></td>' +
     FORMAS_RECEBIMENTO.map(f=> '<td><b>'+fmtMoeda(r2(lista.reduce((s,r)=> s + toNum(r[f.chave]), 0)))+'</b></td>').join('') +
-    '<td><b>'+fmtMoeda(r2(lista.reduce((s,r)=> s + pagoDoRecebimento(r), 0)))+'</b></td><td></td><td></td></tr>' +
-    '</tbody></table>';
+    '<td><b>'+fmtMoeda(r2(lista.reduce((s,r)=> s + pagoDoRecebimento(r), 0)))+'</b></td><td></td><td></td><td></td></tr>' +
+    '</tbody></table>' +
+    htmlRetiradasDoMes(retMes, mes);
 }
 
 document.getElementById('hisMes').addEventListener('change', (e)=>{
@@ -7612,28 +7912,49 @@ document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=
   const mes = state.recHisMes;
   const doMes = (state.recebimentos||[]).filter(r=> String(r.data||'').slice(0,7) === mes)
     .sort((a,b)=> String(a.data||'').localeCompare(String(b.data||'')));
-  if(!doMes.length){ mostrarToast('Nenhum recebimento em ' + mesLabel(mes)); return; }
+  const retMes = retiradasDoMes(mes).slice().sort((a,b)=> String(a.data||'').localeCompare(String(b.data||'')));
+  if(!doMes.length && !retMes.length){ mostrarToast('Nenhum movimento de caixa em ' + mesLabel(mes)); return; }
 
-  const linhas = [['RECEBIMENTO DE CONTAS — ' + mesLabel(mes)], []];
+  const linhas = [['CONTROLE DE CAIXA ADMINISTRATIVO — ' + mesLabel(mes)], []];
   linhas.push(['Data','Cliente','Total da conta'].concat(FORMAS_RECEBIMENTO.map(f=> f.rotulo))
-    .concat(['Total pago','Diferença','Situação','Observação']));
+    .concat(['Total pago','Diferença','Situação','Baixa no SG','Observação']));
   doMes.forEach(r=>{
     const pago = pagoDoRecebimento(r);
     linhas.push([dataBR(r.data), nomeCliente(r.clienteId), r2(toNum(r.total))]
       .concat(FORMAS_RECEBIMENTO.map(f=> r2(toNum(r[f.chave]))))
-      .concat([r2(pago), r2(toNum(r.total)-pago), situacaoRecebimento(r).rot, r.obs||'']));
+      .concat([r2(pago), r2(toNum(r.total)-pago), situacaoRecebimento(r).rot,
+               baixaSgFeita(r) ? 'Baixado em ' + new Date(r.sgBaixadoEm).toLocaleDateString('pt-BR') : 'Pendente',
+               r.obs||'']));
   });
   const soma = (fn)=> r2(doMes.reduce((s,r)=> s + fn(r), 0));
   linhas.push(['TOTAL','', soma(r=> toNum(r.total))]
     .concat(FORMAS_RECEBIMENTO.map(f=> soma(r=> toNum(r[f.chave]))))
-    .concat([soma(pagoDoRecebimento), soma(r=> toNum(r.total)-pagoDoRecebimento(r)), '', '']));
+    .concat([soma(pagoDoRecebimento), soma(r=> toNum(r.total)-pagoDoRecebimento(r)), '',
+             doMes.filter(r=> !baixaSgFeita(r)).length + ' pendente(s)', '']));
 
   const ws = XLSX.utils.aoa_to_sheet(linhas);
   ws['!cols'] = [{wch:12},{wch:32},{wch:15}].concat(FORMAS_RECEBIMENTO.map(()=> ({wch:13})))
-    .concat([{wch:13},{wch:13},{wch:13},{wch:30}]);
+    .concat([{wch:13},{wch:13},{wch:13},{wch:20},{wch:30}]);
   const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Recebimentos');
-  XLSX.writeFile(wb, 'Recebimentos_' + mes + '.xlsx');
+  XLSX.utils.book_append_sheet(wb, ws, 'Entradas');
+
+  /* Segunda aba: as saídas do mês e o fechamento — entrou, saiu, sobrou. */
+  const entrou = r2(doMes.reduce((s,r)=> s + pagoDoRecebimento(r), 0));
+  const saiu = somaRetiradas(retMes);
+  const linhasRet = [['RETIRADAS DE CAIXA — ' + mesLabel(mes)], [], ['Data','Motivo','Valor','Registrada por']];
+  retMes.forEach(x=> linhasRet.push([dataBR(x.data), x.motivo||'', r2(toNum(x.valor)), x.usuario||'']));
+  if(!retMes.length) linhasRet.push(['—','Nenhuma retirada neste mês','','']);
+  linhasRet.push(['TOTAL RETIRADO','', saiu, '']);
+  linhasRet.push([]);
+  linhasRet.push(['FECHAMENTO DO CAIXA']);
+  linhasRet.push(['Entrou', entrou]);
+  linhasRet.push(['Saiu', saiu]);
+  linhasRet.push(['Sobrou', r2(entrou - saiu)]);
+  const wsRet = XLSX.utils.aoa_to_sheet(linhasRet);
+  wsRet['!cols'] = [{wch:18},{wch:44},{wch:14},{wch:22}];
+  XLSX.utils.book_append_sheet(wb, wsRet, 'Retiradas');
+
+  XLSX.writeFile(wb, 'Caixa_' + mes + '.xlsx');
 });
 
 document.getElementById('btnExportarClientes').addEventListener('click', ()=>{
