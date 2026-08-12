@@ -583,6 +583,12 @@
   .rec-mod .rm-tirar:hover{color:var(--vermelho);}
   .rec-mod .rm-add{display:block;background:none;border:none;padding:5px 0 0;font-family:inherit;font-size:10.5px;
     color:var(--marca);cursor:pointer;text-decoration:underline;}
+  /* Modalidade que abre modal (cheque): o campo vira botão com o valor lançado. */
+  .rec-mod .rm-botao{width:100%;background:none;border:none;border-bottom:1px solid var(--cinza-borda);
+    padding:5px 0 3px;font-family:inherit;cursor:pointer;text-align:left;}
+  .rec-mod .rm-botao:hover{border-bottom-color:var(--marca);}
+  .rec-mod .rm-valor{font-size:15px;font-weight:700;color:var(--texto);}
+  .rec-mod.preenchida .rm-valor{color:var(--marca-esc);}
   .rec-mod .rm-nota{font-size:9.5px;color:var(--texto-fraco);line-height:1.3;margin:2px 0 -2px;}
   .rec-mod.preenchida .rm-nota{color:var(--marca-esc);opacity:.75;}
   .rec-mod .rm-soma{font-size:10.5px;color:var(--texto-fraco);padding-top:3px;}
@@ -1180,6 +1186,9 @@
       <div class="secao-title">Modalidades do pagamento</div>
       <div class="rec-mods" id="recMods"></div>
 
+      <input type="hidden" id="recTroco" value="">
+      <input type="hidden" id="recTrocoForma" value="dinheiro">
+
       <div class="rec-somatorio" id="recSomatorio"></div>
 
       <div class="campo" style="margin-top:16px;">
@@ -1344,6 +1353,39 @@
 </div>
 
 </div><!-- /area-conteudo -->
+
+<!-- Modal do cheque: valor e troco -->
+<div class="overlay" id="overlayTroco">
+  <div class="modal" style="max-width:430px;">
+    <button class="modal-close" id="fecharTroco">✕</button>
+    <h2 id="trocoTitulo">Cheque</h2>
+    <div class="sub" id="trocoSub">Valor do cheque e quanto voltou de troco.</div>
+    <form id="formTroco">
+      <div class="campo-row">
+        <div class="campo">
+          <label for="trocoBruto">Valor do cheque</label>
+          <input type="text" inputmode="decimal" id="trocoBruto" placeholder="0,00">
+        </div>
+        <div class="campo">
+          <label for="trocoValor">Troco</label>
+          <input type="text" inputmode="decimal" id="trocoValor" placeholder="0,00">
+        </div>
+      </div>
+      <div class="campo" style="margin-bottom:14px;">
+        <label for="trocoForma">Troco em</label>
+        <select id="trocoForma">
+          <option value="dinheiro">Dinheiro</option>
+          <option value="pix">Pix</option>
+        </select>
+      </div>
+      <div class="rec-ficha" id="trocoResumo" style="margin-bottom:2px;"></div>
+      <div class="acoes-modal">
+        <button type="button" class="btn btn-outline" id="btnCancelarTroco">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Confirmar</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- Modal da abertura de caixa do dia -->
 <div class="overlay" id="overlayAbertura">
@@ -1793,7 +1835,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '12/08/2026 · Juros/Haver no caixa';
+const VERSAO_SISTEMA = '12/08/2026 · Juros/Haver e troco';
 
 const SUPABASE_URL  = 'https://vieafcgghboxwhultile.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_HaMcgvr_2xmWYotvzetmVA_yscPz2eT';
@@ -7363,7 +7405,11 @@ const FORMAS_RECEBIMENTO = [
    nota:'débito, crédito, Senff, alimentação',
    icone:'<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>'},
   {chave:'pix',         rotulo:'Pix',         icone:'<path d="M12 2.5 21.5 12 12 21.5 2.5 12z"/>'},
-  {chave:'cheque',      rotulo:'Cheque',      icone:'<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="9.5" x2="13" y2="9.5"/><path d="M6 15c1.6-2.2 3.2 1.6 4.8-.6"/>'},
+  /* comTroco: o quadro vira botão e abre um modal com o valor do cheque, o troco e a
+     modalidade em que o troco saiu. É o caso do cheque de valor alto para uma conta
+     pequena — o cliente leva a diferença de volta em dinheiro ou pix. */
+  {chave:'cheque',      rotulo:'Cheque',      comTroco:true,
+   icone:'<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="9.5" x2="13" y2="9.5"/><path d="M6 15c1.6-2.2 3.2 1.6 4.8-.6"/>'},
   /* naoEntraNoCaixa: abate a conta do cliente mas NÃO é dinheiro entrando. É o caso do
      mercado que devia ao cliente e usou esse crédito como parte do pagamento — a conta
      fica quitada, e nada disso aparece no fechamento do caixa nem na gaveta. */
@@ -7741,12 +7787,19 @@ function parcelasDe(r, chave){
 }
 
 function resumoFormas(r){
-  const usadas = FORMAS_RECEBIMENTO.filter(f=> toNum(r[f.chave]) > 0);
+  /* Modalidade com valor negativo é a que pagou o troco: aparece com o sinal, porque
+     ali saiu dinheiro do caixa em vez de entrar. */
+  const usadas = FORMAS_RECEBIMENTO.filter(f=> Math.abs(toNum(r[f.chave])) > 0.004);
   if(!usadas.length) return '—';
-  return usadas.map(f=>{
+  const partes = usadas.map(f=>{
     const n = parcelasDe(r, f.chave).length;
     return f.rotulo + ' ' + fmtMoeda(toNum(r[f.chave])) + (n > 1 ? ' (' + n + ' ' + f.plural + ')' : '');
-  }).join(' · ');
+  });
+  if(toNum(r.troco) > 0){
+    const ft = FORMAS_RECEBIMENTO.find(f=> f.chave === r.trocoForma);
+    partes.push('troco ' + fmtMoeda(toNum(r.troco)) + ' em ' + (ft ? ft.rotulo.toLowerCase() : r.trocoForma));
+  }
+  return partes.join(' · ');
 }
 
 /* ================== O DIA DO CAIXA ==================
@@ -7929,7 +7982,12 @@ function montarModsRec(){
         ? '<div class="rm-linhas" data-linhas="'+f.chave+'"></div>' +
           '<div class="rm-soma" data-soma="'+f.chave+'"></div>' +
           '<button type="button" class="rm-add" data-add="'+f.chave+'">+ outro '+f.singular+'</button>'
-        : '<input type="text" inputmode="decimal" id="recPg_'+f.chave+'" data-forma="'+f.chave+'" placeholder="0,00">') +
+        : (f.comTroco
+          ? '<button type="button" class="rm-botao" data-abrir-troco="'+f.chave+'">' +
+              '<span class="rm-valor" data-valor="'+f.chave+'">0,00</span></button>' +
+            '<div class="rm-soma" data-soma="'+f.chave+'"></div>' +
+            '<input type="hidden" id="recPg_'+f.chave+'" data-forma="'+f.chave+'" value="">'
+          : '<input type="text" inputmode="decimal" id="recPg_'+f.chave+'" data-forma="'+f.chave+'" placeholder="0,00">')) +
       '<button type="button" class="rm-resto" data-resto="'+f.chave+'">lançar o restante</button>' +
     '</div>'
   ).join('');
@@ -7939,6 +7997,8 @@ function montarModsRec(){
     if(e.target.dataset.forma || e.target.dataset.formaItem) atualizarSomatorioRec();
   });
   document.getElementById('recMods').addEventListener('click', (e)=>{
+    const bTroco = e.target.closest('button[data-abrir-troco]');
+    if(bTroco){ abrirModalTroco(bTroco.dataset.abrirTroco); return; }
     const bAdd = e.target.closest('button[data-add]');
     if(bAdd){
       const chave = bAdd.dataset.add;
@@ -8018,11 +8078,68 @@ function valoresFormasDoForm(){
   return v;
 }
 
+/* --- modal do cheque: valor e troco --- */
+let trocoModChave = null;
+
+function abrirModalTroco(chave){
+  const f = FORMAS_RECEBIMENTO.find(x=> x.chave === chave);
+  if(!f) return;
+  trocoModChave = chave;
+  const bruto = valorDaMod(chave);
+  const troco = r2(toNum(document.getElementById('recTroco').value));
+  const forma = document.getElementById('recTrocoForma').value || 'dinheiro';
+  document.getElementById('trocoTitulo').textContent = f.rotulo;
+  document.getElementById('trocoBruto').value = bruto ? bruto.toFixed(2).replace('.',',') : '';
+  document.getElementById('trocoValor').value = troco ? troco.toFixed(2).replace('.',',') : '';
+  document.getElementById('trocoForma').value = forma;
+  atualizarResumoTroco();
+  document.getElementById('overlayTroco').classList.add('show');
+  setTimeout(()=> document.getElementById('trocoBruto').focus(), 60);
+}
+
+function fecharModalTroco(){
+  document.getElementById('overlayTroco').classList.remove('show');
+  trocoModChave = null;
+}
+
+function atualizarResumoTroco(){
+  const bruto = r2(toNum(document.getElementById('trocoBruto').value));
+  const troco = r2(toNum(document.getElementById('trocoValor').value));
+  const liquido = r2(bruto - troco);
+  document.getElementById('trocoResumo').innerHTML =
+    '<div>Entra na conta <b>'+fmtMoeda(liquido)+'</b></div>' +
+    (troco > 0 ? '<div>Sai do caixa <b>'+fmtMoeda(troco)+'</b></div>' : '');
+}
+['trocoBruto','trocoValor','trocoForma'].forEach(id=>
+  document.getElementById(id).addEventListener('input', atualizarResumoTroco));
+
+document.getElementById('formTroco').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const bruto = r2(toNum(document.getElementById('trocoBruto').value));
+  const troco = r2(toNum(document.getElementById('trocoValor').value));
+  if(troco > 0 && troco >= bruto){
+    mostrarToast('O troco não pode ser igual nem maior que o valor do cheque');
+    return;
+  }
+  document.getElementById('recPg_' + trocoModChave).value = bruto ? String(bruto) : '';
+  document.getElementById('recTroco').value = troco ? String(troco) : '';
+  document.getElementById('recTrocoForma').value = document.getElementById('trocoForma').value;
+  fecharModalTroco();
+  atualizarSomatorioRec();
+});
+document.getElementById('fecharTroco').addEventListener('click', fecharModalTroco);
+document.getElementById('btnCancelarTroco').addEventListener('click', fecharModalTroco);
+
 function atualizarSomatorioRec(){
   if(!recModsMontadas) return;   /* nada a somar antes de a tela de lançamento existir */
   const total = r2(toNum(document.getElementById('recTotal').value));
   const formas = valoresFormasDoForm();
-  const pago = r2(FORMAS_RECEBIMENTO.reduce((s,f)=> s + formas[f.chave], 0));
+  const bruto = r2(FORMAS_RECEBIMENTO.reduce((s,f)=> s + formas[f.chave], 0));
+  /* Troco sai da modalidade escolhida: o cliente entregou mais do que a conta e levou
+     a diferença de volta. Quem paga a conta é o líquido. */
+  const troco = r2(toNum(document.getElementById('recTroco').value));
+  const trocoForma = document.getElementById('recTrocoForma').value;
+  const pago = r2(bruto - troco);
   const dif = r2(total - pago);
 
   FORMAS_RECEBIMENTO.forEach(f=>{
@@ -8035,6 +8152,12 @@ function atualizarSomatorioRec(){
       cx.querySelector('.rm-soma[data-soma="'+f.chave+'"]').textContent =
         preenchidas > 1 ? preenchidas + ' ' + f.plural + ' · ' + fmtMoeda(formas[f.chave]) : '';
     }
+    if(f.comTroco){
+      cx.querySelector('.rm-valor[data-valor="'+f.chave+'"]').textContent = fmtMoeda(formas[f.chave]);
+      const nomeF = (FORMAS_RECEBIMENTO.find(x=> x.chave===trocoForma)||{rotulo:''}).rotulo.toLowerCase();
+      cx.querySelector('.rm-soma[data-soma="'+f.chave+'"]').textContent =
+        troco > 0 ? 'troco ' + fmtMoeda(troco) + ' em ' + nomeF : '';
+    }
   });
 
   let blocoDif;
@@ -8042,13 +8165,21 @@ function atualizarSomatorioRec(){
   else if(dif < -0.004) blocoDif = {cls:'rs-troco', rot:'Pagou a mais', val:fmtMoeda(-dif), nota:'troco, ou pagamento de conta antiga'};
   else blocoDif = {cls:'rs-quitado', rot:'Diferença', val:fmtMoeda(0), nota:'conta quitada por inteiro'};
 
+  const nomeTrocoForma = (FORMAS_RECEBIMENTO.find(f=> f.chave===trocoForma)||{rotulo:trocoForma}).rotulo.toLowerCase();
   const partes = [
     '<div class="rs-bloco"><div class="rs-rot">Total da conta</div><div class="rs-val">'+fmtMoeda(total)+'</div></div>',
     '<div class="rs-bloco"><div class="rs-rot">Quantia paga</div><div class="rs-val">'+fmtMoeda(pago)+'</div>' +
-      '<div class="rs-nota">'+ (pago>0 ? FORMAS_RECEBIMENTO.filter(f=>formas[f.chave]>0).length + ' modalidade(s)' : 'nenhuma modalidade preenchida') +'</div></div>',
+      '<div class="rs-nota">'+ (troco > 0
+        ? fmtMoeda(bruto) + ' menos ' + fmtMoeda(troco) + ' de troco'
+        : (pago>0 ? FORMAS_RECEBIMENTO.filter(f=>formas[f.chave]>0).length + ' modalidade(s)' : 'nenhuma modalidade preenchida')) +'</div></div>',
     '<div class="rs-bloco '+blocoDif.cls+'"><div class="rs-rot">'+blocoDif.rot+'</div><div class="rs-val">'+blocoDif.val+'</div>' +
       '<div class="rs-nota">'+blocoDif.nota+'</div></div>'
   ];
+  if(troco > 0){
+    partes.push('<div class="rs-bloco rs-troco"><div class="rs-rot">Troco devolvido</div>' +
+      '<div class="rs-val">'+fmtMoeda(troco)+'</div>' +
+      '<div class="rs-nota">sai do ' + nomeTrocoForma + ' do caixa</div></div>');
+  }
 
   document.getElementById('recSomatorio').innerHTML = partes.join('');
 }
@@ -8204,6 +8335,8 @@ function limparFormRec(manterCliente){
     if(f.multiplo) montarLinhasMod(f.chave, ['']);
     else document.getElementById('recPg_'+f.chave).value = '';
   });
+  document.getElementById('recTroco').value = '';
+  document.getElementById('recTrocoForma').value = 'dinheiro';
   document.getElementById('recAviso').textContent = '';
   atualizarFichaRec();
 }
@@ -8271,10 +8404,18 @@ function salvarRecebimento(){
   const nome = arrumarNome(document.getElementById('recCliente').value);
   const total = r2(toNum(document.getElementById('recTotal').value));
   const formas = valoresFormasDoForm();
-  const pago = r2(FORMAS_RECEBIMENTO.reduce((s,f)=> s + formas[f.chave], 0));
+  const bruto = r2(FORMAS_RECEBIMENTO.reduce((s,f)=> s + formas[f.chave], 0));
+  const troco = r2(toNum(document.getElementById('recTroco').value));
+  const trocoForma = document.getElementById('recTrocoForma').value;
+  const pago = r2(bruto - troco);
 
   if(!nome){ aviso.textContent = 'Informe o nome do cliente.'; document.getElementById('recCliente').focus(); return; }
   if(total <= 0 && pago <= 0){ aviso.textContent = 'Informe o total da conta e a quantia paga.'; return; }
+  if(troco > 0 && troco >= bruto){
+    aviso.textContent = 'O troco não pode ser igual nem maior que o valor entregue pelo cliente.';
+    document.getElementById('recTroco').focus();
+    return;
+  }
 
   /* Sem a abertura do dia o fechamento não fecha. Em vez de recusar o lançamento, abre
      o pedido do valor inicial e, assim que ele for informado, grava o recebimento. */
@@ -8304,6 +8445,17 @@ function salvarRecebimento(){
     obs: document.getElementById('recObs').value.trim()
   };
   FORMAS_RECEBIMENTO.forEach(f=> dados[f.chave] = formas[f.chave]);
+
+  /* O troco é gravado JÁ DESCONTADO da modalidade escolhida. Assim o valor guardado em
+     cada forma é o efeito real no caixa: o cheque de 1.757 entra inteiro, e os 1.462 de
+     troco saem do dinheiro (viram -1.462 em `dinheiro`). Todo o resto do sistema —
+     fechamento, relatório, balanço, gráficos — continua somando as modalidades como
+     sempre somou, e o número já sai certo. `troco`/`trocoForma` ficam guardados só para
+     a tela de edição conseguir mostrar de novo o valor que foi digitado. */
+  dados.troco = troco > 0 ? troco : 0;
+  dados.trocoForma = troco > 0 ? trocoForma : '';
+  if(troco > 0) dados[trocoForma] = r2(toNum(dados[trocoForma]) - troco);
+
   /* Guarda o detalhe só quando houve mais de uma entrada na modalidade — com um cartão
      só, o valor em `cartao` já diz tudo e a lista seria ruído. */
   const parcelas = {};
@@ -8350,8 +8502,13 @@ function editarRecebimento(id){
   document.getElementById('recData').value = r.data || hojeISO();
   document.getElementById('recTotal').value = toNum(r.total) ? toNum(r.total).toFixed(2).replace('.',',') : '';
   document.getElementById('recObs').value = r.obs || '';
+  /* Na gravação o troco foi descontado da modalidade; aqui ele é somado de volta, para
+     o operador rever exatamente o que digitou (o cheque cheio, e o troco no seu campo). */
+  const troco = r2(toNum(r.troco));
+  const trocoForma = r.trocoForma || 'dinheiro';
   FORMAS_RECEBIMENTO.forEach(f=>{
-    const v = toNum(r[f.chave]);
+    let v = toNum(r[f.chave]);
+    if(troco > 0 && f.chave === trocoForma) v = r2(v + troco);
     if(f.multiplo){
       const p = parcelasDe(r, f.chave);
       montarLinhasMod(f.chave, p.length ? p : [v || '']);
@@ -8359,6 +8516,8 @@ function editarRecebimento(id){
       document.getElementById('recPg_'+f.chave).value = v ? v.toFixed(2).replace('.',',') : '';
     }
   });
+  document.getElementById('recTroco').value = troco ? troco.toFixed(2).replace('.',',') : '';
+  document.getElementById('recTrocoForma').value = trocoForma;
   document.getElementById('recEditandoTxt').textContent =
     'Corrigindo o recebimento de ' + nomeCliente(r.clienteId) + ' de ' + dataBR(r.data) + '.';
   document.getElementById('recEditandoAviso').classList.add('show');
@@ -8404,6 +8563,7 @@ document.getElementById('recData').addEventListener('change', (e)=>{
   trocarDiaCaixa(e.target.value);
 });
 document.getElementById('recTotal').addEventListener('input', atualizarSomatorioRec);
+fecharAoClicarFora('overlayTroco');
 /* Enter no total pula direto para a primeira modalidade — o fluxo é sempre esse. */
 document.getElementById('recTotal').addEventListener('keydown', (e)=>{
   if(e.key==='Enter'){ e.preventDefault(); document.getElementById('recPg_dinheiro').focus(); }
@@ -9010,7 +9170,9 @@ function renderHistorico(){
           const cls = (f.chave===formaSel) ? ' class="col-destaque"' : '';
           if(!toNum(r[f.chave])) return '<td'+cls+'>—</td>';
           const p = parcelasDe(r, f.chave);
+          const ehTroco = toNum(r.troco) > 0 && r.trocoForma === f.chave;
           return '<td'+cls+'>'+fmtMoeda(toNum(r[f.chave])) +
+            (ehTroco ? '<div class="rec-mini">troco devolvido</div>' : '') +
             (p.length > 1 ? '<div class="rec-mini">'+p.map(v=> fmtMoeda(v)).join(' + ')+'</div>' : '') + '</td>';
         }).join('') +
         '<td><b>'+fmtMoeda(pagoDoRecebimento(r))+'</b></td>' +
