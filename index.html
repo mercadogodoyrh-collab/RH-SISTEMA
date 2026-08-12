@@ -217,6 +217,7 @@
   .bl-grupo{display:flex;flex-direction:column;gap:2px;margin-bottom:4px;}
   /* O nome da área pode ser comprido demais para uma linha só (Controle de Caixa
      Administrativo): o cabeçalho quebra em duas, os itens de dentro continuam em uma. */
+  .bl-inicio{font-size:13.5px;margin-bottom:2px;}
   .bl-cabeca{font-size:13.5px;align-items:flex-start;}
   .bl-cabeca .bl-rotulo{white-space:normal;line-height:1.3;}
   .bl-cabeca svg{margin-top:1px;}
@@ -612,6 +613,71 @@
   .rec-sg:hover{border-color:var(--verde);color:var(--verde);background:#f3fbf6;}
   .rec-sg.ok{background:#e3f7ea;border-color:var(--verde);color:#137a3e;}
   .rec-sg.ok:hover{filter:brightness(.97);}
+  /* ============================= TELA INICIAL (diretoria) =============================
+     Números grandes e gráficos simples. Tudo desenhado em SVG puro: sem biblioteca de
+     gráfico, o sistema continua um arquivo só e a página imprime igual à tela. */
+  /* Duas colunas no monitor da loja. O desenho dos gráficos usa a mesma largura destes
+     cartões (ver LARGURA_GRAFICO): assim o SVG não é esticado nem encolhido, e o texto
+     dentro dele sai do mesmo tamanho do texto do resto da página. */
+  .ini-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:14px;margin-top:18px;}
+  .ini-card{background:var(--superficie);border:1px solid var(--cinza-borda);border-radius:12px;padding:16px 18px 18px;}
+  .ini-card.largo{grid-column:1 / -1;}
+  .ini-card h3{margin:0 0 2px;font-size:14px;color:var(--marca-esc);}
+  .ini-card .ini-desc{font-size:11.5px;color:var(--texto-fraco);line-height:1.5;margin-bottom:14px;}
+  .ini-card svg{display:block;width:100%;height:auto;overflow:visible;}
+  .ini-card .rosca{max-width:244px;margin:0 auto;}
+  .ini-legenda{display:flex;flex-wrap:wrap;gap:9px 18px;margin-top:14px;}
+  .ini-legenda span{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--texto-fraco);}
+  .ini-legenda i{width:10px;height:10px;border-radius:3px;flex:none;}
+  .ini-legenda b{color:var(--texto);}
+  .ini-vazio{font-size:12.5px;color:var(--texto-fraco);text-align:center;padding:30px 10px;}
+  .ini-alertas{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
+  .ini-alerta{display:flex;align-items:flex-start;gap:11px;border-radius:10px;padding:11px 15px;font-size:13px;
+    border:1px solid var(--cinza-borda);background:var(--superficie);line-height:1.5;}
+  .ini-alerta .ia-marca{width:22px;height:22px;border-radius:50%;flex:none;display:flex;align-items:center;
+    justify-content:center;font-weight:800;font-size:12px;color:#fff;}
+  .ini-alerta.critico{border-color:#f3c9c3;background:#fdf3f2;} .ini-alerta.critico .ia-marca{background:var(--vermelho);}
+  .ini-alerta.atencao{border-color:#f0dfb8;background:#fdfaf2;} .ini-alerta.atencao .ia-marca{background:#d68910;}
+  .ini-alerta.ok{border-color:#c9e8d6;background:#f4fbf7;} .ini-alerta.ok .ia-marca{background:var(--verde);}
+  .ini-alerta b{color:var(--texto);}
+  .ini-acao{margin-left:auto;flex:none;background:none;border:none;font-family:inherit;font-size:12px;
+    color:var(--marca);cursor:pointer;text-decoration:underline;font-weight:700;white-space:nowrap;padding:0;}
+  @media print{
+    body.imprimindo *{visibility:hidden;}
+    body.imprimindo #viewInicio, body.imprimindo #viewInicio *{visibility:visible;}
+    body.imprimindo #viewInicio{position:absolute;left:0;top:0;width:100%;}
+    body.imprimindo .ini-card{break-inside:avoid;}
+  }
+
+  /* Barra do dia: o caixa é diário, então toda tela de movimento começa dizendo em que
+     dia se está trabalhando e se aquele dia já teve a abertura informada. */
+  .barra-dia{display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:var(--superficie);
+    border:1px solid var(--cinza-borda);border-radius:10px;padding:9px 13px;margin-bottom:14px;}
+  .barra-dia input[type=date]{padding:7px 9px;border:1px solid var(--cinza-borda);border-radius:7px;
+    font-size:13.5px;font-family:inherit;color:var(--texto);}
+  .btn-dia{width:30px;height:30px;border:1px solid var(--cinza-borda);background:var(--superficie);
+    border-radius:7px;cursor:pointer;font-size:16px;line-height:1;color:var(--marca-esc);font-family:inherit;padding:0;}
+  .btn-dia:hover{border-color:var(--marca);background:var(--marca-cl);}
+  .dia-rotulo{font-size:13px;color:var(--texto-fraco);text-transform:capitalize;}
+  .dia-abertura{margin-left:auto;font-size:12.5px;color:var(--marca-esc);font-weight:700;
+    background:var(--marca-cl);border-radius:20px;padding:5px 12px;white-space:nowrap;}
+  .dia-abertura.sem{background:#fdecea;color:var(--vermelho);}
+  .btn-editar-abertura{background:none;border:none;padding:0;font-family:inherit;font-size:12px;
+    color:inherit;cursor:pointer;text-decoration:underline;font-weight:700;}
+  .btn-link-dica{background:none;border:none;padding:0;font-family:inherit;font-size:11.5px;
+    color:var(--marca);cursor:pointer;text-decoration:underline;font-weight:700;}
+  .fechamento{background:var(--superficie);border:1px solid var(--cinza-borda);border-radius:11px;
+    padding:14px 17px;margin-bottom:16px;}
+  .fechamento h3{margin:0 0 10px;font-size:13.5px;color:var(--marca-esc);}
+  .fechamento .fc-linha{display:flex;justify-content:space-between;align-items:baseline;gap:14px;
+    font-size:13px;padding:5px 0;border-bottom:1px dashed var(--cinza-borda);}
+  .fechamento .fc-linha:last-child{border-bottom:none;}
+  .fechamento .fc-linha b{font-weight:700;color:var(--texto);}
+  .fechamento .fc-total{background:var(--marca-cl);border-radius:8px;padding:10px 13px;margin-top:10px;
+    display:flex;justify-content:space-between;align-items:center;gap:14px;}
+  .fechamento .fc-total .fc-rot{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--marca-esc);}
+  .fechamento .fc-total .fc-val{font-size:19px;font-weight:800;color:var(--marca-esc);}
+
   /* Botões de modalidade do Relatório: são o filtro e, ao mesmo tempo, o total de cada
      forma no mês — é o número que a pessoa compara com o dinheiro físico da gaveta,
      com os comprovantes de cartão e com os cheques na mão. */
@@ -653,6 +719,11 @@
   .fer-tag.dobro{background:var(--vermelho);color:#fff;}
   .rec-mini{font-size:11px;color:var(--texto-fraco);}
   .rec-cli-nome{font-weight:700;font-size:13.5px;color:var(--texto);}
+  /* No balcão se digita com o caps lock ligado, e a base fica com "MARIA DE SOUZA" ao
+     lado de "Maria de Souza". Em vez de gravar tudo em maiúscula — o que estragaria o
+     nome nos documentos e na planilha —, a tela MOSTRA sempre em maiúscula. O dado
+     continua gravado do jeito certo; muda só o que o olho vê. */
+  .nome-cli, input.nome-cli{text-transform:uppercase;}
   .rec-acoes-linha{display:flex;gap:6px;justify-content:flex-end;}
   .rec-bloco{background:#fff;border:1px solid var(--cinza-borda);border-radius:11px;padding:16px 18px;margin-top:18px;}
   .rec-bloco h3{margin:0 0 12px;font-size:14px;color:var(--marca-esc);}
@@ -701,6 +772,10 @@
     <div class="bl-marca bl-rotulo">Gestão Administrativa<small>Mercado e Açougue Godoy</small></div>
   </div>
   <nav class="bl-nav">
+    <button class="bl-item bl-inicio ativa" data-aba="inicio" title="Início">
+      <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M9.5 20v-6h5v6"/></svg>
+      <span class="bl-rotulo">Início</span>
+    </button>
     <div class="bl-secao bl-rotulo">Áreas do sistema</div>
 
     <div class="bl-grupo aberto" data-grupo="rh">
@@ -711,7 +786,7 @@
         <svg class="bl-seta bl-rotulo" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div class="bl-sub">
-        <button class="bl-item bl-filho ativa" data-aba="dashboard" title="Painel">
+        <button class="bl-item bl-filho" data-aba="dashboard" title="Painel">
           <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
           <span class="bl-rotulo">Painel</span>
         </button>
@@ -763,6 +838,10 @@
           <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3.5" y1="6" x2="3.51" y2="6"/><line x1="3.5" y1="12" x2="3.51" y2="12"/><line x1="3.5" y1="18" x2="3.51" y2="18"/></svg>
           <span class="bl-rotulo">Lançamentos</span>
         </button>
+        <button class="bl-item bl-filho" data-aba="recBalanco" title="Balanço Mensal do Caixa">
+          <svg viewBox="0 0 24 24"><path d="M3 20h18"/><rect x="5" y="11" width="3.5" height="7"/><rect x="10.2" y="6" width="3.5" height="12"/><rect x="15.4" y="14" width="3.5" height="4"/></svg>
+          <span class="bl-rotulo">Balanço Mensal</span>
+        </button>
         <button class="bl-item bl-filho" data-aba="recClientes" title="Clientes">
           <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           <span class="bl-rotulo">Clientes</span>
@@ -801,6 +880,22 @@
     </svg>
   </button>
 </header>
+
+<div id="viewInicio" style="display:none;">
+  <main>
+    <div class="dash-topo">
+      <div>
+        <h2>Visão da diretoria — <span id="iniMes"></span></h2>
+        <div class="dash-sub" id="iniSub"></div>
+      </div>
+      <button class="btn btn-outline" id="btnImprimirInicio">Imprimir esta página</button>
+    </div>
+    <div id="iniAlertas"></div>
+    <div class="kpis-destaque" id="iniKpis"></div>
+    <div id="iniGraficos"></div>
+    <div class="nota-rodape" id="iniNota"></div>
+  </main>
+</div>
 
 <div id="viewDashboard">
   <main>
@@ -1053,6 +1148,8 @@
       </div>
     </div>
 
+    <div id="recDia"></div>
+
     <div class="rec-editando" id="recEditandoAviso">
       <span id="recEditandoTxt"></span>
       <div class="spacer" style="flex:1;"></div>
@@ -1063,7 +1160,7 @@
       <div class="rec-linha">
         <div class="campo rec-busca-wrap">
           <label for="recCliente">Cliente</label>
-          <input type="text" id="recCliente" autocomplete="off" spellcheck="false" placeholder="Digite o nome do cliente…">
+          <input type="text" id="recCliente" class="nome-cli" autocomplete="off" spellcheck="false" placeholder="Digite o nome do cliente…">
           <div class="campo-nota" id="recClienteNota">A base cresce sozinha: nome que ainda não existe é cadastrado ao registrar.</div>
           <div class="rec-sug" id="recSug"></div>
         </div>
@@ -1113,6 +1210,8 @@
       </div>
     </div>
 
+    <div id="retDia"></div>
+
     <div class="rec-editando" id="retEditandoAviso">
       <span id="retEditandoTxt"></span>
       <div class="spacer" style="flex:1;"></div>
@@ -1150,22 +1249,37 @@
 <!-- ===================== CAIXA ADMINISTRATIVO: lançamentos ===================== -->
 <div id="viewRecLancamentos" style="display:none;">
   <div class="toolbar">
-    <div class="fin-titulo">Lançamentos de <span id="lanMesLabel"></span></div>
-    <select id="lanMes"></select>
     <div class="search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="lanBusca" placeholder="Buscar cliente...">
+      <input type="text" id="lanBusca" placeholder="Buscar cliente no dia...">
     </div>
     <select id="lanFiltro">
-      <option value="todos">Todos os lançamentos</option>
+      <option value="todos">Todos os lançamentos do dia</option>
       <option value="sg-pendente">Somente pendentes de baixa no SG</option>
       <option value="sg-baixado">Somente já baixados no SG</option>
       <option value="parciais">Somente pagamentos parciais</option>
     </select>
   </div>
   <main>
+    <div id="lanDia"></div>
     <div class="lista-info" id="lanInfo"></div>
     <div id="lanCorpo"></div>
+  </main>
+</div>
+
+<!-- ===================== CAIXA ADMINISTRATIVO: balanço mensal ===================== -->
+<div id="viewRecBalanco" style="display:none;">
+  <div class="toolbar">
+    <div class="fin-titulo">Balanço de <span id="balcMesLabel"></span></div>
+    <select id="balcMes"></select>
+    <div class="spacer"></div>
+    <button class="btn btn-outline" id="btnExportarBalancoCaixa">Exportar balanço do mês</button>
+  </div>
+  <main>
+    <div class="kpis" id="balcKpis"></div>
+    <div class="filtro-formas" id="balcFormas"></div>
+    <div class="lista-info" id="balcInfo"></div>
+    <div id="balcCorpo"></div>
   </main>
 </div>
 
@@ -1178,7 +1292,7 @@
     </div>
     <select id="cliFiltro">
       <option value="todos">Todos os clientes</option>
-      <option value="bloqueio">Somente para bloquear no SG (acima de R$ 500)</option>
+      <option value="bloqueio">Somente para analisar débitos (acima de R$ 500)</option>
       <option value="devendo">Somente quem está devendo</option>
       <option value="quites">Somente quem está quite</option>
       <option value="commov">Somente com recebimento lançado</option>
@@ -1205,11 +1319,9 @@
 <!-- ===================== RECEBIMENTO DE CONTAS: histórico ===================== -->
 <div id="viewRecHistorico" style="display:none;">
   <div class="toolbar">
-    <div class="fin-titulo">Caixa de <span id="hisMesLabel"></span></div>
-    <select id="hisMes"></select>
     <div class="search-wrap">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-      <input type="text" id="hisBusca" placeholder="Buscar cliente no relatório...">
+      <input type="text" id="hisBusca" placeholder="Buscar cliente no dia...">
     </div>
     <select id="hisFiltro">
       <option value="todos">Todas as situações</option>
@@ -1221,6 +1333,8 @@
     <button class="btn btn-outline" id="btnExportarRecebimentos">Exportar movimento do caixa</button>
   </div>
   <main>
+    <div id="hisDia"></div>
+    <div id="hisFechamento"></div>
     <div class="filtro-formas" id="hisFormas"></div>
     <div id="hisConferencia"></div>
     <div class="kpis" id="hisKpis"></div>
@@ -1230,6 +1344,37 @@
 </div>
 
 </div><!-- /area-conteudo -->
+
+<!-- Modal da abertura de caixa do dia -->
+<div class="overlay" id="overlayAbertura">
+  <div class="modal" style="max-width:520px;">
+    <button class="modal-close" id="fecharAbertura">✕</button>
+    <h2 id="abTitulo">Abertura do caixa</h2>
+    <div class="sub" id="abSub"></div>
+    <form id="formAbertura">
+      <div class="campo-row">
+        <div class="campo">
+          <label for="abData">Dia</label>
+          <input type="date" id="abData" required>
+        </div>
+        <div class="campo">
+          <label for="abValor">Dinheiro na gaveta</label>
+          <input type="text" inputmode="decimal" id="abValor" placeholder="0,00" required>
+        </div>
+      </div>
+      <div class="regras-dica" id="abDica" style="margin-top:2px;"></div>
+      <div class="campo" style="margin:12px 0;">
+        <label for="abObs">Observação (opcional)</label>
+        <input type="text" id="abObs" placeholder="Ex.: troco deixado pela Bruna">
+      </div>
+      <div class="rec-mini" id="abResumo"></div>
+      <div class="acoes-modal">
+        <button type="button" class="btn btn-outline" id="btnCancelarAbertura">Agora não</button>
+        <button type="submit" class="btn btn-primary">Abrir o caixa</button>
+      </div>
+    </form>
+  </div>
+</div>
 
 <!-- Modal de cadastro / ficha do cliente -->
 <div class="overlay" id="overlayCliente">
@@ -1241,7 +1386,7 @@
       <div class="campo-row">
         <div class="campo">
           <label for="cliNome">Nome do cliente</label>
-          <input type="text" id="cliNome" required autocomplete="off">
+          <input type="text" id="cliNome" class="nome-cli" required autocomplete="off">
         </div>
         <div class="campo">
           <label for="cliTelefone">Telefone (opcional)</label>
@@ -1648,7 +1793,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '11/08/2026 · caixa em tempo real + férias';
+const VERSAO_SISTEMA = '12/08/2026 · Juros/Haver no caixa';
 
 const SUPABASE_URL  = 'https://vieafcgghboxwhultile.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_HaMcgvr_2xmWYotvzetmVA_yscPz2eT';
@@ -2186,6 +2331,7 @@ document.getElementById('selMes').addEventListener('change', (e)=>{
 /* Redesenha a área que está aberta. Chamado sempre que a base muda (troca de mês,
    recarga do banco), para o painel e o financeiro não ficarem com números velhos. */
 function renderAbaAtual(){
+  if(state.abaAtual === 'inicio' && typeof renderInicio === 'function') renderInicio();
   if(state.abaAtual === 'dashboard' && typeof renderDashboard === 'function') renderDashboard();
   if(state.abaAtual === 'ferias' && typeof renderFerias === 'function') renderFerias();
   if(state.abaAtual === 'financeiro' && typeof renderFinanceiro === 'function') renderFinanceiro();
@@ -2194,6 +2340,7 @@ function renderAbaAtual(){
   if(state.abaAtual === 'recLancar' && typeof renderRecLancar === 'function') renderRecLancar();
   if(state.abaAtual === 'recRetirada' && typeof renderRetiradas === 'function') renderRetiradas();
   if(state.abaAtual === 'recLancamentos' && typeof renderLancamentos === 'function') renderLancamentos();
+  if(state.abaAtual === 'recBalanco' && typeof renderBalancoCaixa === 'function') renderBalancoCaixa();
   if(state.abaAtual === 'recClientes' && typeof renderClientes === 'function') renderClientes();
   if(state.abaAtual === 'recHistorico' && typeof renderHistorico === 'function') renderHistorico();
   if(typeof atualizarSinoPonto === 'function') atualizarSinoPonto();
@@ -6142,6 +6289,7 @@ document.getElementById('relGrid').addEventListener('click', (e)=>{
    que mantém o dropdown certo aberto e esconde do cabeçalho o que só serve ao RH
    (a competência do mês e o ajuste de salários não têm sentido no caixa). */
 const ABAS = {
+  inicio:       {view:'viewInicio',       titulo:'Início',                     grupo:null},
   dashboard:    {view:'viewDashboard',    titulo:'Painel',                     grupo:'rh'},
   folha:        {view:'viewFolha',        titulo:'Folha de Pagamento',         grupo:'rh'},
   ponto:        {view:'viewPonto',        titulo:'Controle de Ponto',          grupo:'rh'},
@@ -6152,12 +6300,16 @@ const ABAS = {
   recLancar:    {view:'viewRecLancar',    titulo:'Lançar Recebimento',         grupo:'rec'},
   recRetirada:  {view:'viewRecRetirada',  titulo:'Retirada de Caixa',          grupo:'rec'},
   recLancamentos:{view:'viewRecLancamentos', titulo:'Lançamentos',             grupo:'rec'},
+  recBalanco:   {view:'viewRecBalanco',   titulo:'Balanço Mensal do Caixa',    grupo:'rec'},
   recClientes:  {view:'viewRecClientes',  titulo:'Clientes',                   grupo:'rec'},
   recHistorico: {view:'viewRecHistorico', titulo:'Relatório de Caixa',         grupo:'rec'}
 };
 
-/* Sanfona: abrir uma área fecha a outra, para a barra não virar uma lista comprida. */
+/* Sanfona: abrir uma área fecha a outra, para a barra não virar uma lista comprida.
+   A tela de Início não pertence a nenhuma área — nesse caso os dropdowns ficam como
+   estavam, para o usuário não perder o lugar onde estava trabalhando. */
 function abrirGrupo(nome){
+  if(!nome){ marcarGrupos(); return; }
   document.querySelectorAll('.bl-grupo').forEach(g=>{
     g.classList.toggle('aberto', g.dataset.grupo === nome);
   });
@@ -6183,10 +6335,11 @@ function trocarAba(aba){
   document.getElementById('tituloAba').textContent = ABAS[aba].titulo;
   document.querySelectorAll('.bl-item').forEach(t=> t.classList.toggle('ativa', t.dataset.aba===aba));
   document.querySelectorAll('.acoes-folha').forEach(b=> b.style.display = (aba==='folha') ? '' : 'none');
-  const soRh = ABAS[aba].grupo === 'rh';
+  const soRh = ABAS[aba].grupo === 'rh' || aba === 'inicio';
   document.getElementById('selMes').style.display = soRh ? '' : 'none';
-  document.getElementById('btnConfigSalarios').style.display = soRh ? '' : 'none';
+  document.getElementById('btnConfigSalarios').style.display = (ABAS[aba].grupo === 'rh') ? '' : 'none';
   abrirGrupo(ABAS[aba].grupo);
+  if(aba==='inicio') renderInicio();
   if(aba==='dashboard') renderDashboard();
   if(aba==='ponto') renderPonto();
   if(aba==='ferias') renderFerias();
@@ -6196,6 +6349,7 @@ function trocarAba(aba){
   if(aba==='recLancar') renderRecLancar();
   if(aba==='recRetirada') renderRetiradas();
   if(aba==='recLancamentos') renderLancamentos();
+  if(aba==='recBalanco') renderBalancoCaixa();
   if(aba==='recClientes') renderClientes();
   if(aba==='recHistorico') renderHistorico();
   atualizarSinoPonto();
@@ -7209,8 +7363,16 @@ const FORMAS_RECEBIMENTO = [
    nota:'débito, crédito, Senff, alimentação',
    icone:'<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>'},
   {chave:'pix',         rotulo:'Pix',         icone:'<path d="M12 2.5 21.5 12 12 21.5 2.5 12z"/>'},
-  {chave:'cheque',      rotulo:'Cheque',      icone:'<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="9.5" x2="13" y2="9.5"/><path d="M6 15c1.6-2.2 3.2 1.6 4.8-.6"/>'}
+  {chave:'cheque',      rotulo:'Cheque',      icone:'<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="9.5" x2="13" y2="9.5"/><path d="M6 15c1.6-2.2 3.2 1.6 4.8-.6"/>'},
+  /* naoEntraNoCaixa: abate a conta do cliente mas NÃO é dinheiro entrando. É o caso do
+     mercado que devia ao cliente e usou esse crédito como parte do pagamento — a conta
+     fica quitada, e nada disso aparece no fechamento do caixa nem na gaveta. */
+  {chave:'haver',       rotulo:'Juros/Haver', naoEntraNoCaixa:true,
+   icone:'<line x1="19" y1="5" x2="5" y2="19"/><circle cx="7.5" cy="7.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/>'}
 ];
+
+/* Modalidades que são dinheiro de verdade entrando no caixa. */
+const FORMAS_EM_CAIXA = FORMAS_RECEBIMENTO.filter(f=> !f.naoEntraNoCaixa);
 
 /* Senff e alimentação eram modalidades separadas até 11/08/2026. Viraram cartão: no
    balcão é tudo a mesma máquina, e o que interessa é quanto passou em cartão. Como o
@@ -7223,6 +7385,8 @@ function garantirBaseRecebimentos(){
   if(!Array.isArray(state.clientes)) state.clientes = [];
   if(!Array.isArray(state.recebimentos)) state.recebimentos = [];
   if(!Array.isArray(state.retiradas)) state.retiradas = [];
+  if(!Array.isArray(state.aberturas)) state.aberturas = [];
+  if(!state.caixaDia) state.caixaDia = hojeISO();
 }
 garantirBaseRecebimentos();
 
@@ -7246,11 +7410,12 @@ function novoIdRec(prefixo){
 const CAIXA_TABELAS = {
   clientes:     {tabela:'caixa_clientes',     linha:(o)=> ({id:o.id, nome:o.nome||'', dados:o})},
   recebimentos: {tabela:'caixa_recebimentos', linha:(o)=> ({id:o.id, data:o.data||null, cliente_id:o.clienteId||null, dados:o})},
-  retiradas:    {tabela:'caixa_retiradas',    linha:(o)=> ({id:o.id, data:o.data||null, dados:o})}
+  retiradas:    {tabela:'caixa_retiradas',    linha:(o)=> ({id:o.id, data:o.data||null, dados:o})},
+  aberturas:    {tabela:'caixa_aberturas',    linha:(o)=> ({id:o.id, data:o.data||null, dados:o})}
 };
 /* Passando deste valor devido — mais de R$ 500, não exatamente R$ 500 — o cliente sai
-   com a linha inteira vermelha na aba Clientes e a marca BLOQUEAR NO SG: é a lista que
-   o balcão usa para barrar a compra no sistema gerencial. */
+   com a linha inteira vermelha na aba Clientes e a marca ANALISAR DÉBITOS DO CLIENTE:
+   é a lista que o balcão usa para decidir se libera ou barra a compra no SG. */
 const LIMITE_DEBITO_ALERTA = 500;
 
 const LS_FILA_CAIXA = 'rh_caixa_fila';
@@ -7325,13 +7490,20 @@ async function apagarDoCaixa(tipo, id){
 }
 
 function assinaturaCaixa(){
-  return JSON.stringify([state.clientes, state.recebimentos, state.retiradas]);
+  return JSON.stringify([state.clientes, state.recebimentos, state.retiradas, state.aberturas]);
 }
 
 function renderCaixaAtual(){
-  if(state.abaAtual === 'recLancar')    renderUltimosRec();
-  if(state.abaAtual === 'recRetirada')  renderUltimasRet();
+  /* Na tela de lançar não se chama renderRecLancar inteiro: ele reescreveria a data do
+     formulário no meio da digitação. Redesenha só o que depende dos dados. */
+  if(state.abaAtual === 'recLancar'){
+    const barra = document.getElementById('recDia');
+    if(barra) barra.innerHTML = htmlSeletorDia();
+    renderUltimosRec();
+  }
+  if(state.abaAtual === 'recRetirada')  renderRetiradas();
   if(state.abaAtual === 'recLancamentos') renderLancamentos();
+  if(state.abaAtual === 'recBalanco')     renderBalancoCaixa();
   if(state.abaAtual === 'recClientes')  renderClientes();
   if(state.abaAtual === 'recHistorico') renderHistorico();
   if(typeof atualizarFichaRec === 'function' && state.abaAtual === 'recLancar') atualizarFichaRec();
@@ -7342,18 +7514,15 @@ async function carregarCaixa(avisar){
   caixaLendo = true;
   try{
     await escoarFilaCaixa();   /* o que este navegador deve ao banco vai antes de reler */
-    const [c, r, s] = await Promise.all([
-      db.from('caixa_clientes').select('dados'),
-      db.from('caixa_recebimentos').select('dados'),
-      db.from('caixa_retiradas').select('dados')
-    ]);
-    const err = c.error || r.error || s.error;
-    if(err) throw err;
+    const tipos = Object.keys(CAIXA_TABELAS);
+    const respostas = await Promise.all(tipos.map(t=> db.from(CAIXA_TABELAS[t].tabela).select('dados')));
+    const err = respostas.find(x=> x.error);
+    if(err) throw err.error;
     garantirBaseRecebimentos();
     const antes = assinaturaCaixa();
-    state.clientes     = (c.data || []).map(x=> x.dados).filter(Boolean);
-    state.recebimentos = (r.data || []).map(x=> x.dados).filter(Boolean);
-    state.retiradas    = (s.data || []).map(x=> x.dados).filter(Boolean);
+    tipos.forEach((t, i)=>{
+      state[t] = (respostas[i].data || []).map(x=> x.dados).filter(Boolean);
+    });
     unificarCartoesAntigos();
     gravarCache();
     if(antes !== assinaturaCaixa()){
@@ -7399,11 +7568,12 @@ function ligarAtualizacaoCaixa(){
   if(!db || caixaAtualizacaoLigada) return;
   caixaAtualizacaoLigada = true;
   try{
-    caixaCanal = db.channel('caixa-administrativo')
-      .on('postgres_changes', {event:'*', schema:'public', table:'caixa_clientes'},     agendarLeituraCaixa)
-      .on('postgres_changes', {event:'*', schema:'public', table:'caixa_recebimentos'}, agendarLeituraCaixa)
-      .on('postgres_changes', {event:'*', schema:'public', table:'caixa_retiradas'},    agendarLeituraCaixa)
-      .subscribe();
+    caixaCanal = db.channel('caixa-administrativo');
+    Object.keys(CAIXA_TABELAS).forEach(t=>{
+      caixaCanal = caixaCanal.on('postgres_changes',
+        {event:'*', schema:'public', table:CAIXA_TABELAS[t].tabela}, agendarLeituraCaixa);
+    });
+    caixaCanal.subscribe();
   }catch(e){ /* sem realtime o sistema continua: a releitura periódica cobre */ }
   setInterval(()=> carregarCaixa(true), 30000);
   window.addEventListener('focus', ()=> carregarCaixa(true));
@@ -7454,13 +7624,27 @@ function nomeCliente(id){
   const c = clientePorId(id);
   return c ? c.nome : 'Cliente removido';
 }
-/* Quanto entrou no caixa neste lançamento: a soma de todas as modalidades. */
+/* Quanto da conta foi QUITADO — inclui o Juros/Haver, porque para o cliente a conta
+   está paga do mesmo jeito. É o número que zera o saldo devedor dele. */
 function pagoDoRecebimento(r){
   if(!r) return 0;
   /* As chaves antigas entram na soma mesmo antes de serem convertidas em cartão:
      nenhum registro velho pode aparecer com valor pago menor do que foi recebido. */
   return FORMAS_RECEBIMENTO.reduce((s,f)=> s + toNum(r[f.chave]), 0)
        + FORMAS_ANTIGAS.reduce((s,k)=> s + toNum(r[k]), 0);
+}
+
+/* Quanto ENTROU de dinheiro no caixa — o Juros/Haver fica de fora, porque não passou
+   pela gaveta nem pela maquininha. É este o número do fechamento e dos relatórios. */
+function entradaEmCaixa(r){
+  if(!r) return 0;
+  return FORMAS_EM_CAIXA.reduce((s,f)=> s + toNum(r[f.chave]), 0)
+       + FORMAS_ANTIGAS.reduce((s,k)=> s + toNum(r[k]), 0);
+}
+function haverDoRecebimento(r){
+  if(!r) return 0;
+  return FORMAS_RECEBIMENTO.filter(f=> f.naoEntraNoCaixa)
+    .reduce((s,f)=> s + toNum(r[f.chave]), 0);
 }
 
 /* Converte os registros gravados antes da unificação: o que estava em Senff e em
@@ -7565,6 +7749,168 @@ function resumoFormas(r){
   }).join(' · ');
 }
 
+/* ================== O DIA DO CAIXA ==================
+   O caixa é diário: abre de manhã com um valor em dinheiro na gaveta, recebe durante o
+   dia, tem retiradas, e no fim tem que fechar. As telas de Lançamentos, Retirada e
+   Relatório trabalham sempre sobre UM dia — `state.caixaDia`. O Balanço Mensal é a
+   única que olha o mês inteiro.
+
+   O fechamento em dinheiro é: abertura + dinheiro recebido − retiradas. Sem a abertura
+   lançada essa conta não fecha, e é por isso que o sistema pede o valor inicial antes
+   do primeiro recebimento do dia. */
+
+function recebimentosDoDia(iso){ return (state.recebimentos||[]).filter(r=> String(r.data||'') === iso); }
+function retiradasDoDia(iso){ return (state.retiradas||[]).filter(r=> String(r.data||'') === iso); }
+function aberturaDoDia(iso){ return (state.aberturas||[]).find(a=> a.id === iso) || null; }
+
+function totaisDoDia(iso){
+  const rec = recebimentosDoDia(iso);
+  const ret = retiradasDoDia(iso);
+  const porForma = {};
+  FORMAS_RECEBIMENTO.forEach(f=> porForma[f.chave] = 0);
+  let entrou = 0, contas = 0, quitado = 0, haver = 0;
+  rec.forEach(r=>{
+    FORMAS_RECEBIMENTO.forEach(f=> porForma[f.chave] += toNum(r[f.chave]));
+    entrou  += entradaEmCaixa(r);      /* dinheiro que entrou de verdade */
+    quitado += pagoDoRecebimento(r);   /* o que as contas deixaram de dever */
+    haver   += haverDoRecebimento(r);
+    contas  += toNum(r.total);
+  });
+  FORMAS_RECEBIMENTO.forEach(f=> porForma[f.chave] = r2(porForma[f.chave]));
+  const saiu = somaRetiradas(ret);
+  const ab = aberturaDoDia(iso);
+  const inicial = ab ? r2(toNum(ab.valor)) : 0;
+  return {
+    iso, rec, ret, porForma, abertura: ab, inicial,
+    entrou: r2(entrou), quitado: r2(quitado), haver: r2(haver), contas: r2(contas), saiu,
+    sobrou: r2(entrou - saiu),
+    dinheiroFinal: r2(inicial + porForma.dinheiro - saiu)   /* o que tem que estar na gaveta */
+  };
+}
+
+function salvarAberturaDia(iso, valor, obs){
+  garantirBaseRecebimentos();
+  let ab = aberturaDoDia(iso);
+  if(ab){
+    ab.valor = r2(valor);
+    ab.obs = obs || '';
+    ab.alteradoEm = new Date().toISOString();
+  }else{
+    ab = { id: iso, data: iso, valor: r2(valor), obs: obs || '',
+           usuario: document.getElementById('usuarioLogado').textContent || '',
+           criadoEm: new Date().toISOString() };
+    state.aberturas.push(ab);
+  }
+  salvarNoCaixa('aberturas', ab);
+  return ab;
+}
+
+/* Troca o dia de trabalho e redesenha a tela aberta. */
+function trocarDiaCaixa(iso){
+  if(!iso) return;
+  state.caixaDia = iso;
+  salvarEstado();
+  renderCaixaAtual();
+}
+document.addEventListener('change', (e)=>{
+  if(e.target && e.target.classList && e.target.classList.contains('caixa-dia')) trocarDiaCaixa(e.target.value);
+});
+
+/* Cabeçalho de dia usado nas telas diárias: o seletor e os atalhos de navegação. */
+function htmlSeletorDia(){
+  const dia = state.caixaDia || hojeISO();
+  const ab = aberturaDoDia(dia);
+  return '<div class="barra-dia">' +
+    '<button type="button" class="btn-dia" data-dia-passo="-1" title="Dia anterior">‹</button>' +
+    '<input type="date" class="caixa-dia" value="'+dia+'">' +
+    '<button type="button" class="btn-dia" data-dia-passo="1" title="Próximo dia">›</button>' +
+    '<button type="button" class="btn btn-outline btn-sm" data-dia-hoje="1">Hoje</button>' +
+    '<span class="dia-rotulo">'+diaPorExtenso(dia)+'</span>' +
+    (ab
+      ? '<span class="dia-abertura">Abertura ' + fmtMoeda(toNum(ab.valor)) +
+        ' <button type="button" class="btn-editar-abertura" data-abrir-caixa="1">alterar</button></span>'
+      : '<span class="dia-abertura sem"><button type="button" class="btn-editar-abertura" data-abrir-caixa="1">informar abertura do caixa</button></span>') +
+    '</div>';
+}
+
+const DIAS_SEMANA = ['domingo','segunda-feira','terça-feira','quarta-feira','quinta-feira','sexta-feira','sábado'];
+function diaPorExtenso(iso){
+  const d = deISO(iso);
+  const txt = DIAS_SEMANA[d.getDay()] + ', ' + dataBR(iso);
+  return iso === hojeISO() ? 'hoje — ' + txt : txt;
+}
+
+document.addEventListener('click', (e)=>{
+  const passo = e.target.closest('button[data-dia-passo]');
+  if(passo){ trocarDiaCaixa(somarDias(state.caixaDia || hojeISO(), parseInt(passo.dataset.diaPasso,10))); return; }
+  const hoje = e.target.closest('button[data-dia-hoje]');
+  if(hoje){ trocarDiaCaixa(hojeISO()); return; }
+  const ab = e.target.closest('button[data-abrir-caixa]');
+  if(ab){ abrirModalAbertura(state.caixaDia || hojeISO()); return; }
+});
+
+/* --------------------------------------------------------------- abertura de caixa */
+function abrirModalAbertura(iso, aoConfirmar){
+  const dia = iso || hojeISO();
+  const ab = aberturaDoDia(dia);
+  const t = totaisDoDia(dia);
+  document.getElementById('abData').value = dia;
+  document.getElementById('abValor').value = ab ? toNum(ab.valor).toFixed(2).replace('.',',') : '';
+  document.getElementById('abObs').value = ab ? (ab.obs||'') : '';
+  document.getElementById('abTitulo').textContent = ab ? 'Alterar a abertura do caixa' : 'Abertura do caixa';
+  document.getElementById('abSub').textContent = ab
+    ? 'Corrija o valor que estava na gaveta quando o dia começou.'
+    : 'Antes do primeiro recebimento do dia, informe quanto tinha de dinheiro na gaveta. É esse valor que faz o caixa fechar sem furo no fim do dia.';
+  const anterior = aberturaAnteriorSugerida(dia);
+  document.getElementById('abDica').innerHTML = anterior
+    ? 'No último dia com movimento (' + dataBR(anterior.iso) + ') o caixa devia fechar com <b>' +
+      fmtMoeda(anterior.dinheiroFinal) + '</b> em espécie. <button type="button" class="btn-link-dica" id="btnUsarSugestao">usar esse valor</button>'
+    : 'Primeiro dia com movimento — informe o valor que está na gaveta.';
+  document.getElementById('abResumo').textContent = (t.rec.length || t.ret.length)
+    ? 'Este dia já tem ' + t.rec.length + ' recebimento(s) e ' + t.ret.length + ' retirada(s) lançados.'
+    : '';
+  aberturaCallback = aoConfirmar || null;
+  document.getElementById('overlayAbertura').classList.add('show');
+  setTimeout(()=> document.getElementById('abValor').focus(), 60);
+}
+let aberturaCallback = null;
+
+/* Sugestão: o que o dia anterior com movimento deveria ter deixado na gaveta. */
+function aberturaAnteriorSugerida(iso){
+  const dias = Array.from(new Set(
+    (state.recebimentos||[]).concat(state.retiradas||[]).map(x=> String(x.data||'')).filter(Boolean)
+  )).filter(d=> d < iso).sort();
+  if(!dias.length) return null;
+  const t = totaisDoDia(dias[dias.length-1]);
+  return {iso: dias[dias.length-1], dinheiroFinal: t.dinheiroFinal};
+}
+
+function fecharModalAbertura(){
+  document.getElementById('overlayAbertura').classList.remove('show');
+  aberturaCallback = null;
+}
+
+document.getElementById('formAbertura').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  const dia = document.getElementById('abData').value || hojeISO();
+  const valor = toNum(document.getElementById('abValor').value);
+  if(valor < 0){ mostrarToast('O valor de abertura não pode ser negativo'); return; }
+  salvarAberturaDia(dia, valor, document.getElementById('abObs').value.trim());
+  mostrarToast('Caixa de ' + dataBR(dia) + ' aberto com ' + fmtMoeda(valor));
+  const seguir = aberturaCallback;
+  fecharModalAbertura();
+  renderCaixaAtual();
+  if(seguir) seguir();
+});
+document.getElementById('fecharAbertura').addEventListener('click', fecharModalAbertura);
+document.getElementById('btnCancelarAbertura').addEventListener('click', fecharModalAbertura);
+document.getElementById('abDica').addEventListener('click', (e)=>{
+  if(!e.target.closest('#btnUsarSugestao')) return;
+  const sug = aberturaAnteriorSugerida(document.getElementById('abData').value || hojeISO());
+  if(sug) document.getElementById('abValor').value = sug.dinheiroFinal.toFixed(2).replace('.',',');
+});
+document.getElementById('abData').addEventListener('change', (e)=> abrirModalAbertura(e.target.value, aberturaCallback));
+
 /* --------------------------------------------------------------- tela de lançamento */
 let recClienteSel = null;   /* id do cliente escolhido na busca */
 let recEditandoId = null;   /* lançamento aberto para correção */
@@ -7578,6 +7924,7 @@ function montarModsRec(){
     '<div class="rec-mod" data-mod="'+f.chave+'">' +
       '<div class="rm-topo"><svg viewBox="0 0 24 24">'+f.icone+'</svg>'+f.rotulo+'</div>' +
       (f.nota ? '<div class="rm-nota">'+f.nota+'</div>' : '') +
+      (f.naoEntraNoCaixa ? '<div class="rm-nota" style="color:#b9770e;">quita a conta, não entra no caixa</div>' : '') +
       (f.multiplo
         ? '<div class="rm-linhas" data-linhas="'+f.chave+'"></div>' +
           '<div class="rm-soma" data-soma="'+f.chave+'"></div>' +
@@ -7715,7 +8062,7 @@ function atualizarFichaRec(){
   /* Escolhido o cliente, a sugestão fecha — a barra assume o recado: quanto ele já
      pagou e quanto ainda deve, à vista do operador enquanto ele digita a conta. */
   ficha.innerHTML =
-    '<div>Cliente <b>'+escHtml(c.nome)+'</b>'+ (c.telefone ? ' <span class="rec-mini">· '+escHtml(c.telefone)+'</span>' : '') +'</div>' +
+    '<div>Cliente <b class="nome-cli">'+escHtml(c.nome)+'</b>'+ (c.telefone ? ' <span class="rec-mini">· '+escHtml(c.telefone)+'</span>' : '') +'</div>' +
     '<div class="'+(res.saldo>0.004?'rf-devendo':'')+'">Ainda deve <b>' +
       (res.saldo > 0.004 ? fmtMoeda(res.saldo) : (res.saldo < -0.004 ? 'crédito '+fmtMoeda(-res.saldo) : 'nada')) + '</b></div>' +
     '<div>Já pagou <b>'+fmtMoeda(res.pago)+'</b> em '+res.qtd+' recebimento(s)</div>' +
@@ -7756,7 +8103,7 @@ function abrirSugRec(){
       ? 'deve ' + fmtMoeda(res.saldo)
       : (res.saldo < -0.004 ? 'crédito ' + fmtMoeda(-res.saldo) : 'quite');
     return '<div class="rec-sug-item" data-cli="'+c.id+'">' +
-      '<div><div class="rs-nome">'+escHtml(c.nome)+'</div>' +
+      '<div><div class="rs-nome nome-cli">'+escHtml(c.nome)+'</div>' +
       '<div class="rs-info">'+ (c.telefone ? escHtml(c.telefone)+' · ' : '') +
         (res.qtd ? res.qtd+' recebimento(s) · último em '+dataBR(res.ultima) : 'sem recebimentos ainda') +'</div></div>' +
       '<div class="rs-saldo '+(res.saldo>0.004?'':'zerado')+'">'+saldoTxt+'</div></div>';
@@ -7852,7 +8199,7 @@ function limparFormRec(manterCliente){
   }
   document.getElementById('recTotal').value = '';
   document.getElementById('recObs').value = '';
-  document.getElementById('recData').value = hojeISO();
+  document.getElementById('recData').value = state.caixaDia || hojeISO();
   FORMAS_RECEBIMENTO.forEach(f=>{
     if(f.multiplo) montarLinhasMod(f.chave, ['']);
     else document.getElementById('recPg_'+f.chave).value = '';
@@ -7861,12 +8208,22 @@ function limparFormRec(manterCliente){
   atualizarFichaRec();
 }
 
+const aberturaPerguntada = {};
 function renderRecLancar(){
   garantirBaseRecebimentos();
   montarModsRec();
-  if(!document.getElementById('recData').value) document.getElementById('recData').value = hojeISO();
+  const dia = state.caixaDia || hojeISO();
+  if(!recEditandoId) document.getElementById('recData').value = dia;
+  document.getElementById('recDia').innerHTML = htmlSeletorDia();
   atualizarFichaRec();
   renderUltimosRec();
+  /* Começou o dia e ninguém informou o que tinha na gaveta: pergunta antes do primeiro
+     recebimento. Pergunta uma vez por dia em cada sessão — se a pessoa adiar, o pedido
+     volta na hora de gravar o lançamento, que é quando não dá mais para pular. */
+  if(!aberturaDoDia(dia) && !aberturaPerguntada[dia]){
+    aberturaPerguntada[dia] = true;
+    setTimeout(()=> abrirModalAbertura(dia), 250);
+  }
 }
 
 /* A lista embaixo do formulário é a fila de trabalho: só o que ainda não foi lançado no
@@ -7893,7 +8250,7 @@ function renderUltimosRec(){
       const dif = r2(toNum(r.total) - pagoDoRecebimento(r));
       return '<tr>' +
         '<td class="esq">'+dataBR(r.data)+'</td>' +
-        '<td class="esq"><span class="rec-cli-nome">'+escHtml(nomeCliente(r.clienteId))+'</span>' +
+        '<td class="esq"><span class="rec-cli-nome nome-cli">'+escHtml(nomeCliente(r.clienteId))+'</span>' +
           (r.obs ? '<div class="rec-mini">'+escHtml(r.obs)+'</div>' : '') + '</td>' +
         '<td>'+fmtMoeda(toNum(r.total))+'</td>' +
         '<td><b>'+fmtMoeda(pagoDoRecebimento(r))+'</b></td>' +
@@ -7918,6 +8275,15 @@ function salvarRecebimento(){
 
   if(!nome){ aviso.textContent = 'Informe o nome do cliente.'; document.getElementById('recCliente').focus(); return; }
   if(total <= 0 && pago <= 0){ aviso.textContent = 'Informe o total da conta e a quantia paga.'; return; }
+
+  /* Sem a abertura do dia o fechamento não fecha. Em vez de recusar o lançamento, abre
+     o pedido do valor inicial e, assim que ele for informado, grava o recebimento. */
+  const diaLanc = document.getElementById('recData').value || hojeISO();
+  if(!aberturaDoDia(diaLanc)){
+    aviso.textContent = 'Informe primeiro o valor de abertura do caixa deste dia.';
+    abrirModalAbertura(diaLanc, salvarRecebimento);
+    return;
+  }
   if(pago <= 0 && !confirm('Nenhuma modalidade foi preenchida.\n\nRegistrar a conta de ' + fmtMoeda(total) +
       ' como totalmente em aberto para ' + nome + '?')) return;
   aviso.textContent = '';
@@ -8033,6 +8399,10 @@ document.getElementById('btnRecCancelarEdicao').addEventListener('click', ()=>{
   limparFormRec();
   mostrarToast('Edição cancelada');
 });
+document.getElementById('recData').addEventListener('change', (e)=>{
+  if(recEditandoId) return;          /* corrigindo um lançamento antigo, a data é dele */
+  trocarDiaCaixa(e.target.value);
+});
 document.getElementById('recTotal').addEventListener('input', atualizarSomatorioRec);
 /* Enter no total pula direto para a primeira modalidade — o fluxo é sempre esse. */
 document.getElementById('recTotal').addEventListener('keydown', (e)=>{
@@ -8068,27 +8438,26 @@ function limparFormRet(){
 
 function renderRetiradas(){
   garantirBaseRecebimentos();
-  if(!document.getElementById('retData').value) document.getElementById('retData').value = hojeISO();
+  /* A retirada é do dia de trabalho: o formulário já abre com ele. */
+  document.getElementById('retData').value = state.caixaDia || hojeISO();
+  document.getElementById('retDia').innerHTML = htmlSeletorDia();
   renderUltimasRet();
 }
 
 function renderUltimasRet(){
   const caixa = document.getElementById('retUltimas');
-  const mes = String(document.getElementById('retData').value || hojeISO()).slice(0,7);
-  const doMes = retiradasDoMes(mes);
-  const lista = (state.retiradas||[]).slice()
-    .sort((a,b)=> String(b.data||'').localeCompare(String(a.data||'')) ||
-                  String(b.criadoEm||'').localeCompare(String(a.criadoEm||'')))
-    .slice(0, 12);
+  const dia = state.caixaDia || hojeISO();
+  const lista = retiradasDoDia(dia).slice()
+    .sort((a,b)=> String(b.criadoEm||'').localeCompare(String(a.criadoEm||'')));
 
   if(!lista.length){
-    caixa.innerHTML = '<h3>Últimas retiradas</h3>' +
-      '<div class="rec-vazio">Nenhuma retirada registrada ainda.</div>';
+    caixa.innerHTML = '<h3>Retiradas de ' + dataBR(dia) + '</h3>' +
+      '<div class="rec-vazio">Nenhuma retirada registrada neste dia.</div>';
     return;
   }
-  caixa.innerHTML = '<h3>Últimas retiradas</h3>' +
-    '<div class="rec-mini" style="margin:-6px 0 10px;">Saíram ' + fmtMoeda(somaRetiradas(doMes)) +
-      ' do caixa em ' + mesLabel(mes) + ', em ' + doMes.length + ' retirada(s).</div>' +
+  caixa.innerHTML = '<h3>Retiradas de ' + dataBR(dia) + '</h3>' +
+    '<div class="rec-mini" style="margin:-6px 0 10px;">Saíram ' + fmtMoeda(somaRetiradas(lista)) +
+      ' do caixa neste dia, em ' + lista.length + ' retirada(s).</div>' +
     '<table class="tabela-ponto"><thead><tr>' +
     '<th class="esq">Data</th><th class="esq">Motivo</th><th>Valor</th><th class="esq">Registrada por</th><th></th>' +
     '</tr></thead><tbody>' +
@@ -8178,7 +8547,9 @@ document.getElementById('btnRetCancelarEdicao').addEventListener('click', ()=>{
   limparFormRet();
   mostrarToast('Edição cancelada');
 });
-document.getElementById('retData').addEventListener('change', renderUltimasRet);
+/* Mudou a data no formulário, muda o dia de trabalho inteiro — as duas coisas são a
+   mesma na cabeça de quem opera. */
+document.getElementById('retData').addEventListener('change', (e)=> trocarDiaCaixa(e.target.value));
 document.getElementById('retValor').addEventListener('keydown', (e)=>{
   if(e.key==='Enter'){ e.preventDefault(); salvarRetirada(); }
 });
@@ -8187,25 +8558,16 @@ document.getElementById('retMotivo').addEventListener('keydown', (e)=>{
 });
 
 /* --------------------------------------------------------------- tela de lançamentos
-   Onde se procura um recebimento já registrado para corrigir ou apagar. A tela de
-   Lançar cuida do que está entrando agora, o Relatório mostra os números do mês, e é
-   aqui que se mexe no que já foi lançado. */
-function popularSelectLancamentos(){
-  const sel = document.getElementById('lanMes');
-  const meses = mesesComRecebimento();
-  state.recLancMes = mesPadraoCaixa('lancamentos', state.recLancMes);
-  sel.innerHTML = meses.map(m=> '<option value="'+m+'"'+(m===state.recLancMes?' selected':'')+'>'+mesLabel(m)+'</option>').join('');
-}
-
+   Os recebimentos do DIA escolhido, para corrigir ou apagar. A tela de Lançar cuida do
+   que está entrando agora, o Relatório fecha o dia, o Balanço Mensal junta o mês. */
 function renderLancamentos(){
   garantirBaseRecebimentos();
-  popularSelectLancamentos();
-  const mes = state.recLancMes;
+  const dia = state.caixaDia || hojeISO();
   const busca = norm(document.getElementById('lanBusca').value);
   const filtro = document.getElementById('lanFiltro').value;
-  document.getElementById('lanMesLabel').textContent = mesLabel(mes);
+  document.getElementById('lanDia').innerHTML = htmlSeletorDia();
 
-  const doMes = (state.recebimentos||[]).filter(r=> String(r.data||'').slice(0,7) === mes);
+  const doMes = recebimentosDoDia(dia);
   const lista = doMes.filter(r=>{
     if(busca && norm(nomeCliente(r.clienteId)).indexOf(busca) < 0) return false;
     if(filtro === 'sg-pendente') return !baixaSgFeita(r);
@@ -8216,25 +8578,24 @@ function renderLancamentos(){
                   String(b.criadoEm||'').localeCompare(String(a.criadoEm||'')));
 
   /* Lançamento com data no futuro é quase sempre erro de digitação — e some da vista,
-     porque a tela abre no mês corrente. Fica avisado aqui, com o mês onde encontrá-lo. */
-  const futuros = (state.recebimentos||[]).filter(r=> String(r.data||'').slice(0,7) > mesAtualPadrao());
-  const mesesFuturos = Array.from(new Set(futuros.map(r=> String(r.data).slice(0,7)))).sort();
+     porque as telas trabalham no dia. Fica avisado aqui, com o dia onde encontrá-lo. */
+  const futuros = (state.recebimentos||[]).filter(r=> String(r.data||'') > hojeISO());
+  const diasFuturos = Array.from(new Set(futuros.map(r=> String(r.data)))).sort();
   document.getElementById('lanInfo').innerHTML =
-    escHtml(lista.length + ' de ' + doMes.length + ' lançamento(s) de ' + mesLabel(mes) +
+    escHtml(lista.length + ' de ' + doMes.length + ' lançamento(s) de ' + dataBR(dia) +
       '. Clique em Editar para abrir o lançamento no formulário e corrigir.') +
     (futuros.length
       ? '<div style="margin-top:6px;color:var(--vermelho);font-weight:700;">' +
         escHtml(futuros.length + ' lançamento(s) estão datados de ' +
-          mesesFuturos.map(m=> mesLabel(m)).join(', ') + ', mês que ainda não chegou. ' +
-          'Se a data foi digitada errada, escolha esse mês no seletor acima e corrija em Editar — ' +
-          'enquanto isso ele não entra no caixa do mês corrente.') + '</div>'
+          diasFuturos.map(d=> dataBR(d)).join(', ') + ', data que ainda não chegou. ' +
+          'Se a data foi digitada errada, escolha esse dia no seletor acima e corrija em Editar.') + '</div>'
       : '');
 
   const corpo = document.getElementById('lanCorpo');
   if(!lista.length){
     corpo.innerHTML = '<div class="rec-vazio">' +
-      (doMes.length ? 'Nenhum lançamento com esse filtro em ' + mesLabel(mes) + '.'
-                    : 'Nenhum recebimento lançado em ' + mesLabel(mes) + '.') + '</div>';
+      (doMes.length ? 'Nenhum lançamento com esse filtro em ' + dataBR(dia) + '.'
+                    : 'Nenhum recebimento lançado em ' + dataBR(dia) + '.') + '</div>';
     return;
   }
   corpo.innerHTML = '<table class="tabela-ponto"><thead><tr>' +
@@ -8246,7 +8607,7 @@ function renderLancamentos(){
       const dif = r2(toNum(r.total) - pagoDoRecebimento(r));
       return '<tr>' +
         '<td class="esq">'+dataBR(r.data)+'</td>' +
-        '<td class="esq"><span class="rec-cli-nome">'+escHtml(nomeCliente(r.clienteId))+'</span>' +
+        '<td class="esq"><span class="rec-cli-nome nome-cli">'+escHtml(nomeCliente(r.clienteId))+'</span>' +
           (r.obs ? '<div class="rec-mini">'+escHtml(r.obs)+'</div>' : '') + '</td>' +
         '<td>'+fmtMoeda(toNum(r.total))+'</td>' +
         '<td><b>'+fmtMoeda(pagoDoRecebimento(r))+'</b></td>' +
@@ -8263,11 +8624,6 @@ function renderLancamentos(){
     }).join('') + '</tbody></table>';
 }
 
-document.getElementById('lanMes').addEventListener('change', (e)=>{
-  state.recLancMes = e.target.value;
-  salvarEstado();
-  renderLancamentos();
-});
 document.getElementById('lanBusca').addEventListener('input', renderLancamentos);
 document.getElementById('lanFiltro').addEventListener('change', renderLancamentos);
 
@@ -8316,7 +8672,7 @@ function renderClientes(){
   document.getElementById('cliInfo').textContent =
     lista.length + ' de ' + linhas.length + ' cliente(s) na tela. Clique em um cliente para ver a ficha. ' +
     (acimaDoLimite ? 'Linha vermelha: ' + acimaDoLimite + ' cliente(s) devendo mais de ' + fmtMoeda(LIMITE_DEBITO_ALERTA) +
-                     ' — bloquear a compra no SG.'
+                     ' — analisar os débitos antes de liberar compra.'
                    : 'Nenhum cliente devendo mais de ' + fmtMoeda(LIMITE_DEBITO_ALERTA) + '.');
 
   const corpo = document.getElementById('cliCorpo');
@@ -8333,8 +8689,8 @@ function renderClientes(){
     '</tr></thead><tbody>' +
     lista.map(l=>
       '<tr data-cliente="'+l.cli.id+'"'+(l.saldo > LIMITE_DEBITO_ALERTA ? ' class="linha-devedor"' : '')+'>' +
-      '<td class="esq"><span class="rec-cli-nome">'+escHtml(l.cli.nome)+'</span>' +
-        (l.saldo > LIMITE_DEBITO_ALERTA ? '<span class="tag-bloqueio">BLOQUEAR NO SG</span>' : '') +
+      '<td class="esq"><span class="rec-cli-nome nome-cli">'+escHtml(l.cli.nome)+'</span>' +
+        (l.saldo > LIMITE_DEBITO_ALERTA ? '<span class="tag-bloqueio">ANALISAR DÉBITOS DO CLIENTE</span>' : '') +
         (l.cli.obs ? '<div class="rec-mini">'+escHtml(l.cli.obs)+'</div>' : '') + '</td>' +
       '<td class="esq">'+escHtml(l.cli.telefone||'—')+'</td>' +
       '<td>'+l.qtd+'</td>' +
@@ -8489,22 +8845,16 @@ function mesesComRecebimento(){
   return Object.keys(set).sort().reverse();
 }
 
-function popularSelectHistorico(){
-  const sel = document.getElementById('hisMes');
-  const meses = mesesComRecebimento();
-  state.recHisMes = mesPadraoCaixa('relatorio', state.recHisMes);
-  sel.innerHTML = meses.map(m=> '<option value="'+m+'"'+(m===state.recHisMes?' selected':'')+'>'+mesLabel(m)+'</option>').join('');
-}
 
-/* As retiradas do mês aparecem inteiras embaixo da tabela de entradas: os filtros de
+/* As retiradas do dia aparecem inteiras embaixo da tabela de entradas: os filtros de
    cima são de recebimento (cliente, modalidade) e não teriam sentido aqui. */
 function htmlRetiradasDoMes(retMes, mes){
   if(!retMes.length){
-    return '<div class="rec-bloco"><h3>Retiradas de ' + mesLabel(mes) + '</h3>' +
-      '<div class="rec-mini">Nenhuma retirada de caixa neste mês.</div></div>';
+    return '<div class="rec-bloco"><h3>Retiradas de ' + dataBR(mes) + '</h3>' +
+      '<div class="rec-mini">Nenhuma retirada de caixa neste dia.</div></div>';
   }
   const ordenadas = retMes.slice().sort((a,b)=> String(a.data||'').localeCompare(String(b.data||'')));
-  return '<div class="rec-bloco"><h3>Retiradas de ' + mesLabel(mes) + '</h3>' +
+  return '<div class="rec-bloco"><h3>Retiradas de ' + dataBR(mes) + '</h3>' +
     '<table class="tabela-ponto"><thead><tr>' +
     '<th class="esq">Data</th><th class="esq">Motivo</th><th>Valor</th><th class="esq">Registrada por</th>' +
     '</tr></thead><tbody>' +
@@ -8521,27 +8871,40 @@ function htmlRetiradasDoMes(retMes, mes){
 
 function renderHistorico(){
   garantirBaseRecebimentos();
-  popularSelectHistorico();
-  const mes = state.recHisMes;
+  const mes = state.caixaDia || hojeISO();          /* aqui "mes" é o DIA de trabalho */
   const busca = norm(document.getElementById('hisBusca').value);
   const filtro = document.getElementById('hisFiltro').value;
-  document.getElementById('hisMesLabel').textContent = mesLabel(mes);
+  document.getElementById('hisDia').innerHTML = htmlSeletorDia();
 
-  const doMes = (state.recebimentos||[]).filter(r=> String(r.data||'').slice(0,7) === mes);
-
-  /* O histórico responde uma pergunta só: quanto entrou no caixa no mês, e por qual
-     modalidade. Cobrança e saldo de cliente são assunto da tela de Clientes. */
-  const porForma = {};
-  FORMAS_RECEBIMENTO.forEach(f=> porForma[f.chave] = 0);
-  let recebido = 0;
-  doMes.forEach(r=>{
-    FORMAS_RECEBIMENTO.forEach(f=> porForma[f.chave] += toNum(r[f.chave]));
-    recebido += pagoDoRecebimento(r);
-  });
+  /* O relatório é do dia: quanto entrou, por qual forma, quanto saiu e quanto tem que
+     estar na gaveta no fechamento. O acumulado do mês é o Balanço Mensal. */
+  const t = totaisDoDia(mes);
+  const doMes = t.rec;
+  const porForma = t.porForma;
+  const recebido = t.entrou;
   const pendentesSg = doMes.filter(r=> !baixaSgFeita(r));
-  const retMes = retiradasDoMes(mes);
-  const saiu = somaRetiradas(retMes);
-  const sobrou = r2(recebido - saiu);
+  const retMes = t.ret;
+  const saiu = t.saiu;
+  const sobrou = t.sobrou;
+
+  /* Fechamento em espécie: é a conta que evita o furo no fim do dia. */
+  document.getElementById('hisFechamento').innerHTML =
+    '<div class="fechamento"><h3>Fechamento do dia — ' + diaPorExtenso(mes) + '</h3>' +
+      '<div class="fc-linha"><span>Abertura (dinheiro na gaveta)</span><b>' +
+        (t.abertura ? fmtMoeda(t.inicial)
+                    : '<span style="color:var(--vermelho);">não informada</span>') + '</b></div>' +
+      '<div class="fc-linha"><span>+ Recebido em dinheiro</span><b>'+fmtMoeda(porForma.dinheiro)+'</b></div>' +
+      '<div class="fc-linha"><span>− Retiradas do dia</span><b>'+fmtMoeda(saiu)+'</b></div>' +
+      '<div class="fc-total"><span class="fc-rot">Deve ter na gaveta</span>' +
+        '<span class="fc-val">'+fmtMoeda(t.dinheiroFinal)+'</span></div>' +
+      (t.haver > 0
+        ? '<div class="fc-linha" style="margin-top:10px;"><span>Quitado em Juros/Haver <span class="rec-mini">' +
+          '(abate a conta do cliente, mas não entra no caixa)</span></span><b>'+fmtMoeda(t.haver)+'</b></div>'
+        : '') +
+      '<div class="rec-mini" style="margin-top:9px;">' +
+        (t.abertura ? 'Cartão, pix e cheque não entram nesta conta — não são dinheiro em espécie.'
+                    : 'Informe a abertura do caixa para esta conta fechar.') + '</div>' +
+    '</div>';
 
   /* Botões grandes por modalidade: cada um mostra quanto entrou naquela forma no mês e,
      clicado, deixa na tela só os lançamentos que a usaram — é assim que se confere o
@@ -8551,13 +8914,13 @@ function renderHistorico(){
     '<button type="button" class="btn-forma'+(formaSel==='todas'?' ativa':'')+'" data-forma-btn="todas">' +
       '<div class="bf-rot"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>Tudo</div>' +
       '<div class="bf-val">'+fmtMoeda(r2(recebido))+'</div>' +
-      '<div class="bf-sub">'+doMes.length+' lançamento(s) no mês</div></button>' +
+      '<div class="bf-sub">'+doMes.length+' lançamento(s) no dia</div></button>' +
     FORMAS_RECEBIMENTO.map(f=>{
       const qtd = doMes.filter(r=> toNum(r[f.chave]) > 0).length;
       return '<button type="button" class="btn-forma'+(formaSel===f.chave?' ativa':'')+'" data-forma-btn="'+f.chave+'">' +
         '<div class="bf-rot"><svg viewBox="0 0 24 24">'+f.icone+'</svg>'+f.rotulo+'</div>' +
         '<div class="bf-val">'+fmtMoeda(r2(porForma[f.chave]))+'</div>' +
-        '<div class="bf-sub">'+qtd+' lançamento(s)</div></button>';
+        '<div class="bf-sub">'+ (f.naoEntraNoCaixa ? 'não soma no caixa · ' : '') + qtd+' lançamento(s)</div></button>';
     }).join('');
 
   /* Escolhida uma forma, a faixa de conferência mostra o número redondo para bater com
@@ -8570,14 +8933,16 @@ function renderHistorico(){
     const valor = r2(porForma[formaSel]);
     const qtd = doMes.filter(r=> toNum(r[formaSel]) > 0).length;
     const notas = {
-      dinheiro: 'Confira com as cédulas e moedas da gaveta. Descontando as retiradas do mês (' +
+      dinheiro: 'Confira com as cédulas e moedas da gaveta. Descontando as retiradas do dia (' +
                 fmtMoeda(saiu) + '), devem sobrar ' + fmtMoeda(r2(valor - saiu)) + ' em espécie.',
       cartao:   'Confira com os comprovantes das maquininhas — débito, crédito, Senff e alimentação entram aqui.',
       pix:      'Confira com o extrato da conta.',
-      cheque:   'Confira com os cheques que estão em mãos.'
+      cheque:   'Confira com os cheques que estão em mãos.',
+      haver:    'Não há o que conferir na gaveta: este valor quitou a conta do cliente com crédito que o mercado devia a ele. ' +
+                'Não entrou dinheiro e por isso ele fica fora do fechamento.'
     };
     boxConf.innerHTML = '<div class="conferencia">' +
-      '<div><div class="cf-rot">Total em ' + f.rotulo + ' — ' + mesLabel(mes) + '</div>' +
+      '<div><div class="cf-rot">Total em ' + f.rotulo + ' — ' + dataBR(mes) + '</div>' +
       '<div class="cf-val">'+fmtMoeda(valor)+'</div></div>' +
       '<div class="cf-nota">' + qtd + ' lançamento(s) com ' + f.rotulo.toLowerCase() + '. ' +
         (notas[formaSel] || '') + '</div></div>';
@@ -8585,10 +8950,10 @@ function renderHistorico(){
 
   document.getElementById('hisKpis').innerHTML =
     '<div class="kpi kpi-ok"><div class="kpi-rot">Entrou no caixa</div><div class="kpi-val">'+fmtMoeda(r2(recebido))+'</div>' +
-      '<div class="kpi-sub">'+doMes.length+' lançamento(s) no mês</div></div>' +
+      '<div class="kpi-sub">'+doMes.length+' lançamento(s) no dia</div></div>' +
     '<div class="kpi '+(saiu>0?'kpi-critico':'')+'"><div class="kpi-rot">Saiu do caixa</div>' +
       '<div class="kpi-val">'+fmtMoeda(saiu)+'</div>' +
-      '<div class="kpi-sub">'+retMes.length+' retirada(s) no mês</div></div>' +
+      '<div class="kpi-sub">'+retMes.length+' retirada(s) no dia</div></div>' +
     '<div class="kpi '+(sobrou<0?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Sobrou em caixa</div>' +
       '<div class="kpi-val">'+fmtMoeda(sobrou)+'</div>' +
       '<div class="kpi-sub">entradas menos retiradas</div></div>' +
@@ -8619,13 +8984,13 @@ function renderHistorico(){
                   String(b.criadoEm||'').localeCompare(String(a.criadoEm||'')));
 
   document.getElementById('hisInfo').textContent =
-    lista.length + ' de ' + doMes.length + ' lançamento(s) de ' + mesLabel(mes) + ' na tela.';
+    lista.length + ' de ' + doMes.length + ' lançamento(s) de ' + dataBR(mes) + ' na tela.';
 
   const corpo = document.getElementById('hisCorpo');
   if(!lista.length){
     corpo.innerHTML = '<div class="rec-vazio">' +
-      (doMes.length ? 'Nenhum lançamento com esse filtro em ' + mesLabel(mes) + '.'
-                    : 'Nenhum recebimento lançado em ' + mesLabel(mes) + '.') + '</div>' +
+      (doMes.length ? 'Nenhum lançamento com esse filtro em ' + dataBR(mes) + '.'
+                    : 'Nenhum recebimento lançado em ' + dataBR(mes) + '.') + '</div>' +
       htmlRetiradasDoMes(retMes, mes);
     return;
   }
@@ -8638,7 +9003,7 @@ function renderHistorico(){
       const dif = r2(toNum(r.total) - pagoDoRecebimento(r));
       return '<tr>' +
         '<td class="esq">'+dataBR(r.data)+'</td>' +
-        '<td class="esq"><span class="rec-cli-nome">'+escHtml(nomeCliente(r.clienteId))+'</span>' +
+        '<td class="esq"><span class="rec-cli-nome nome-cli">'+escHtml(nomeCliente(r.clienteId))+'</span>' +
           (r.obs ? '<div class="rec-mini">'+escHtml(r.obs)+'</div>' : '') + '</td>' +
         '<td>'+fmtMoeda(toNum(r.total))+'</td>' +
         FORMAS_RECEBIMENTO.map(f=>{
@@ -8663,11 +9028,6 @@ function renderHistorico(){
     htmlRetiradasDoMes(retMes, mes);
 }
 
-document.getElementById('hisMes').addEventListener('change', (e)=>{
-  state.recHisMes = e.target.value;
-  salvarEstado();
-  renderHistorico();
-});
 document.getElementById('hisBusca').addEventListener('input', renderHistorico);
 document.getElementById('hisFiltro').addEventListener('change', renderHistorico);
 document.getElementById('hisFormas').addEventListener('click', (e)=>{
@@ -8680,15 +9040,158 @@ document.getElementById('hisFormas').addEventListener('click', (e)=>{
   renderHistorico();
 });
 
+/* --------------------------------------------------------------- balanço mensal
+   A única tela do caixa que olha o mês inteiro. Junta dia a dia o que as outras telas
+   mostram de um dia só: quanto entrou por forma, quanto saiu e como cada dia fechou. */
+function diasDoMesComMovimento(mes){
+  const set = {};
+  (state.recebimentos||[]).concat(state.retiradas||[]).concat(state.aberturas||[]).forEach(x=>{
+    const d = String(x.data||'');
+    if(d.slice(0,7) === mes) set[d] = true;
+  });
+  return Object.keys(set).sort();
+}
+
+function popularSelectBalancoCaixa(){
+  const sel = document.getElementById('balcMes');
+  const meses = mesesComRecebimento();
+  if(!state.balcMes || meses.indexOf(state.balcMes) < 0) state.balcMes = mesAtualPadrao();
+  if(meses.indexOf(state.balcMes) < 0) state.balcMes = meses[0];
+  sel.innerHTML = meses.map(m=> '<option value="'+m+'"'+(m===state.balcMes?' selected':'')+'>'+mesLabel(m)+'</option>').join('');
+}
+
+function renderBalancoCaixa(){
+  garantirBaseRecebimentos();
+  popularSelectBalancoCaixa();
+  const mes = state.balcMes;
+  document.getElementById('balcMesLabel').textContent = mesLabel(mes);
+
+  const dias = diasDoMesComMovimento(mes);
+  const linhas = dias.map(d=> totaisDoDia(d));
+  const soma = (fn)=> r2(linhas.reduce((s,t)=> s + fn(t), 0));
+  const entrou = soma(t=> t.entrou);
+  const saiu   = soma(t=> t.saiu);
+  const contas = soma(t=> t.contas);
+  const haver  = soma(t=> t.haver);
+  const porForma = {};
+  FORMAS_RECEBIMENTO.forEach(f=> porForma[f.chave] = soma(t=> t.porForma[f.chave]));
+  const qtdRec = linhas.reduce((s,t)=> s + t.rec.length, 0);
+  const qtdRet = linhas.reduce((s,t)=> s + t.ret.length, 0);
+  const semAbertura = linhas.filter(t=> !t.abertura && (t.rec.length || t.ret.length)).length;
+
+  document.getElementById('balcKpis').innerHTML =
+    '<div class="kpi kpi-ok"><div class="kpi-rot">Entrou no mês</div><div class="kpi-val">'+fmtMoeda(entrou)+'</div>' +
+      '<div class="kpi-sub">'+qtdRec+' recebimento(s) em '+dias.length+' dia(s)</div></div>' +
+    '<div class="kpi '+(saiu>0?'kpi-critico':'')+'"><div class="kpi-rot">Saiu no mês</div>' +
+      '<div class="kpi-val">'+fmtMoeda(saiu)+'</div><div class="kpi-sub">'+qtdRet+' retirada(s)</div></div>' +
+    '<div class="kpi '+(entrou-saiu<0?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Sobrou no mês</div>' +
+      '<div class="kpi-val">'+fmtMoeda(r2(entrou-saiu))+'</div><div class="kpi-sub">entradas menos retiradas</div></div>' +
+    '<div class="kpi"><div class="kpi-rot">Total das contas</div><div class="kpi-val">'+fmtMoeda(contas)+'</div>' +
+      '<div class="kpi-sub">valor cobrado no mês</div></div>' +
+    (haver > 0
+      ? '<div class="kpi kpi-info"><div class="kpi-rot">Quitado em Juros/Haver</div>' +
+        '<div class="kpi-val">'+fmtMoeda(haver)+'</div>' +
+        '<div class="kpi-sub">abateu conta sem entrar no caixa</div></div>'
+      : '') +
+    '<div class="kpi '+(semAbertura?'kpi-alerta':'kpi-ok')+'"><div class="kpi-rot">Dias sem abertura</div>' +
+      '<div class="kpi-val">'+semAbertura+'</div>' +
+      '<div class="kpi-sub">'+(semAbertura?'o fechamento desses dias não fecha':'todos os dias abertos')+'</div></div>';
+
+  document.getElementById('balcFormas').innerHTML = FORMAS_RECEBIMENTO.map(f=>
+    '<div class="btn-forma" style="cursor:default;">' +
+      '<div class="bf-rot"><svg viewBox="0 0 24 24">'+f.icone+'</svg>'+f.rotulo+'</div>' +
+      '<div class="bf-val">'+fmtMoeda(porForma[f.chave])+'</div>' +
+      '<div class="bf-sub">'+ (f.naoEntraNoCaixa
+          ? 'não soma no caixa'
+          : (entrou>0 ? Math.round(porForma[f.chave]/entrou*100)+'% do que entrou' : 'sem movimento')) +'</div></div>'
+  ).join('');
+
+  document.getElementById('balcInfo').textContent = dias.length
+    ? 'Um dia por linha. Clique em um dia para abrir o caixa daquele dia nas outras telas.' +
+      (haver > 0 ? ' A coluna Juros/Haver aparece no lugar onde foi lançada, mas não soma em "Entrou" — não é dinheiro que passou pelo caixa.' : '')
+    : '';
+
+  const corpo = document.getElementById('balcCorpo');
+  if(!dias.length){
+    corpo.innerHTML = '<div class="rec-vazio">Nenhum movimento de caixa em ' + mesLabel(mes) + '.</div>';
+    return;
+  }
+  corpo.innerHTML = '<table class="tabela-ponto"><thead><tr>' +
+    '<th class="esq">Dia</th><th>Abertura</th>' +
+    FORMAS_RECEBIMENTO.map(f=> '<th>'+f.rotulo+'</th>').join('') +
+    '<th>Entrou</th><th>Retiradas</th><th>Fechamento em espécie</th><th>Lanç.</th>' +
+    '</tr></thead><tbody>' +
+    linhas.map(t=>
+      '<tr data-balc-dia="'+t.iso+'">' +
+      '<td class="esq"><span class="rec-cli-nome">'+dataBR(t.iso)+'</span>' +
+        '<div class="rec-mini">'+DIAS_SEMANA[deISO(t.iso).getDay()]+'</div></td>' +
+      '<td'+(t.abertura?'':' class="cel-alerta"')+'>'+(t.abertura ? fmtMoeda(t.inicial) : 'não informada')+'</td>' +
+      FORMAS_RECEBIMENTO.map(f=> '<td>'+(t.porForma[f.chave] ? fmtMoeda(t.porForma[f.chave]) : '—')+'</td>').join('') +
+      '<td><b>'+fmtMoeda(t.entrou)+'</b></td>' +
+      '<td class="'+(t.saiu?'cel-critico':'')+'">'+(t.saiu ? fmtMoeda(t.saiu) : '—')+'</td>' +
+      '<td class="cel-ok">'+fmtMoeda(t.dinheiroFinal)+'</td>' +
+      '<td>'+t.rec.length+'</td></tr>'
+    ).join('') +
+    '<tr><td class="esq"><b>TOTAL DO MÊS</b></td><td></td>' +
+    FORMAS_RECEBIMENTO.map(f=> '<td><b>'+fmtMoeda(porForma[f.chave])+'</b></td>').join('') +
+    '<td><b>'+fmtMoeda(entrou)+'</b></td>' +
+    '<td class="cel-critico"><b>'+fmtMoeda(saiu)+'</b></td>' +
+    '<td></td><td><b>'+qtdRec+'</b></td></tr>' +
+    '</tbody></table>';
+}
+
+document.getElementById('balcMes').addEventListener('change', (e)=>{
+  state.balcMes = e.target.value;
+  salvarEstado();
+  renderBalancoCaixa();
+});
+/* Clicar num dia leva o caixa inteiro para aquele dia. */
+document.getElementById('balcCorpo').addEventListener('click', (e)=>{
+  const tr = e.target.closest('tr[data-balc-dia]');
+  if(!tr) return;
+  state.caixaDia = tr.dataset.balcDia;
+  salvarEstado();
+  trocarAba('recHistorico');
+});
+
+document.getElementById('btnExportarBalancoCaixa').addEventListener('click', ()=>{
+  const mes = state.balcMes;
+  const dias = diasDoMesComMovimento(mes);
+  if(!dias.length){ mostrarToast('Nenhum movimento de caixa em ' + mesLabel(mes)); return; }
+  const linhas = dias.map(d=> totaisDoDia(d));
+  const soma = (fn)=> r2(linhas.reduce((s,t)=> s + fn(t), 0));
+
+  const aoa = [['BALANÇO MENSAL DO CAIXA — ' + mesLabel(mes)], [],
+    ['Dia','Dia da semana','Abertura'].concat(FORMAS_RECEBIMENTO.map(f=> f.rotulo))
+      .concat(['Entrou','Retiradas','Fechamento em espécie','Recebimentos','Retiradas (qtd)'])];
+  linhas.forEach(t=>{
+    aoa.push([dataBR(t.iso), DIAS_SEMANA[deISO(t.iso).getDay()], t.abertura ? t.inicial : '']
+      .concat(FORMAS_RECEBIMENTO.map(f=> t.porForma[f.chave]))
+      .concat([t.entrou, t.saiu, t.dinheiroFinal, t.rec.length, t.ret.length]));
+  });
+  aoa.push(['TOTAL','','']
+    .concat(FORMAS_RECEBIMENTO.map(f=> soma(t=> t.porForma[f.chave])))
+    .concat([soma(t=> t.entrou), soma(t=> t.saiu), '',
+             linhas.reduce((s,t)=> s + t.rec.length, 0), linhas.reduce((s,t)=> s + t.ret.length, 0)]));
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols'] = [{wch:12},{wch:15},{wch:13}].concat(FORMAS_RECEBIMENTO.map(()=> ({wch:13})))
+    .concat([{wch:13},{wch:13},{wch:20},{wch:14},{wch:14}]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Balanço ' + mes);
+  XLSX.writeFile(wb, 'Balanco_Caixa_' + mes + '.xlsx');
+});
+
 /* --------------------------------------------------------------- exportações */
 document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=>{
-  const mes = state.recHisMes;
-  const doMes = (state.recebimentos||[]).filter(r=> String(r.data||'').slice(0,7) === mes)
-    .sort((a,b)=> String(a.data||'').localeCompare(String(b.data||'')));
-  const retMes = retiradasDoMes(mes).slice().sort((a,b)=> String(a.data||'').localeCompare(String(b.data||'')));
-  if(!doMes.length && !retMes.length){ mostrarToast('Nenhum movimento de caixa em ' + mesLabel(mes)); return; }
+  const mes = state.caixaDia || hojeISO();
+  const t = totaisDoDia(mes);
+  const doMes = t.rec.slice().sort((a,b)=> String(a.criadoEm||'').localeCompare(String(b.criadoEm||'')));
+  const retMes = t.ret.slice();
+  if(!doMes.length && !retMes.length){ mostrarToast('Nenhum movimento de caixa em ' + dataBR(mes)); return; }
 
-  const linhas = [['CONTROLE DE CAIXA ADMINISTRATIVO — ' + mesLabel(mes)], []];
+  const linhas = [['CAIXA DO DIA — ' + dataBR(mes)],
+                  ['Abertura do caixa', t.abertura ? r2(t.inicial) : 'não informada'], []];
   const multiplas = FORMAS_RECEBIMENTO.filter(f=> f.multiplo);
   linhas.push(['Data','Cliente','Total da conta'].concat(FORMAS_RECEBIMENTO.map(f=> f.rotulo))
     .concat(multiplas.map(f=> f.plural.charAt(0).toUpperCase()+f.plural.slice(1)+' (detalhe)'))
@@ -8719,26 +9222,26 @@ document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Entradas');
 
-  /* Segunda aba: as saídas do mês e o fechamento — entrou, saiu, sobrou. */
-  const entrou = r2(doMes.reduce((s,r)=> s + pagoDoRecebimento(r), 0));
-  const saiu = somaRetiradas(retMes);
-  const linhasRet = [['RETIRADAS DE CAIXA — ' + mesLabel(mes)], [], ['Data','Motivo','Valor','Registrada por']];
-  retMes.forEach(x=> linhasRet.push([dataBR(x.data), x.motivo||'', r2(toNum(x.valor)), x.usuario||'']));
-  if(!retMes.length) linhasRet.push(['—','Nenhuma retirada neste mês','','']);
-  linhasRet.push(['TOTAL RETIRADO','', saiu, '']);
+  /* Segunda aba: as saídas do dia e o fechamento em espécie. */
+  const linhasRet = [['RETIRADAS DE CAIXA — ' + dataBR(mes)], [], ['Motivo','Valor','Registrada por']];
+  retMes.forEach(x=> linhasRet.push([x.motivo||'', r2(toNum(x.valor)), x.usuario||'']));
+  if(!retMes.length) linhasRet.push(['Nenhuma retirada neste dia','','']);
+  linhasRet.push(['TOTAL RETIRADO', t.saiu, '']);
   linhasRet.push([]);
-  const emDinheiro = r2(doMes.reduce((s,r)=> s + toNum(r.dinheiro), 0));
-  linhasRet.push(['FECHAMENTO DO CAIXA']);
-  linhasRet.push(['Entrou (todas as modalidades)', entrou]);
-  linhasRet.push(['Saiu (retiradas, sempre em dinheiro)', saiu]);
-  linhasRet.push(['Sobrou', r2(entrou - saiu)]);
+  linhasRet.push(['FECHAMENTO DO DIA']);
+  linhasRet.push(['Entrou no caixa (dinheiro, cartão, pix, cheque)', t.entrou]);
+  if(t.haver) linhasRet.push(['Quitado em Juros/Haver (não entra no caixa)', t.haver]);
+  linhasRet.push(['Saiu (retiradas, sempre em dinheiro)', t.saiu]);
+  linhasRet.push(['Sobrou', t.sobrou]);
   linhasRet.push([]);
-  linhasRet.push(['Dinheiro recebido', emDinheiro]);
-  linhasRet.push(['Retiradas em dinheiro', saiu]);
-  linhasRet.push(['Dinheiro em caixa', r2(emDinheiro - saiu)]);
+  linhasRet.push(['CONFERÊNCIA DO DINHEIRO EM ESPÉCIE']);
+  linhasRet.push(['Abertura do caixa', t.inicial]);
+  linhasRet.push(['+ Recebido em dinheiro', t.porForma.dinheiro]);
+  linhasRet.push(['− Retiradas', t.saiu]);
+  linhasRet.push(['= Deve ter na gaveta', t.dinheiroFinal]);
   const wsRet = XLSX.utils.aoa_to_sheet(linhasRet);
-  wsRet['!cols'] = [{wch:18},{wch:44},{wch:14},{wch:22}];
-  XLSX.utils.book_append_sheet(wb, wsRet, 'Retiradas');
+  wsRet['!cols'] = [{wch:40},{wch:16},{wch:22}];
+  XLSX.utils.book_append_sheet(wb, wsRet, 'Fechamento');
 
   XLSX.writeFile(wb, 'Caixa_' + mes + '.xlsx');
 });
@@ -9359,6 +9862,301 @@ document.getElementById('btnExportarFerias').addEventListener('click', ()=>{
   XLSX.writeFile(wb, 'Controle_Ferias_' + hojeISO() + '.xlsx');
 });
 
+/* ============================= TELA INICIAL =============================
+   A porta de entrada do sistema, feita para a diretoria: números grandes, gráficos
+   simples e frases em português. Nada aqui é lançado ou calculado por conta própria —
+   tudo vem das mesmas funções que alimentam a folha (apurarFinanceiro), o ponto
+   (analisePonto), o caixa (totaisDoDia) e as férias (prazosFerias). Se um número
+   estranhar, o problema está no lançamento, não neste desenho.
+
+   Os gráficos são SVG escrito à mão: sem biblioteca, sem internet, e imprimem igual
+   ao que aparece na tela. */
+
+const CORES_GRAFICO = ['#016d3c', '#2471a3', '#d68910', '#6a4fa3', '#c0392b', '#0e8074', '#8fa3af'];
+
+/* Largura, em unidades do SVG, igual à largura real do cartão que segura o gráfico.
+   Manter as duas iguais é o que impede o desenho de aparecer gigante num cartão largo
+   ou de virar letra de formiga num cartão estreito. */
+const LARGURA_GRAFICO = 545;
+
+/* --------- gráfico de rosca (pizza com furo no meio) --------- */
+function svgRosca(dados, rotuloCentro){
+  const itens = dados.filter(d=> toNum(d.valor) > 0);
+  const total = itens.reduce((s,d)=> s + toNum(d.valor), 0);
+  if(!itens.length || total <= 0) return '<div class="ini-vazio">Sem valores para este período.</div>';
+
+  const L = 260, cx = 130, cy = 130, raio = 104, furo = 62;
+  let ang = -Math.PI / 2;
+  let fatias;
+
+  if(itens.length === 1){
+    /* Uma fatia só não fecha arco: vira círculo cheio. */
+    fatias = '<circle cx="'+cx+'" cy="'+cy+'" r="'+raio+'" fill="'+itens[0].cor+'"/>';
+  }else{
+    fatias = itens.map(d=>{
+      const fatia = toNum(d.valor) / total * Math.PI * 2;
+      const x1 = cx + raio*Math.cos(ang), y1 = cy + raio*Math.sin(ang);
+      ang += fatia;
+      const x2 = cx + raio*Math.cos(ang), y2 = cy + raio*Math.sin(ang);
+      const grande = fatia > Math.PI ? 1 : 0;
+      return '<path d="M '+cx+' '+cy+' L '+x1.toFixed(1)+' '+y1.toFixed(1)+
+             ' A '+raio+' '+raio+' 0 '+grande+' 1 '+x2.toFixed(1)+' '+y2.toFixed(1)+' Z" fill="'+d.cor+'"/>';
+    }).join('');
+  }
+
+  return '<div class="rosca"><svg viewBox="0 0 '+L+' '+L+'" role="img">' + fatias +
+    '<circle cx="'+cx+'" cy="'+cy+'" r="'+furo+'" fill="var(--superficie)"/>' +
+    '<text x="'+cx+'" y="'+(cy-6)+'" text-anchor="middle" font-size="11" fill="#6b7a86" ' +
+      'font-family="Arial, Helvetica, sans-serif">'+escHtml(rotuloCentro||'Total')+'</text>' +
+    '<text x="'+cx+'" y="'+(cy+16)+'" text-anchor="middle" font-size="17" font-weight="800" fill="#014a29" ' +
+      'font-family="Arial, Helvetica, sans-serif">'+fmtMoeda(r2(total))+'</text>' +
+    '</svg></div>' + legendaGrafico(itens, total);
+}
+
+function legendaGrafico(itens, total){
+  return '<div class="ini-legenda">' + itens.map(d=>
+    '<span><i style="background:'+d.cor+'"></i>'+escHtml(d.rot)+' <b>'+fmtMoeda(r2(d.valor))+'</b>' +
+    (total ? ' <span style="opacity:.7">('+Math.round(toNum(d.valor)/total*100)+'%)</span>' : '') + '</span>'
+  ).join('') + '</div>';
+}
+
+/* --------- barras verticais (evolução mês a mês) --------- */
+function svgBarras(dados, opcoes){
+  const o = opcoes || {};
+  const itens = dados || [];
+  if(!itens.length) return '<div class="ini-vazio">Sem histórico para comparar ainda.</div>';
+  const maior = Math.max.apply(null, itens.map(d=> Math.abs(toNum(d.valor)))) || 1;
+  const L = LARGURA_GRAFICO, A = 235, base = A - 42, topo = 30, larg = L / itens.length;
+  const barraL = Math.min(58, larg * 0.55);
+
+  const barras = itens.map((d, i)=>{
+    const alt = Math.max(2, (Math.abs(toNum(d.valor)) / maior) * (base - topo));
+    const x = i*larg + (larg - barraL)/2;
+    const y = base - alt;
+    const cor = d.cor || (o.cor || CORES_GRAFICO[0]);
+    return '<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+barraL.toFixed(1)+'" height="'+alt.toFixed(1)+
+             '" rx="5" fill="'+cor+'"'+(d.destaque?'':' opacity="0.88"')+'/>' +
+           '<text x="'+(x+barraL/2).toFixed(1)+'" y="'+(y-8).toFixed(1)+'" text-anchor="middle" font-size="11.5" ' +
+             'font-weight="700" fill="#26333d" font-family="Arial, Helvetica, sans-serif">'+
+             (o.curto ? fmtCurto(d.valor) : fmtMoeda(r2(d.valor)))+'</text>' +
+           '<text x="'+(x+barraL/2).toFixed(1)+'" y="'+(base+18)+'" text-anchor="middle" font-size="11" ' +
+             'fill="#6b7a86" font-family="Arial, Helvetica, sans-serif">'+escHtml(d.rot)+'</text>';
+  }).join('');
+
+  return '<svg viewBox="0 0 '+L+' '+A+'" role="img">' +
+    '<line x1="0" y1="'+base+'" x2="'+L+'" y2="'+base+'" stroke="#e0e6e9" stroke-width="1"/>' +
+    barras + '</svg>';
+}
+
+/* --------- linha (evolução dia a dia) --------- */
+function svgLinha(dados, opcoes){
+  const o = opcoes || {};
+  const itens = dados || [];
+  if(itens.length < 2) return '<div class="ini-vazio">São necessários pelo menos dois dias com movimento.</div>';
+  const maior = Math.max.apply(null, itens.map(d=> toNum(d.valor))) || 1;
+  const L = LARGURA_GRAFICO, A = 210, base = A - 34, topo = 24;
+  const passo = itens.length > 1 ? L / (itens.length - 1) : L;
+  const ponto = (d, i)=> [i*passo, base - (toNum(d.valor)/maior) * (base - topo)];
+
+  const pts = itens.map(ponto);
+  const linha = pts.map((p,i)=> (i?'L':'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  const area = linha + ' L '+L+' '+base+' L 0 '+base+' Z';
+  const cor = o.cor || CORES_GRAFICO[0];
+
+  /* Só rotula alguns pontos, senão o eixo vira uma mancha de números. */
+  const passoRot = Math.ceil(itens.length / 8);
+  const marcas = pts.map((p,i)=>{
+    const mostra = (i % passoRot === 0) || (i === itens.length-1);
+    return '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3.5" fill="'+cor+'"/>' +
+      (mostra ? '<text x="'+p[0].toFixed(1)+'" y="'+(base+17)+'" text-anchor="middle" font-size="10.5" ' +
+        'fill="#6b7a86" font-family="Arial, Helvetica, sans-serif">'+escHtml(itens[i].rot)+'</text>' : '');
+  }).join('');
+
+  const maiorItem = itens.reduce((a,b)=> toNum(b.valor) > toNum(a.valor) ? b : a, itens[0]);
+  const iMaior = itens.indexOf(maiorItem);
+  const pMaior = pts[iMaior];
+
+  return '<svg viewBox="0 0 '+L+' '+A+'" role="img">' +
+    '<line x1="0" y1="'+base+'" x2="'+L+'" y2="'+base+'" stroke="#e0e6e9" stroke-width="1"/>' +
+    '<path d="'+area+'" fill="'+cor+'" opacity="0.10"/>' +
+    '<path d="'+linha+'" fill="none" stroke="'+cor+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>' +
+    marcas +
+    '<text x="'+pMaior[0].toFixed(1)+'" y="'+(pMaior[1]-10).toFixed(1)+'" text-anchor="middle" font-size="11.5" ' +
+      'font-weight="700" fill="#26333d" font-family="Arial, Helvetica, sans-serif">'+fmtMoeda(r2(maiorItem.valor))+'</text>' +
+    '</svg>';
+}
+
+/* --------- barras horizontais (rankings) --------- */
+function svgBarrasH(dados, cor){
+  const itens = (dados||[]).filter(d=> toNum(d.valor) > 0);
+  if(!itens.length) return '<div class="ini-vazio">Nada a listar aqui.</div>';
+  const maior = Math.max.apply(null, itens.map(d=> toNum(d.valor))) || 1;
+  const L = LARGURA_GRAFICO, alturaLinha = 40, A = itens.length * alturaLinha + 8;
+  const xRot = 0, larguraBarra = L - 130;
+
+  return '<svg viewBox="0 0 '+L+' '+A+'" role="img">' + itens.map((d,i)=>{
+    const y = i*alturaLinha + 6;
+    const w = Math.max(3, (toNum(d.valor)/maior) * larguraBarra);
+    return '<text x="'+xRot+'" y="'+(y+11)+'" font-size="12" fill="#26333d" font-weight="700" ' +
+             'font-family="Arial, Helvetica, sans-serif">'+escHtml(d.rot)+'</text>' +
+           '<rect x="'+xRot+'" y="'+(y+18)+'" width="'+w.toFixed(1)+'" height="13" rx="4" fill="'+(cor||CORES_GRAFICO[4])+'"/>' +
+           '<text x="'+(w+8).toFixed(1)+'" y="'+(y+29)+'" font-size="11.5" font-weight="700" fill="#26333d" ' +
+             'font-family="Arial, Helvetica, sans-serif">'+fmtMoeda(r2(d.valor))+'</text>';
+  }).join('') + '</svg>';
+}
+
+/* Valor curto para caber em cima da barra (R$ 38,3 mil). */
+function fmtCurto(v){
+  const n = toNum(v);
+  if(Math.abs(n) >= 1000) return 'R$ ' + (n/1000).toLocaleString('pt-BR',{maximumFractionDigits:1}) + ' mil';
+  return fmtMoeda(n);
+}
+
+/* --------- a tela --------- */
+function mesesComFolha(){
+  return Object.keys(state.folha || {}).filter(m=> /^\d{4}-\d{2}$/.test(m)).sort();
+}
+
+function renderInicio(){
+  garantirBaseRecebimentos();
+  const mes = state.mesAtual;
+  document.getElementById('iniMes').textContent = mesLabel(mes);
+
+  /* ---- folha do mês e dos meses anteriores ---- */
+  const fin = apurarFinanceiro(mes);
+  const enc = dashEncargos(fin);
+  const custoTotal = r2(fin.geral.total + enc.fgts);
+
+  const meses = mesesComFolha();
+  const ultimos = meses.slice(-6);
+  const evolucaoFolha = ultimos.map(m=>{
+    const f = (m === mes) ? fin : apurarFinanceiro(m);
+    return {rot: mesLabel(m).slice(0,3) + '/' + m.slice(2,4), valor: r2(f.geral.liquido), destaque: m === mes,
+            cor: m === mes ? CORES_GRAFICO[0] : '#8fbfa8'};
+  });
+
+  /* ---- caixa do mês corrente ---- */
+  const mesCaixa = mesAtualPadrao();
+  const diasCaixa = diasDoMesComMovimento(mesCaixa);
+  const totaisCaixa = diasCaixa.map(d=> totaisDoDia(d));
+  const caixaEntrou = r2(totaisCaixa.reduce((s,t)=> s + t.entrou, 0));
+  const caixaSaiu   = r2(totaisCaixa.reduce((s,t)=> s + t.saiu, 0));
+  const porForma = {};
+  FORMAS_RECEBIMENTO.forEach(f=> porForma[f.chave] = r2(totaisCaixa.reduce((s,t)=> s + t.porForma[f.chave], 0)));
+
+  /* ---- clientes ---- */
+  const resumos = (state.clientes||[]).map(c=> ({nome:c.nome, r: resumoCliente(c.id)}));
+  const aReceber = r2(resumos.reduce((s,x)=> s + (x.r.saldo > 0 ? x.r.saldo : 0), 0));
+  const devedores = resumos.filter(x=> x.r.saldo > 0.004)
+    .sort((a,b)=> b.r.saldo - a.r.saldo).slice(0, 5)
+    .map(x=> ({rot: String(x.nome).toUpperCase(), valor:x.r.saldo}));   /* o gráfico é SVG: maiúscula na mão */
+
+  /* ---- números grandes ---- */
+  document.getElementById('iniKpis').innerHTML =
+    kpiGrande('Folha do mês', fmtMoeda(r2(fin.geral.liquido)), fin.geral.qtd + ' colaborador(es) · líquido a pagar', '') +
+    kpiGrande('Custo total com pessoal', fmtMoeda(custoTotal), 'vencimentos + FGTS de ' + enc.registrados + ' registrado(s)', 'kb-neutro') +
+    kpiGrande('Entrou no caixa', fmtMoeda(caixaEntrou), mesLabel(mesCaixa) + ' · ' + diasCaixa.length + ' dia(s) com movimento', '') +
+    kpiGrande('Saiu do caixa', fmtMoeda(caixaSaiu), 'retiradas para fornecedor e despesas', caixaSaiu > 0 ? 'kb-alerta' : 'kb-neutro') +
+    kpiGrande('A receber de clientes', fmtMoeda(aReceber), resumos.filter(x=> x.r.saldo > 0.004).length + ' cliente(s) com conta em aberto',
+              aReceber > 0 ? 'kb-critico' : 'kb-neutro');
+
+  /* ---- avisos ---- */
+  document.getElementById('iniAlertas').innerHTML = alertasInicio(fin, totaisCaixa, resumos);
+
+  /* ---- gráficos ---- */
+  const gFolha = [
+    {rot:'Líquido pago',        valor: fin.geral.liquido,      cor: CORES_GRAFICO[0]},
+    {rot:'INSS',                valor: fin.geral.inss,         cor: CORES_GRAFICO[1]},
+    {rot:'Contas descontadas',  valor: fin.geral.contaMercado, cor: CORES_GRAFICO[2]},
+    {rot:'Adiantamentos',       valor: fin.geral.adiantamento, cor: CORES_GRAFICO[3]},
+    {rot:'Atrasos e faltas',    valor: fin.geral.atrasos,      cor: CORES_GRAFICO[4]},
+    {rot:'Outros descontos',    valor: fin.geral.desconto,     cor: CORES_GRAFICO[6]}
+  ];
+  /* Só as formas que são dinheiro entrando: Juros/Haver não passou pelo caixa e
+     inflaria o gráfico do que foi recebido. */
+  const gCaixa = FORMAS_EM_CAIXA.map((f,i)=> ({rot:f.rotulo, valor:porForma[f.chave], cor:CORES_GRAFICO[i]}));
+  const gDias = totaisCaixa.map(t=> ({rot: t.iso.slice(8,10)+'/'+t.iso.slice(5,7), valor: t.entrou}));
+  const gEntradaSaida = [
+    {rot:'Entrou', valor: caixaEntrou, cor: CORES_GRAFICO[0]},
+    {rot:'Saiu',   valor: caixaSaiu,   cor: CORES_GRAFICO[4]}
+  ];
+
+  document.getElementById('iniGraficos').innerHTML =
+    '<div class="ini-grid">' +
+      cardGrafico('Como o dinheiro entrou no caixa',
+        'Todo o dinheiro recebido em ' + mesLabel(mesCaixa) + ', separado pela forma de pagamento.',
+        svgRosca(gCaixa, 'Entrou no mês')) +
+      cardGrafico('Para onde vai a folha',
+        'O total dos vencimentos de ' + mesLabel(mes) + ': o que o colaborador leva para casa e o que fica retido em desconto.',
+        svgRosca(gFolha, 'Vencimentos')) +
+      cardGrafico('Entradas do caixa dia a dia',
+        'Quanto entrou em cada dia de ' + mesLabel(mesCaixa) + '. O valor em destaque é o melhor dia.',
+        svgLinha(gDias, {cor: CORES_GRAFICO[0]})) +
+      cardGrafico('Evolução da folha de pagamento',
+        'Líquido pago em cada mês. A barra escura é a competência aberta.',
+        svgBarras(evolucaoFolha, {curto:true})) +
+      cardGrafico('Entrou x saiu no caixa',
+        'Comparação direta do mês: o que foi recebido contra o que foi retirado.',
+        svgBarras(gEntradaSaida, {curto:true})) +
+      cardGrafico('Quem mais deve',
+        'Os cinco maiores saldos em aberto. A cobrança começa por aqui.',
+        svgBarrasH(devedores, CORES_GRAFICO[4])) +
+    '</div>';
+
+  document.getElementById('iniSub').textContent =
+    (state.empresa || '') + ' · folha de ' + mesLabel(mes) + ' e caixa de ' + mesLabel(mesCaixa) +
+    ' · atualizado em ' + new Date().toLocaleString('pt-BR');
+  document.getElementById('iniNota').textContent =
+    'Todos os números desta página saem dos mesmos cálculos das telas de origem — folha, ponto, caixa e clientes. ' +
+    'Não há segunda contabilidade: mudou o lançamento, muda aqui.';
+}
+
+function kpiGrande(rot, val, sub, classe){
+  return '<div class="kpi-big '+(classe||'')+'"><div class="kb-rot">'+escHtml(rot)+'</div>' +
+    '<div class="kb-val">'+val+'</div><div class="kb-sub">'+escHtml(sub)+'</div></div>';
+}
+
+function cardGrafico(titulo, desc, corpo, largo){
+  return '<div class="ini-card'+(largo?' largo':'')+'"><h3>'+escHtml(titulo)+'</h3>' +
+    '<div class="ini-desc">'+escHtml(desc)+'</div>' + corpo + '</div>';
+}
+
+/* Avisos da tela inicial: SÓ os do caixa. As pendências de RH — férias, cartão ponto,
+   vínculos — ficam nas telas do departamento pessoal, que é quem resolve. Misturar as
+   duas coisas aqui confunde a diretoria com assunto que não é dela. */
+function alertasInicio(fin, totaisCaixa, resumos){
+  const avisos = [];
+  const semAbertura = totaisCaixa.filter(t=> !t.abertura && (t.rec.length || t.ret.length)).length;
+  if(semAbertura) avisos.push(['critico','!', '<b>' + semAbertura + ' dia(s) de caixa sem o valor de abertura.</b> ' +
+    'Sem ele o fechamento desses dias não bate.', 'recBalanco']);
+
+  const acimaLimite = resumos.filter(x=> x.r.saldo > LIMITE_DEBITO_ALERTA).length;
+  if(acimaLimite) avisos.push(['atencao','!', '<b>' + acimaLimite + ' cliente(s) devendo mais de ' +
+    fmtMoeda(LIMITE_DEBITO_ALERTA) + '.</b> Analisar os débitos antes de liberar novas compras.', 'recClientes']);
+
+  const pendentesSg = (state.recebimentos||[]).filter(r=> !baixaSgFeita(r)).length;
+  if(pendentesSg) avisos.push(['atencao','!', '<b>' + pendentesSg + ' recebimento(s) ainda não baixados no SG.</b>', 'recLancar']);
+
+  if(!avisos.length) avisos.push(['ok','✓','<b>Caixa em dia.</b> Todos os dias com abertura informada, ' +
+    'nada pendente de baixa no SG e nenhum cliente acima do limite de débito.', null]);
+
+  return '<div class="ini-alertas">' + avisos.map(a=>
+    '<div class="ini-alerta '+a[0]+'"><span class="ia-marca">'+a[1]+'</span><span>'+a[2]+'</span>' +
+    (a[3] ? '<button type="button" class="ini-acao" data-ir-para="'+a[3]+'">abrir</button>' : '') + '</div>'
+  ).join('') + '</div>';
+}
+
+document.getElementById('iniAlertas').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-ir-para]');
+  if(btn) trocarAba(btn.dataset.irPara);
+});
+
+document.getElementById('btnImprimirInicio').addEventListener('click', ()=>{
+  document.body.classList.add('imprimindo');
+  window.print();
+  setTimeout(()=> document.body.classList.remove('imprimindo'), 800);
+});
+
 /* ============================= INICIALIZAÇÃO ============================= */
 document.getElementById('rodapeVersao').textContent = 'Versão ' + VERSAO_SISTEMA;
 garantirBaseFerias();
@@ -9366,12 +10164,14 @@ atualizarSalarioBaseComHistorico();
 popularSelectMes();
 renderLista();
 if(!state.pontoAba) state.pontoAba = 'resumo';
-/* O sistema sempre abre no painel: é a tela de leitura da diretoria. */
-trocarAba('dashboard');
+/* O sistema sempre abre na tela inicial: é a visão da diretoria, com os gráficos do
+   mês e os avisos do que precisa de decisão. */
+trocarAba('inicio');
 fecharAoClicarFora('overlayNuvem');
 fecharAoClicarFora('overlayVincular');
 fecharAoClicarFora('overlayCliente');
 fecharAoClicarFora('overlayFerias');
+fecharAoClicarFora('overlayAbertura');
 iniciarAutenticacao();
 </script>
 </body>
