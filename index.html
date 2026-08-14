@@ -670,6 +670,18 @@
   .dia-abertura.sem{background:#fdecea;color:var(--vermelho);}
   .btn-editar-abertura{background:none;border:none;padding:0;font-family:inherit;font-size:12px;
     color:inherit;cursor:pointer;text-decoration:underline;font-weight:700;}
+  /* Dia diferente de hoje: a barra inteira muda de cor. Lançar sem perceber que o dia
+     estava em outra data já custou um fechamento errado — não pode passar despercebido. */
+  .barra-dia.outro-dia{border-color:var(--vermelho);background:#fdecea;}
+  .barra-dia.outro-dia input[type=date]{border-color:var(--vermelho);font-weight:700;}
+  .barra-dia.outro-dia .dia-rotulo{color:var(--vermelho);font-weight:700;}
+  /* Aviso fixo no formulário de lançamento quando a data não é a de hoje. */
+  .aviso-retro{display:none;align-items:center;gap:12px;background:#fdecea;border:1px solid var(--vermelho);
+    border-radius:9px;padding:10px 13px;font-size:12.5px;color:#a02c1e;margin-bottom:14px;}
+  .aviso-retro.show{display:flex;}
+  .aviso-retro b{font-weight:700;}
+  .aviso-retro .btn-voltar-hoje{background:var(--vermelho);border:none;color:#fff;border-radius:7px;
+    padding:6px 12px;font-family:inherit;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;}
   .btn-link-dica{background:none;border:none;padding:0;font-family:inherit;font-size:11.5px;
     color:var(--marca);cursor:pointer;text-decoration:underline;font-weight:700;}
   .fechamento{background:var(--superficie);border:1px solid var(--cinza-borda);border-radius:11px;
@@ -1156,6 +1168,12 @@
 
     <div id="recDia"></div>
 
+    <div class="aviso-retro" id="recAvisoData">
+      <span id="recAvisoDataTxt"></span>
+      <div class="spacer" style="flex:1;"></div>
+      <button type="button" class="btn-voltar-hoje" data-dia-hoje="1">Voltar para hoje</button>
+    </div>
+
     <div class="rec-editando" id="recEditandoAviso">
       <span id="recEditandoTxt"></span>
       <div class="spacer" style="flex:1;"></div>
@@ -1220,6 +1238,12 @@
     </div>
 
     <div id="retDia"></div>
+
+    <div class="aviso-retro" id="retAvisoData">
+      <span id="retAvisoDataTxt"></span>
+      <div class="spacer" style="flex:1;"></div>
+      <button type="button" class="btn-voltar-hoje" data-dia-hoje="1">Voltar para hoje</button>
+    </div>
 
     <div class="rec-editando" id="retEditandoAviso">
       <span id="retEditandoTxt"></span>
@@ -1835,7 +1859,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '12/08/2026 · Juros/Haver e troco';
+const VERSAO_SISTEMA = '14/08/2026 · Caixa sempre no dia de hoje';
 
 const SUPABASE_URL  = 'https://vieafcgghboxwhultile.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_HaMcgvr_2xmWYotvzetmVA_yscPz2eT';
@@ -1950,6 +1974,13 @@ function estadoParaNuvem(){
   delete copia.clientes;
   delete copia.recebimentos;
   delete copia.retiradas;
+  delete copia.aberturas;
+  /* Ajuste de tela não é dado do sistema e não pode viajar entre os computadores: o dia
+     que estou olhando e o filtro de modalidade são meus, desta sessão. Já travaram o
+     Relatório uma vez — o filtro ficou em "Cheque", foi salvo, chegou nas três máquinas
+     e o caixa apareceu quase vazio no fechamento. */
+  delete copia.caixaDia;
+  delete copia.recHisForma;
   return copia;
 }
 
@@ -2014,6 +2045,9 @@ async function conectarBanco(){
       if(!state.ponto) state.ponto = {};
       gravarCache();
       bancoPronto = true;
+      /* O estado veio do banco e pode trazer preferência de tela gravada por outro
+         computador — a tela volta para hoje, sem filtro. */
+      if(typeof zerarTelaCaixa === 'function') zerarTelaCaixa();
       reconstruirTela();
       nuvemUltima = new Date();
       statusNuvem('ok');
@@ -2069,6 +2103,7 @@ document.getElementById('btnBaixarNuvem').addEventListener('click', async ()=>{
     }
     state = data;
     if(!state.mesAtual) state.mesAtual = mesAtualPadrao();
+    if(typeof zerarTelaCaixa === 'function') zerarTelaCaixa();
     gravarCache(); reconstruirTela();
     await carregarCaixa(false);
     nuvemUltima = new Date(); statusNuvem('ok');
@@ -6388,8 +6423,9 @@ function trocarAba(aba){
   if(aba==='financeiro') renderFinanceiro();
   if(aba==='balanco') renderBalanco();
   if(aba==='relatorios') renderRelatorios();
-  if(aba==='recLancar') renderRecLancar();
-  if(aba==='recRetirada') renderRetiradas();
+  /* O `true` diz que a tela está sendo ABERTA: as telas de lançamento voltam para hoje. */
+  if(aba==='recLancar') renderRecLancar(true);
+  if(aba==='recRetirada') renderRetiradas(true);
   if(aba==='recLancamentos') renderLancamentos();
   if(aba==='recBalanco') renderBalancoCaixa();
   if(aba==='recClientes') renderClientes();
@@ -7433,8 +7469,23 @@ function garantirBaseRecebimentos(){
   if(!Array.isArray(state.retiradas)) state.retiradas = [];
   if(!Array.isArray(state.aberturas)) state.aberturas = [];
   if(!state.caixaDia) state.caixaDia = hojeISO();
+  if(!state.recHisForma) state.recHisForma = 'todas';
 }
+
+/* Ajuste de tela volta ao padrão toda vez que o sistema abre ou recarrega do banco: o
+   caixa é o de HOJE e o filtro de modalidade é "Tudo". Navegar para outro dia ou filtrar
+   por uma forma vale só enquanto a sessão está aberta.
+
+   Isto existe por causa de um susto real: o filtro ficou em "Cheque", foi salvo no
+   estado, viajou para os três computadores e, no fechamento, o Relatório apareceu quase
+   vazio. Preferência de tela não é dado do sistema — não se guarda nem se compartilha. */
+function zerarTelaCaixa(){
+  state.caixaDia = hojeISO();
+  state.recHisForma = 'todas';
+}
+
 garantirBaseRecebimentos();
+zerarTelaCaixa();
 
 function novoIdRec(prefixo){
   return prefixo + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
@@ -7545,6 +7596,10 @@ function renderCaixaAtual(){
   if(state.abaAtual === 'recLancar'){
     const barra = document.getElementById('recDia');
     if(barra) barra.innerHTML = htmlSeletorDia();
+    /* A data do formulário acompanha a barra do dia: trocar o dia ali em cima e o campo
+       continuar no dia velho é como o lançamento ia parar na data errada. */
+    const campoData = document.getElementById('recData');
+    if(campoData && !recEditandoId) campoData.value = state.caixaDia || hojeISO();
     renderUltimosRec();
   }
   if(state.abaAtual === 'recRetirada')  renderRetiradas();
@@ -7552,6 +7607,7 @@ function renderCaixaAtual(){
   if(state.abaAtual === 'recBalanco')     renderBalancoCaixa();
   if(state.abaAtual === 'recClientes')  renderClientes();
   if(state.abaAtual === 'recHistorico') renderHistorico();
+  atualizarAvisosData();
   if(typeof atualizarFichaRec === 'function' && state.abaAtual === 'recLancar') atualizarFichaRec();
 }
 
@@ -7631,6 +7687,17 @@ function hojeISO(){
 function dataBR(iso){
   const p = String(iso||'').split('-');
   return p.length===3 ? p[2]+'/'+p[1]+'/'+p[0] : (iso||'');
+}
+/* Hora em que o lançamento foi registrado — é a hora em que o cliente esteve no balcão.
+   Vem de `criadoEm`, que sempre foi gravado; só não estava aparecendo em lugar nenhum. */
+function horaDe(iso){
+  if(!iso) return '';
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? '' : d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+}
+function celulaDataHora(dataISO, criadoEm){
+  const h = horaDe(criadoEm);
+  return '<td class="esq">' + dataBR(dataISO) + (h ? '<div class="rec-mini">'+h+'</div>' : '') + '</td>';
 }
 /* Nome de cliente é texto livre digitado no caixa: escapa antes de ir para o HTML. */
 function escHtml(s){
@@ -7858,12 +7925,94 @@ function salvarAberturaDia(iso, valor, obs){
   return ab;
 }
 
+/* ============ O DIA DE TRABALHO É HOJE, E VOLTA SOZINHO PARA HOJE ============
+   Em 13/08/2026 uma tarde inteira de lançamentos foi parar no dia anterior e os dois
+   dias fecharam errado. O motivo: o dia de trabalho ficava onde tivesse sido deixado —
+   a tela passou a noite aberta, ou alguém navegou para trás para conferir um lançamento
+   e não voltou, e o formulário continuou oferecendo aquela data sem chamar atenção.
+
+   Desde então valem três regras, todas aqui embaixo:
+   1. Entrar em Lançar recebimento ou em Retirada começa SEMPRE em hoje.
+   2. Passou da meia-noite com a tela aberta, o dia volta para hoje sozinho.
+   3. Gravar em data que não é a de hoje pergunta antes, e a tela fica marcada de
+      vermelho enquanto a data estiver fora do dia.
+   Navegar para outro dia continua liberado — só não é mais silencioso nem permanente. */
+
+/* Em que dia REAL o operador escolheu o dia de trabalho. Se o relógio virou desde
+   então, a escolha perdeu a validade. */
+let caixaDiaEscolhidoEm = hojeISO();
+
 /* Troca o dia de trabalho e redesenha a tela aberta. */
 function trocarDiaCaixa(iso){
   if(!iso) return;
   state.caixaDia = iso;
-  salvarEstado();
+  caixaDiaEscolhidoEm = hojeISO();
+  gravarCache();      /* o dia que estou olhando é meu, não vai para o banco */
   renderCaixaAtual();
+}
+
+/* Virada da meia-noite com o sistema aberto: o dia de trabalho volta para hoje. */
+function checarViradaDoDia(){
+  if(caixaDiaEscolhidoEm === hojeISO()) return;
+  caixaDiaEscolhidoEm = hojeISO();
+  if(state.caixaDia === hojeISO()) return;
+  state.caixaDia = hojeISO();
+  gravarCache();
+  renderCaixaAtual();
+  mostrarToast('Virou o dia — o caixa voltou para hoje, ' + dataBR(hojeISO()));
+}
+setInterval(checarViradaDoDia, 60000);
+window.addEventListener('focus', checarViradaDoDia);
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) checarViradaDoDia(); });
+
+/* Dia com que uma tela de lançamento ABRE: hoje, sempre. */
+function diaDeLancamento(){
+  checarViradaDoDia();
+  if(state.caixaDia !== hojeISO()){
+    state.caixaDia = hojeISO();
+    caixaDiaEscolhidoEm = hojeISO();
+    gravarCache();
+  }
+  return hojeISO();
+}
+
+function diaSemana(iso){
+  const d = deISO(iso);
+  return isNaN(d.getTime()) ? '' : DIAS_SEMANA[d.getDay()];
+}
+
+/* Pergunta antes de gravar fora do dia de hoje — o freio que faltava. */
+function confirmarDataForaDeHoje(iso, oQue){
+  const hoje = hojeISO();
+  if(!iso || iso === hoje) return true;
+  const anterior = iso < hoje;
+  return confirm(
+    (anterior ? 'ATENÇÃO: lançamento em DATA ANTERIOR.' : 'ATENÇÃO: lançamento em DATA FUTURA.') + '\n\n' +
+    'Este ' + oQue + ' vai ser gravado em ' + dataBR(iso) + ' (' + diaSemana(iso) + '), ' +
+    'e não em hoje, ' + dataBR(hoje) + ' (' + diaSemana(hoje) + ').\n\n' +
+    'O caixa dos dois dias muda com isso. Tem certeza?'
+  );
+}
+
+/* Aviso fixo nos formulários enquanto a data estiver fora do dia de hoje. Não aparece
+   durante a correção de um lançamento antigo: ali a data do registro é a certa, e o
+   aviso amarelo de "corrigindo" já explica a tela. */
+function pintarAvisoData(idCaixa, idTexto, iso, editando){
+  const caixa = document.getElementById(idCaixa);
+  if(!caixa) return;
+  const hoje = hojeISO();
+  if(editando || !iso || iso === hoje){ caixa.classList.remove('show'); return; }
+  document.getElementById(idTexto).innerHTML =
+    (iso < hoje ? 'Você está lançando em <b>data anterior</b>: ' : 'Você está lançando em <b>data futura</b>: ') +
+    '<b>' + dataBR(iso) + '</b> (' + escHtml(diaSemana(iso)) + '). Hoje é ' + dataBR(hoje) + '.';
+  caixa.classList.add('show');
+}
+
+function atualizarAvisosData(){
+  const rec = document.getElementById('recData');
+  const ret = document.getElementById('retData');
+  if(rec) pintarAvisoData('recAvisoData', 'recAvisoDataTxt', rec.value, !!recEditandoId);
+  if(ret) pintarAvisoData('retAvisoData', 'retAvisoDataTxt', ret.value, !!retEditandoId);
 }
 document.addEventListener('change', (e)=>{
   if(e.target && e.target.classList && e.target.classList.contains('caixa-dia')) trocarDiaCaixa(e.target.value);
@@ -7873,7 +8022,7 @@ document.addEventListener('change', (e)=>{
 function htmlSeletorDia(){
   const dia = state.caixaDia || hojeISO();
   const ab = aberturaDoDia(dia);
-  return '<div class="barra-dia">' +
+  return '<div class="barra-dia' + (dia === hojeISO() ? '' : ' outro-dia') + '">' +
     '<button type="button" class="btn-dia" data-dia-passo="-1" title="Dia anterior">‹</button>' +
     '<input type="date" class="caixa-dia" value="'+dia+'">' +
     '<button type="button" class="btn-dia" data-dia-passo="1" title="Próximo dia">›</button>' +
@@ -8331,6 +8480,7 @@ function limparFormRec(manterCliente){
   document.getElementById('recTotal').value = '';
   document.getElementById('recObs').value = '';
   document.getElementById('recData').value = state.caixaDia || hojeISO();
+  atualizarAvisosData();
   FORMAS_RECEBIMENTO.forEach(f=>{
     if(f.multiplo) montarLinhasMod(f.chave, ['']);
     else document.getElementById('recPg_'+f.chave).value = '';
@@ -8342,12 +8492,17 @@ function limparFormRec(manterCliente){
 }
 
 const aberturaPerguntada = {};
-function renderRecLancar(){
+/* `entrando` é true quando a tela está sendo ABERTA (vem do menu). Aí o dia volta para
+   hoje — ver "O DIA DE TRABALHO É HOJE". Nas redesenhadas por dado novo vindo do banco
+   ele fica como está: quem escolheu lançar em outro dia não pode ser puxado de volta no
+   meio da digitação. */
+function renderRecLancar(entrando){
   garantirBaseRecebimentos();
   montarModsRec();
-  const dia = state.caixaDia || hojeISO();
+  const dia = (entrando && !recEditandoId) ? diaDeLancamento() : (state.caixaDia || hojeISO());
   if(!recEditandoId) document.getElementById('recData').value = dia;
   document.getElementById('recDia').innerHTML = htmlSeletorDia();
+  atualizarAvisosData();
   atualizarFichaRec();
   renderUltimosRec();
   /* Começou o dia e ninguém informou o que tinha na gaveta: pergunta antes do primeiro
@@ -8376,13 +8531,13 @@ function renderUltimosRec(){
     '<div class="rec-mini" style="margin:-6px 0 10px;">' + lista.length +
       ' lançamento(s) ainda não replicado(s) no SG. Confirme a baixa e ele sai desta lista.</div>' +
     '<table class="tabela-ponto"><thead><tr>' +
-    '<th class="esq">Data</th><th class="esq">Cliente</th><th>Total da conta</th><th>Pago</th>' +
+    '<th class="esq">Data / hora</th><th class="esq">Cliente</th><th>Total da conta</th><th>Pago</th>' +
     '<th class="esq">Modalidades</th><th>Situação</th><th>Baixa no SG</th><th></th></tr></thead><tbody>' +
     lista.map(r=>{
       const sit = situacaoRecebimento(r);
       const dif = r2(toNum(r.total) - pagoDoRecebimento(r));
       return '<tr>' +
-        '<td class="esq">'+dataBR(r.data)+'</td>' +
+        celulaDataHora(r.data, r.criadoEm) +
         '<td class="esq"><span class="rec-cli-nome nome-cli">'+escHtml(nomeCliente(r.clienteId))+'</span>' +
           (r.obs ? '<div class="rec-mini">'+escHtml(r.obs)+'</div>' : '') + '</td>' +
         '<td>'+fmtMoeda(toNum(r.total))+'</td>' +
@@ -8425,6 +8580,12 @@ function salvarRecebimento(){
     abrirModalAbertura(diaLanc, salvarRecebimento);
     return;
   }
+  /* Data que não é a de hoje pergunta antes de gravar. Numa correção a data do próprio
+     registro já é a que deve valer — só pergunta se ela foi mudada. */
+  const recOriginal = recEditandoId ? (state.recebimentos||[]).find(x=> x.id===recEditandoId) : null;
+  if((!recOriginal || String(recOriginal.data||'') !== diaLanc) &&
+     !confirmarDataForaDeHoje(diaLanc, 'recebimento')) return;
+
   if(pago <= 0 && !confirm('Nenhuma modalidade foi preenchida.\n\nRegistrar a conta de ' + fmtMoeda(total) +
       ' como totalmente em aberto para ' + nome + '?')) return;
   aviso.textContent = '';
@@ -8495,8 +8656,10 @@ function salvarRecebimento(){
 function editarRecebimento(id){
   const r = (state.recebimentos||[]).find(x=> x.id===id);
   if(!r) return;
-  trocarAba('recLancar');
+  /* Marca a correção ANTES de abrir a tela: assim a abertura não puxa o dia para hoje
+     nem reescreve a data do registro que está sendo corrigido. */
   recEditandoId = id;
+  trocarAba('recLancar');
   recClienteSel = r.clienteId;
   document.getElementById('recCliente').value = nomeCliente(r.clienteId);
   document.getElementById('recData').value = r.data || hojeISO();
@@ -8561,6 +8724,7 @@ document.getElementById('btnRecCancelarEdicao').addEventListener('click', ()=>{
 document.getElementById('recData').addEventListener('change', (e)=>{
   if(recEditandoId) return;          /* corrigindo um lançamento antigo, a data é dele */
   trocarDiaCaixa(e.target.value);
+  atualizarAvisosData();
 });
 document.getElementById('recTotal').addEventListener('input', atualizarSomatorioRec);
 fecharAoClicarFora('overlayTroco');
@@ -8592,15 +8756,24 @@ function limparFormRet(){
   document.getElementById('btnRetSalvar').textContent = 'Registrar retirada';
   document.getElementById('retMotivo').value = '';
   document.getElementById('retValor').value = '';
-  document.getElementById('retData').value = hojeISO();
+  /* Volta para o dia de trabalho da tela, não para uma data solta: o campo e a barra do
+     dia têm que dizer a mesma coisa, senão a redesenhada do realtime troca um dos dois
+     e ninguém entende qual data vale. */
+  document.getElementById('retData').value = state.caixaDia || hojeISO();
   document.getElementById('retAviso').textContent = '';
+  atualizarAvisosData();
 }
 
-function renderRetiradas(){
+/* `entrando` é true quando a tela está sendo aberta pelo menu — aí o dia volta para
+   hoje. Ver "O DIA DE TRABALHO É HOJE". */
+function renderRetiradas(entrando){
   garantirBaseRecebimentos();
-  /* A retirada é do dia de trabalho: o formulário já abre com ele. */
-  document.getElementById('retData').value = state.caixaDia || hojeISO();
+  if(entrando && !retEditandoId) diaDeLancamento();
+  /* A retirada é do dia de trabalho: o formulário já abre com ele. Numa correção a data
+     é a do registro e não pode ser reescrita pela redesenhada do realtime. */
+  if(!retEditandoId) document.getElementById('retData').value = state.caixaDia || hojeISO();
   document.getElementById('retDia').innerHTML = htmlSeletorDia();
+  atualizarAvisosData();
   renderUltimasRet();
 }
 
@@ -8619,11 +8792,11 @@ function renderUltimasRet(){
     '<div class="rec-mini" style="margin:-6px 0 10px;">Saíram ' + fmtMoeda(somaRetiradas(lista)) +
       ' do caixa neste dia, em ' + lista.length + ' retirada(s).</div>' +
     '<table class="tabela-ponto"><thead><tr>' +
-    '<th class="esq">Data</th><th class="esq">Motivo</th><th>Valor</th><th class="esq">Registrada por</th><th></th>' +
+    '<th class="esq">Data / hora</th><th class="esq">Motivo</th><th>Valor</th><th class="esq">Registrada por</th><th></th>' +
     '</tr></thead><tbody>' +
     lista.map(x=>
       '<tr>' +
-      '<td class="esq">'+dataBR(x.data)+'</td>' +
+      celulaDataHora(x.data, x.criadoEm) +
       '<td class="esq"><span class="rec-cli-nome">'+escHtml(x.motivo)+'</span></td>' +
       '<td class="cel-critico">'+fmtMoeda(toNum(x.valor))+'</td>' +
       '<td class="esq rec-mini">'+escHtml(x.usuario||'—')+'</td>' +
@@ -8644,8 +8817,14 @@ function salvarRetirada(){
   if(valor <= 0){ aviso.textContent = 'Informe o valor retirado.'; document.getElementById('retValor').focus(); return; }
   aviso.textContent = '';
 
+  const diaRet = document.getElementById('retData').value || hojeISO();
+  /* Data que não é a de hoje pergunta antes de gravar — mesma regra do recebimento. */
+  const retOriginal = retEditandoId ? (state.retiradas||[]).find(r=> r.id===retEditandoId) : null;
+  if((!retOriginal || String(retOriginal.data||'') !== diaRet) &&
+     !confirmarDataForaDeHoje(diaRet, 'retirada')) return;
+
   const dados = {
-    data: document.getElementById('retData').value || hojeISO(),
+    data: diaRet,
     valor: valor,
     motivo: motivo
   };
@@ -8676,8 +8855,9 @@ function salvarRetirada(){
 function editarRetirada(id){
   const x = (state.retiradas||[]).find(r=> r.id===id);
   if(!x) return;
-  trocarAba('recRetirada');
+  /* Marca a correção antes de abrir a tela — ver editarRecebimento. */
   retEditandoId = id;
+  trocarAba('recRetirada');
   document.getElementById('retMotivo').value = x.motivo || '';
   document.getElementById('retData').value = x.data || hojeISO();
   document.getElementById('retValor').value = toNum(x.valor) ? toNum(x.valor).toFixed(2).replace('.',',') : '';
@@ -8708,8 +8888,12 @@ document.getElementById('btnRetCancelarEdicao').addEventListener('click', ()=>{
   mostrarToast('Edição cancelada');
 });
 /* Mudou a data no formulário, muda o dia de trabalho inteiro — as duas coisas são a
-   mesma na cabeça de quem opera. */
-document.getElementById('retData').addEventListener('change', (e)=> trocarDiaCaixa(e.target.value));
+   mesma na cabeça de quem opera. Corrigindo uma retirada antiga, não: a data é dela. */
+document.getElementById('retData').addEventListener('change', (e)=>{
+  if(retEditandoId) return;
+  trocarDiaCaixa(e.target.value);
+  atualizarAvisosData();
+});
 document.getElementById('retValor').addEventListener('keydown', (e)=>{
   if(e.key==='Enter'){ e.preventDefault(); salvarRetirada(); }
 });
@@ -8759,14 +8943,14 @@ function renderLancamentos(){
     return;
   }
   corpo.innerHTML = '<table class="tabela-ponto"><thead><tr>' +
-    '<th class="esq">Data</th><th class="esq">Cliente</th><th>Total da conta</th><th>Pago</th>' +
+    '<th class="esq">Data / hora</th><th class="esq">Cliente</th><th>Total da conta</th><th>Pago</th>' +
     '<th class="esq">Modalidades</th><th>Situação</th><th>Baixa no SG</th><th class="esq">Registrado por</th><th></th>' +
     '</tr></thead><tbody>' +
     lista.map(r=>{
       const sit = situacaoRecebimento(r);
       const dif = r2(toNum(r.total) - pagoDoRecebimento(r));
       return '<tr>' +
-        '<td class="esq">'+dataBR(r.data)+'</td>' +
+        celulaDataHora(r.data, r.criadoEm) +
         '<td class="esq"><span class="rec-cli-nome nome-cli">'+escHtml(nomeCliente(r.clienteId))+'</span>' +
           (r.obs ? '<div class="rec-mini">'+escHtml(r.obs)+'</div>' : '') + '</td>' +
         '<td>'+fmtMoeda(toNum(r.total))+'</td>' +
@@ -9016,10 +9200,10 @@ function htmlRetiradasDoMes(retMes, mes){
   const ordenadas = retMes.slice().sort((a,b)=> String(a.data||'').localeCompare(String(b.data||'')));
   return '<div class="rec-bloco"><h3>Retiradas de ' + dataBR(mes) + '</h3>' +
     '<table class="tabela-ponto"><thead><tr>' +
-    '<th class="esq">Data</th><th class="esq">Motivo</th><th>Valor</th><th class="esq">Registrada por</th>' +
+    '<th class="esq">Data / hora</th><th class="esq">Motivo</th><th>Valor</th><th class="esq">Registrada por</th>' +
     '</tr></thead><tbody>' +
     ordenadas.map(x=>
-      '<tr><td class="esq">'+dataBR(x.data)+'</td>' +
+      '<tr>' + celulaDataHora(x.data, x.criadoEm) +
       '<td class="esq"><span class="rec-cli-nome">'+escHtml(x.motivo)+'</span></td>' +
       '<td class="cel-critico">'+fmtMoeda(toNum(x.valor))+'</td>' +
       '<td class="esq rec-mini">'+escHtml(x.usuario||'—')+'</td></tr>'
@@ -9155,14 +9339,14 @@ function renderHistorico(){
     return;
   }
   corpo.innerHTML = '<table class="tabela-ponto"><thead><tr>' +
-    '<th class="esq">Data</th><th class="esq">Cliente</th><th>Total da conta</th>' +
+    '<th class="esq">Data / hora</th><th class="esq">Cliente</th><th>Total da conta</th>' +
     FORMAS_RECEBIMENTO.map(f=> '<th'+(f.chave===formaSel?' class="col-destaque"':'')+'>'+f.rotulo+'</th>').join('') +
     '<th>Pago</th><th>Situação</th><th>Baixa no SG</th></tr></thead><tbody>' +
     lista.map(r=>{
       const sit = situacaoRecebimento(r);
       const dif = r2(toNum(r.total) - pagoDoRecebimento(r));
       return '<tr>' +
-        '<td class="esq">'+dataBR(r.data)+'</td>' +
+        celulaDataHora(r.data, r.criadoEm) +
         '<td class="esq"><span class="rec-cli-nome nome-cli">'+escHtml(nomeCliente(r.clienteId))+'</span>' +
           (r.obs ? '<div class="rec-mini">'+escHtml(r.obs)+'</div>' : '') + '</td>' +
         '<td>'+fmtMoeda(toNum(r.total))+'</td>' +
@@ -9198,7 +9382,7 @@ document.getElementById('hisFormas').addEventListener('click', (e)=>{
   /* Clicar de novo no botão já escolhido volta para "Tudo" — sem precisar caçar o
      botão de limpar filtro. */
   state.recHisForma = (state.recHisForma === btn.dataset.formaBtn) ? 'todas' : btn.dataset.formaBtn;
-  salvarEstado();
+  gravarCache();      /* filtro é da sessão: cache local sim, banco não */
   renderHistorico();
 });
 
@@ -9312,7 +9496,7 @@ document.getElementById('balcCorpo').addEventListener('click', (e)=>{
   const tr = e.target.closest('tr[data-balc-dia]');
   if(!tr) return;
   state.caixaDia = tr.dataset.balcDia;
-  salvarEstado();
+  gravarCache();
   trocarAba('recHistorico');
 });
 
@@ -9355,12 +9539,12 @@ document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=
   const linhas = [['CAIXA DO DIA — ' + dataBR(mes)],
                   ['Abertura do caixa', t.abertura ? r2(t.inicial) : 'não informada'], []];
   const multiplas = FORMAS_RECEBIMENTO.filter(f=> f.multiplo);
-  linhas.push(['Data','Cliente','Total da conta'].concat(FORMAS_RECEBIMENTO.map(f=> f.rotulo))
+  linhas.push(['Data','Hora','Cliente','Total da conta'].concat(FORMAS_RECEBIMENTO.map(f=> f.rotulo))
     .concat(multiplas.map(f=> f.plural.charAt(0).toUpperCase()+f.plural.slice(1)+' (detalhe)'))
     .concat(['Total pago','Diferença','Situação','Baixa no SG','Observação']));
   doMes.forEach(r=>{
     const pago = pagoDoRecebimento(r);
-    linhas.push([dataBR(r.data), nomeCliente(r.clienteId), r2(toNum(r.total))]
+    linhas.push([dataBR(r.data), horaDe(r.criadoEm), nomeCliente(r.clienteId), r2(toNum(r.total))]
       .concat(FORMAS_RECEBIMENTO.map(f=> r2(toNum(r[f.chave]))))
       .concat(multiplas.map(f=>{
         const p = parcelasDe(r, f.chave);
@@ -9371,38 +9555,38 @@ document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=
                r.obs||'']));
   });
   const soma = (fn)=> r2(doMes.reduce((s,r)=> s + fn(r), 0));
-  linhas.push(['TOTAL','', soma(r=> toNum(r.total))]
+  linhas.push(['TOTAL','','', soma(r=> toNum(r.total))]
     .concat(FORMAS_RECEBIMENTO.map(f=> soma(r=> toNum(r[f.chave]))))
     .concat(multiplas.map(()=> ''))
     .concat([soma(pagoDoRecebimento), soma(r=> toNum(r.total)-pagoDoRecebimento(r)), '',
              doMes.filter(r=> !baixaSgFeita(r)).length + ' pendente(s)', '']));
 
   const ws = XLSX.utils.aoa_to_sheet(linhas);
-  ws['!cols'] = [{wch:12},{wch:32},{wch:15}].concat(FORMAS_RECEBIMENTO.map(()=> ({wch:13})))
+  ws['!cols'] = [{wch:12},{wch:8},{wch:32},{wch:15}].concat(FORMAS_RECEBIMENTO.map(()=> ({wch:13})))
     .concat(multiplas.map(()=> ({wch:26})))
     .concat([{wch:13},{wch:13},{wch:13},{wch:20},{wch:30}]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Entradas');
 
   /* Segunda aba: as saídas do dia e o fechamento em espécie. */
-  const linhasRet = [['RETIRADAS DE CAIXA — ' + dataBR(mes)], [], ['Motivo','Valor','Registrada por']];
-  retMes.forEach(x=> linhasRet.push([x.motivo||'', r2(toNum(x.valor)), x.usuario||'']));
-  if(!retMes.length) linhasRet.push(['Nenhuma retirada neste dia','','']);
-  linhasRet.push(['TOTAL RETIRADO', t.saiu, '']);
+  const linhasRet = [['RETIRADAS DE CAIXA — ' + dataBR(mes)], [], ['Hora','Motivo','Valor','Registrada por']];
+  retMes.forEach(x=> linhasRet.push([horaDe(x.criadoEm), x.motivo||'', r2(toNum(x.valor)), x.usuario||'']));
+  if(!retMes.length) linhasRet.push(['','Nenhuma retirada neste dia','','']);
+  linhasRet.push(['','TOTAL RETIRADO', t.saiu, '']);
   linhasRet.push([]);
-  linhasRet.push(['FECHAMENTO DO DIA']);
-  linhasRet.push(['Entrou no caixa (dinheiro, cartão, pix, cheque)', t.entrou]);
-  if(t.haver) linhasRet.push(['Quitado em Juros/Haver (não entra no caixa)', t.haver]);
-  linhasRet.push(['Saiu (retiradas, sempre em dinheiro)', t.saiu]);
-  linhasRet.push(['Sobrou', t.sobrou]);
+  linhasRet.push(['', 'FECHAMENTO DO DIA']);
+  linhasRet.push(['', 'Entrou no caixa (dinheiro, cartão, pix, cheque)', t.entrou]);
+  if(t.haver) linhasRet.push(['', 'Quitado em Juros/Haver (não entra no caixa)', t.haver]);
+  linhasRet.push(['', 'Saiu (retiradas, sempre em dinheiro)', t.saiu]);
+  linhasRet.push(['', 'Sobrou', t.sobrou]);
   linhasRet.push([]);
-  linhasRet.push(['CONFERÊNCIA DO DINHEIRO EM ESPÉCIE']);
-  linhasRet.push(['Abertura do caixa', t.inicial]);
-  linhasRet.push(['+ Recebido em dinheiro', t.porForma.dinheiro]);
-  linhasRet.push(['− Retiradas', t.saiu]);
-  linhasRet.push(['= Deve ter na gaveta', t.dinheiroFinal]);
+  linhasRet.push(['', 'CONFERÊNCIA DO DINHEIRO EM ESPÉCIE']);
+  linhasRet.push(['', 'Abertura do caixa', t.inicial]);
+  linhasRet.push(['', '+ Recebido em dinheiro', t.porForma.dinheiro]);
+  linhasRet.push(['', '− Retiradas', t.saiu]);
+  linhasRet.push(['', '= Deve ter na gaveta', t.dinheiroFinal]);
   const wsRet = XLSX.utils.aoa_to_sheet(linhasRet);
-  wsRet['!cols'] = [{wch:40},{wch:16},{wch:22}];
+  wsRet['!cols'] = [{wch:8},{wch:40},{wch:16},{wch:22}];
   XLSX.utils.book_append_sheet(wb, wsRet, 'Fechamento');
 
   XLSX.writeFile(wb, 'Caixa_' + mes + '.xlsx');
