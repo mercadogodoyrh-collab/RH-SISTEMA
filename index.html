@@ -747,8 +747,50 @@
   .rec-bloco h3{margin:0 0 12px;font-size:14px;color:var(--marca-esc);}
   .rec-vazio{background:#fff;border:1px solid var(--cinza-borda);border-radius:10px;padding:30px 22px;text-align:center;
     color:var(--texto-fraco);font-size:13px;}
+
+  /* ============================= LOJA DO ESCRITÓRIO =============================
+     A farmácia e o cigarro do balcão do escritório. É o mesmo gesto do recebimento —
+     um formulário, as modalidades, o total — só que no lugar do cliente pagando uma
+     conta existe um produto saindo. Reaproveita as classes .rec-* de propósito: para
+     quem opera, as duas telas têm que parecer a mesma tela. */
+  .ven-linha{display:grid;grid-template-columns:1.9fr 1fr .7fr .9fr auto;gap:12px;margin-bottom:14px;align-items:end;}
+  /* Sem isto a largura mínima que o navegador dá a um input ignora as proporções acima
+     e as quatro colunas saem quase iguais. */
+  .ven-linha > .campo{min-width:0;}
+  .ven-linha input, .ven-linha select{width:100%;min-width:0;}
+  .ven-linha .btn{white-space:nowrap;height:38px;}
+  /* Produto que já existe traz a categoria do cadastro: o campo mostra qual é, mas não
+     se muda no balcão — categoria se corrige na tela de Produtos, uma vez só. */
+  .ven-linha select:disabled{background:#f2f5f6;color:var(--texto-fraco);cursor:not-allowed;}
+  .ven-itens{border:1px solid var(--cinza-borda);border-radius:9px;overflow:hidden;margin-bottom:6px;}
+  .ven-itens table{width:100%;border-collapse:collapse;font-size:13px;}
+  .ven-itens th{background:#f6f9fa;font-size:10.5px;text-transform:uppercase;letter-spacing:.04em;
+    color:var(--texto-fraco);font-weight:700;padding:8px 12px;text-align:right;}
+  .ven-itens th.esq,.ven-itens td.esq{text-align:left;}
+  .ven-itens td{padding:8px 12px;text-align:right;border-top:1px solid #f0f3f5;}
+  .ven-itens tfoot td{background:var(--marca-cl);font-weight:800;color:var(--marca-esc);font-size:14.5px;}
+  .ven-itens .ven-tirar{background:none;border:none;font-size:16px;line-height:1;color:var(--cinza-borda);
+    cursor:pointer;font-family:inherit;padding:0 2px;}
+  .ven-itens .ven-tirar:hover{color:var(--vermelho);}
+  .ven-sem-itens{padding:20px;text-align:center;color:var(--texto-fraco);font-size:12.5px;}
+  .cat-tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:#f0f0f2;color:#5a5a66;
+    white-space:nowrap;text-transform:uppercase;letter-spacing:.03em;display:inline-block;}
+  .cat-tag.farmacia{background:#e8f4fd;color:#1f6aa8;}
+  .cat-tag.cigarro{background:#f5efe4;color:#8a6100;}
+  .cat-tag.bebida{background:#e9f2ec;color:#137a3e;}
+  /* Calculadora de troco: o cliente entrega uma nota e leva a diferença. O que fica
+     gravado é o valor da venda — a nota inteira entrou e o troco saiu no mesmo gesto,
+     e o efeito na gaveta é exatamente o preço do produto. Isto aqui é só a conta de
+     cabeça, feita na tela para ninguém errar na pressa. */
+  .troco-calc{background:#f6f9fa;border:1px solid var(--cinza-borda);border-radius:9px;padding:11px 14px;
+    display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-top:14px;font-size:12.5px;color:var(--texto-fraco);}
+  .troco-calc input{width:130px;border:1px solid var(--cinza-borda);border-radius:7px;padding:6px 9px;
+    font-family:inherit;font-size:15px;font-weight:700;color:var(--texto);}
+  .troco-calc b{font-size:17px;color:var(--marca-esc);}
+  .troco-calc .tc-falta{color:var(--vermelho);}
   @media(max-width:820px){
     .rec-linha{grid-template-columns:1fr;}
+    .ven-linha{grid-template-columns:1fr;}
   }
   @media(max-width:760px){
     .tabela-ponto{font-size:11px;} .tabela-ponto th,.tabela-ponto td{padding:6px 4px;}
@@ -837,6 +879,35 @@
       </div>
     </div>
 
+    <!-- A Loja vem antes do Caixa de propósito: é ali que a venda nasce, e o Caixa é
+         onde ela desemboca. O Relatório de Caixa já soma as vendas da loja, então a
+         ordem do menu segue o caminho do dinheiro. -->
+    <div class="bl-grupo" data-grupo="loja">
+      <button class="bl-item bl-cabeca" data-grupo-btn="loja" title="Loja do Escritório" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><path d="M3.5 9.5 5 4h14l1.5 5.5"/><path d="M3.5 9.5h17v10a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1z"/><path d="M9.5 20.5v-6h5v6"/></svg>
+        <span class="bl-rotulo">Loja do Escritório</span>
+        <svg class="bl-seta bl-rotulo" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="bl-sub">
+        <button class="bl-item bl-filho" data-aba="lojaVender" title="Registrar Venda">
+          <svg viewBox="0 0 24 24"><circle cx="9.5" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 12.4h11.3L21 7H6"/></svg>
+          <span class="bl-rotulo">Registrar Venda</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="lojaVendas" title="Vendas do Dia">
+          <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3.5" y1="6" x2="3.51" y2="6"/><line x1="3.5" y1="12" x2="3.51" y2="12"/><line x1="3.5" y1="18" x2="3.51" y2="18"/></svg>
+          <span class="bl-rotulo">Vendas do Dia</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="lojaProdutos" title="Produtos">
+          <svg viewBox="0 0 24 24"><path d="M20.5 7.5 12 3 3.5 7.5v9L12 21l8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+          <span class="bl-rotulo">Produtos</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="lojaBalanco" title="Balanço da Loja">
+          <svg viewBox="0 0 24 24"><path d="M3 20h18"/><rect x="5" y="11" width="3.5" height="7"/><rect x="10.2" y="6" width="3.5" height="12"/><rect x="15.4" y="14" width="3.5" height="4"/></svg>
+          <span class="bl-rotulo">Balanço da Loja</span>
+        </button>
+      </div>
+    </div>
+
     <div class="bl-grupo" data-grupo="rec">
       <button class="bl-item bl-cabeca" data-grupo-btn="rec" title="Controle de Caixa Administrativo" aria-expanded="false">
         <svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="14" rx="2"/><path d="M2.5 10.5h19"/><path d="M8 3.5h8l1.5 2.5h-11z"/><line x1="12" y1="14" x2="12" y2="17"/></svg>
@@ -851,6 +922,10 @@
         <button class="bl-item bl-filho" data-aba="recRetirada" title="Retirada de Caixa">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
           <span class="bl-rotulo">Retirada de Caixa</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="recSuprimento" title="Suprimento de Caixa">
+          <svg viewBox="0 0 24 24"><path d="M12 21V7"/><polyline points="6 12.5 12 6.5 18 12.5"/><line x1="4" y1="3" x2="20" y2="3"/></svg>
+          <span class="bl-rotulo">Suprimento de Caixa</span>
         </button>
         <button class="bl-item bl-filho" data-aba="recLancamentos" title="Lançamentos">
           <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3.5" y1="6" x2="3.51" y2="6"/><line x1="3.5" y1="12" x2="3.51" y2="12"/><line x1="3.5" y1="18" x2="3.51" y2="18"/></svg>
@@ -1279,6 +1354,72 @@
   </main>
 </div>
 
+<!-- ===================== CAIXA ADMINISTRATIVO: suprimento ===================== -->
+<div id="viewRecSuprimento" style="display:none;">
+  <main>
+    <div class="dash-topo">
+      <div>
+        <h2>Suprimento de caixa</h2>
+        <div class="dash-sub">Dinheiro que <b>entra</b> no caixa sem ser venda nem conta de cliente — troco trazido do
+          banco, cheque descontado, reembolso, sobra de outro caixa. É o contrário da retirada: entra na gaveta e
+          soma no fechamento do dia.</div>
+      </div>
+    </div>
+
+    <div id="supDia"></div>
+
+    <div class="aviso-retro" id="supAvisoData">
+      <span id="supAvisoDataTxt"></span>
+      <div class="spacer" style="flex:1;"></div>
+      <button type="button" class="btn-voltar-hoje" data-dia-hoje="1">Voltar para hoje</button>
+    </div>
+
+    <div class="rec-editando" id="supEditandoAviso">
+      <span id="supEditandoTxt"></span>
+      <div class="spacer" style="flex:1;"></div>
+      <button class="btn btn-outline btn-sm" id="btnSupCancelarEdicao">Cancelar edição</button>
+    </div>
+
+    <div class="rec-form">
+      <div class="rec-linha">
+        <div class="campo">
+          <label for="supOrigem">De onde veio o dinheiro</label>
+          <input type="text" id="supOrigem" autocomplete="off" placeholder="Ex.: troco trazido do banco">
+          <div class="campo-nota">Escreva de um jeito que se entenda daqui a seis meses.</div>
+        </div>
+        <div class="campo">
+          <label for="supData">Data</label>
+          <input type="date" id="supData">
+        </div>
+        <div class="campo">
+          <label for="supValor">Valor que entrou</label>
+          <input type="text" inputmode="decimal" id="supValor" placeholder="0,00">
+        </div>
+      </div>
+
+      <div class="rec-linha" style="grid-template-columns:1fr 2fr;">
+        <div class="campo">
+          <label for="supForma">Entrou em</label>
+          <select id="supForma"></select>
+          <div class="campo-nota">Só o que entra em dinheiro muda o que tem que estar na gaveta.</div>
+        </div>
+        <div class="campo">
+          <label for="supObs">Observação (opcional)</label>
+          <input type="text" id="supObs" placeholder="Ex.: cheque do Marcelo compensado hoje">
+        </div>
+      </div>
+
+      <div class="rec-acoes">
+        <span class="rec-aviso" id="supAviso"></span>
+        <button class="btn btn-outline" id="btnSupLimpar">Limpar</button>
+        <button class="btn btn-primary" id="btnSupSalvar">Registrar entrada</button>
+      </div>
+    </div>
+
+    <div class="rec-bloco" id="supUltimos"></div>
+  </main>
+</div>
+
 <!-- ===================== CAIXA ADMINISTRATIVO: lançamentos ===================== -->
 <div id="viewRecLancamentos" style="display:none;">
   <div class="toolbar">
@@ -1376,6 +1517,154 @@
   </main>
 </div>
 
+<!-- ===================== LOJA DO ESCRITÓRIO: registrar venda ===================== -->
+<div id="viewLojaVender" style="display:none;">
+  <main>
+    <div class="dash-topo">
+      <div>
+        <h2>Registrar venda</h2>
+        <div class="dash-sub">Digite o produto, a quantidade e registre o pagamento. Produto novo é cadastrado na hora,
+          com o preço que você digitar, e da próxima vez já aparece na busca com o preço preenchido.
+          A venda é sempre à vista: o pagamento tem que fechar com o total.</div>
+      </div>
+    </div>
+
+    <div id="venDia"></div>
+
+    <div class="aviso-retro" id="venAvisoData">
+      <span id="venAvisoDataTxt"></span>
+      <div class="spacer" style="flex:1;"></div>
+      <button type="button" class="btn-voltar-hoje" data-dia-hoje="1">Voltar para hoje</button>
+    </div>
+
+    <div class="rec-editando" id="venEditandoAviso">
+      <span id="venEditandoTxt"></span>
+      <div class="spacer" style="flex:1;"></div>
+      <button class="btn btn-outline btn-sm" id="btnVenCancelarEdicao">Cancelar edição</button>
+    </div>
+
+    <div class="rec-form">
+      <div class="ven-linha">
+        <div class="campo rec-busca-wrap">
+          <label for="venProduto">Produto</label>
+          <input type="text" id="venProduto" autocomplete="off" spellcheck="false" placeholder="Digite o produto…">
+          <div class="rec-sug" id="venSug"></div>
+        </div>
+        <div class="campo">
+          <label for="venCat">Categoria</label>
+          <select id="venCat"></select>
+        </div>
+        <div class="campo">
+          <label for="venQtd">Quantidade</label>
+          <input type="text" inputmode="decimal" id="venQtd" value="1" placeholder="1">
+        </div>
+        <div class="campo">
+          <label for="venPreco">Preço unitário</label>
+          <input type="text" inputmode="decimal" id="venPreco" placeholder="0,00">
+        </div>
+        <div class="campo">
+          <label>&nbsp;</label>
+          <button type="button" class="btn btn-primary" id="btnVenAddItem">+ Adicionar</button>
+        </div>
+      </div>
+
+      <div class="campo" style="margin:-4px 0 14px;">
+        <label for="venData" style="display:inline-block;">Data da venda</label>
+        <input type="date" id="venData" style="max-width:220px;display:block;">
+      </div>
+
+      <div class="ven-itens" id="venItens"></div>
+      <div class="rec-mini" id="venItensNota" style="margin-bottom:16px;"></div>
+
+      <div class="secao-title">Modalidades do pagamento</div>
+      <div class="rec-mods" id="venMods"></div>
+
+      <div class="troco-calc">
+        <span>Cliente entregou em dinheiro</span>
+        <input type="text" inputmode="decimal" id="venEntregue" placeholder="0,00">
+        <span id="venTrocoTxt">— informe para calcular o troco.</span>
+      </div>
+
+      <div class="rec-somatorio" id="venSomatorio"></div>
+
+      <div class="campo" style="margin-top:16px;">
+        <label for="venObs">Observação (opcional)</label>
+        <input type="text" id="venObs" placeholder="Ex.: levou para a equipe da noite">
+      </div>
+
+      <div class="rec-acoes">
+        <span class="rec-aviso" id="venAviso"></span>
+        <button class="btn btn-outline" id="btnVenLimpar">Limpar</button>
+        <button class="btn btn-primary" id="btnVenSalvar">Registrar venda</button>
+      </div>
+    </div>
+
+    <div class="rec-bloco" id="venUltimas"></div>
+  </main>
+</div>
+
+<!-- ===================== LOJA DO ESCRITÓRIO: vendas do dia ===================== -->
+<div id="viewLojaVendas" style="display:none;">
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="lvBusca" placeholder="Buscar produto na venda do dia...">
+    </div>
+    <select id="lvCategoria"></select>
+    <div class="spacer"></div>
+    <button class="btn btn-outline" id="btnExportarVendas">Exportar vendas do dia</button>
+  </div>
+  <main>
+    <div id="lvDia"></div>
+    <div class="kpis" id="lvKpis"></div>
+    <div class="lista-info" id="lvInfo"></div>
+    <div id="lvCorpo"></div>
+  </main>
+</div>
+
+<!-- ===================== LOJA DO ESCRITÓRIO: produtos ===================== -->
+<div id="viewLojaProdutos" style="display:none;">
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="prdBusca" placeholder="Buscar produto por nome...">
+    </div>
+    <select id="prdCategoria"></select>
+    <select id="prdOrdem">
+      <option value="maisvend">Mais vendidos</option>
+      <option value="faturado">Maior faturamento</option>
+      <option value="alfabetica">Ordem alfabética</option>
+      <option value="recentes">Venda mais recente</option>
+      <option value="semmov">Sem nenhuma venda</option>
+    </select>
+    <div class="spacer"></div>
+    <button class="btn btn-outline" id="btnExportarProdutos">Exportar base</button>
+    <button class="btn btn-primary" id="btnNovoProduto">+ Cadastrar Produto</button>
+  </div>
+  <main>
+    <div class="kpis" id="prdKpis"></div>
+    <div class="lista-info" id="prdInfo"></div>
+    <div id="prdCorpo"></div>
+  </main>
+</div>
+
+<!-- ===================== LOJA DO ESCRITÓRIO: balanço mensal ===================== -->
+<div id="viewLojaBalanco" style="display:none;">
+  <div class="toolbar">
+    <div class="fin-titulo">Loja em <span id="balLojaMesLabel"></span></div>
+    <select id="balLojaMes"></select>
+    <div class="spacer"></div>
+    <button class="btn btn-outline" id="btnExportarBalancoLoja">Exportar balanço da loja</button>
+  </div>
+  <main>
+    <div class="kpis" id="balLojaKpis"></div>
+    <div class="filtro-formas" id="balLojaFormas"></div>
+    <div id="balLojaRanking"></div>
+    <div class="lista-info" id="balLojaInfo"></div>
+    <div id="balLojaCorpo"></div>
+  </main>
+</div>
+
 </div><!-- /area-conteudo -->
 
 <!-- Modal do cheque: valor e troco -->
@@ -1468,6 +1757,45 @@
         <button type="button" class="btn btn-vermelho" id="btnExcluirCliente" style="display:none;">Excluir cliente</button>
         <button type="button" class="btn btn-outline" id="btnCancelarCliente">Cancelar</button>
         <button type="submit" class="btn btn-primary" id="btnSalvarCliente">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal de cadastro / ficha do produto da loja -->
+<div class="overlay" id="overlayProduto">
+  <div class="modal" style="max-width:640px;">
+    <button class="modal-close" id="fecharProduto">✕</button>
+    <h2 id="prdTitulo">Cadastrar produto</h2>
+    <div class="sub" id="prdSub">O cadastro serve para o produto aparecer na busca da venda já com o preço.</div>
+    <form id="formProduto">
+      <div class="campo-row">
+        <div class="campo">
+          <label for="prdNome">Nome do produto</label>
+          <input type="text" id="prdNome" required autocomplete="off" placeholder="Ex.: Dipirona 500mg cartela">
+        </div>
+        <div class="campo">
+          <label for="prdCat">Categoria</label>
+          <select id="prdCat"></select>
+        </div>
+      </div>
+      <div class="campo-row">
+        <div class="campo">
+          <label for="prdPreco">Preço de venda</label>
+          <input type="text" inputmode="decimal" id="prdPreco" placeholder="0,00">
+        </div>
+        <div class="campo">
+          <label for="prdObs">Observação (opcional)</label>
+          <input type="text" id="prdObs" autocomplete="off" placeholder="Ex.: caixa com 20 comprimidos">
+        </div>
+      </div>
+      <div class="rec-mini" style="margin-bottom:12px;">O preço aqui é só a sugestão que aparece na venda —
+        no balcão dá para mudar o valor sem alterar o cadastro.</div>
+      <div id="prdFicha"></div>
+      <div class="acoes-modal">
+        <button type="button" class="btn btn-vermelho" id="btnExcluirProduto" style="display:none;">Excluir produto</button>
+        <button type="button" class="btn btn-outline" id="btnCancelarProduto">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnSalvarProduto">Salvar</button>
       </div>
     </form>
   </div>
@@ -1828,6 +2156,7 @@
     <div class="nuvem-linha"><span>Meses de folha</span><b id="nvQtdFolha">—</b></div>
     <div class="nuvem-linha"><span>Meses de cartão ponto</span><b id="nvQtdPonto">—</b></div>
     <div class="nuvem-linha"><span>Caixa (recebimentos / retiradas)</span><b id="nvQtdCaixa">—</b></div>
+    <div class="nuvem-linha"><span>Loja (produtos / vendas / avulsas)</span><b id="nvQtdLoja">—</b></div>
     <div class="nuvem-linha"><span>Lançamentos aguardando envio</span><b id="nvFilaCaixa">—</b></div>
     <div class="nuvem-linha"><span>Versão do sistema</span><b id="nvVersao">—</b></div>
     <div id="nvErroWrap" style="display:none;margin-top:12px;font-size:12px;color:var(--vermelho);"></div>
@@ -1859,7 +2188,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '14/08/2026 · Caixa sempre no dia de hoje';
+const VERSAO_SISTEMA = '17/08/2026b · Loja do Escritório e Suprimento de Caixa';
 
 const SUPABASE_URL  = 'https://vieafcgghboxwhultile.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_HaMcgvr_2xmWYotvzetmVA_yscPz2eT';
@@ -1975,6 +2304,9 @@ function estadoParaNuvem(){
   delete copia.recebimentos;
   delete copia.retiradas;
   delete copia.aberturas;
+  delete copia.produtos;
+  delete copia.vendas;
+  delete copia.suprimentos;
   /* Ajuste de tela não é dado do sistema e não pode viajar entre os computadores: o dia
      que estou olhando e o filtro de modalidade são meus, desta sessão. Já travaram o
      Relatório uma vez — o filtro ficou em "Cheque", foi salvo, chegou nas três máquinas
@@ -2029,8 +2361,10 @@ async function conectarBanco(){
     const vazio = !data || !Array.isArray(data.funcionarios) || data.funcionarios.length === 0;
     if(vazio){
       bancoPronto = true;
+      caixaCarregado = true;   /* nada veio do banco: o que vale é o cache deste navegador */
       await enviarParaNuvem();
       if(!nuvemErro) mostrarToast('Base criada no banco com os dados deste navegador');
+      pedirAberturaDoDia(state.caixaDia || hojeISO());
     }else{
       /* O que vier do rh_config nestas chaves é do formato antigo do caixa: guarda para
          migrar logo abaixo, porque a verdade agora são as tabelas caixa_*. */
@@ -2057,9 +2391,14 @@ async function conectarBanco(){
     }
   }catch(e){
     bancoPronto = true;
+    /* Sem banco, quem manda é o cache local — e ele tem as aberturas, porque só o envio
+       para a nuvem é que as tira. Dá para confiar no que está em memória e voltar a
+       perguntar a abertura quando ela realmente faltar. */
+    caixaCarregado = true;
     statusNuvem('erro', 'Sem conexão');
     nuvemErro = e.message || String(e);
     mostrarToast('Sem conexão com o banco — trabalhando com a cópia local');
+    if(typeof pedirAberturaDoDia === 'function') pedirAberturaDoDia(state.caixaDia || hojeISO());
   }
 }
 
@@ -2080,6 +2419,8 @@ function abrirModalNuvem(){
   document.getElementById('nvQtdPonto').textContent = nPonto;
   document.getElementById('nvQtdCaixa').textContent =
     (state.recebimentos||[]).length + ' / ' + (state.retiradas||[]).length;
+  document.getElementById('nvQtdLoja').textContent =
+    (state.produtos||[]).length + ' / ' + (state.vendas||[]).length + ' / ' + (state.suprimentos||[]).length;
   const fila = (typeof caixaFila !== 'undefined') ? caixaFila.length : 0;
   document.getElementById('nvFilaCaixa').textContent = fila ? fila + ' (sobem quando a conexão voltar)' : 'nenhum';
   document.getElementById('nvVersao').textContent = VERSAO_SISTEMA;
@@ -2120,7 +2461,7 @@ document.getElementById('btnEnviarNuvem').addEventListener('click', async ()=>{
   clearTimeout(nuvemTimer); nuvemTimer = null;
   /* No caixa o envio só acrescenta e atualiza registros por id — nunca apaga o que
      outro computador lançou, porque cada registro tem linha própria. */
-  ['clientes','recebimentos','retiradas'].forEach(tipo=>{
+  ['clientes','recebimentos','retiradas','produtos','vendas','suprimentos'].forEach(tipo=>{
     (state[tipo] || []).forEach(obj=>{ if(obj && obj.id) enfileirarCaixa('gravar', tipo, obj.id, obj); });
   });
   await escoarFilaCaixa();
@@ -2416,10 +2757,15 @@ function renderAbaAtual(){
   if(state.abaAtual === 'relatorios' && typeof renderRelatorios === 'function') renderRelatorios();
   if(state.abaAtual === 'recLancar' && typeof renderRecLancar === 'function') renderRecLancar();
   if(state.abaAtual === 'recRetirada' && typeof renderRetiradas === 'function') renderRetiradas();
+  if(state.abaAtual === 'recSuprimento' && typeof renderSuprimentos === 'function') renderSuprimentos();
   if(state.abaAtual === 'recLancamentos' && typeof renderLancamentos === 'function') renderLancamentos();
   if(state.abaAtual === 'recBalanco' && typeof renderBalancoCaixa === 'function') renderBalancoCaixa();
   if(state.abaAtual === 'recClientes' && typeof renderClientes === 'function') renderClientes();
   if(state.abaAtual === 'recHistorico' && typeof renderHistorico === 'function') renderHistorico();
+  if(state.abaAtual === 'lojaVender' && typeof renderLojaVender === 'function') renderLojaVender();
+  if(state.abaAtual === 'lojaVendas' && typeof renderLojaVendas === 'function') renderLojaVendas();
+  if(state.abaAtual === 'lojaProdutos' && typeof renderProdutos === 'function') renderProdutos();
+  if(state.abaAtual === 'lojaBalanco' && typeof renderBalancoLoja === 'function') renderBalancoLoja();
   if(typeof atualizarSinoPonto === 'function') atualizarSinoPonto();
 }
 
@@ -6361,10 +6707,11 @@ document.getElementById('relGrid').addEventListener('click', (e)=>{
 });
 
 /* ============================= NAVEGAÇÃO (barra lateral) =============================
-   O sistema tem duas áreas de primeiro nível — Recursos Humanos e Recebimento de Contas —
-   e cada uma abre em dropdown as suas telas. `grupo` diz a que área a tela pertence: é o
-   que mantém o dropdown certo aberto e esconde do cabeçalho o que só serve ao RH
-   (a competência do mês e o ajuste de salários não têm sentido no caixa). */
+   O sistema tem três áreas de primeiro nível — Recursos Humanos, Controle de Caixa
+   Administrativo e Loja do Escritório — e cada uma abre em dropdown as suas telas.
+   `grupo` diz a que área a tela pertence: é o que mantém o dropdown certo aberto e
+   esconde do cabeçalho o que só serve ao RH (a competência do mês e o ajuste de
+   salários não têm sentido no caixa nem na loja). */
 const ABAS = {
   inicio:       {view:'viewInicio',       titulo:'Início',                     grupo:null},
   dashboard:    {view:'viewDashboard',    titulo:'Painel',                     grupo:'rh'},
@@ -6374,8 +6721,13 @@ const ABAS = {
   financeiro:   {view:'viewFinanceiro',   titulo:'Financeiro',                 grupo:'rh'},
   balanco:      {view:'viewBalanco',      titulo:'Balanço Mensal',             grupo:'rh'},
   relatorios:   {view:'viewRelatorios',   titulo:'Relatórios',                 grupo:'rh'},
+  lojaVender:   {view:'viewLojaVender',   titulo:'Registrar Venda',            grupo:'loja'},
+  lojaVendas:   {view:'viewLojaVendas',   titulo:'Vendas do Dia',              grupo:'loja'},
+  lojaProdutos: {view:'viewLojaProdutos', titulo:'Produtos da Loja',           grupo:'loja'},
+  lojaBalanco:  {view:'viewLojaBalanco',  titulo:'Balanço da Loja',            grupo:'loja'},
   recLancar:    {view:'viewRecLancar',    titulo:'Lançar Recebimento',         grupo:'rec'},
   recRetirada:  {view:'viewRecRetirada',  titulo:'Retirada de Caixa',          grupo:'rec'},
+  recSuprimento:{view:'viewRecSuprimento',titulo:'Suprimento de Caixa',        grupo:'rec'},
   recLancamentos:{view:'viewRecLancamentos', titulo:'Lançamentos',             grupo:'rec'},
   recBalanco:   {view:'viewRecBalanco',   titulo:'Balanço Mensal do Caixa',    grupo:'rec'},
   recClientes:  {view:'viewRecClientes',  titulo:'Clientes',                   grupo:'rec'},
@@ -6426,10 +6778,15 @@ function trocarAba(aba){
   /* O `true` diz que a tela está sendo ABERTA: as telas de lançamento voltam para hoje. */
   if(aba==='recLancar') renderRecLancar(true);
   if(aba==='recRetirada') renderRetiradas(true);
+  if(aba==='recSuprimento') renderSuprimentos(true);
   if(aba==='recLancamentos') renderLancamentos();
   if(aba==='recBalanco') renderBalancoCaixa();
   if(aba==='recClientes') renderClientes();
   if(aba==='recHistorico') renderHistorico();
+  if(aba==='lojaVender') renderLojaVender(true);
+  if(aba==='lojaVendas') renderLojaVendas();
+  if(aba==='lojaProdutos') renderProdutos();
+  if(aba==='lojaBalanco') renderBalancoLoja();
   atualizarSinoPonto();
   document.body.classList.remove('menu-aberto');   /* no celular, fecha a gaveta */
   window.scrollTo(0, 0);
@@ -7456,6 +7813,12 @@ const FORMAS_RECEBIMENTO = [
 /* Modalidades que são dinheiro de verdade entrando no caixa. */
 const FORMAS_EM_CAIXA = FORMAS_RECEBIMENTO.filter(f=> !f.naoEntraNoCaixa);
 
+/* As modalidades da loja e do suprimento são as mesmas do recebimento, menos o
+   Juros/Haver: ali o mercado abatia uma conta antiga com crédito que devia ao cliente,
+   e não existe equivalente para um maço de cigarro saindo do balcão nem para dinheiro
+   entrando avulso. Quem vende ou supre, recebe. */
+const FORMAS_VENDA = FORMAS_EM_CAIXA;
+
 /* Senff e alimentação eram modalidades separadas até 11/08/2026. Viraram cartão: no
    balcão é tudo a mesma máquina, e o que interessa é quanto passou em cartão. Como o
    cartão aceita várias linhas, débito, crédito, Senff e alimentação entram como cartões
@@ -7468,6 +7831,10 @@ function garantirBaseRecebimentos(){
   if(!Array.isArray(state.recebimentos)) state.recebimentos = [];
   if(!Array.isArray(state.retiradas)) state.retiradas = [];
   if(!Array.isArray(state.aberturas)) state.aberturas = [];
+  /* Loja do escritório e entradas avulsas: mesmas garantias, mesma área de caixa. */
+  if(!Array.isArray(state.produtos)) state.produtos = [];
+  if(!Array.isArray(state.vendas)) state.vendas = [];
+  if(!Array.isArray(state.suprimentos)) state.suprimentos = [];
   if(!state.caixaDia) state.caixaDia = hojeISO();
   if(!state.recHisForma) state.recHisForma = 'todas';
 }
@@ -7508,7 +7875,12 @@ const CAIXA_TABELAS = {
   clientes:     {tabela:'caixa_clientes',     linha:(o)=> ({id:o.id, nome:o.nome||'', dados:o})},
   recebimentos: {tabela:'caixa_recebimentos', linha:(o)=> ({id:o.id, data:o.data||null, cliente_id:o.clienteId||null, dados:o})},
   retiradas:    {tabela:'caixa_retiradas',    linha:(o)=> ({id:o.id, data:o.data||null, dados:o})},
-  aberturas:    {tabela:'caixa_aberturas',    linha:(o)=> ({id:o.id, data:o.data||null, dados:o})}
+  aberturas:    {tabela:'caixa_aberturas',    linha:(o)=> ({id:o.id, data:o.data||null, dados:o})},
+  /* A loja e o suprimento entram pela mesma porta: linha própria por registro, para
+     dois computadores vendendo ao mesmo tempo não se apagarem. */
+  produtos:     {tabela:'caixa_produtos',     linha:(o)=> ({id:o.id, nome:o.nome||'', categoria:o.categoria||'', dados:o})},
+  vendas:       {tabela:'caixa_vendas',       linha:(o)=> ({id:o.id, data:o.data||null, dados:o})},
+  suprimentos:  {tabela:'caixa_suprimentos',  linha:(o)=> ({id:o.id, data:o.data||null, dados:o})}
 };
 /* Passando deste valor devido — mais de R$ 500, não exatamente R$ 500 — o cliente sai
    com a linha inteira vermelha na aba Clientes e a marca ANALISAR DÉBITOS DO CLIENTE:
@@ -7519,6 +7891,12 @@ const LS_FILA_CAIXA = 'rh_caixa_fila';
 let caixaFila = [];            /* gravações que ainda não chegaram ao banco */
 let caixaEscoando = false;
 let caixaLendo = false;
+/* Só depois da primeira leitura das tabelas caixa_* o sistema sabe de verdade o que já
+   foi lançado no dia. Antes disso `state.aberturas` está vazio — não porque o dia esteja
+   sem abertura, mas porque essa chave não vem no estado do RH (ela mora em tabela
+   própria). Perguntar a abertura nessa janela é o que fazia o modal aparecer toda vez
+   que o sistema abria, mesmo com o caixa já aberto. */
+let caixaCarregado = false;
 let caixaTimerLeitura = null;
 let caixaCanal = null;
 
@@ -7587,7 +7965,8 @@ async function apagarDoCaixa(tipo, id){
 }
 
 function assinaturaCaixa(){
-  return JSON.stringify([state.clientes, state.recebimentos, state.retiradas, state.aberturas]);
+  return JSON.stringify([state.clientes, state.recebimentos, state.retiradas, state.aberturas,
+                         state.produtos, state.vendas, state.suprimentos]);
 }
 
 function renderCaixaAtual(){
@@ -7603,10 +7982,23 @@ function renderCaixaAtual(){
     renderUltimosRec();
   }
   if(state.abaAtual === 'recRetirada')  renderRetiradas();
+  if(state.abaAtual === 'recSuprimento') renderSuprimentos();
   if(state.abaAtual === 'recLancamentos') renderLancamentos();
   if(state.abaAtual === 'recBalanco')     renderBalancoCaixa();
   if(state.abaAtual === 'recClientes')  renderClientes();
   if(state.abaAtual === 'recHistorico') renderHistorico();
+  /* Na tela de venda vale a mesma ressalva da tela de lançar: redesenhar tudo apagaria
+     o carrinho e a data no meio da digitação. Só o que depende dos dados é refeito. */
+  if(state.abaAtual === 'lojaVender'){
+    const barra = document.getElementById('venDia');
+    if(barra) barra.innerHTML = htmlSeletorDia();
+    const campoData = document.getElementById('venData');
+    if(campoData && !venEditandoId) campoData.value = state.caixaDia || hojeISO();
+    renderUltimasVendas();
+  }
+  if(state.abaAtual === 'lojaVendas')   renderLojaVendas();
+  if(state.abaAtual === 'lojaProdutos') renderProdutos();
+  if(state.abaAtual === 'lojaBalanco')  renderBalancoLoja();
   atualizarAvisosData();
   if(typeof atualizarFichaRec === 'function' && state.abaAtual === 'recLancar') atualizarFichaRec();
 }
@@ -7627,10 +8019,15 @@ async function carregarCaixa(avisar){
     });
     unificarCartoesAntigos();
     gravarCache();
+    const primeira = !caixaCarregado;
+    caixaCarregado = true;
     if(antes !== assinaturaCaixa()){
       renderCaixaAtual();
       if(avisar) mostrarToast('Caixa atualizado com lançamento de outro computador');
     }
+    /* Agora sim dá para saber se o dia está sem abertura. Se a tela aberta é de
+       lançamento, o pedido sai daqui — depois de ler o banco, não antes. */
+    if(primeira) pedirAberturaDoDia(state.caixaDia || hojeISO());
   }catch(e){
     nuvemErro = e.message || String(e);
   }finally{
@@ -7881,28 +8278,68 @@ function resumoFormas(r){
 
 function recebimentosDoDia(iso){ return (state.recebimentos||[]).filter(r=> String(r.data||'') === iso); }
 function retiradasDoDia(iso){ return (state.retiradas||[]).filter(r=> String(r.data||'') === iso); }
+function vendasDoDia(iso){ return (state.vendas||[]).filter(v=> String(v.data||'') === iso); }
+function suprimentosDoDia(iso){ return (state.suprimentos||[]).filter(s=> String(s.data||'') === iso); }
 function aberturaDoDia(iso){ return (state.aberturas||[]).find(a=> a.id === iso) || null; }
 
+/* Fechamento do dia com TRÊS origens de entrada, e uma só gaveta:
+     • recebimento — o cliente pagando a conta dele;
+     • venda       — o produto da loja saindo do balcão;
+     • suprimento  — dinheiro que entrou sem ser nem uma coisa nem outra.
+   Os campos `porForma` e `entrou` são o CONSOLIDADO das três, porque é isso que a
+   pessoa confere contra o dinheiro físico no fim do dia. Quem precisa de uma origem
+   isolada — a tabela de recebimentos, o balanço da loja — usa os campos com sufixo
+   (`porFormaRec`, `entrouVen`, e assim por diante). */
 function totaisDoDia(iso){
   const rec = recebimentosDoDia(iso);
   const ret = retiradasDoDia(iso);
-  const porForma = {};
-  FORMAS_RECEBIMENTO.forEach(f=> porForma[f.chave] = 0);
-  let entrou = 0, contas = 0, quitado = 0, haver = 0;
+  const ven = vendasDoDia(iso);
+  const sup = suprimentosDoDia(iso);
+
+  const zerado = ()=>{ const o = {}; FORMAS_RECEBIMENTO.forEach(f=> o[f.chave] = 0); return o; };
+  const porFormaRec = zerado(), porFormaVen = zerado(), porFormaSup = zerado(), porForma = zerado();
+
+  let entrouRec = 0, contas = 0, quitado = 0, haver = 0;
   rec.forEach(r=>{
-    FORMAS_RECEBIMENTO.forEach(f=> porForma[f.chave] += toNum(r[f.chave]));
-    entrou  += entradaEmCaixa(r);      /* dinheiro que entrou de verdade */
-    quitado += pagoDoRecebimento(r);   /* o que as contas deixaram de dever */
-    haver   += haverDoRecebimento(r);
-    contas  += toNum(r.total);
+    FORMAS_RECEBIMENTO.forEach(f=> porFormaRec[f.chave] += toNum(r[f.chave]));
+    entrouRec += entradaEmCaixa(r);     /* dinheiro que entrou de verdade */
+    quitado   += pagoDoRecebimento(r);  /* o que as contas deixaram de dever */
+    haver     += haverDoRecebimento(r);
+    contas    += toNum(r.total);
   });
-  FORMAS_RECEBIMENTO.forEach(f=> porForma[f.chave] = r2(porForma[f.chave]));
+
+  let entrouVen = 0, vendido = 0, itensVendidos = 0;
+  ven.forEach(v=>{
+    FORMAS_VENDA.forEach(f=> porFormaVen[f.chave] += toNum(v[f.chave]));
+    entrouVen += entradaEmCaixa(v);
+    vendido   += toNum(v.total);
+    itensVendidos += itensDaVenda(v).reduce((s,i)=> s + toNum(i.qtd), 0);
+  });
+
+  let entrouSup = 0;
+  sup.forEach(s=>{
+    const f = (s.forma && (s.forma in porFormaSup)) ? s.forma : 'dinheiro';
+    porFormaSup[f] += toNum(s.valor);
+    entrouSup += toNum(s.valor);
+  });
+
+  FORMAS_RECEBIMENTO.forEach(f=>{
+    porFormaRec[f.chave] = r2(porFormaRec[f.chave]);
+    porFormaVen[f.chave] = r2(porFormaVen[f.chave]);
+    porFormaSup[f.chave] = r2(porFormaSup[f.chave]);
+    porForma[f.chave] = r2(porFormaRec[f.chave] + porFormaVen[f.chave] + porFormaSup[f.chave]);
+  });
+
   const saiu = somaRetiradas(ret);
   const ab = aberturaDoDia(iso);
   const inicial = ab ? r2(toNum(ab.valor)) : 0;
+  const entrou = r2(entrouRec + entrouVen + entrouSup);
   return {
-    iso, rec, ret, porForma, abertura: ab, inicial,
-    entrou: r2(entrou), quitado: r2(quitado), haver: r2(haver), contas: r2(contas), saiu,
+    iso, rec, ret, ven, sup, abertura: ab, inicial,
+    porForma, porFormaRec, porFormaVen, porFormaSup,
+    entrou, entrouRec: r2(entrouRec), entrouVen: r2(entrouVen), entrouSup: r2(entrouSup),
+    quitado: r2(quitado), haver: r2(haver), contas: r2(contas),
+    vendido: r2(vendido), itensVendidos: r2(itensVendidos), saiu,
     sobrou: r2(entrou - saiu),
     dinheiroFinal: r2(inicial + porForma.dinheiro - saiu)   /* o que tem que estar na gaveta */
   };
@@ -8011,8 +8448,12 @@ function pintarAvisoData(idCaixa, idTexto, iso, editando){
 function atualizarAvisosData(){
   const rec = document.getElementById('recData');
   const ret = document.getElementById('retData');
+  const sup = document.getElementById('supData');
+  const ven = document.getElementById('venData');
   if(rec) pintarAvisoData('recAvisoData', 'recAvisoDataTxt', rec.value, !!recEditandoId);
   if(ret) pintarAvisoData('retAvisoData', 'retAvisoDataTxt', ret.value, !!retEditandoId);
+  if(sup) pintarAvisoData('supAvisoData', 'supAvisoDataTxt', sup.value, !!supEditandoId);
+  if(ven) pintarAvisoData('venAvisoData', 'venAvisoDataTxt', ven.value, !!venEditandoId);
 }
 document.addEventListener('change', (e)=>{
   if(e.target && e.target.classList && e.target.classList.contains('caixa-dia')) trocarDiaCaixa(e.target.value);
@@ -8068,8 +8509,9 @@ function abrirModalAbertura(iso, aoConfirmar){
     ? 'No último dia com movimento (' + dataBR(anterior.iso) + ') o caixa devia fechar com <b>' +
       fmtMoeda(anterior.dinheiroFinal) + '</b> em espécie. <button type="button" class="btn-link-dica" id="btnUsarSugestao">usar esse valor</button>'
     : 'Primeiro dia com movimento — informe o valor que está na gaveta.';
-  document.getElementById('abResumo').textContent = (t.rec.length || t.ret.length)
-    ? 'Este dia já tem ' + t.rec.length + ' recebimento(s) e ' + t.ret.length + ' retirada(s) lançados.'
+  document.getElementById('abResumo').textContent = (t.rec.length || t.ret.length || t.ven.length || t.sup.length)
+    ? 'Este dia já tem ' + t.rec.length + ' recebimento(s), ' + t.ven.length + ' venda(s), ' +
+      t.sup.length + ' suprimento(s) e ' + t.ret.length + ' retirada(s) lançados.'
     : '';
   aberturaCallback = aoConfirmar || null;
   document.getElementById('overlayAbertura').classList.add('show');
@@ -8080,7 +8522,7 @@ let aberturaCallback = null;
 /* Sugestão: o que o dia anterior com movimento deveria ter deixado na gaveta. */
 function aberturaAnteriorSugerida(iso){
   const dias = Array.from(new Set(
-    (state.recebimentos||[]).concat(state.retiradas||[]).map(x=> String(x.data||'')).filter(Boolean)
+    movimentoDoCaixa().map(x=> String(x.data||'')).filter(Boolean)
   )).filter(d=> d < iso).sort();
   if(!dias.length) return null;
   const t = totaisDoDia(dias[dias.length-1]);
@@ -8491,7 +8933,26 @@ function limparFormRec(manterCliente){
   atualizarFichaRec();
 }
 
+/* Começou o dia e ninguém informou o que tinha na gaveta: o sistema pergunta antes do
+   primeiro lançamento. Uma vez por dia em cada sessão — se a pessoa adiar, o pedido
+   volta na hora de gravar, que é quando não dá mais para pular.
+
+   Três condições, e as três importam:
+   • `caixaCarregado` — sem a leitura do banco não se sabe se o dia tem abertura, e
+     perguntar aí é chatear quem já abriu o caixa de manhã;
+   • `aberturaDoDia` — dia já aberto não se pergunta mais;
+   • `aberturaPerguntada` — quem disse "agora não" não é perguntado de novo na sessão.
+   As telas de recebimento e de venda dividem o mesmo controle: é um caixa só, e não faz
+   sentido pedir a abertura duas vezes só porque o operador trocou de aba. */
 const aberturaPerguntada = {};
+function pedirAberturaDoDia(dia){
+  if(state.abaAtual !== 'recLancar' && state.abaAtual !== 'lojaVender') return;
+  if(!caixaCarregado || !dia) return;
+  if(aberturaDoDia(dia) || aberturaPerguntada[dia]) return;
+  aberturaPerguntada[dia] = true;
+  setTimeout(()=> abrirModalAbertura(dia), 250);
+}
+
 /* `entrando` é true quando a tela está sendo ABERTA (vem do menu). Aí o dia volta para
    hoje — ver "O DIA DE TRABALHO É HOJE". Nas redesenhadas por dado novo vindo do banco
    ele fica como está: quem escolheu lançar em outro dia não pode ser puxado de volta no
@@ -8505,13 +8966,7 @@ function renderRecLancar(entrando){
   atualizarAvisosData();
   atualizarFichaRec();
   renderUltimosRec();
-  /* Começou o dia e ninguém informou o que tinha na gaveta: pergunta antes do primeiro
-     recebimento. Pergunta uma vez por dia em cada sessão — se a pessoa adiar, o pedido
-     volta na hora de gravar o lançamento, que é quando não dá mais para pular. */
-  if(!aberturaDoDia(dia) && !aberturaPerguntada[dia]){
-    aberturaPerguntada[dia] = true;
-    setTimeout(()=> abrirModalAbertura(dia), 250);
-  }
+  pedirAberturaDoDia(dia);
 }
 
 /* A lista embaixo do formulário é a fila de trabalho: só o que ainda não foi lançado no
@@ -8713,6 +9168,14 @@ document.addEventListener('click', (e)=>{
   if(bRE){ editarRetirada(bRE.dataset.editarRet); return; }
   const bRX = e.target.closest('button[data-excluir-ret]');
   if(bRX){ excluirRetirada(bRX.dataset.excluirRet); return; }
+  const bSE = e.target.closest('button[data-editar-sup]');
+  if(bSE){ editarSuprimento(bSE.dataset.editarSup); return; }
+  const bSX = e.target.closest('button[data-excluir-sup]');
+  if(bSX){ excluirSuprimento(bSX.dataset.excluirSup); return; }
+  const bVE = e.target.closest('button[data-editar-ven]');
+  if(bVE){ editarVenda(bVE.dataset.editarVen); return; }
+  const bVX = e.target.closest('button[data-excluir-ven]');
+  if(bVX){ excluirVenda(bVX.dataset.excluirVen); return; }
 });
 
 document.getElementById('btnRecSalvar').addEventListener('click', salvarRecebimento);
@@ -8899,6 +9362,194 @@ document.getElementById('retValor').addEventListener('keydown', (e)=>{
 });
 document.getElementById('retMotivo').addEventListener('keydown', (e)=>{
   if(e.key==='Enter'){ e.preventDefault(); document.getElementById('retValor').focus(); }
+});
+
+/* --------------------------------------------------------------- suprimento de caixa
+   O contrário exato da retirada: dinheiro ENTRANDO no caixa sem ser venda da loja nem
+   conta de cliente. É o troco trazido do banco, o cheque que compensou, o reembolso de
+   uma despesa que tinha saído daqui, a sobra de outro caixa. Sem esta tela esse dinheiro
+   aparecia na gaveta sem origem e o fechamento acusava sobra sem explicação.
+
+   Diferente da retirada — que é sempre em espécie, porque é assim que se paga daqui —,
+   o suprimento entra na modalidade em que chegou: o cheque descontado entra em cheque, o
+   pix devolvido entra em pix. Só o que entra em DINHEIRO muda o que tem que estar na
+   gaveta no fim do dia. */
+let supEditandoId = null;
+
+function suprimentosDoMes(mes){
+  return (state.suprimentos||[]).filter(x=> String(x.data||'').slice(0,7) === mes);
+}
+function somaSuprimentos(lista){
+  return r2((lista||[]).reduce((s,x)=> s + toNum(x.valor), 0));
+}
+function formaLabel(chave){
+  const f = FORMAS_RECEBIMENTO.find(x=> x.chave === chave);
+  return f ? f.rotulo : (chave || '—');
+}
+function formaDoSuprimento(s){
+  const c = s && s.forma;
+  return FORMAS_VENDA.some(f=> f.chave === c) ? c : 'dinheiro';
+}
+
+/* O select das modalidades sai da mesma lista de sempre: entrar uma forma nova ali em
+   cima e ela aparece aqui sozinha. */
+function montarSelectFormaSup(){
+  const sel = document.getElementById('supForma');
+  if(!sel || sel.options.length) return;
+  sel.innerHTML = FORMAS_VENDA.map(f=> '<option value="'+f.chave+'">'+f.rotulo+'</option>').join('');
+}
+
+function limparFormSup(){
+  supEditandoId = null;
+  document.getElementById('supEditandoAviso').classList.remove('show');
+  document.getElementById('btnSupSalvar').textContent = 'Registrar entrada';
+  document.getElementById('supOrigem').value = '';
+  document.getElementById('supValor').value = '';
+  document.getElementById('supObs').value = '';
+  document.getElementById('supForma').value = 'dinheiro';
+  document.getElementById('supData').value = state.caixaDia || hojeISO();
+  document.getElementById('supAviso').textContent = '';
+  atualizarAvisosData();
+}
+
+/* `entrando` é true quando a tela é aberta pelo menu — ver "O DIA DE TRABALHO É HOJE". */
+function renderSuprimentos(entrando){
+  garantirBaseRecebimentos();
+  montarSelectFormaSup();
+  if(entrando && !supEditandoId) diaDeLancamento();
+  if(!supEditandoId) document.getElementById('supData').value = state.caixaDia || hojeISO();
+  document.getElementById('supDia').innerHTML = htmlSeletorDia();
+  atualizarAvisosData();
+  renderUltimosSup();
+}
+
+function renderUltimosSup(){
+  const caixa = document.getElementById('supUltimos');
+  const dia = state.caixaDia || hojeISO();
+  const lista = suprimentosDoDia(dia).slice()
+    .sort((a,b)=> String(b.criadoEm||'').localeCompare(String(a.criadoEm||'')));
+
+  if(!lista.length){
+    caixa.innerHTML = '<h3>Entradas avulsas de ' + dataBR(dia) + '</h3>' +
+      '<div class="rec-vazio">Nenhuma entrada avulsa registrada neste dia.</div>';
+    return;
+  }
+  const emDinheiro = r2(lista.filter(x=> formaDoSuprimento(x)==='dinheiro')
+    .reduce((s,x)=> s + toNum(x.valor), 0));
+  caixa.innerHTML = '<h3>Entradas avulsas de ' + dataBR(dia) + '</h3>' +
+    '<div class="rec-mini" style="margin:-6px 0 10px;">Entraram ' + fmtMoeda(somaSuprimentos(lista)) +
+      ' no caixa neste dia, em ' + lista.length + ' lançamento(s)' +
+      (emDinheiro ? ' — ' + fmtMoeda(emDinheiro) + ' em espécie, que soma na gaveta.' : '.') + '</div>' +
+    '<table class="tabela-ponto"><thead><tr>' +
+    '<th class="esq">Data / hora</th><th class="esq">Origem</th><th>Valor</th><th class="esq">Entrou em</th>' +
+    '<th class="esq">Registrada por</th><th></th></tr></thead><tbody>' +
+    lista.map(x=>
+      '<tr>' +
+      celulaDataHora(x.data, x.criadoEm) +
+      '<td class="esq"><span class="rec-cli-nome">'+escHtml(x.origem)+'</span>' +
+        (x.obs ? '<div class="rec-mini">'+escHtml(x.obs)+'</div>' : '') + '</td>' +
+      '<td class="cel-ok">'+fmtMoeda(toNum(x.valor))+'</td>' +
+      '<td class="esq rec-mini">'+escHtml(formaLabel(formaDoSuprimento(x)))+'</td>' +
+      '<td class="esq rec-mini">'+escHtml(x.usuario||'—')+'</td>' +
+      '<td><div class="rec-acoes-linha">' +
+        '<button class="btn btn-outline btn-sm" data-editar-sup="'+x.id+'">Editar</button>' +
+        '<button class="btn btn-vermelho btn-sm" data-excluir-sup="'+x.id+'">Excluir</button>' +
+      '</div></td></tr>'
+    ).join('') + '</tbody></table>';
+}
+
+function salvarSuprimento(){
+  garantirBaseRecebimentos();
+  const aviso = document.getElementById('supAviso');
+  const origem = document.getElementById('supOrigem').value.trim();
+  const valor = r2(toNum(document.getElementById('supValor').value));
+
+  if(!origem){ aviso.textContent = 'Informe de onde veio o dinheiro.'; document.getElementById('supOrigem').focus(); return; }
+  if(valor <= 0){ aviso.textContent = 'Informe o valor que entrou.'; document.getElementById('supValor').focus(); return; }
+  aviso.textContent = '';
+
+  const diaSup = document.getElementById('supData').value || hojeISO();
+  const supOriginal = supEditandoId ? (state.suprimentos||[]).find(r=> r.id===supEditandoId) : null;
+  if((!supOriginal || String(supOriginal.data||'') !== diaSup) &&
+     !confirmarDataForaDeHoje(diaSup, 'suprimento de caixa')) return;
+
+  const dados = {
+    data: diaSup,
+    valor: valor,
+    origem: origem,
+    forma: document.getElementById('supForma').value || 'dinheiro',
+    obs: document.getElementById('supObs').value.trim()
+  };
+
+  if(supEditandoId){
+    const x = (state.suprimentos||[]).find(r=> r.id===supEditandoId);
+    if(!x){ mostrarToast('A entrada não existe mais'); limparFormSup(); return; }
+    Object.assign(x, dados, { alteradoEm: new Date().toISOString() });
+    salvarNoCaixa('suprimentos', x);
+    mostrarToast('Entrada avulsa corrigida');
+  }else{
+    const nova = Object.assign({
+      id: novoIdRec('u_'),
+      criadoEm: new Date().toISOString(),
+      usuario: document.getElementById('usuarioLogado').textContent || ''
+    }, dados);
+    state.suprimentos.push(nova);
+    salvarNoCaixa('suprimentos', nova);
+    mostrarToast('Entrada de ' + fmtMoeda(valor) + ' em ' + formaLabel(dados.forma).toLowerCase() + ' registrada');
+  }
+
+  limparFormSup();
+  renderUltimosSup();
+  if(state.abaAtual === 'recHistorico') renderHistorico();
+  document.getElementById('supOrigem').focus();
+}
+
+function editarSuprimento(id){
+  const x = (state.suprimentos||[]).find(r=> r.id===id);
+  if(!x) return;
+  supEditandoId = id;                 /* antes de abrir a tela — ver editarRecebimento */
+  trocarAba('recSuprimento');
+  document.getElementById('supOrigem').value = x.origem || '';
+  document.getElementById('supData').value = x.data || hojeISO();
+  document.getElementById('supValor').value = toNum(x.valor) ? toNum(x.valor).toFixed(2).replace('.',',') : '';
+  document.getElementById('supForma').value = formaDoSuprimento(x);
+  document.getElementById('supObs').value = x.obs || '';
+  document.getElementById('supEditandoTxt').textContent =
+    'Corrigindo a entrada de ' + fmtMoeda(toNum(x.valor)) + ' de ' + dataBR(x.data) + '.';
+  document.getElementById('supEditandoAviso').classList.add('show');
+  document.getElementById('btnSupSalvar').textContent = 'Salvar alteração';
+  window.scrollTo(0,0);
+}
+
+function excluirSuprimento(id){
+  const x = (state.suprimentos||[]).find(r=> r.id===id);
+  if(!x) return;
+  if(!confirm('Excluir a entrada de ' + fmtMoeda(toNum(x.valor)) + ' de ' + dataBR(x.data) + '?\n\n' +
+    'Origem: ' + x.origem)) return;
+  state.suprimentos = (state.suprimentos||[]).filter(r=> r.id!==id);
+  if(supEditandoId === id) limparFormSup();
+  apagarDoCaixa('suprimentos', id);
+  renderUltimosSup();
+  if(state.abaAtual === 'recHistorico') renderHistorico();
+  mostrarToast('Entrada avulsa excluída');
+}
+
+document.getElementById('btnSupSalvar').addEventListener('click', salvarSuprimento);
+document.getElementById('btnSupLimpar').addEventListener('click', ()=> limparFormSup());
+document.getElementById('btnSupCancelarEdicao').addEventListener('click', ()=>{
+  limparFormSup();
+  mostrarToast('Edição cancelada');
+});
+document.getElementById('supData').addEventListener('change', (e)=>{
+  if(supEditandoId) return;
+  trocarDiaCaixa(e.target.value);
+  atualizarAvisosData();
+});
+document.getElementById('supOrigem').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter'){ e.preventDefault(); document.getElementById('supValor').focus(); }
+});
+document.getElementById('supValor').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter'){ e.preventDefault(); salvarSuprimento(); }
 });
 
 /* --------------------------------------------------------------- tela de lançamentos
@@ -9178,10 +9829,20 @@ function mesPadraoCaixa(chave, guardado){
   return meses.indexOf(atual) >= 0 ? atual : meses[0];
 }
 
+/* Todo registro que mexe no caixa do dia, de qualquer das quatro origens. É a lista de
+   onde saem os meses e os dias com movimento — se uma origem ficar de fora daqui, o dia
+   dela some dos seletores e do balanço. */
+function movimentoDoCaixa(){
+  return (state.recebimentos||[])
+    .concat(state.retiradas||[])
+    .concat(state.vendas||[])
+    .concat(state.suprimentos||[]);
+}
+
 /* Meses que têm movimento de caixa — entrada ou retirada — mais o mês corrente. */
 function mesesComRecebimento(){
   const set = {};
-  (state.recebimentos||[]).concat(state.retiradas||[]).forEach(x=>{
+  movimentoDoCaixa().forEach(x=>{
     const m = String(x.data||'').slice(0,7);
     if(m) set[m] = true;
   });
@@ -9213,6 +9874,54 @@ function htmlRetiradasDoMes(retMes, mes){
     '</tbody></table></div>';
 }
 
+/* As vendas da loja no relatório do dia: só a conferência, sem editar. Corrigir uma
+   venda é na Loja ▸ Vendas do Dia, que é onde estão os botões. */
+function htmlVendasDoDia(ven, dia){
+  if(!ven.length) return '';
+  const total = r2(ven.reduce((s,v)=> s + toNum(v.total), 0));
+  const ordenadas = ven.slice().sort((a,b)=> String(a.criadoEm||'').localeCompare(String(b.criadoEm||'')));
+  return '<div class="rec-bloco"><h3>Vendas da loja em ' + dataBR(dia) + '</h3>' +
+    '<div class="rec-mini" style="margin:-6px 0 10px;">Estas vendas entram no mesmo caixa e já estão somadas ' +
+      'nos totais acima. O detalhe por produto está em Loja do Escritório ▸ Vendas do Dia.</div>' +
+    '<table class="tabela-ponto"><thead><tr>' +
+    '<th class="esq">Data / hora</th><th class="esq">Produtos</th><th>Total</th>' +
+    FORMAS_VENDA.map(f=> '<th>'+f.rotulo+'</th>').join('') +
+    '<th class="esq">Registrada por</th></tr></thead><tbody>' +
+    ordenadas.map(v=>
+      '<tr>' + celulaDataHora(v.data, v.criadoEm) +
+      '<td class="esq"><span class="rec-cli-nome">'+escHtml(resumoItensVenda(v))+'</span>' +
+        (v.obs ? '<div class="rec-mini">'+escHtml(v.obs)+'</div>' : '') + '</td>' +
+      '<td><b>'+fmtMoeda(toNum(v.total))+'</b></td>' +
+      FORMAS_VENDA.map(f=> '<td>'+(toNum(v[f.chave]) ? fmtMoeda(toNum(v[f.chave])) : '—')+'</td>').join('') +
+      '<td class="esq rec-mini">'+escHtml(v.usuario||'—')+'</td></tr>'
+    ).join('') +
+    '<tr><td class="esq"><b>TOTAL VENDIDO</b></td><td class="esq"></td>' +
+    '<td><b>'+fmtMoeda(total)+'</b></td>' +
+    FORMAS_VENDA.map(f=> '<td><b>'+fmtMoeda(r2(ven.reduce((s,v)=> s + toNum(v[f.chave]), 0)))+'</b></td>').join('') +
+    '<td></td></tr></tbody></table></div>';
+}
+
+/* As entradas avulsas do dia — o dinheiro que entrou sem ser venda nem conta. */
+function htmlSuprimentosDoDia(sup, dia){
+  if(!sup.length) return '';
+  const ordenados = sup.slice().sort((a,b)=> String(a.criadoEm||'').localeCompare(String(b.criadoEm||'')));
+  return '<div class="rec-bloco"><h3>Entradas avulsas em ' + dataBR(dia) + '</h3>' +
+    '<table class="tabela-ponto"><thead><tr>' +
+    '<th class="esq">Data / hora</th><th class="esq">Origem</th><th>Valor</th><th class="esq">Entrou em</th>' +
+    '<th class="esq">Registrada por</th></tr></thead><tbody>' +
+    ordenados.map(x=>
+      '<tr>' + celulaDataHora(x.data, x.criadoEm) +
+      '<td class="esq"><span class="rec-cli-nome">'+escHtml(x.origem)+'</span>' +
+        (x.obs ? '<div class="rec-mini">'+escHtml(x.obs)+'</div>' : '') + '</td>' +
+      '<td class="cel-ok">'+fmtMoeda(toNum(x.valor))+'</td>' +
+      '<td class="esq rec-mini">'+escHtml(formaLabel(formaDoSuprimento(x)))+'</td>' +
+      '<td class="esq rec-mini">'+escHtml(x.usuario||'—')+'</td></tr>'
+    ).join('') +
+    '<tr><td class="esq"><b>TOTAL QUE ENTROU</b></td><td class="esq"></td>' +
+    '<td class="cel-ok"><b>'+fmtMoeda(somaSuprimentos(sup))+'</b></td><td></td><td></td></tr>' +
+    '</tbody></table></div>';
+}
+
 function renderHistorico(){
   garantirBaseRecebimentos();
   const mes = state.caixaDia || hojeISO();          /* aqui "mes" é o DIA de trabalho */
@@ -9221,7 +9930,12 @@ function renderHistorico(){
   document.getElementById('hisDia').innerHTML = htmlSeletorDia();
 
   /* O relatório é do dia: quanto entrou, por qual forma, quanto saiu e quanto tem que
-     estar na gaveta no fechamento. O acumulado do mês é o Balanço Mensal. */
+     estar na gaveta no fechamento. O acumulado do mês é o Balanço Mensal.
+
+     Os totais aqui são o CONSOLIDADO das três origens de entrada — recebimento de conta,
+     venda da loja e entrada avulsa —, porque é uma gaveta só e é ela que se confere no
+     fim do dia. A tabela de baixo continua listando os recebimentos; venda e suprimento
+     têm o bloco deles logo abaixo. */
   const t = totaisDoDia(mes);
   const doMes = t.rec;
   const porForma = t.porForma;
@@ -9231,13 +9945,22 @@ function renderHistorico(){
   const saiu = t.saiu;
   const sobrou = t.sobrou;
 
-  /* Fechamento em espécie: é a conta que evita o furo no fim do dia. */
+  /* Fechamento em espécie: é a conta que evita o furo no fim do dia. Cada origem entra
+     com a linha dela — quem sobrou com furo tem que conseguir ver de onde veio. */
   document.getElementById('hisFechamento').innerHTML =
     '<div class="fechamento"><h3>Fechamento do dia — ' + diaPorExtenso(mes) + '</h3>' +
       '<div class="fc-linha"><span>Abertura (dinheiro na gaveta)</span><b>' +
         (t.abertura ? fmtMoeda(t.inicial)
                     : '<span style="color:var(--vermelho);">não informada</span>') + '</b></div>' +
-      '<div class="fc-linha"><span>+ Recebido em dinheiro</span><b>'+fmtMoeda(porForma.dinheiro)+'</b></div>' +
+      '<div class="fc-linha"><span>+ Recebido de clientes em dinheiro</span><b>'+fmtMoeda(t.porFormaRec.dinheiro)+'</b></div>' +
+      (t.ven.length
+        ? '<div class="fc-linha"><span>+ Vendas da loja em dinheiro <span class="rec-mini">(' +
+          t.ven.length + ' venda(s))</span></span><b>'+fmtMoeda(t.porFormaVen.dinheiro)+'</b></div>'
+        : '') +
+      (t.sup.length
+        ? '<div class="fc-linha"><span>+ Entradas avulsas em dinheiro <span class="rec-mini">(' +
+          t.sup.length + ' lançamento(s))</span></span><b>'+fmtMoeda(t.porFormaSup.dinheiro)+'</b></div>'
+        : '') +
       '<div class="fc-linha"><span>− Retiradas do dia</span><b>'+fmtMoeda(saiu)+'</b></div>' +
       '<div class="fc-total"><span class="fc-rot">Deve ter na gaveta</span>' +
         '<span class="fc-val">'+fmtMoeda(t.dinheiroFinal)+'</span></div>' +
@@ -9254,17 +9977,28 @@ function renderHistorico(){
      clicado, deixa na tela só os lançamentos que a usaram — é assim que se confere o
      dinheiro físico da gaveta, os comprovantes de cartão e os cheques. */
   const formaSel = state.recHisForma || 'todas';
+  const totalLancamentos = doMes.length + t.ven.length + t.sup.length;
   document.getElementById('hisFormas').innerHTML =
     '<button type="button" class="btn-forma'+(formaSel==='todas'?' ativa':'')+'" data-forma-btn="todas">' +
       '<div class="bf-rot"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/></svg>Tudo</div>' +
       '<div class="bf-val">'+fmtMoeda(r2(recebido))+'</div>' +
-      '<div class="bf-sub">'+doMes.length+' lançamento(s) no dia</div></button>' +
+      '<div class="bf-sub">'+totalLancamentos+' lançamento(s) no dia</div></button>' +
     FORMAS_RECEBIMENTO.map(f=>{
-      const qtd = doMes.filter(r=> toNum(r[f.chave]) > 0).length;
+      /* O botão soma as três origens: é o número que se compara com o dinheiro físico,
+         com os comprovantes da maquininha e com o extrato. A linha de baixo diz de onde
+         ele veio, para quem precisa rastrear uma diferença. */
+      const qtdRec = doMes.filter(r=> toNum(r[f.chave]) > 0).length;
+      const qtdVen = t.ven.filter(v=> toNum(v[f.chave]) > 0).length;
+      const qtdSup = t.sup.filter(s=> formaDoSuprimento(s) === f.chave).length;
+      const partes = [];
+      if(qtdRec) partes.push(qtdRec + ' conta(s)');
+      if(qtdVen) partes.push(qtdVen + ' venda(s)');
+      if(qtdSup) partes.push(qtdSup + ' avulsa(s)');
       return '<button type="button" class="btn-forma'+(formaSel===f.chave?' ativa':'')+'" data-forma-btn="'+f.chave+'">' +
         '<div class="bf-rot"><svg viewBox="0 0 24 24">'+f.icone+'</svg>'+f.rotulo+'</div>' +
         '<div class="bf-val">'+fmtMoeda(r2(porForma[f.chave]))+'</div>' +
-        '<div class="bf-sub">'+ (f.naoEntraNoCaixa ? 'não soma no caixa · ' : '') + qtd+' lançamento(s)</div></button>';
+        '<div class="bf-sub">'+ (f.naoEntraNoCaixa ? 'não soma no caixa · ' : '') +
+          (partes.length ? partes.join(' · ') : 'sem movimento') + '</div></button>';
     }).join('');
 
   /* Escolhida uma forma, a faixa de conferência mostra o número redondo para bater com
@@ -9275,7 +10009,9 @@ function renderHistorico(){
   }else{
     const f = FORMAS_RECEBIMENTO.find(x=> x.chave === formaSel);
     const valor = r2(porForma[formaSel]);
-    const qtd = doMes.filter(r=> toNum(r[formaSel]) > 0).length;
+    const qtd = doMes.filter(r=> toNum(r[formaSel]) > 0).length +
+                t.ven.filter(v=> toNum(v[formaSel]) > 0).length +
+                t.sup.filter(s=> formaDoSuprimento(s) === formaSel).length;
     const notas = {
       dinheiro: 'Confira com as cédulas e moedas da gaveta. Descontando as retiradas do dia (' +
                 fmtMoeda(saiu) + '), devem sobrar ' + fmtMoeda(r2(valor - saiu)) + ' em espécie.',
@@ -9292,12 +10028,22 @@ function renderHistorico(){
         (notas[formaSel] || '') + '</div></div>';
   }
 
+  const origens = [];
+  if(t.entrouRec) origens.push(fmtMoeda(t.entrouRec) + ' de contas');
+  if(t.entrouVen) origens.push(fmtMoeda(t.entrouVen) + ' da loja');
+  if(t.entrouSup) origens.push(fmtMoeda(t.entrouSup) + ' avulso');
   document.getElementById('hisKpis').innerHTML =
     '<div class="kpi kpi-ok"><div class="kpi-rot">Entrou no caixa</div><div class="kpi-val">'+fmtMoeda(r2(recebido))+'</div>' +
-      '<div class="kpi-sub">'+doMes.length+' lançamento(s) no dia</div></div>' +
+      '<div class="kpi-sub">'+ (origens.length > 1 ? origens.join(' · ')
+                                                   : totalLancamentos + ' lançamento(s) no dia') +'</div></div>' +
     '<div class="kpi '+(saiu>0?'kpi-critico':'')+'"><div class="kpi-rot">Saiu do caixa</div>' +
       '<div class="kpi-val">'+fmtMoeda(saiu)+'</div>' +
       '<div class="kpi-sub">'+retMes.length+' retirada(s) no dia</div></div>' +
+    (t.ven.length
+      ? '<div class="kpi kpi-info"><div class="kpi-rot">Vendido na loja</div>' +
+        '<div class="kpi-val">'+fmtMoeda(t.vendido)+'</div>' +
+        '<div class="kpi-sub">'+t.ven.length+' venda(s), '+t.itensVendidos+' peça(s)</div></div>'
+      : '') +
     '<div class="kpi '+(sobrou<0?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Sobrou em caixa</div>' +
       '<div class="kpi-val">'+fmtMoeda(sobrou)+'</div>' +
       '<div class="kpi-sub">entradas menos retiradas</div></div>' +
@@ -9308,7 +10054,7 @@ function renderHistorico(){
       return '<div class="kpi '+(emCaixa < 0 ? 'kpi-alerta' : 'kpi-info')+'">' +
         '<div class="kpi-rot">Dinheiro em caixa</div>' +
         '<div class="kpi-val">'+fmtMoeda(emCaixa)+'</div>' +
-        '<div class="kpi-sub">'+fmtMoeda(r2(porForma.dinheiro))+' recebido' +
+        '<div class="kpi-sub">'+fmtMoeda(r2(porForma.dinheiro))+' entrou em espécie' +
           (saiu > 0 ? ' menos '+fmtMoeda(saiu)+' retirado' : '') + '</div></div>';
     })() +
     '<div class="kpi '+(pendentesSg.length?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Pendente de baixa no SG</div>' +
@@ -9328,14 +10074,24 @@ function renderHistorico(){
                   String(b.criadoEm||'').localeCompare(String(a.criadoEm||'')));
 
   document.getElementById('hisInfo').textContent =
-    lista.length + ' de ' + doMes.length + ' lançamento(s) de ' + dataBR(mes) + ' na tela.';
+    lista.length + ' de ' + doMes.length + ' recebimento(s) de conta em ' + dataBR(mes) + ' na tela.' +
+    (t.ven.length || t.sup.length
+      ? ' As vendas da loja e as entradas avulsas do dia estão nos blocos abaixo da tabela.' : '');
+
+  /* Escolhida uma modalidade, os blocos de baixo acompanham o filtro: o que sobra na
+     tela é tudo o que entrou naquela forma, de qualquer origem. */
+  const venFiltradas = t.ven.filter(v=> formaSel === 'todas' || toNum(v[formaSel]) > 0);
+  const supFiltrados = t.sup.filter(s=> formaSel === 'todas' || formaDoSuprimento(s) === formaSel);
+  const blocosExtras = htmlVendasDoDia(venFiltradas, mes) +
+                       htmlSuprimentosDoDia(supFiltrados, mes) +
+                       htmlRetiradasDoMes(retMes, mes);
 
   const corpo = document.getElementById('hisCorpo');
   if(!lista.length){
     corpo.innerHTML = '<div class="rec-vazio">' +
       (doMes.length ? 'Nenhum lançamento com esse filtro em ' + dataBR(mes) + '.'
                     : 'Nenhum recebimento lançado em ' + dataBR(mes) + '.') + '</div>' +
-      htmlRetiradasDoMes(retMes, mes);
+      blocosExtras;
     return;
   }
   corpo.innerHTML = '<table class="tabela-ponto"><thead><tr>' +
@@ -9371,7 +10127,7 @@ function renderHistorico(){
       fmtMoeda(r2(lista.reduce((s,r)=> s + toNum(r[f.chave]), 0)))+'</b></td>').join('') +
     '<td><b>'+fmtMoeda(r2(lista.reduce((s,r)=> s + pagoDoRecebimento(r), 0)))+'</b></td><td></td><td></td></tr>' +
     '</tbody></table>' +
-    htmlRetiradasDoMes(retMes, mes);
+    blocosExtras;
 }
 
 document.getElementById('hisBusca').addEventListener('input', renderHistorico);
@@ -9391,7 +10147,7 @@ document.getElementById('hisFormas').addEventListener('click', (e)=>{
    mostram de um dia só: quanto entrou por forma, quanto saiu e como cada dia fechou. */
 function diasDoMesComMovimento(mes){
   const set = {};
-  (state.recebimentos||[]).concat(state.retiradas||[]).concat(state.aberturas||[]).forEach(x=>{
+  movimentoDoCaixa().concat(state.aberturas||[]).forEach(x=>{
     const d = String(x.data||'');
     if(d.slice(0,7) === mes) set[d] = true;
   });
@@ -9419,21 +10175,33 @@ function renderBalancoCaixa(){
   const saiu   = soma(t=> t.saiu);
   const contas = soma(t=> t.contas);
   const haver  = soma(t=> t.haver);
+  const vendido = soma(t=> t.vendido);
+  const avulso  = soma(t=> t.entrouSup);
   const porForma = {};
   FORMAS_RECEBIMENTO.forEach(f=> porForma[f.chave] = soma(t=> t.porForma[f.chave]));
   const qtdRec = linhas.reduce((s,t)=> s + t.rec.length, 0);
   const qtdRet = linhas.reduce((s,t)=> s + t.ret.length, 0);
-  const semAbertura = linhas.filter(t=> !t.abertura && (t.rec.length || t.ret.length)).length;
+  const qtdVen = linhas.reduce((s,t)=> s + t.ven.length, 0);
+  const qtdSup = linhas.reduce((s,t)=> s + t.sup.length, 0);
+  const semAbertura = linhas.filter(t=> !t.abertura && (t.rec.length || t.ret.length || t.ven.length || t.sup.length)).length;
 
   document.getElementById('balcKpis').innerHTML =
     '<div class="kpi kpi-ok"><div class="kpi-rot">Entrou no mês</div><div class="kpi-val">'+fmtMoeda(entrou)+'</div>' +
-      '<div class="kpi-sub">'+qtdRec+' recebimento(s) em '+dias.length+' dia(s)</div></div>' +
+      '<div class="kpi-sub">conta, loja e avulso em '+dias.length+' dia(s)</div></div>' +
     '<div class="kpi '+(saiu>0?'kpi-critico':'')+'"><div class="kpi-rot">Saiu no mês</div>' +
       '<div class="kpi-val">'+fmtMoeda(saiu)+'</div><div class="kpi-sub">'+qtdRet+' retirada(s)</div></div>' +
     '<div class="kpi '+(entrou-saiu<0?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Sobrou no mês</div>' +
       '<div class="kpi-val">'+fmtMoeda(r2(entrou-saiu))+'</div><div class="kpi-sub">entradas menos retiradas</div></div>' +
     '<div class="kpi"><div class="kpi-rot">Total das contas</div><div class="kpi-val">'+fmtMoeda(contas)+'</div>' +
-      '<div class="kpi-sub">valor cobrado no mês</div></div>' +
+      '<div class="kpi-sub">'+qtdRec+' recebimento(s) de cliente</div></div>' +
+    (vendido > 0
+      ? '<div class="kpi kpi-info"><div class="kpi-rot">Vendido na loja</div><div class="kpi-val">'+fmtMoeda(vendido)+'</div>' +
+        '<div class="kpi-sub">'+qtdVen+' venda(s) no balcão</div></div>'
+      : '') +
+    (avulso > 0
+      ? '<div class="kpi kpi-info"><div class="kpi-rot">Entradas avulsas</div><div class="kpi-val">'+fmtMoeda(avulso)+'</div>' +
+        '<div class="kpi-sub">'+qtdSup+' lançamento(s) sem venda nem conta</div></div>'
+      : '') +
     (haver > 0
       ? '<div class="kpi kpi-info"><div class="kpi-rot">Quitado em Juros/Haver</div>' +
         '<div class="kpi-val">'+fmtMoeda(haver)+'</div>' +
@@ -9465,7 +10233,7 @@ function renderBalancoCaixa(){
   corpo.innerHTML = '<table class="tabela-ponto"><thead><tr>' +
     '<th class="esq">Dia</th><th>Abertura</th>' +
     FORMAS_RECEBIMENTO.map(f=> '<th>'+f.rotulo+'</th>').join('') +
-    '<th>Entrou</th><th>Retiradas</th><th>Fechamento em espécie</th><th>Lanç.</th>' +
+    '<th>Loja</th><th>Avulso</th><th>Entrou</th><th>Retiradas</th><th>Fechamento em espécie</th><th>Lanç.</th>' +
     '</tr></thead><tbody>' +
     linhas.map(t=>
       '<tr data-balc-dia="'+t.iso+'">' +
@@ -9473,16 +10241,20 @@ function renderBalancoCaixa(){
         '<div class="rec-mini">'+DIAS_SEMANA[deISO(t.iso).getDay()]+'</div></td>' +
       '<td'+(t.abertura?'':' class="cel-alerta"')+'>'+(t.abertura ? fmtMoeda(t.inicial) : 'não informada')+'</td>' +
       FORMAS_RECEBIMENTO.map(f=> '<td>'+(t.porForma[f.chave] ? fmtMoeda(t.porForma[f.chave]) : '—')+'</td>').join('') +
+      '<td>'+(t.vendido ? fmtMoeda(t.vendido) : '—')+'</td>' +
+      '<td>'+(t.entrouSup ? fmtMoeda(t.entrouSup) : '—')+'</td>' +
       '<td><b>'+fmtMoeda(t.entrou)+'</b></td>' +
       '<td class="'+(t.saiu?'cel-critico':'')+'">'+(t.saiu ? fmtMoeda(t.saiu) : '—')+'</td>' +
       '<td class="cel-ok">'+fmtMoeda(t.dinheiroFinal)+'</td>' +
-      '<td>'+t.rec.length+'</td></tr>'
+      '<td>'+(t.rec.length + t.ven.length + t.sup.length)+'</td></tr>'
     ).join('') +
     '<tr><td class="esq"><b>TOTAL DO MÊS</b></td><td></td>' +
     FORMAS_RECEBIMENTO.map(f=> '<td><b>'+fmtMoeda(porForma[f.chave])+'</b></td>').join('') +
+    '<td><b>'+fmtMoeda(vendido)+'</b></td>' +
+    '<td><b>'+fmtMoeda(avulso)+'</b></td>' +
     '<td><b>'+fmtMoeda(entrou)+'</b></td>' +
     '<td class="cel-critico"><b>'+fmtMoeda(saiu)+'</b></td>' +
-    '<td></td><td><b>'+qtdRec+'</b></td></tr>' +
+    '<td></td><td><b>'+(qtdRec + qtdVen + qtdSup)+'</b></td></tr>' +
     '</tbody></table>';
 }
 
@@ -9509,20 +10281,23 @@ document.getElementById('btnExportarBalancoCaixa').addEventListener('click', ()=
 
   const aoa = [['BALANÇO MENSAL DO CAIXA — ' + mesLabel(mes)], [],
     ['Dia','Dia da semana','Abertura'].concat(FORMAS_RECEBIMENTO.map(f=> f.rotulo))
-      .concat(['Entrou','Retiradas','Fechamento em espécie','Recebimentos','Retiradas (qtd)'])];
+      .concat(['Loja','Entradas avulsas','Entrou','Retiradas','Fechamento em espécie',
+               'Recebimentos','Vendas','Avulsas','Retiradas (qtd)'])];
   linhas.forEach(t=>{
     aoa.push([dataBR(t.iso), DIAS_SEMANA[deISO(t.iso).getDay()], t.abertura ? t.inicial : '']
       .concat(FORMAS_RECEBIMENTO.map(f=> t.porForma[f.chave]))
-      .concat([t.entrou, t.saiu, t.dinheiroFinal, t.rec.length, t.ret.length]));
+      .concat([t.vendido, t.entrouSup, t.entrou, t.saiu, t.dinheiroFinal,
+               t.rec.length, t.ven.length, t.sup.length, t.ret.length]));
   });
   aoa.push(['TOTAL','','']
     .concat(FORMAS_RECEBIMENTO.map(f=> soma(t=> t.porForma[f.chave])))
-    .concat([soma(t=> t.entrou), soma(t=> t.saiu), '',
-             linhas.reduce((s,t)=> s + t.rec.length, 0), linhas.reduce((s,t)=> s + t.ret.length, 0)]));
+    .concat([soma(t=> t.vendido), soma(t=> t.entrouSup), soma(t=> t.entrou), soma(t=> t.saiu), '',
+             linhas.reduce((s,t)=> s + t.rec.length, 0), linhas.reduce((s,t)=> s + t.ven.length, 0),
+             linhas.reduce((s,t)=> s + t.sup.length, 0), linhas.reduce((s,t)=> s + t.ret.length, 0)]));
 
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   ws['!cols'] = [{wch:12},{wch:15},{wch:13}].concat(FORMAS_RECEBIMENTO.map(()=> ({wch:13})))
-    .concat([{wch:13},{wch:13},{wch:20},{wch:14},{wch:14}]);
+    .concat([{wch:13},{wch:17},{wch:13},{wch:13},{wch:20},{wch:14},{wch:10},{wch:10},{wch:14}]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Balanço ' + mes);
   XLSX.writeFile(wb, 'Balanco_Caixa_' + mes + '.xlsx');
@@ -9534,7 +10309,9 @@ document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=
   const t = totaisDoDia(mes);
   const doMes = t.rec.slice().sort((a,b)=> String(a.criadoEm||'').localeCompare(String(b.criadoEm||'')));
   const retMes = t.ret.slice();
-  if(!doMes.length && !retMes.length){ mostrarToast('Nenhum movimento de caixa em ' + dataBR(mes)); return; }
+  if(!doMes.length && !retMes.length && !t.ven.length && !t.sup.length){
+    mostrarToast('Nenhum movimento de caixa em ' + dataBR(mes)); return;
+  }
 
   const linhas = [['CAIXA DO DIA — ' + dataBR(mes)],
                   ['Abertura do caixa', t.abertura ? r2(t.inicial) : 'não informada'], []];
@@ -9568,25 +10345,52 @@ document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Entradas');
 
-  /* Segunda aba: as saídas do dia e o fechamento em espécie. */
-  const linhasRet = [['RETIRADAS DE CAIXA — ' + dataBR(mes)], [], ['Hora','Motivo','Valor','Registrada por']];
+  /* Segunda aba: as outras origens do dia, as saídas e o fechamento em espécie. É a
+     folha que se leva para conferir a gaveta, então tudo o que mexeu no dinheiro tem
+     que aparecer aqui — inclusive o que veio da loja e o que entrou avulso. */
+  const linhasRet = [['MOVIMENTO E FECHAMENTO — ' + dataBR(mes)], []];
+
+  linhasRet.push(['VENDAS DA LOJA']);
+  linhasRet.push(['Hora','Produtos','Valor','Registrada por']);
+  t.ven.slice().sort((a,b)=> String(a.criadoEm||'').localeCompare(String(b.criadoEm||'')))
+    .forEach(v=> linhasRet.push([horaDe(v.criadoEm), resumoItensVenda(v), r2(toNum(v.total)), v.usuario||'']));
+  if(!t.ven.length) linhasRet.push(['','Nenhuma venda da loja neste dia','','']);
+  linhasRet.push(['','TOTAL VENDIDO', t.vendido, '']);
+  linhasRet.push([]);
+
+  linhasRet.push(['ENTRADAS AVULSAS']);
+  linhasRet.push(['Hora','Origem','Valor','Entrou em']);
+  t.sup.slice().sort((a,b)=> String(a.criadoEm||'').localeCompare(String(b.criadoEm||'')))
+    .forEach(x=> linhasRet.push([horaDe(x.criadoEm), x.origem||'', r2(toNum(x.valor)), formaLabel(formaDoSuprimento(x))]));
+  if(!t.sup.length) linhasRet.push(['','Nenhuma entrada avulsa neste dia','','']);
+  linhasRet.push(['','TOTAL AVULSO', t.entrouSup, '']);
+  linhasRet.push([]);
+
+  linhasRet.push(['RETIRADAS DE CAIXA']);
+  linhasRet.push(['Hora','Motivo','Valor','Registrada por']);
   retMes.forEach(x=> linhasRet.push([horaDe(x.criadoEm), x.motivo||'', r2(toNum(x.valor)), x.usuario||'']));
   if(!retMes.length) linhasRet.push(['','Nenhuma retirada neste dia','','']);
   linhasRet.push(['','TOTAL RETIRADO', t.saiu, '']);
   linhasRet.push([]);
-  linhasRet.push(['', 'FECHAMENTO DO DIA']);
-  linhasRet.push(['', 'Entrou no caixa (dinheiro, cartão, pix, cheque)', t.entrou]);
+
+  linhasRet.push(['FECHAMENTO DO DIA']);
+  linhasRet.push(['', 'Recebido de contas de clientes', t.entrouRec]);
+  linhasRet.push(['', 'Vendido na loja do escritório', t.entrouVen]);
+  linhasRet.push(['', 'Entradas avulsas', t.entrouSup]);
+  linhasRet.push(['', '= Entrou no caixa (dinheiro, cartão, pix, cheque)', t.entrou]);
   if(t.haver) linhasRet.push(['', 'Quitado em Juros/Haver (não entra no caixa)', t.haver]);
   linhasRet.push(['', 'Saiu (retiradas, sempre em dinheiro)', t.saiu]);
   linhasRet.push(['', 'Sobrou', t.sobrou]);
   linhasRet.push([]);
-  linhasRet.push(['', 'CONFERÊNCIA DO DINHEIRO EM ESPÉCIE']);
+  linhasRet.push(['CONFERÊNCIA DO DINHEIRO EM ESPÉCIE']);
   linhasRet.push(['', 'Abertura do caixa', t.inicial]);
-  linhasRet.push(['', '+ Recebido em dinheiro', t.porForma.dinheiro]);
+  linhasRet.push(['', '+ Recebido de contas em dinheiro', t.porFormaRec.dinheiro]);
+  linhasRet.push(['', '+ Vendas da loja em dinheiro', t.porFormaVen.dinheiro]);
+  linhasRet.push(['', '+ Entradas avulsas em dinheiro', t.porFormaSup.dinheiro]);
   linhasRet.push(['', '− Retiradas', t.saiu]);
   linhasRet.push(['', '= Deve ter na gaveta', t.dinheiroFinal]);
   const wsRet = XLSX.utils.aoa_to_sheet(linhasRet);
-  wsRet['!cols'] = [{wch:8},{wch:40},{wch:16},{wch:22}];
+  wsRet['!cols'] = [{wch:8},{wch:46},{wch:16},{wch:22}];
   XLSX.utils.book_append_sheet(wb, wsRet, 'Fechamento');
 
   XLSX.writeFile(wb, 'Caixa_' + mes + '.xlsx');
@@ -9607,6 +10411,1078 @@ document.getElementById('btnExportarClientes').addEventListener('click', ()=>{
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Clientes');
   XLSX.writeFile(wb, 'Clientes_' + hojeISO() + '.xlsx');
+});
+
+/* ============================= LOJA DO ESCRITÓRIO =============================
+   O escritório passou a ter uma farmácia no balcão, e o pessoal também pega cigarro
+   aqui. Esta área é o controle dessas vendas.
+
+   É de propósito o MESMO gesto da tela de lançar recebimento: um formulário curto, as
+   modalidades de pagamento em quadros lado a lado, o somatório embaixo dizendo se
+   fechou. A única troca é o que está sendo cobrado — no recebimento é a conta de um
+   cliente, aqui é o produto que saiu da prateleira. Quem opera as duas telas não tem
+   que aprender duas coisas.
+
+   Três decisões que explicam o resto do código:
+
+   1. O dinheiro é o MESMO caixa. A venda cai na mesma gaveta, na mesma abertura e no
+      mesmo fechamento do Caixa Administrativo — ver totaisDoDia(). Não existe caixa da
+      loja para conferir à parte; existe UM caixa, com uma origem a mais.
+   2. A venda é sempre à VISTA. O pagamento tem que fechar com o total, e é por isso que
+      não há saldo devedor, situação "parcial" nem vínculo com cliente aqui dentro.
+      Produto que sai sem pagar não é venda da loja — é conta, e conta se lança no
+      recebimento.
+   3. A base de produtos cresce sozinha, como a de clientes: nome digitado que ainda não
+      existe vira cadastro no ato, com o preço que foi digitado na venda. Na vez
+      seguinte ele aparece na busca já com o preço preenchido.
+
+   Não há controle de estoque: o sistema conta quanto saiu de cada produto, não quanto
+   ainda tem na prateleira. */
+
+const CATEGORIAS_PRODUTO = ['Farmácia','Cigarro','Bebida','Doces e salgados','Outros'];
+
+function classeCategoria(cat){
+  const n = norm(cat);
+  return (n==='farmacia' || n==='cigarro' || n==='bebida') ? ' ' + n : '';
+}
+function tagCategoria(cat){
+  const c = cat || 'Outros';
+  return '<span class="cat-tag'+classeCategoria(c)+'">'+escHtml(c)+'</span>';
+}
+function produtoPorId(id){ return (state.produtos||[]).find(p=> p.id===id) || null; }
+function produtoPorNome(nome){
+  const n = norm(nome);
+  if(!n) return null;
+  return (state.produtos||[]).find(p=> norm(p.nome)===n) || null;
+}
+/* Os itens guardam o nome e o preço do momento da venda. Assim o histórico continua
+   legível depois de o produto ser renomeado, ter o preço mudado ou ser excluído — o que
+   foi vendido naquele dia não muda mais. */
+function itensDaVenda(v){
+  return (v && Array.isArray(v.itens)) ? v.itens : [];
+}
+function resumoItensVenda(v){
+  const itens = itensDaVenda(v);
+  if(!itens.length) return '—';
+  return itens.map(it=> (toNum(it.qtd) !== 1 ? r2(toNum(it.qtd)) + '× ' : '') + (it.nome || 'Produto')).join(' · ');
+}
+function categoriaDoItem(it){
+  const p = produtoPorId(it.produtoId);
+  return (p && p.categoria) || it.categoria || 'Outros';
+}
+
+/* Uma passagem só por todas as vendas, devolvendo o quadro de cada produto. Percorrer
+   as vendas dentro do laço dos produtos ficaria caro e é a mesma conta. */
+function resumoProdutos(filtroMes){
+  const mapa = {};
+  (state.produtos||[]).forEach(p=> mapa[p.id] = {qtd:0, faturado:0, vendas:0, ultima:''});
+  (state.vendas||[]).forEach(v=>{
+    if(filtroMes && String(v.data||'').slice(0,7) !== filtroMes) return;
+    itensDaVenda(v).forEach(it=>{
+      const m = mapa[it.produtoId];
+      if(!m) return;
+      m.qtd      += toNum(it.qtd);
+      m.faturado += toNum(it.subtotal);
+      m.vendas   += 1;
+      if(!m.ultima || String(v.data||'') > m.ultima) m.ultima = String(v.data||'');
+    });
+  });
+  Object.keys(mapa).forEach(k=>{
+    mapa[k].qtd = r2(mapa[k].qtd);
+    mapa[k].faturado = r2(mapa[k].faturado);
+  });
+  return mapa;
+}
+
+/* --------------------------------------------------------------- venda: modalidades */
+let venModsMontadas = false;
+
+function montarModsVenda(){
+  if(venModsMontadas) return;
+  document.getElementById('venMods').innerHTML = FORMAS_VENDA.map(f=>
+    '<div class="rec-mod" data-mod-ven="'+f.chave+'">' +
+      '<div class="rm-topo"><svg viewBox="0 0 24 24">'+f.icone+'</svg>'+f.rotulo+'</div>' +
+      (f.nota ? '<div class="rm-nota">'+f.nota+'</div>' : '') +
+      '<input type="text" inputmode="decimal" id="venPg_'+f.chave+'" data-forma-ven="'+f.chave+'" placeholder="0,00">' +
+      '<button type="button" class="rm-resto" data-resto-ven="'+f.chave+'">lançar o restante</button>' +
+    '</div>'
+  ).join('');
+
+  document.getElementById('venMods').addEventListener('input', (e)=>{
+    if(!e.target.dataset.formaVen) return;
+    /* Mexeu na mão numa modalidade: o preenchimento automático do dinheiro para de
+       acompanhar o carrinho. Daí em diante quem manda é o que foi digitado. */
+    venDinheiroAuto = false;
+    atualizarSomatorioVenda();
+  });
+  document.getElementById('venMods').addEventListener('click', (e)=>{
+    const btn = e.target.closest('button[data-resto-ven]');
+    if(!btn) return;
+    const chave = btn.dataset.restoVen;
+    const outras = FORMAS_VENDA.reduce((s,f)=> s + (f.chave===chave ? 0 : valorDaModVenda(f.chave)), 0);
+    const resto = r2(totalDoCarrinho() - outras);
+    venDinheiroAuto = false;
+    const alvo = document.getElementById('venPg_'+chave);
+    alvo.value = resto > 0 ? resto.toFixed(2).replace('.',',') : '';
+    atualizarSomatorioVenda();
+    alvo.focus();
+  });
+  venModsMontadas = true;
+}
+
+function valorDaModVenda(chave){
+  const campo = document.getElementById('venPg_'+chave);
+  return campo ? r2(toNum(campo.value)) : 0;
+}
+function valoresFormasVenda(){
+  const v = {};
+  FORMAS_VENDA.forEach(f=> v[f.chave] = valorDaModVenda(f.chave));
+  return v;
+}
+
+/* --------------------------------------------------------------- venda: o carrinho
+   A venda pode ter mais de um item — o cliente leva a dipirona e o maço junto. O
+   carrinho é uma lista em memória, montada e desmontada na tela; só vira registro
+   quando a venda é gravada. */
+let venCarrinho = [];
+let venProdutoSel = null;
+let venSugLista = [];
+let venSugIndice = -1;
+let venEditandoId = null;
+/* Enquanto ninguém tiver mexido nas modalidades, o campo Dinheiro acompanha o total do
+   carrinho: a venda de balcão é quase sempre em espécie, e assim o operador só precisa
+   digitar quando NÃO for. Qualquer digitação numa modalidade desliga isto. */
+let venDinheiroAuto = true;
+
+function totalDoCarrinho(){
+  return r2(venCarrinho.reduce((s,it)=> s + toNum(it.subtotal), 0));
+}
+
+function renderCarrinho(){
+  const caixa = document.getElementById('venItens');
+  const nota = document.getElementById('venItensNota');
+  if(!venCarrinho.length){
+    caixa.innerHTML = '<div class="ven-sem-itens">Nenhum produto na venda ainda — digite o produto acima e clique em Adicionar.</div>';
+    nota.textContent = '';
+  }else{
+    caixa.innerHTML = '<table><thead><tr>' +
+      '<th class="esq">Produto</th><th>Qtd</th><th>Preço unit.</th><th>Subtotal</th><th></th>' +
+      '</tr></thead><tbody>' +
+      venCarrinho.map((it, i)=>
+        '<tr><td class="esq"><b>'+escHtml(it.nome)+'</b> '+tagCategoria(it.categoria)+'</td>' +
+        '<td>'+r2(toNum(it.qtd))+'</td>' +
+        '<td>'+fmtMoeda(toNum(it.preco))+'</td>' +
+        '<td><b>'+fmtMoeda(toNum(it.subtotal))+'</b></td>' +
+        '<td><button type="button" class="ven-tirar" data-tirar-item="'+i+'" title="Tirar da venda">×</button></td></tr>'
+      ).join('') +
+      '</tbody><tfoot><tr><td class="esq">TOTAL DA VENDA</td><td></td><td></td>' +
+      '<td>'+fmtMoeda(totalDoCarrinho())+'</td><td></td></tr></tfoot></table>';
+    const pecas = r2(venCarrinho.reduce((s,it)=> s + toNum(it.qtd), 0));
+    nota.textContent = venCarrinho.length + ' produto(s), ' + pecas + ' peça(s) nesta venda.';
+  }
+  /* O dinheiro acompanha o carrinho enquanto ninguém tiver mexido nas modalidades. */
+  if(venDinheiroAuto && venModsMontadas){
+    const total = totalDoCarrinho();
+    document.getElementById('venPg_dinheiro').value = total > 0 ? total.toFixed(2).replace('.',',') : '';
+    FORMAS_VENDA.filter(f=> f.chave !== 'dinheiro')
+      .forEach(f=> document.getElementById('venPg_'+f.chave).value = '');
+  }
+  atualizarSomatorioVenda();
+}
+
+document.getElementById('venItens').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-tirar-item]');
+  if(!btn) return;
+  venCarrinho.splice(parseInt(btn.dataset.tirarItem,10), 1);
+  renderCarrinho();
+});
+
+/* Põe o produto digitado no carrinho. Produto que ainda não existe na base NÃO é
+   cadastrado aqui: só ao gravar a venda — assim ninguém fica com produto solto na base
+   de um atendimento que não terminou. */
+function adicionarItemVenda(){
+  const aviso = document.getElementById('venAviso');
+  const nome = document.getElementById('venProduto').value.trim();
+  const qtd = r2(toNum(document.getElementById('venQtd').value));
+  const preco = r2(toNum(document.getElementById('venPreco').value));
+
+  if(!nome){ aviso.textContent = 'Informe o produto.'; document.getElementById('venProduto').focus(); return; }
+  if(qtd <= 0){ aviso.textContent = 'A quantidade tem que ser maior que zero.'; document.getElementById('venQtd').focus(); return; }
+  if(preco <= 0){ aviso.textContent = 'Informe o preço do produto.'; document.getElementById('venPreco').focus(); return; }
+  aviso.textContent = '';
+
+  const existente = venProdutoSel ? produtoPorId(venProdutoSel) : produtoPorNome(nome);
+  venCarrinho.push({
+    produtoId: existente ? existente.id : null,
+    /* Produto novo entra com o nome arrumado; o que já existe mantém o nome da base. */
+    nome: existente ? existente.nome : arrumarNome(nome),
+    /* Produto que já existe traz a categoria do cadastro; o novo leva a que está
+       escolhida no campo — é o único momento em que dá para dizer se aquilo é remédio
+       ou cigarro sem ter que voltar depois na tela de Produtos. */
+    categoria: existente ? (existente.categoria || 'Outros')
+                         : (document.getElementById('venCat').value || 'Outros'),
+    novo: !existente,
+    qtd: qtd,
+    preco: preco,
+    subtotal: r2(qtd * preco)
+  });
+
+  document.getElementById('venProduto').value = '';
+  document.getElementById('venQtd').value = '1';
+  document.getElementById('venPreco').value = '';
+  venProdutoSel = null;
+  sincronizarCategoriaVen();
+  fecharSugVen();
+  renderCarrinho();
+  document.getElementById('venProduto').focus();
+}
+
+/* O campo de categoria só tem o que fazer quando o produto é novo. Escolhido um produto
+   que já existe, ele mostra a categoria do cadastro e trava: mudar a categoria de um
+   produto é decisão da tela de Produtos, feita uma vez, não a cada venda. */
+function sincronizarCategoriaVen(){
+  const sel = document.getElementById('venCat');
+  if(!sel || !sel.options.length) return;
+  const p = venProdutoSel ? produtoPorId(venProdutoSel)
+                          : produtoPorNome(document.getElementById('venProduto').value);
+  if(p){
+    sel.value = CATEGORIAS_PRODUTO.indexOf(p.categoria) >= 0 ? p.categoria : 'Outros';
+    sel.disabled = true;
+  }else{
+    sel.disabled = false;
+  }
+}
+
+/* --------------------------------------------------------------- venda: busca de produto */
+function fecharSugVen(){
+  document.getElementById('venSug').classList.remove('show');
+  venSugLista = []; venSugIndice = -1;
+}
+
+function abrirSugVen(){
+  const termo = document.getElementById('venProduto').value.trim();
+  const n = norm(termo);
+  const caixa = document.getElementById('venSug');
+  const resumos = resumoProdutos();
+  let achados = (state.produtos||[]).slice();
+  if(n) achados = achados.filter(p=> norm(p.nome).indexOf(n) >= 0 || norm(p.categoria).indexOf(n) >= 0);
+  achados.sort((a,b)=>{
+    if(n){
+      const ia = norm(a.nome).indexOf(n)===0 ? 0 : 1;
+      const ib = norm(b.nome).indexOf(n)===0 ? 0 : 1;
+      if(ia!==ib) return ia-ib;
+    }
+    /* Sem termo digitado, o mais vendido vem primeiro: no balcão é sempre o mesmo
+       punhado de produtos que sai, e eles têm que estar à mão. */
+    const qa = (resumos[a.id]||{}).qtd || 0, qb = (resumos[b.id]||{}).qtd || 0;
+    if(qa !== qb) return qb - qa;
+    return a.nome.localeCompare(b.nome,'pt-BR');
+  });
+  achados = achados.slice(0, 8);
+  venSugLista = achados.map(p=> ({tipo:'produto', id:p.id}));
+
+  let html = achados.map(p=>{
+    const r = resumos[p.id] || {qtd:0, ultima:''};
+    return '<div class="rec-sug-item" data-prd="'+p.id+'">' +
+      '<div><div class="rs-nome">'+escHtml(p.nome)+'</div>' +
+      '<div class="rs-info">'+ escHtml(p.categoria||'Outros') + ' · ' +
+        (r.qtd ? r.qtd + ' vendida(s) · última em ' + dataBR(r.ultima) : 'sem venda ainda') +'</div></div>' +
+      '<div class="rs-saldo zerado">'+fmtMoeda(toNum(p.preco))+'</div></div>';
+  }).join('');
+
+  const exato = produtoPorNome(termo);
+  if(termo && !exato){
+    venSugLista.push({tipo:'novo'});
+    html += '<div class="rec-sug-item" data-novo-prd="1"><span class="rec-sug-novo">' +
+      '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>' +
+      'Cadastrar “'+escHtml(termo)+'” como produto novo</span></div>';
+  }
+  if(!html){
+    html = '<div class="rec-sug-item"><span class="rec-mini">Nenhum produto na base ainda — digite o nome e o preço: ele é cadastrado ao registrar a venda.</span></div>';
+    venSugLista = [];
+  }
+  caixa.innerHTML = html;
+  caixa.classList.add('show');
+  venSugIndice = -1;
+}
+
+function marcarSugVen(i){
+  const itens = document.querySelectorAll('#venSug .rec-sug-item[data-prd], #venSug .rec-sug-item[data-novo-prd]');
+  itens.forEach(el=> el.classList.remove('marcado'));
+  if(i >= 0 && itens[i]){ itens[i].classList.add('marcado'); itens[i].scrollIntoView({block:'nearest'}); }
+}
+
+function escolherSugVen(i){
+  const item = venSugLista[i];
+  if(!item) return;
+  if(item.tipo === 'produto'){
+    const p = produtoPorId(item.id);
+    venProdutoSel = item.id;
+    document.getElementById('venProduto').value = p ? p.nome : '';
+    /* Escolhido o produto, o preço da base já vem preenchido — no balcão dá para mudar
+       sem alterar o cadastro. */
+    if(p && toNum(p.preco) > 0) document.getElementById('venPreco').value = toNum(p.preco).toFixed(2).replace('.',',');
+  }else{
+    venProdutoSel = null;
+  }
+  sincronizarCategoriaVen();
+  fecharSugVen();
+  /* Produto conhecido já vem com o preço: o próximo passo é a quantidade. Produto novo
+     ainda não tem preço nenhum — aí o cursor tem que parar no preço. */
+  const temPreco = toNum(document.getElementById('venPreco').value) > 0;
+  document.getElementById(temPreco ? 'venQtd' : 'venPreco').focus();
+}
+
+function ligarBuscaProduto(){
+  const inp = document.getElementById('venProduto');
+  inp.addEventListener('input', ()=>{
+    const exato = produtoPorNome(inp.value);
+    venProdutoSel = exato ? exato.id : null;
+    sincronizarCategoriaVen();
+    abrirSugVen();
+  });
+  inp.addEventListener('focus', abrirSugVen);
+  inp.addEventListener('keydown', (e)=>{
+    const n = venSugLista.length;
+    if(e.key === 'ArrowDown' && n){ e.preventDefault(); venSugIndice = (venSugIndice+1) % n; marcarSugVen(venSugIndice); }
+    else if(e.key === 'ArrowUp' && n){ e.preventDefault(); venSugIndice = (venSugIndice-1+n) % n; marcarSugVen(venSugIndice); }
+    else if(e.key === 'Enter'){
+      e.preventDefault();
+      if(venSugIndice >= 0) escolherSugVen(venSugIndice);
+      else { fecharSugVen(); document.getElementById('venPreco').focus(); }
+    }
+    else if(e.key === 'Escape'){ fecharSugVen(); }
+  });
+  /* mousedown (e não click) porque o blur do campo fecha a lista antes do clique. */
+  document.getElementById('venSug').addEventListener('mousedown', (e)=>{
+    const item = e.target.closest('.rec-sug-item');
+    if(!item) return;
+    e.preventDefault();
+    const itens = Array.from(document.querySelectorAll('#venSug .rec-sug-item[data-prd], #venSug .rec-sug-item[data-novo-prd]'));
+    escolherSugVen(itens.indexOf(item));
+  });
+  document.addEventListener('click', (e)=>{
+    if(!e.target.closest('#viewLojaVender .rec-busca-wrap')) fecharSugVen();
+  });
+}
+
+/* --------------------------------------------------------------- venda: somatório
+   A venda é à vista, então a conta é simples e binária: ou o pagamento fecha com o
+   total, ou não fecha. Não existe "ficou devendo" aqui. */
+function atualizarSomatorioVenda(){
+  if(!venModsMontadas) return;
+  const total = totalDoCarrinho();
+  const formas = valoresFormasVenda();
+  const pago = r2(FORMAS_VENDA.reduce((s,f)=> s + formas[f.chave], 0));
+  const dif = r2(total - pago);
+
+  FORMAS_VENDA.forEach(f=>{
+    const cx = document.querySelector('.rec-mod[data-mod-ven="'+f.chave+'"]');
+    if(!cx) return;
+    cx.classList.toggle('preenchida', formas[f.chave] > 0);
+    const resto = r2(total - (pago - formas[f.chave]));
+    cx.querySelector('.rm-resto').classList.toggle('mostra', total > 0 && resto > 0.004 && formas[f.chave] !== resto);
+  });
+
+  let blocoDif;
+  if(dif > 0.004)       blocoDif = {cls:'rs-falta',   rot:'Falta pagar',  val:fmtMoeda(dif),  nota:'a venda é à vista: distribua o restante'};
+  else if(dif < -0.004) blocoDif = {cls:'rs-troco',   rot:'Passou',       val:fmtMoeda(-dif), nota:'o pagamento passou do total da venda'};
+  else if(total > 0)    blocoDif = {cls:'rs-quitado', rot:'Diferença',    val:fmtMoeda(0),    nota:'pagamento fechado com o total'};
+  else                  blocoDif = {cls:'',           rot:'Diferença',    val:fmtMoeda(0),    nota:'nenhum produto na venda ainda'};
+
+  document.getElementById('venSomatorio').innerHTML =
+    '<div class="rs-bloco"><div class="rs-rot">Total da venda</div><div class="rs-val">'+fmtMoeda(total)+'</div>' +
+      '<div class="rs-nota">'+ (venCarrinho.length ? venCarrinho.length + ' produto(s)' : 'carrinho vazio') +'</div></div>' +
+    '<div class="rs-bloco"><div class="rs-rot">Quantia paga</div><div class="rs-val">'+fmtMoeda(pago)+'</div>' +
+      '<div class="rs-nota">'+ (pago > 0
+        ? FORMAS_VENDA.filter(f=> formas[f.chave] > 0).map(f=> f.rotulo.toLowerCase()).join(' + ')
+        : 'nenhuma modalidade preenchida') +'</div></div>' +
+    '<div class="rs-bloco '+blocoDif.cls+'"><div class="rs-rot">'+blocoDif.rot+'</div>' +
+      '<div class="rs-val">'+blocoDif.val+'</div><div class="rs-nota">'+blocoDif.nota+'</div></div>';
+
+  atualizarTrocoVenda();
+}
+
+/* Calculadora de troco: o cliente entrega uma nota de 50 numa compra de 12 e leva 38 de
+   volta. O que fica GRAVADO é a venda — os 50 entraram e os 38 saíram no mesmo gesto, e
+   o efeito na gaveta é exatamente o preço do produto. Isto aqui é só a conta de cabeça,
+   feita na tela para ninguém errar na pressa. */
+function atualizarTrocoVenda(){
+  const campo = document.getElementById('venEntregue');
+  const txt = document.getElementById('venTrocoTxt');
+  if(!campo || !txt) return;
+  const entregue = r2(toNum(campo.value));
+  const emDinheiro = valorDaModVenda('dinheiro');
+  if(entregue <= 0){ txt.innerHTML = '— informe para calcular o troco.'; return; }
+  const troco = r2(entregue - emDinheiro);
+  if(troco < -0.004){
+    txt.innerHTML = '<span class="tc-falta">Falta receber <b class="tc-falta">' + fmtMoeda(-troco) + '</b> — o cliente entregou menos que o lançado em dinheiro.</span>';
+  }else{
+    txt.innerHTML = 'Troco a devolver <b>' + fmtMoeda(troco) + '</b> ' +
+      '<span class="rec-mini">(sobre ' + fmtMoeda(emDinheiro) + ' lançados em dinheiro — só a conta, nada é gravado)</span>';
+  }
+}
+
+/* --------------------------------------------------------------- venda: a tela */
+function limparFormVenda(){
+  venEditandoId = null;
+  venCarrinho = [];
+  venProdutoSel = null;
+  venDinheiroAuto = true;
+  document.getElementById('venEditandoAviso').classList.remove('show');
+  document.getElementById('btnVenSalvar').textContent = 'Registrar venda';
+  document.getElementById('venProduto').value = '';
+  document.getElementById('venQtd').value = '1';
+  document.getElementById('venPreco').value = '';
+  document.getElementById('venObs').value = '';
+  document.getElementById('venEntregue').value = '';
+  sincronizarCategoriaVen();
+  document.getElementById('venData').value = state.caixaDia || hojeISO();
+  document.getElementById('venAviso').textContent = '';
+  FORMAS_VENDA.forEach(f=> document.getElementById('venPg_'+f.chave).value = '');
+  atualizarAvisosData();
+  renderCarrinho();
+}
+
+/* `entrando` é true quando a tela vem do menu — o dia volta para hoje, como nas outras
+   telas de lançamento. Ver "O DIA DE TRABALHO É HOJE". */
+function renderLojaVender(entrando){
+  garantirBaseRecebimentos();
+  montarModsVenda();
+  montarSelectCategorias();
+  sincronizarCategoriaVen();
+  const dia = (entrando && !venEditandoId) ? diaDeLancamento() : (state.caixaDia || hojeISO());
+  if(!venEditandoId) document.getElementById('venData').value = dia;
+  document.getElementById('venDia').innerHTML = htmlSeletorDia();
+  atualizarAvisosData();
+  renderCarrinho();
+  renderUltimasVendas();
+  /* A venda entra na mesma gaveta do caixa: sem a abertura do dia o fechamento não
+     fecha, e o pedido é o mesmo — e o mesmo controle — da tela de recebimento. */
+  pedirAberturaDoDia(dia);
+}
+
+function renderUltimasVendas(){
+  const caixa = document.getElementById('venUltimas');
+  const dia = state.caixaDia || hojeISO();
+  const lista = vendasDoDia(dia).slice()
+    .sort((a,b)=> String(b.criadoEm||'').localeCompare(String(a.criadoEm||'')));
+
+  if(!lista.length){
+    caixa.innerHTML = '<h3>Vendas de ' + dataBR(dia) + '</h3>' +
+      '<div class="rec-vazio">Nenhuma venda registrada neste dia.</div>';
+    return;
+  }
+  const total = r2(lista.reduce((s,v)=> s + toNum(v.total), 0));
+  caixa.innerHTML = '<h3>Vendas de ' + dataBR(dia) + '</h3>' +
+    '<div class="rec-mini" style="margin:-6px 0 10px;">' + lista.length + ' venda(s) somando ' +
+      fmtMoeda(total) + ' neste dia.</div>' +
+    '<table class="tabela-ponto"><thead><tr>' +
+    '<th class="esq">Data / hora</th><th class="esq">Produtos</th><th>Total</th>' +
+    '<th class="esq">Modalidades</th><th class="esq">Registrada por</th><th></th></tr></thead><tbody>' +
+    lista.map(v=>
+      '<tr>' +
+      celulaDataHora(v.data, v.criadoEm) +
+      '<td class="esq"><span class="rec-cli-nome">'+escHtml(resumoItensVenda(v))+'</span>' +
+        (v.obs ? '<div class="rec-mini">'+escHtml(v.obs)+'</div>' : '') + '</td>' +
+      '<td><b>'+fmtMoeda(toNum(v.total))+'</b></td>' +
+      '<td class="esq rec-mini">'+escHtml(resumoFormas(v))+'</td>' +
+      '<td class="esq rec-mini">'+escHtml(v.usuario||'—')+'</td>' +
+      '<td><div class="rec-acoes-linha">' +
+        '<button class="btn btn-outline btn-sm" data-editar-ven="'+v.id+'">Editar</button>' +
+        '<button class="btn btn-vermelho btn-sm" data-excluir-ven="'+v.id+'">Excluir</button>' +
+      '</div></td></tr>'
+    ).join('') + '</tbody></table>';
+}
+
+function salvarVenda(){
+  garantirBaseRecebimentos();
+  const aviso = document.getElementById('venAviso');
+  const total = totalDoCarrinho();
+  const formas = valoresFormasVenda();
+  const pago = r2(FORMAS_VENDA.reduce((s,f)=> s + formas[f.chave], 0));
+
+  if(!venCarrinho.length){
+    aviso.textContent = 'Adicione pelo menos um produto à venda.';
+    document.getElementById('venProduto').focus();
+    return;
+  }
+  /* Venda à vista: o pagamento tem que fechar com o total. Produto que sai sem pagar
+     não é venda da loja — é conta, e conta se lança no recebimento. */
+  if(r2(total - pago) > 0.004){
+    aviso.textContent = 'Falta distribuir ' + fmtMoeda(r2(total - pago)) +
+      ' nas modalidades — a venda da loja é sempre à vista.';
+    return;
+  }
+  if(r2(pago - total) > 0.004){
+    aviso.textContent = 'O pagamento passou ' + fmtMoeda(r2(pago - total)) +
+      ' do total da venda. Se houve troco em dinheiro, lance só o valor da venda.';
+    return;
+  }
+
+  const diaVen = document.getElementById('venData').value || hojeISO();
+  if(!aberturaDoDia(diaVen)){
+    aviso.textContent = 'Informe primeiro o valor de abertura do caixa deste dia.';
+    abrirModalAbertura(diaVen, salvarVenda);
+    return;
+  }
+  const venOriginal = venEditandoId ? (state.vendas||[]).find(x=> x.id===venEditandoId) : null;
+  if((!venOriginal || String(venOriginal.data||'') !== diaVen) &&
+     !confirmarDataForaDeHoje(diaVen, 'venda')) return;
+  aviso.textContent = '';
+
+  /* Produto digitado que ainda não existe entra na base agora, com o preço da venda —
+     é o mesmo caminho do cliente novo no recebimento. */
+  let cadastrados = 0;
+  venCarrinho.forEach(it=>{
+    if(it.produtoId) return;
+    const jaExiste = produtoPorNome(it.nome);
+    if(jaExiste){ it.produtoId = jaExiste.id; it.categoria = jaExiste.categoria || 'Outros'; return; }
+    const p = {
+      id: novoIdRec('p_'), nome: it.nome, categoria: it.categoria || 'Outros',
+      preco: r2(it.preco), obs: '', criadoEm: new Date().toISOString()
+    };
+    state.produtos.push(p);
+    salvarNoCaixa('produtos', p);
+    it.produtoId = p.id;
+    cadastrados++;
+  });
+
+  const dados = {
+    data: diaVen,
+    itens: venCarrinho.map(it=> ({
+      produtoId: it.produtoId, nome: it.nome, categoria: it.categoria,
+      qtd: r2(it.qtd), preco: r2(it.preco), subtotal: r2(it.subtotal)
+    })),
+    total: total,
+    obs: document.getElementById('venObs').value.trim()
+  };
+  FORMAS_VENDA.forEach(f=> dados[f.chave] = formas[f.chave]);
+
+  if(venEditandoId){
+    const v = (state.vendas||[]).find(x=> x.id===venEditandoId);
+    if(!v){ mostrarToast('A venda não existe mais'); limparFormVenda(); return; }
+    Object.assign(v, dados, { alteradoEm: new Date().toISOString() });
+    salvarNoCaixa('vendas', v);
+    mostrarToast('Venda de ' + fmtMoeda(total) + ' corrigida');
+  }else{
+    const nova = Object.assign({
+      id: novoIdRec('v_'),
+      criadoEm: new Date().toISOString(),
+      usuario: document.getElementById('usuarioLogado').textContent || ''
+    }, dados);
+    state.vendas.push(nova);
+    salvarNoCaixa('vendas', nova);
+    mostrarToast('Venda de ' + fmtMoeda(total) + ' registrada' +
+      (cadastrados ? ' (' + cadastrados + ' produto(s) cadastrado(s))' : ''));
+  }
+
+  limparFormVenda();
+  renderUltimasVendas();
+  document.getElementById('venProduto').focus();
+}
+
+function editarVenda(id){
+  const v = (state.vendas||[]).find(x=> x.id===id);
+  if(!v) return;
+  venEditandoId = id;                 /* antes de abrir a tela — ver editarRecebimento */
+  trocarAba('lojaVender');
+  venCarrinho = itensDaVenda(v).map(it=> ({
+    produtoId: it.produtoId || null,
+    nome: it.nome || (produtoPorId(it.produtoId)||{}).nome || 'Produto',
+    categoria: it.categoria || categoriaDoItem(it),
+    novo: false,
+    qtd: r2(toNum(it.qtd)), preco: r2(toNum(it.preco)), subtotal: r2(toNum(it.subtotal))
+  }));
+  venDinheiroAuto = false;            /* os valores gravados mandam, não o automático */
+  document.getElementById('venData').value = v.data || hojeISO();
+  document.getElementById('venObs').value = v.obs || '';
+  document.getElementById('venEntregue').value = '';
+  FORMAS_VENDA.forEach(f=>{
+    const val = toNum(v[f.chave]);
+    document.getElementById('venPg_'+f.chave).value = val ? val.toFixed(2).replace('.',',') : '';
+  });
+  document.getElementById('venEditandoTxt').textContent =
+    'Corrigindo a venda de ' + fmtMoeda(toNum(v.total)) + ' de ' + dataBR(v.data) + '.';
+  document.getElementById('venEditandoAviso').classList.add('show');
+  document.getElementById('btnVenSalvar').textContent = 'Salvar alteração';
+  renderCarrinho();
+  atualizarAvisosData();
+  window.scrollTo(0,0);
+}
+
+function excluirVenda(id){
+  const v = (state.vendas||[]).find(x=> x.id===id);
+  if(!v) return;
+  if(!confirm('Excluir a venda de ' + fmtMoeda(toNum(v.total)) + ' de ' + dataBR(v.data) + '?\n\n' +
+    resumoItensVenda(v) + '\n\nO fechamento do caixa daquele dia é recalculado.')) return;
+  state.vendas = (state.vendas||[]).filter(x=> x.id!==id);
+  if(venEditandoId === id) limparFormVenda();
+  apagarDoCaixa('vendas', id);
+  renderCaixaAtual();
+  mostrarToast('Venda excluída');
+}
+
+document.getElementById('btnVenAddItem').addEventListener('click', adicionarItemVenda);
+document.getElementById('btnVenSalvar').addEventListener('click', salvarVenda);
+document.getElementById('btnVenLimpar').addEventListener('click', ()=> limparFormVenda());
+document.getElementById('btnVenCancelarEdicao').addEventListener('click', ()=>{
+  limparFormVenda();
+  mostrarToast('Edição cancelada');
+});
+document.getElementById('venData').addEventListener('change', (e)=>{
+  if(venEditandoId) return;
+  trocarDiaCaixa(e.target.value);
+  atualizarAvisosData();
+});
+document.getElementById('venEntregue').addEventListener('input', atualizarTrocoVenda);
+/* Enter percorre o caminho da venda: produto ▸ preço ▸ quantidade ▸ adiciona. */
+document.getElementById('venPreco').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter'){ e.preventDefault(); document.getElementById('venQtd').focus(); }
+});
+document.getElementById('venQtd').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter'){ e.preventDefault(); adicionarItemVenda(); }
+});
+ligarBuscaProduto();
+/* Monta os campos das modalidades já na carga: excluir uma venda por outra tela mexe no
+   somatório desta mesmo que ela ainda não tenha sido aberta. */
+montarModsVenda();
+
+/* --------------------------------------------------------------- tela de vendas do dia
+   As vendas do DIA escolhido, para conferir, corrigir ou apagar. */
+function montarSelectCategorias(){
+  const opcoes = '<option value="todas">Todas as categorias</option>' +
+    CATEGORIAS_PRODUTO.map(c=> '<option value="'+escHtml(c)+'">'+escHtml(c)+'</option>').join('');
+  ['lvCategoria','prdCategoria'].forEach(id=>{
+    const sel = document.getElementById(id);
+    if(sel && !sel.options.length) sel.innerHTML = opcoes;
+  });
+  const sos = CATEGORIAS_PRODUTO.map(c=> '<option value="'+escHtml(c)+'">'+escHtml(c)+'</option>').join('');
+  ['prdCat','venCat'].forEach(id=>{
+    const sel = document.getElementById(id);
+    if(sel && !sel.options.length) sel.innerHTML = sos;
+  });
+}
+
+function renderLojaVendas(){
+  garantirBaseRecebimentos();
+  montarSelectCategorias();
+  const dia = state.caixaDia || hojeISO();
+  const busca = norm(document.getElementById('lvBusca').value);
+  const cat = document.getElementById('lvCategoria').value || 'todas';
+  document.getElementById('lvDia').innerHTML = htmlSeletorDia();
+
+  const t = totaisDoDia(dia);
+  const doDia = t.ven;
+  const lista = doDia.filter(v=>{
+    const itens = itensDaVenda(v);
+    if(busca && !itens.some(it=> norm(it.nome).indexOf(busca) >= 0)) return false;
+    if(cat !== 'todas' && !itens.some(it=> norm(categoriaDoItem(it)) === norm(cat))) return false;
+    return true;
+  }).sort((a,b)=> String(b.criadoEm||'').localeCompare(String(a.criadoEm||'')));
+
+  document.getElementById('lvKpis').innerHTML =
+    '<div class="kpi kpi-ok"><div class="kpi-rot">Vendido no dia</div>' +
+      '<div class="kpi-val">'+fmtMoeda(t.vendido)+'</div>' +
+      '<div class="kpi-sub">'+doDia.length+' venda(s), '+t.itensVendidos+' peça(s)</div></div>' +
+    '<div class="kpi"><div class="kpi-rot">Ticket médio</div>' +
+      '<div class="kpi-val">'+fmtMoeda(doDia.length ? r2(t.vendido/doDia.length) : 0)+'</div>' +
+      '<div class="kpi-sub">valor médio por venda</div></div>' +
+    FORMAS_VENDA.filter(f=> t.porFormaVen[f.chave] > 0).map(f=>
+      '<div class="kpi kpi-info"><div class="kpi-rot">Loja em '+f.rotulo.toLowerCase()+'</div>' +
+        '<div class="kpi-val">'+fmtMoeda(t.porFormaVen[f.chave])+'</div>' +
+        '<div class="kpi-sub">'+ (t.vendido > 0 ? Math.round(t.porFormaVen[f.chave]/t.vendido*100)+'% do vendido' : '') +'</div></div>'
+    ).join('');
+
+  /* Venda com data no futuro é quase sempre erro de digitação — e some da vista, porque
+     as telas trabalham no dia. Fica avisado aqui, com o dia onde encontrá-la. */
+  const futuras = (state.vendas||[]).filter(v=> String(v.data||'') > hojeISO());
+  const diasFuturos = Array.from(new Set(futuras.map(v=> String(v.data)))).sort();
+  document.getElementById('lvInfo').innerHTML =
+    escHtml(lista.length + ' de ' + doDia.length + ' venda(s) de ' + dataBR(dia) +
+      '. Clique em Editar para abrir a venda no formulário e corrigir.') +
+    (futuras.length
+      ? '<div style="margin-top:6px;color:var(--vermelho);font-weight:700;">' +
+        escHtml(futuras.length + ' venda(s) estão datadas de ' + diasFuturos.map(d=> dataBR(d)).join(', ') +
+          ', data que ainda não chegou. Se a data foi digitada errada, escolha esse dia no seletor acima e corrija em Editar.') + '</div>'
+      : '');
+
+  const corpo = document.getElementById('lvCorpo');
+  if(!lista.length){
+    corpo.innerHTML = '<div class="rec-vazio">' +
+      (doDia.length ? 'Nenhuma venda com esse filtro em ' + dataBR(dia) + '.'
+                    : 'Nenhuma venda registrada em ' + dataBR(dia) + '.') + '</div>';
+    return;
+  }
+  corpo.innerHTML = '<table class="tabela-ponto"><thead><tr>' +
+    '<th class="esq">Data / hora</th><th class="esq">Produtos</th><th>Peças</th><th>Total</th>' +
+    FORMAS_VENDA.map(f=> '<th>'+f.rotulo+'</th>').join('') +
+    '<th class="esq">Registrada por</th><th></th></tr></thead><tbody>' +
+    lista.map(v=>{
+      const itens = itensDaVenda(v);
+      return '<tr>' +
+        celulaDataHora(v.data, v.criadoEm) +
+        '<td class="esq">' + itens.map(it=>
+            '<div><span class="rec-cli-nome">'+escHtml(it.nome)+'</span> ' +
+            '<span class="rec-mini">'+r2(toNum(it.qtd))+' × '+fmtMoeda(toNum(it.preco))+' = '+fmtMoeda(toNum(it.subtotal))+'</span></div>'
+          ).join('') +
+          (v.obs ? '<div class="rec-mini">'+escHtml(v.obs)+'</div>' : '') + '</td>' +
+        '<td>'+r2(itens.reduce((s,it)=> s + toNum(it.qtd), 0))+'</td>' +
+        '<td><b>'+fmtMoeda(toNum(v.total))+'</b></td>' +
+        FORMAS_VENDA.map(f=> '<td>'+(toNum(v[f.chave]) ? fmtMoeda(toNum(v[f.chave])) : '—')+'</td>').join('') +
+        '<td class="esq rec-mini">'+escHtml(v.usuario||'—')+
+          (v.alteradoEm ? '<div class="rec-mini">corrigida em '+new Date(v.alteradoEm).toLocaleDateString('pt-BR')+'</div>' : '') + '</td>' +
+        '<td><div class="rec-acoes-linha">' +
+          '<button class="btn btn-outline btn-sm" data-editar-ven="'+v.id+'">Editar</button>' +
+          '<button class="btn btn-vermelho btn-sm" data-excluir-ven="'+v.id+'">Excluir</button>' +
+        '</div></td></tr>';
+    }).join('') +
+    '<tr><td class="esq"><b>TOTAL</b></td><td class="esq"></td>' +
+    '<td><b>'+r2(lista.reduce((s,v)=> s + itensDaVenda(v).reduce((q,it)=> q + toNum(it.qtd), 0), 0))+'</b></td>' +
+    '<td><b>'+fmtMoeda(r2(lista.reduce((s,v)=> s + toNum(v.total), 0)))+'</b></td>' +
+    FORMAS_VENDA.map(f=> '<td><b>'+fmtMoeda(r2(lista.reduce((s,v)=> s + toNum(v[f.chave]), 0)))+'</b></td>').join('') +
+    '<td></td><td></td></tr>' +
+    '</tbody></table>';
+}
+
+document.getElementById('lvBusca').addEventListener('input', renderLojaVendas);
+document.getElementById('lvCategoria').addEventListener('change', renderLojaVendas);
+
+/* --------------------------------------------------------------- base de produtos */
+function renderProdutos(){
+  garantirBaseRecebimentos();
+  montarSelectCategorias();
+  const busca = norm(document.getElementById('prdBusca').value);
+  const cat = document.getElementById('prdCategoria').value || 'todas';
+  const ordem = document.getElementById('prdOrdem').value;
+  const resumos = resumoProdutos();
+
+  const linhas = (state.produtos||[]).map(p=> Object.assign({prd:p}, resumos[p.id] || {qtd:0,faturado:0,vendas:0,ultima:''}));
+  const comVenda = linhas.filter(l=> l.qtd > 0).length;
+  const faturado = r2(linhas.reduce((s,l)=> s + l.faturado, 0));
+  const pecas = r2(linhas.reduce((s,l)=> s + l.qtd, 0));
+
+  document.getElementById('prdKpis').innerHTML =
+    '<div class="kpi"><div class="kpi-rot">Produtos na base</div><div class="kpi-val">'+linhas.length+'</div>' +
+      '<div class="kpi-sub">'+comVenda+' já saíram pelo menos uma vez</div></div>' +
+    '<div class="kpi kpi-ok"><div class="kpi-rot">Faturado pela loja</div>' +
+      '<div class="kpi-val">'+fmtMoeda(faturado)+'</div><div class="kpi-sub">desde o começo</div></div>' +
+    '<div class="kpi kpi-info"><div class="kpi-rot">Peças vendidas</div>' +
+      '<div class="kpi-val">'+pecas+'</div><div class="kpi-sub">soma de todas as vendas</div></div>';
+
+  let lista = linhas.filter(l=>{
+    if(busca && norm(l.prd.nome).indexOf(busca) < 0) return false;
+    if(cat !== 'todas' && norm(l.prd.categoria) !== norm(cat)) return false;
+    if(ordem === 'semmov') return !l.qtd;
+    return true;
+  });
+  lista.sort((a,b)=>{
+    if(ordem==='faturado')  return b.faturado - a.faturado || a.prd.nome.localeCompare(b.prd.nome,'pt-BR');
+    if(ordem==='recentes')  return String(b.ultima||'').localeCompare(String(a.ultima||'')) || a.prd.nome.localeCompare(b.prd.nome,'pt-BR');
+    if(ordem==='alfabetica' || ordem==='semmov') return a.prd.nome.localeCompare(b.prd.nome,'pt-BR');
+    return b.qtd - a.qtd || a.prd.nome.localeCompare(b.prd.nome,'pt-BR');
+  });
+
+  document.getElementById('prdInfo').textContent =
+    lista.length + ' de ' + linhas.length + ' produto(s) na tela. Clique na linha para abrir o cadastro.';
+
+  const corpo = document.getElementById('prdCorpo');
+  if(!lista.length){
+    corpo.innerHTML = '<div class="rec-vazio">' +
+      (linhas.length ? 'Nenhum produto com esse filtro.'
+                     : 'A base de produtos está vazia. Cadastre aqui, ou simplesmente digite o produto na tela de venda: ele entra sozinho.') + '</div>';
+    return;
+  }
+  corpo.innerHTML = '<table class="tabela-ponto"><thead><tr>' +
+    '<th class="esq">Produto</th><th class="esq">Categoria</th><th>Preço</th><th>Peças vendidas</th>' +
+    '<th>Faturado</th><th class="esq">Última venda</th></tr></thead><tbody>' +
+    lista.map(l=>
+      '<tr data-produto="'+l.prd.id+'" style="cursor:pointer;">' +
+      '<td class="esq"><span class="rec-cli-nome">'+escHtml(l.prd.nome)+'</span>' +
+        (l.prd.obs ? '<div class="rec-mini">'+escHtml(l.prd.obs)+'</div>' : '') + '</td>' +
+      '<td class="esq">'+tagCategoria(l.prd.categoria)+'</td>' +
+      '<td>'+fmtMoeda(toNum(l.prd.preco))+'</td>' +
+      '<td>'+ (l.qtd ? '<b>'+l.qtd+'</b>' : '—') +'</td>' +
+      '<td>'+ (l.faturado ? fmtMoeda(l.faturado) : '—') +'</td>' +
+      '<td class="esq rec-mini">'+ (l.ultima ? dataBR(l.ultima) : 'sem venda ainda') +'</td></tr>'
+    ).join('') +
+    '<tr><td class="esq"><b>TOTAL</b></td><td class="esq"></td><td></td>' +
+    '<td><b>'+r2(lista.reduce((s,l)=> s + l.qtd, 0))+'</b></td>' +
+    '<td><b>'+fmtMoeda(r2(lista.reduce((s,l)=> s + l.faturado, 0)))+'</b></td><td></td></tr>' +
+    '</tbody></table>';
+}
+
+document.getElementById('prdBusca').addEventListener('input', renderProdutos);
+document.getElementById('prdCategoria').addEventListener('change', renderProdutos);
+document.getElementById('prdOrdem').addEventListener('change', renderProdutos);
+document.getElementById('prdCorpo').addEventListener('click', (e)=>{
+  const tr = e.target.closest('tr[data-produto]');
+  if(tr) abrirModalProduto(tr.dataset.produto);
+});
+document.getElementById('btnNovoProduto').addEventListener('click', ()=> abrirModalProduto(null));
+
+/* --------------------------------------------------------------- cadastro do produto */
+let produtoEditandoId = null;
+
+function abrirModalProduto(id){
+  montarSelectCategorias();
+  produtoEditandoId = id || null;
+  const p = id ? produtoPorId(id) : null;
+  document.getElementById('prdTitulo').textContent = p ? 'Produto da loja' : 'Cadastrar produto';
+  document.getElementById('prdNome').value = p ? p.nome : '';
+  document.getElementById('prdCat').value = (p && p.categoria) ? p.categoria : 'Farmácia';
+  document.getElementById('prdPreco').value = (p && toNum(p.preco)) ? toNum(p.preco).toFixed(2).replace('.',',') : '';
+  document.getElementById('prdObs').value = p ? (p.obs||'') : '';
+  document.getElementById('btnExcluirProduto').style.display = p ? '' : 'none';
+
+  const ficha = document.getElementById('prdFicha');
+  if(p){
+    const r = resumoProdutos()[p.id] || {qtd:0, faturado:0, ultima:''};
+    ficha.innerHTML = '<div class="rec-ficha">' +
+      '<div>Peças vendidas <b>'+r.qtd+'</b></div>' +
+      '<div>Faturado <b>'+fmtMoeda(r.faturado)+'</b></div>' +
+      '<div>'+ (r.ultima ? 'Última venda em <b>'+dataBR(r.ultima)+'</b>' : '<span class="rec-mini">Nenhuma venda ainda</span>') +'</div></div>';
+  }else{
+    ficha.innerHTML = '';
+  }
+  document.getElementById('overlayProduto').classList.add('show');
+  setTimeout(()=> document.getElementById('prdNome').focus(), 60);
+}
+
+function fecharModalProduto(){
+  document.getElementById('overlayProduto').classList.remove('show');
+  produtoEditandoId = null;
+}
+
+document.getElementById('formProduto').addEventListener('submit', (e)=>{
+  e.preventDefault();
+  garantirBaseRecebimentos();
+  const nome = arrumarNome(document.getElementById('prdNome').value);
+  if(!nome){ mostrarToast('Informe o nome do produto'); return; }
+  const repetido = produtoPorNome(nome);
+  if(repetido && repetido.id !== produtoEditandoId){
+    mostrarToast('Já existe um produto com esse nome na base');
+    return;
+  }
+  const dados = {
+    nome: nome,
+    categoria: document.getElementById('prdCat').value || 'Outros',
+    preco: r2(toNum(document.getElementById('prdPreco').value)),
+    obs: document.getElementById('prdObs').value.trim()
+  };
+  if(produtoEditandoId){
+    const p = produtoPorId(produtoEditandoId);
+    if(!p){ mostrarToast('O produto não existe mais'); fecharModalProduto(); return; }
+    Object.assign(p, dados, { alteradoEm: new Date().toISOString() });
+    salvarNoCaixa('produtos', p);
+    mostrarToast('Produto atualizado');
+  }else{
+    const p = Object.assign({ id: novoIdRec('p_'), criadoEm: new Date().toISOString() }, dados);
+    state.produtos.push(p);
+    salvarNoCaixa('produtos', p);
+    mostrarToast('Produto cadastrado');
+  }
+  fecharModalProduto();
+  renderProdutos();
+});
+
+document.getElementById('btnExcluirProduto').addEventListener('click', ()=>{
+  const p = produtoPorId(produtoEditandoId);
+  if(!p) return;
+  const r = resumoProdutos()[p.id] || {qtd:0};
+  /* Excluir o produto NÃO apaga as vendas dele: cada item guarda o nome e o preço do
+     dia, e o histórico do caixa continua fechando igual. */
+  if(!confirm('Excluir o produto ' + p.nome + ' da base?\n\n' +
+    (r.qtd ? 'As ' + r.qtd + ' peça(s) já vendidas continuam no histórico do caixa — só o cadastro sai da busca.'
+           : 'Ele ainda não foi vendido nenhuma vez.'))) return;
+  state.produtos = (state.produtos||[]).filter(x=> x.id !== p.id);
+  apagarDoCaixa('produtos', p.id);
+  fecharModalProduto();
+  renderProdutos();
+  mostrarToast('Produto excluído da base');
+});
+document.getElementById('fecharProduto').addEventListener('click', fecharModalProduto);
+document.getElementById('btnCancelarProduto').addEventListener('click', fecharModalProduto);
+
+/* --------------------------------------------------------------- balanço da loja
+   O mês inteiro da loja: quanto faturou, em que modalidades, e o que mais saiu. É a
+   contraparte do Balanço Mensal do Caixa, olhando só a prateleira. */
+function renderBalancoLoja(){
+  garantirBaseRecebimentos();
+  const sel = document.getElementById('balLojaMes');
+  const meses = mesesComRecebimento();
+  if(!state.balLojaMes || meses.indexOf(state.balLojaMes) < 0) state.balLojaMes = mesAtualPadrao();
+  if(meses.indexOf(state.balLojaMes) < 0) state.balLojaMes = meses[0];
+  sel.innerHTML = meses.map(m=> '<option value="'+m+'"'+(m===state.balLojaMes?' selected':'')+'>'+mesLabel(m)+'</option>').join('');
+  const mes = state.balLojaMes;
+  document.getElementById('balLojaMesLabel').textContent = mesLabel(mes);
+
+  const dias = diasDoMesComMovimento(mes);
+  const linhas = dias.map(d=> totaisDoDia(d)).filter(t=> t.ven.length);
+  const soma = (fn)=> r2(linhas.reduce((s,t)=> s + fn(t), 0));
+  const faturado = soma(t=> t.vendido);
+  const pecas = soma(t=> t.itensVendidos);
+  const qtdVendas = linhas.reduce((s,t)=> s + t.ven.length, 0);
+  const porForma = {};
+  FORMAS_VENDA.forEach(f=> porForma[f.chave] = soma(t=> t.porFormaVen[f.chave]));
+
+  document.getElementById('balLojaKpis').innerHTML =
+    '<div class="kpi kpi-ok"><div class="kpi-rot">Faturado no mês</div><div class="kpi-val">'+fmtMoeda(faturado)+'</div>' +
+      '<div class="kpi-sub">'+qtdVendas+' venda(s) em '+linhas.length+' dia(s)</div></div>' +
+    '<div class="kpi kpi-info"><div class="kpi-rot">Peças vendidas</div><div class="kpi-val">'+pecas+'</div>' +
+      '<div class="kpi-sub">média de '+ (linhas.length ? r2(pecas/linhas.length) : 0) +' por dia com venda</div></div>' +
+    '<div class="kpi"><div class="kpi-rot">Ticket médio</div>' +
+      '<div class="kpi-val">'+fmtMoeda(qtdVendas ? r2(faturado/qtdVendas) : 0)+'</div>' +
+      '<div class="kpi-sub">valor médio por venda</div></div>';
+
+  document.getElementById('balLojaFormas').innerHTML = FORMAS_VENDA.map(f=>
+    '<div class="btn-forma" style="cursor:default;">' +
+      '<div class="bf-rot"><svg viewBox="0 0 24 24">'+f.icone+'</svg>'+f.rotulo+'</div>' +
+      '<div class="bf-val">'+fmtMoeda(porForma[f.chave])+'</div>' +
+      '<div class="bf-sub">'+ (faturado > 0 ? Math.round(porForma[f.chave]/faturado*100)+'% do faturado' : 'sem movimento') +'</div></div>'
+  ).join('');
+
+  /* Ranking: é a pergunta que a loja de balcão faz — o que está saindo. */
+  const resumos = resumoProdutos(mes);
+  const ranking = (state.produtos||[])
+    .map(p=> Object.assign({prd:p}, resumos[p.id] || {qtd:0, faturado:0}))
+    .filter(l=> l.qtd > 0)
+    .sort((a,b)=> b.faturado - a.faturado || b.qtd - a.qtd)
+    .slice(0, 15);
+  document.getElementById('balLojaRanking').innerHTML = ranking.length
+    ? '<div class="rec-bloco"><h3>O que mais saiu em ' + mesLabel(mes) + '</h3>' +
+      '<table class="tabela-ponto"><thead><tr>' +
+      '<th class="esq">Produto</th><th class="esq">Categoria</th><th>Peças</th><th>Faturado</th><th>% do mês</th>' +
+      '</tr></thead><tbody>' +
+      ranking.map(l=>
+        '<tr><td class="esq"><span class="rec-cli-nome">'+escHtml(l.prd.nome)+'</span></td>' +
+        '<td class="esq">'+tagCategoria(l.prd.categoria)+'</td>' +
+        '<td><b>'+l.qtd+'</b></td><td>'+fmtMoeda(l.faturado)+'</td>' +
+        '<td>'+ (faturado > 0 ? Math.round(l.faturado/faturado*100)+'%' : '—') +'</td></tr>'
+      ).join('') + '</tbody></table></div>'
+    : '';
+
+  document.getElementById('balLojaInfo').textContent = linhas.length
+    ? 'Um dia por linha. Clique em um dia para abrir as vendas daquele dia.' : '';
+
+  const corpo = document.getElementById('balLojaCorpo');
+  if(!linhas.length){
+    corpo.innerHTML = '<div class="rec-vazio">Nenhuma venda da loja em ' + mesLabel(mes) + '.</div>';
+    return;
+  }
+  corpo.innerHTML = '<table class="tabela-ponto"><thead><tr>' +
+    '<th class="esq">Dia</th><th>Vendas</th><th>Peças</th>' +
+    FORMAS_VENDA.map(f=> '<th>'+f.rotulo+'</th>').join('') +
+    '<th>Faturado</th></tr></thead><tbody>' +
+    linhas.map(t=>
+      '<tr data-loja-dia="'+t.iso+'" style="cursor:pointer;">' +
+      '<td class="esq"><span class="rec-cli-nome">'+dataBR(t.iso)+'</span>' +
+        '<div class="rec-mini">'+DIAS_SEMANA[deISO(t.iso).getDay()]+'</div></td>' +
+      '<td>'+t.ven.length+'</td><td>'+t.itensVendidos+'</td>' +
+      FORMAS_VENDA.map(f=> '<td>'+(t.porFormaVen[f.chave] ? fmtMoeda(t.porFormaVen[f.chave]) : '—')+'</td>').join('') +
+      '<td class="cel-ok"><b>'+fmtMoeda(t.vendido)+'</b></td></tr>'
+    ).join('') +
+    '<tr><td class="esq"><b>TOTAL DO MÊS</b></td><td><b>'+qtdVendas+'</b></td><td><b>'+pecas+'</b></td>' +
+    FORMAS_VENDA.map(f=> '<td><b>'+fmtMoeda(porForma[f.chave])+'</b></td>').join('') +
+    '<td><b>'+fmtMoeda(faturado)+'</b></td></tr>' +
+    '</tbody></table>';
+}
+
+document.getElementById('balLojaMes').addEventListener('change', (e)=>{
+  state.balLojaMes = e.target.value;
+  salvarEstado();
+  renderBalancoLoja();
+});
+document.getElementById('balLojaCorpo').addEventListener('click', (e)=>{
+  const tr = e.target.closest('tr[data-loja-dia]');
+  if(!tr) return;
+  state.caixaDia = tr.dataset.lojaDia;
+  gravarCache();
+  trocarAba('lojaVendas');
+});
+
+/* --------------------------------------------------------------- exportações da loja */
+document.getElementById('btnExportarVendas').addEventListener('click', ()=>{
+  const dia = state.caixaDia || hojeISO();
+  const t = totaisDoDia(dia);
+  const lista = t.ven.slice().sort((a,b)=> String(a.criadoEm||'').localeCompare(String(b.criadoEm||'')));
+  if(!lista.length){ mostrarToast('Nenhuma venda da loja em ' + dataBR(dia)); return; }
+
+  /* Uma linha por ITEM: é assim que se confere o que saiu da prateleira. O total da
+     venda aparece só na primeira linha dela, para não somar duas vezes. */
+  const aoa = [['VENDAS DA LOJA — ' + dataBR(dia)], [],
+    ['Hora','Produto','Categoria','Qtd','Preço unit.','Subtotal','Total da venda']
+      .concat(FORMAS_VENDA.map(f=> f.rotulo)).concat(['Registrada por','Observação'])];
+  lista.forEach(v=>{
+    itensDaVenda(v).forEach((it, i)=>{
+      aoa.push([i===0 ? horaDe(v.criadoEm) : '', it.nome||'', categoriaDoItem(it),
+                r2(toNum(it.qtd)), r2(toNum(it.preco)), r2(toNum(it.subtotal)),
+                i===0 ? r2(toNum(v.total)) : '']
+        .concat(FORMAS_VENDA.map(f=> i===0 ? r2(toNum(v[f.chave])) : ''))
+        .concat([i===0 ? (v.usuario||'') : '', i===0 ? (v.obs||'') : '']));
+    });
+  });
+  aoa.push(['TOTAL','','', t.itensVendidos, '', t.vendido, t.vendido]
+    .concat(FORMAS_VENDA.map(f=> t.porFormaVen[f.chave])).concat(['','']));
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols'] = [{wch:8},{wch:34},{wch:16},{wch:8},{wch:13},{wch:13},{wch:15}]
+    .concat(FORMAS_VENDA.map(()=> ({wch:13}))).concat([{wch:20},{wch:30}]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Vendas');
+  XLSX.writeFile(wb, 'Loja_' + dia + '.xlsx');
+});
+
+document.getElementById('btnExportarProdutos').addEventListener('click', ()=>{
+  const resumos = resumoProdutos();
+  const linhas = (state.produtos||[]).slice().sort((a,b)=> a.nome.localeCompare(b.nome,'pt-BR'))
+    .map(p=>{
+      const r = resumos[p.id] || {qtd:0, faturado:0, ultima:''};
+      return [p.nome, p.categoria||'Outros', r2(toNum(p.preco)), r.qtd, r.faturado,
+              r.ultima ? dataBR(r.ultima) : '', p.obs||''];
+    });
+  if(!linhas.length){ mostrarToast('A base de produtos ainda está vazia'); return; }
+  const cab = [['PRODUTOS DA LOJA — ' + new Date().toLocaleDateString('pt-BR')], [],
+    ['Produto','Categoria','Preço','Peças vendidas','Faturado','Última venda','Observação']];
+  const ws = XLSX.utils.aoa_to_sheet(cab.concat(linhas));
+  ws['!cols'] = [{wch:34},{wch:18},{wch:12},{wch:15},{wch:14},{wch:16},{wch:30}];
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Produtos');
+  XLSX.writeFile(wb, 'Produtos_Loja_' + hojeISO() + '.xlsx');
+});
+
+document.getElementById('btnExportarBalancoLoja').addEventListener('click', ()=>{
+  const mes = state.balLojaMes;
+  const linhas = diasDoMesComMovimento(mes).map(d=> totaisDoDia(d)).filter(t=> t.ven.length);
+  if(!linhas.length){ mostrarToast('Nenhuma venda da loja em ' + mesLabel(mes)); return; }
+  const soma = (fn)=> r2(linhas.reduce((s,t)=> s + fn(t), 0));
+
+  const aoa = [['BALANÇO DA LOJA — ' + mesLabel(mes)], [],
+    ['Dia','Dia da semana','Vendas','Peças'].concat(FORMAS_VENDA.map(f=> f.rotulo)).concat(['Faturado'])];
+  linhas.forEach(t=>{
+    aoa.push([dataBR(t.iso), DIAS_SEMANA[deISO(t.iso).getDay()], t.ven.length, t.itensVendidos]
+      .concat(FORMAS_VENDA.map(f=> t.porFormaVen[f.chave])).concat([t.vendido]));
+  });
+  aoa.push(['TOTAL','', linhas.reduce((s,t)=> s + t.ven.length, 0), soma(t=> t.itensVendidos)]
+    .concat(FORMAS_VENDA.map(f=> soma(t=> t.porFormaVen[f.chave]))).concat([soma(t=> t.vendido)]));
+
+  const ws = XLSX.utils.aoa_to_sheet(aoa);
+  ws['!cols'] = [{wch:12},{wch:15},{wch:10},{wch:10}].concat(FORMAS_VENDA.map(()=> ({wch:13}))).concat([{wch:14}]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Loja ' + mes);
+
+  /* Segunda aba: o ranking do mês, que é o que se olha para decidir o que repor. */
+  const resumos = resumoProdutos(mes);
+  const rank = (state.produtos||[])
+    .map(p=> Object.assign({prd:p}, resumos[p.id] || {qtd:0, faturado:0}))
+    .filter(l=> l.qtd > 0).sort((a,b)=> b.faturado - a.faturado);
+  const aoaR = [['O QUE MAIS SAIU — ' + mesLabel(mes)], [], ['Produto','Categoria','Peças','Faturado']];
+  rank.forEach(l=> aoaR.push([l.prd.nome, l.prd.categoria||'Outros', l.qtd, l.faturado]));
+  const wsR = XLSX.utils.aoa_to_sheet(aoaR);
+  wsR['!cols'] = [{wch:34},{wch:18},{wch:10},{wch:14}];
+  XLSX.utils.book_append_sheet(wb, wsR, 'Ranking');
+
+  XLSX.writeFile(wb, 'Balanco_Loja_' + mes + '.xlsx');
 });
 
 /* ============================= FÉRIAS =============================
@@ -10518,6 +12394,7 @@ fecharAoClicarFora('overlayVincular');
 fecharAoClicarFora('overlayCliente');
 fecharAoClicarFora('overlayFerias');
 fecharAoClicarFora('overlayAbertura');
+fecharAoClicarFora('overlayProduto');
 iniciarAutenticacao();
 </script>
 </body>
