@@ -17,20 +17,81 @@
     --verde:#1f9d55; --vermelho:#c0392b; --cinza:#eef1f3; --cinza-borda:#e0e6e9;
     --superficie:#ffffff;
     --texto:#26333d; --texto-fraco:#6b7a86;
+
+    /* ---------- MOVIMENTO ----------
+       As cores são as de sempre; o que mudou foi o jeito como as coisas se mexem.
+       Estas três curvas são as do iOS e valem para o sistema inteiro:
+
+       --mola   desacelera longe do fim, como algo pesado sendo freado. É a curva de
+                tudo que ABRE — modal, dropdown, tela. Dá a sensação de peso físico.
+       --suave  a curva de sempre, para cor, borda e opacidade.
+       --saida  acelera até sumir. Fechar tem que ser mais rápido que abrir: o usuário
+                já decidiu, não quer esperar a animação.
+
+       Duração: nada acima de 0,22s. Os tempos foram encurtados depois de o sistema
+       engasgar nas máquinas do escritório: quadro que não existe não custa nada, e boa
+       parte do que se sentia como travada era animação comprida demais tendo que
+       desenhar coisa cara vinte vezes seguidas em vez de dez. Em sistema de balcão,
+       onde a mesma tela é aberta cinquenta vezes por dia, rápido é melhor que bonito —
+       e, na prática, rápido PARECE mais bonito. */
+    --mola:cubic-bezier(.32,.72,0,1);
+    --suave:cubic-bezier(.4,0,.2,1);
+    --saida:cubic-bezier(.4,0,1,1);
+    /* Arranca quase instantâneo e assenta devagar no fim. É a curva que dá a sensação
+       de leveza do iOS: o movimento já aconteceu antes de o olho acompanhar, e o que
+       se vê é só o repouso. Usada onde a resposta precisa parecer imediata. */
+    --expo:cubic-bezier(.16,1,.3,1);
+    --t-rapido:.12s; --t-medio:.17s; --t-lento:.22s;
+
+    /* Sombras de elevação. O sistema sempre separou as áreas por contraste de fundo, e
+       isso continua: estas são de propósito quase invisíveis: dão a borda macia que
+       falta, sem transformar a tela num monte de caixas flutuando. */
+    --sombra-1:0 1px 2px rgba(20,45,65,.05), 0 1px 3px rgba(20,45,65,.04);
+    --sombra-2:0 2px 6px rgba(20,45,65,.07), 0 6px 16px rgba(20,45,65,.05);
+    --sombra-modal:0 10px 24px rgba(12,30,45,.14), 0 32px 64px rgba(12,30,45,.18);
+    --foco:0 0 0 3.5px rgba(1,109,60,.15);
   }
   *{box-sizing:border-box;}
-  body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--cinza);color:var(--texto);}
+  /* A fonte do sistema operacional, não a Arial. É a troca que mais muda a cara da tela:
+     no Windows dos três computadores isto vira Segoe UI, e no celular, a fonte do iOS. */
+  body{margin:0;background:var(--cinza);color:var(--texto);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI Variable Text","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+    text-rendering:optimizeLegibility;}
+  /* Números em colunas de tabela têm que alinhar: sem isto o "1" é mais estreito que o
+     "8" e a coluna de valores fica tremida. */
+  .tabela-ponto td, .kpi-val, .kb-val, .bf-val, .rs-val, .fc-val, .lb-valor{font-variant-numeric:tabular-nums;}
   header{background:var(--superficie);color:var(--marca-esc);padding:13px 24px;display:flex;align-items:center;gap:14px;flex-wrap:wrap;border-bottom:1px solid var(--cinza-borda);}
   header img{height:44px;width:44px;object-fit:contain;border-radius:8px;}
   header h1{font-size:17px;margin:0;font-weight:700;white-space:nowrap;color:var(--marca-esc);}
   .spacer{flex:1;}
   .toolbar{max-width:1180px;margin:18px auto 0;padding:0 20px;display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
   .search-wrap{position:relative;flex:1;min-width:220px;}
-  .search-wrap input{width:100%;padding:10px 12px 10px 34px;border:1px solid var(--cinza-borda);border-radius:8px;font-size:14px;background:#fff;}
-  .search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--texto-fraco);}
-  select{padding:9px 10px;border:1px solid var(--cinza-borda);border-radius:8px;font-size:14px;background:#fff;color:var(--texto);}
-  .btn{border:none;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;white-space:nowrap;transition:filter .15s;}
+  .search-wrap input{width:100%;padding:10px 12px 10px 34px;border:1px solid var(--cinza-borda);border-radius:10px;font-size:14px;background:#fff;}
+  .search-wrap svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);width:16px;height:16px;stroke:var(--texto-fraco);
+    transition:stroke var(--t-rapido) var(--suave);}
+  .search-wrap:focus-within svg{stroke:var(--marca);}
+  select{padding:9px 10px;border:1px solid var(--cinza-borda);border-radius:10px;font-size:14px;background:#fff;color:var(--texto);
+    font-family:inherit;cursor:pointer;}
+  /* ---------- CAMPOS ----------
+     O anel de foco verde é o que diz "é aqui que você está digitando" sem precisar de
+     borda grossa. Usa a cor da marca com transparência: nenhuma cor nova entrou. */
+  input,textarea,select{font-family:inherit;
+    transition:border-color var(--t-rapido) var(--suave), box-shadow var(--t-rapido) var(--suave),
+               background var(--t-rapido) var(--suave);}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--marca);box-shadow:var(--foco);}
+  input[type=date],input[type=text],input[type=number],input[type=password],textarea{-webkit-appearance:none;}
+
+  .btn{border:none;border-radius:10px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;
+    white-space:nowrap;font-family:inherit;
+    transition:filter var(--t-rapido) var(--suave), transform var(--t-rapido) var(--suave),
+               box-shadow var(--t-rapido) var(--suave);}
   .btn:hover{filter:brightness(0.93);}
+  /* O botão afunda enquanto o dedo está nele. Foi o que ficou faltando para o sistema
+     parecer que responde: hoje o clique não tem eco nenhum. */
+  .btn:active{transform:scale(.965);filter:brightness(.9);}
+  .btn:focus-visible{outline:none;box-shadow:var(--foco);}
+  .btn-primary,.btn-verde,.btn-vermelho{box-shadow:var(--sombra-1);}
   .btn-primary{background:var(--marca);color:#fff;}
   .btn-outline{background:#fff;color:var(--marca);border:1px solid var(--marca);}
   .btn-verde{background:var(--verde);color:#fff;}
@@ -42,8 +103,14 @@
   .tabela-header span:nth-child(3){text-align:right;}
   .tabela-header span:nth-child(4){text-align:right;}
   .grid{display:flex;flex-direction:column;gap:8px;}
-  .card{background:#fff;border:1px solid var(--cinza-borda);border-radius:10px;padding:12px 16px;cursor:pointer;transition:border-color .15s;display:grid;grid-template-columns:2fr 1.6fr 1fr 110px;gap:16px;align-items:center;}
-  .card:hover{border-color:var(--marca);}
+  .card{background:#fff;border:1px solid var(--cinza-borda);border-radius:12px;padding:12px 16px;cursor:pointer;
+    display:grid;grid-template-columns:2fr 1.6fr 1fr 110px;gap:16px;align-items:center;box-shadow:var(--sombra-1);
+    transition:border-color var(--t-rapido) var(--suave), box-shadow var(--t-medio) var(--suave),
+               transform var(--t-medio) var(--mola);}
+  /* O cartão sobe um fio de milímetro sob o mouse. É pouco de propósito: com a lista
+     inteira reagindo forte, a tela vira um mar de coisas pulando. */
+  .card:hover{border-color:var(--marca);box-shadow:var(--sombra-2);transform:translateY(-1px);}
+  .card:active{transform:translateY(0) scale(.995);}
   .card .nome{font-weight:700;font-size:14.5px;margin-bottom:2px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
   .card .funcao{color:var(--texto-fraco);font-size:12px;}
   .card .col-valor{text-align:right;}
@@ -115,10 +182,94 @@
   .nuvem-aviso{font-size:11.5px;color:var(--texto-fraco);line-height:1.6;background:#fff8e6;border:1px solid #f2e2b8;
     border-radius:8px;padding:10px 12px;margin-top:14px;}
 
-  .overlay{display:none;position:fixed;inset:0;background:rgba(15,30,45,.45);z-index:50;align-items:flex-start;justify-content:center;overflow-y:auto;padding:30px 16px;}
-  .overlay.show{display:flex;}
-  .modal{background:#fff;border-radius:12px;max-width:760px;width:100%;padding:26px 28px 28px;position:relative;}
-  .modal-close{position:absolute;top:16px;right:18px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--texto-fraco);}
+  /* ---------- MODAIS ----------
+     Antes era `display:none` / `display:flex`: a janela piscava na tela, e ao fechar
+     desaparecia sem nenhuma transição — a coisa mais datada da interface inteira.
+
+     Agora o overlay fica sempre no layout e o que se anima é visibilidade + opacidade.
+     Isso dá o que o display nunca daria: animação também na SAÍDA. O truque é a
+     transição de `visibility`, que ao fechar espera a opacidade terminar (delay) e ao
+     abrir dispara na hora (0s) — sem ela a janela sumiria antes de desbotar.
+
+     TRÊS COISAS QUE PESAVAM AQUI, e por que cada uma saiu:
+
+     1. O desfoque era ANIMADO, de blur(0) até blur(7). Animar o raio do desfoque obriga
+        a placa de vídeo a refazer o borrão da tela inteira em cada quadro — é das coisas
+        mais caras que existem no navegador. Agora o desfoque é fixo: só a opacidade se
+        move, e o borrão aparece junto sem nunca ser recalculado.
+
+     2. O desfoque estava no MESMO elemento que rola (`overflow-y:auto`). Modal comprido,
+        como o do colaborador, refazia o borrão a cada quadro de rolagem. Ele passou para
+        um `::before` fixo, que não rola — a rolagem voltou a ser de graça.
+
+     3. A janela CRESCIA de 96,5% para 100%. Escalar texto obriga o navegador a
+        reamostrar cada letra durante a animação, e em monitor comum isso aparece como um
+        instante de texto borrado — exatamente a impressão de "bugado". Saiu a escala:
+        agora a janela só sobe, com `translate3d`, que a placa de vídeo resolve sozinha
+        sem tocar no desenho do texto. Uma letra nítida vale mais que um efeito. */
+  /* 4. A QUARTA, e a mais cara de todas, só apareceu depois: o overlay INTEIRO desbotava
+        com `opacity`, e dentro dele estava o elemento do desfoque. Opacidade em cima de
+        um `backdrop-filter` é o pior caminho que existe no navegador: ele não consegue
+        compor a transparência por fora do filtro, então REFAZ o borrão da tela inteira
+        em cada quadro do desbote — 1440x860 pixels borrados umas quinze vezes seguidas,
+        toda vez que uma janela abre ou fecha. Em máquina de escritório, com vídeo
+        integrado, é exatamente isso que se sente como travada.
+
+        A primeira saída foi separar em duas camadas — desfoque numa, escurecimento na
+        outra, e só o escurecimento desbotando. Ajudou e não bastou: o desfoque ainda
+        custava um monitor inteiro de pixels no quadro em que acendia. Acabou saindo de
+        vez (a despedida está logo abaixo, na regra da cortina). Ficou o que interessa:
+        o overlay não desbota mais, quem desbota é o ESCURECIMENTO (::after), que é cor
+        chapada. Pintar uma cor sobre a tela é de graça perto de borrá-la.
+
+        O ::after vai para trás do conteúdo com `z-index:-1` — sem isso ele, que vem
+        depois na ordem de pintura, cobriria a própria janela. */
+  .overlay{display:flex;position:fixed;inset:0;background:transparent;z-index:50;
+    align-items:flex-start;justify-content:center;overflow-y:auto;padding:30px 16px;
+    opacity:0;visibility:hidden;pointer-events:none;
+    transition:visibility 0s linear .13s;}
+  /* A opacidade continua aqui, mas SEM transição: ela só liga e desliga, e serve de
+     tranca para qualquer coisa lá dentro que force a própria visibilidade. Opacidade
+     em 1 não custa nada; o que custava era animá-la por cima do desfoque. */
+  .overlay.show{opacity:1;}
+  /* ---------- A CORTINA, E O FIM DO DESFOQUE ----------
+     Aqui havia um `backdrop-filter`. Saiu, e não por gosto: mesmo reduzido a 3px, e já
+     isolado numa camada que não desbotava, ele continuava caro demais para as máquinas
+     onde este sistema roda. É a única coisa na tela cujo custo não depende do tamanho
+     do elemento nem de quanto ele muda, e sim de quantos pixels existem atrás dele —
+     um monitor inteiro, sempre, mesmo quando o que se abre é uma janelinha de aviso.
+     Com vídeo integrado isso é um engasgo garantido no primeiro quadro.
+
+     Ficou só o escurecimento: uma cor chapada por cima, que a placa de vídeo resolve
+     sem esforço nenhum. Ele subiu de .45 para .58 para compensar — e compensa mesmo,
+     porque o trabalho da cortina nunca foi borrar, foi APAGAR o que está atrás para a
+     janela da frente ficar sozinha na atenção. Escurecer faz isso. O borrão era só o
+     enfeite, e era o enfeite que estava travando o sistema.
+
+     Se um dia isto rodar em máquina melhor, o vidro volta com uma linha:
+     `backdrop-filter:blur(3px)` num `::before` irmão deste — nunca neste, que desbota. */
+  .overlay::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;
+    background:rgba(15,30,45,.58);opacity:0;
+    transition:opacity .12s var(--saida);}
+  .overlay.show{visibility:visible;pointer-events:auto;
+    transition:visibility 0s;}
+  .overlay.show::after{opacity:1;transition:opacity .15s var(--suave);}
+  .modal{background:#fff;border-radius:16px;max-width:760px;width:100%;padding:26px 28px 28px;
+    position:relative;box-shadow:var(--sombra-modal);
+    opacity:0;transform:translate3d(0,14px,0);
+    transition:transform .13s var(--saida), opacity .1s var(--saida);}
+  /* Entrada: sobe 14px com a curva exponencial — na prática ela já está quase no lugar
+     no primeiro terço do tempo, e o resto é só o assentamento. Encurtou de 0,34s para
+     0,22s junto com o resto do sistema, e a distância caiu de 20px para 14px: menos
+     caminho para percorrer no mesmo tipo de curva continua parecendo o mesmo gesto. */
+  .overlay.show .modal{opacity:1;transform:translate3d(0,0,0);
+    transition:transform .22s var(--expo), opacity .13s var(--suave);}
+  .modal-close{position:absolute;top:14px;right:16px;background:none;border:none;font-size:19px;
+    cursor:pointer;color:var(--texto-fraco);width:32px;height:32px;border-radius:50%;line-height:1;
+    display:flex;align-items:center;justify-content:center;padding:0;
+    transition:background var(--t-rapido) var(--suave), color var(--t-rapido) var(--suave), transform var(--t-rapido) var(--suave);}
+  .modal-close:hover{background:var(--cinza);color:var(--texto);}
+  .modal-close:active{transform:scale(.9);}
   .modal h2{margin:0 0 4px;font-size:19px;}
   .modal .sub{color:var(--texto-fraco);font-size:13px;margin-bottom:18px;}
   .campo-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
@@ -176,16 +327,73 @@
   .import-box{border:1.5px dashed var(--cinza-borda);border-radius:10px;padding:16px;margin-bottom:16px;display:flex;gap:14px;align-items:center;flex-wrap:wrap;}
   .import-box .txt{flex:1;min-width:200px;font-size:13px;color:var(--texto-fraco);}
   .import-box .txt b{color:var(--texto);}
-  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--marca-esc);color:#fff;padding:11px 20px;border-radius:8px;font-size:13.5px;z-index:100;opacity:0;pointer-events:none;transition:opacity .25s;}
-  .toast.show{opacity:1;}
+  /* O aviso sobe do rodapé em vez de simplesmente desbotar. */
+  .toast{position:fixed;bottom:22px;left:50%;background:var(--marca-esc);color:#fff;padding:12px 22px;
+    border-radius:14px;font-size:13.5px;z-index:100;opacity:0;pointer-events:none;
+    box-shadow:var(--sombra-2);transform:translate3d(-50%,20px,0);
+    transition:opacity var(--t-rapido) var(--saida), transform var(--t-rapido) var(--saida);}
+  .toast.show{opacity:1;transform:translate3d(-50%,0,0);
+    transition:opacity var(--t-rapido) var(--suave), transform var(--t-lento) var(--expo);}
   input[type=file]{display:none;}
   @media print{ body *{visibility:hidden;} }
 
+  /* ---------- TROCA DE TELA: SEM ANIMAÇÃO, DE PROPÓSITO ----------
+     Cada área aparecia subindo um triz. Era bonito e era, de longe, a animação mais cara
+     do sistema — pela razão mais simples: ela se aplica à TELA INTEIRA. Animar
+     deslocamento e opacidade obriga o navegador a desenhar o que se move num quadro
+     separado para poder movê-lo, e aqui o que se move é a folha de pagamento com
+     duzentas linhas, ou o histórico do caixa com o ano todo. Um quadro desse tamanho é
+     alocado, pintado e jogado fora a cada clique de navegação.
+
+     As outras animações do sistema movem uma janela, um item de menu, um aviso — coisas
+     de tamanho conhecido. Esta movia tudo. Saiu; a tela troca na hora, que num sistema
+     de balcão é o que se quer mesmo. Para trazer de volta, é só descomentar as duas
+     linhas abaixo. */
+  /* @keyframes tela-entra{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}} */
+  /* .area-conteudo > div[id^="view"]{animation:tela-entra var(--t-lento) var(--mola);} */
+
+  /* ---------- NADA SE MEXE ANTES DA TELA EXISTIR ----------
+     O sistema monta a tela inteira (inclusive abrir o grupo do menu da aba que estava
+     em uso) ANTES do login, com `#appConteudo` ainda em `display:none`. Transição criada
+     dentro de uma árvore escondida nasce sem hora de início e fica pendurada: quando o
+     conteúdo enfim aparece, ela não corre nem chega ao fim — o grupo do menu ficaria
+     aberto e vazio, com altura zero.
+
+     Por isso o `<body>` começa marcado e só é liberado depois que a tela está montada e
+     visível (ver `mostrarApp`). Enquanto a marca está lá, tudo acontece instantaneamente,
+     como era antes — que é o certo para o primeiro desenho: ninguém quer ver o sistema
+     inteiro se montando com animação toda vez que abre. */
+  body.sem-animacao *,body.sem-animacao *::before,body.sem-animacao *::after{
+    transition:none !important;animation:none !important;}
+
+  /* ---------- ACESSIBILIDADE ----------
+     Quem pediu menos movimento no sistema operacional recebe a interface sem animação
+     nenhuma. Continua tudo funcionando; só não se mexe. */
+  @media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{animation-duration:.001ms !important;animation-iteration-count:1 !important;
+      transition-duration:.001ms !important;scroll-behavior:auto !important;}
+  }
+
   /* ============================= BARRA LATERAL (menu hambúrguer) =============================
-     Todas as áreas do sistema passaram das abas do topo para esta barra. Em telas
-     grandes ela recolhe para uma faixa de ícones; no celular vira gaveta sobreposta. */
+     Todas as áreas do sistema passaram das abas do topo para esta barra. Ela NUNCA empurra
+     o conteúdo: em tela grande fica sempre uma faixa de ícones de 70px, e o hambúrguer
+     abre a barra inteira POR CIMA do conteúdo; no celular ela some de vez e vira gaveta.
+     Nos dois casos o que está atrás escurece e desfoca — a largura do conteúdo é fixa,
+     então nada se remonta ao abrir e fechar o menu. */
+  /* Duas curvas diferentes de propósito, e a diferença é de custo, não de gosto:
+
+     `transform` (a gaveta do celular) é resolvido pela placa de vídeo sem redesenhar
+     nada — pode ter a curva de mola, com a cauda longa e o assentamento demorado, que
+     não custa um centavo.
+
+     `width` (a barra crescendo em tela grande) é o contrário: cada quadro obriga a
+     recalcular a posição dos quarenta e tantos itens e a redesenhar o texto de todos
+     eles. A cauda longa da mola, que ali seria charme, vira uma fila de quadros caros
+     mexendo dois pixels cada. Por isso a largura anda na curva simples, e no tempo
+     médio: menos quadros, todos eles fazendo trabalho visível. */
   .barra-lateral{position:fixed;top:0;left:0;bottom:0;width:252px;background:var(--marca-esc);z-index:40;
-    display:flex;flex-direction:column;transition:width .18s ease, transform .2s ease;}
+    display:flex;flex-direction:column;
+    transition:width var(--t-medio) var(--suave), transform var(--t-lento) var(--mola);}
   .bl-topo{display:flex;align-items:center;gap:11px;padding:15px 14px;min-height:72px;
     border-bottom:1px solid rgba(255,255,255,.13);}
   .bl-topo img{width:40px;height:40px;border-radius:9px;object-fit:contain;background:#fff;flex:none;padding:2px;}
@@ -205,12 +413,40 @@
   .bl-item.ativa .bl-sino{background:var(--vermelho);color:#fff;}
   .bl-rodape{padding:12px 15px;border-top:1px solid rgba(255,255,255,.13);font-size:11px;
     color:rgba(255,255,255,.5);white-space:nowrap;overflow:hidden;line-height:1.5;}
-  .area-conteudo{margin-left:252px;transition:margin-left .18s ease;}
-  .fundo-lateral{display:none;position:fixed;inset:0;background:rgba(6,28,18,.5);z-index:39;}
-  .btn-hamburguer{background:none;border:1px solid var(--cinza-borda);border-radius:9px;width:40px;height:40px;
-    display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;padding:0;}
+  /* Sem transição de margem: a área de conteúdo não se mexe mais quando o menu abre.
+     O valor de tela grande (a faixa de ícones) está lá embaixo, no @media. */
+  .area-conteudo{margin-left:0;}
+  /* A cortina do menu segue a mesma divisão dos modais, e pelo mesmo motivo: desfoque
+     numa camada que nunca muda, escurecimento noutra que desbota. Antes era uma camada
+     só, com o borrão preso a uma opacidade animada — e como agora a cortina vale também
+     para a tela grande, o navegador refazia o borrão de um monitor inteiro em cada
+     quadro, na ida e na volta. Era essa a travada.
+
+     O desfoque acende de uma vez e apaga depois que o escurecimento terminou (o atraso
+     está na `visibility`): ninguém percebe o borrão chegando junto com a escuridão, mas
+     todo mundo percebe quinze quadros perdidos. */
+  .fundo-lateral{display:block;position:fixed;inset:0;z-index:39;
+    opacity:0;visibility:hidden;pointer-events:none;
+    transition:visibility 0s linear var(--t-rapido);}
+  body.menu-aberto .fundo-lateral{opacity:1;}   /* liga e desliga, nunca animada */
+  /* Sem desfoque, pelo mesmo motivo dos modais (a explicação longa está lá em cima) — e
+     aqui pesava ainda mais, porque o menu é aberto muito mais vezes por dia que
+     qualquer janela. Só o escurecimento, que é cor chapada e não custa nada. */
+  .fundo-lateral::after{content:"";position:absolute;inset:0;
+    background:rgba(6,28,18,.55);opacity:0;
+    transition:opacity var(--t-rapido) var(--saida);}
+  /* Vale para tela grande e para celular: o hambúrguer sempre acende a cortina. */
+  body.menu-aberto .fundo-lateral{visibility:visible;pointer-events:auto;
+    transition:visibility 0s;}
+  body.menu-aberto .fundo-lateral::after{opacity:1;
+    transition:opacity var(--t-medio) var(--suave);}
+  .btn-hamburguer{background:none;border:1px solid var(--cinza-borda);border-radius:11px;width:40px;height:40px;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;flex:none;padding:0;
+    transition:background var(--t-rapido) var(--suave), border-color var(--t-rapido) var(--suave),
+               transform var(--t-rapido) var(--suave);}
   .btn-hamburguer svg{width:20px;height:20px;stroke:var(--marca-esc);fill:none;stroke-width:2;stroke-linecap:round;}
   .btn-hamburguer:hover{background:var(--marca-cl);border-color:var(--marca);}
+  .btn-hamburguer:active{transform:scale(.92);}
   /* --- Grupos com dropdown: cada área do sistema (RH, Recebimento de Contas) é um
      cabeçalho que abre e fecha as suas telas. Só o grupo aberto ocupa espaço; o grupo
      fechado que contém a tela em uso fica marcado, para não se perder na navegação. --- */
@@ -221,33 +457,90 @@
   .bl-cabeca{font-size:13.5px;align-items:flex-start;}
   .bl-cabeca .bl-rotulo{white-space:normal;line-height:1.3;}
   .bl-cabeca svg{margin-top:1px;}
-  .bl-seta{margin-left:auto;width:15px !important;height:15px !important;transition:transform .18s ease;opacity:.75;}
+  .bl-seta{margin-left:auto;width:15px !important;height:15px !important;opacity:.75;
+    transition:transform var(--t-lento) var(--mola);}
   .bl-grupo.aberto .bl-seta{transform:rotate(180deg);}
   .bl-cabeca .bl-sino-grupo{margin-left:auto;}
   .bl-cabeca .bl-sino-grupo + .bl-seta{margin-left:7px;}
   .bl-cabeca.tem-ativa{background:rgba(255,255,255,.10);color:#fff;}
-  .bl-sub{display:none;flex-direction:column;gap:2px;margin:2px 0 2px 21px;padding-left:9px;
+  /* ---------- DROPDOWN DO MENU ----------
+     Era `display:none` / `display:flex`: as telas da área apareciam de uma vez, com o
+     resto do menu saltando para baixo. Agora a altura é animada de verdade.
+
+     Não dá para animar `height:auto`, e um `max-height` chutado deixa um tempo morto no
+     fecho (a animação corre entre o número chutado e a altura real, sem nada acontecer
+     na tela). A saída é a grade: `grid-template-rows` vai de `0fr` a `1fr`, o que o
+     navegador SABE interpolar — e `1fr` aqui é exatamente a altura do conteúdo, seja o
+     grupo de quatro telas ou o de sete. É por isso que existe a div `.bl-sub-int`: a
+     grade precisa de um filho único para medir. */
+  .bl-sub{display:grid;grid-template-rows:0fr;overflow:hidden;opacity:0;margin:0 0 0 21px;
+    transition:grid-template-rows var(--t-lento) var(--saida),
+               opacity var(--t-rapido) var(--saida),
+               margin var(--t-lento) var(--saida);}
+  .bl-sub-int{min-height:0;display:flex;flex-direction:column;gap:2px;padding-left:9px;
     border-left:1px solid rgba(255,255,255,.16);}
-  .bl-grupo.aberto .bl-sub{display:flex;}
+  .bl-grupo.aberto .bl-sub{grid-template-rows:1fr;opacity:1;margin:2px 0 2px 21px;
+    transition:grid-template-rows var(--t-lento) var(--mola),
+               opacity var(--t-medio) var(--suave) .04s,
+               margin var(--t-lento) var(--mola);}
+  /* As telas entram escalonadas, uma logo depois da outra — é o detalhe que faz o menu
+     parecer que se desdobrou em vez de simplesmente aparecer. */
+  .bl-grupo.aberto .bl-sub-int > .bl-item{animation:bl-item-entra .22s var(--mola) backwards;}
+  .bl-grupo.aberto .bl-sub-int > .bl-item:nth-child(1){animation-delay:.02s;}
+  .bl-grupo.aberto .bl-sub-int > .bl-item:nth-child(2){animation-delay:.045s;}
+  .bl-grupo.aberto .bl-sub-int > .bl-item:nth-child(3){animation-delay:.07s;}
+  .bl-grupo.aberto .bl-sub-int > .bl-item:nth-child(4){animation-delay:.095s;}
+  .bl-grupo.aberto .bl-sub-int > .bl-item:nth-child(5){animation-delay:.12s;}
+  .bl-grupo.aberto .bl-sub-int > .bl-item:nth-child(6){animation-delay:.145s;}
+  .bl-grupo.aberto .bl-sub-int > .bl-item:nth-child(7){animation-delay:.17s;}
+  @keyframes bl-item-entra{from{opacity:0;transform:translateX(-9px);}to{opacity:1;transform:none;}}
+  /* Houve aqui uma tentativa de segurar esta entrada enquanto a barra abria, para não
+     criar sete animações no quadro mais caro. Saiu, porque estava errada: suspender uma
+     animação com `animation:none` não a cancela — ela fica esperando, e no instante em
+     que a marca é retirada os itens somem e entram de novo, um terço de segundo depois
+     de o menu já estar aberto. O barato saiu caro. Como estas duas propriedades
+     (deslocamento e opacidade) são resolvidas pela placa de vídeo sem redesenhar nada,
+     e o tempo caiu para 0,22s, deixá-las correr é mais barato do que administrá-las. */
   .bl-filho{font-size:13px;padding:9px 11px;}
   .bl-filho svg{width:16px;height:16px;}
+  /* Feedback de toque: o item afunda um pouco sob o dedo e volta. É a assinatura do iOS
+     e o que mais falta num sistema que parece não responder ao clique. */
+  .bl-item:active{transform:scale(.975);}
+  .bl-item{transition:background var(--t-rapido) var(--suave), color var(--t-rapido) var(--suave),
+                      transform var(--t-rapido) var(--suave);}
+  .bl-item.ativa{box-shadow:0 1px 3px rgba(0,0,0,.12);}
   @media(min-width:901px){
-    body.menu-recolhido .barra-lateral{width:70px;}
-    body.menu-recolhido .bl-rotulo{display:none;}
-    body.menu-recolhido .bl-secao{opacity:0;height:14px;padding:0;}
-    body.menu-recolhido .bl-item{justify-content:center;padding:11px 0;}
-    body.menu-recolhido .bl-item .bl-sino{display:none;}
-    body.menu-recolhido .bl-topo{justify-content:center;padding:15px 8px;}
-    body.menu-recolhido .area-conteudo{margin-left:70px;}
-    /* Barra recolhida: some com as telas de dentro e deixa só o ícone de cada área.
-       Clicar no ícone reabre a barra já com o grupo aberto (ver alternarMenu). */
-    body.menu-recolhido .bl-sub{display:none !important;}
-    body.menu-recolhido .bl-grupo{margin-bottom:2px;}
+    /* A faixa de ícones é o estado NORMAL da tela grande, e é ela quem define a margem
+       do conteúdo: 70px, sempre, aberta ou fechada. Antes a margem acompanhava a
+       largura da barra, e era isso que encolhia e esticava a tela toda a cada clique
+       no hambúrguer — com tabelas e gráficos se remontando no meio do caminho. */
+    .area-conteudo{margin-left:70px;}
+    body:not(.menu-aberto) .barra-lateral{width:70px;}
+    body:not(.menu-aberto) .bl-rotulo{display:none;}
+    body:not(.menu-aberto) .bl-secao{opacity:0;height:14px;padding:0;}
+    body:not(.menu-aberto) .bl-item{justify-content:center;padding:11px 0;}
+    body:not(.menu-aberto) .bl-item .bl-sino{display:none;}
+    body:not(.menu-aberto) .bl-topo{justify-content:center;padding:15px 8px;}
+    /* Faixa fechada: some com as telas de dentro e deixa só o ícone de cada área.
+       Clicar no ícone abre a barra já com o grupo aberto (ver o clique em .bl-cabeca). */
+    body:not(.menu-aberto) .bl-sub{display:none !important;}
+    body:not(.menu-aberto) .bl-grupo{margin-bottom:2px;}
+    /* Aberta, a barra cresce para 252px passando por cima do conteúdo — os 182px que
+       sobram da faixa cobrem a tela, e a sombra é o que a faz parecer solta na frente
+       em vez de colada ao lado.
+
+       A sombra é deslocada e curta de propósito. Uma sombra de 46px em volta dos quatro
+       lados é uma área borrada enorme, e como a largura da barra está mudando ela é
+       redesenhada em cada quadro. Empurrada para a direita, que é o único lado onde ela
+       aparece, e com raio curto, o desenho por quadro cai para uma fração disso. */
+    body.menu-aberto .barra-lateral{box-shadow:3px 0 20px rgba(0,0,0,.28);}
   }
   @media(max-width:900px){
-    .barra-lateral{transform:translateX(-100%);box-shadow:0 0 30px rgba(0,0,0,.3);}
+    /* No celular não há espaço nem para a faixa: a barra sai inteira da tela e volta
+       como gaveta, sobre o conteúdo, que ocupa a largura toda. */
+    .barra-lateral{transform:translateX(-100%);box-shadow:0 0 40px rgba(0,0,0,.32);
+      transition:transform var(--t-lento) var(--mola);}
     body.menu-aberto .barra-lateral{transform:none;}
-    body.menu-aberto .fundo-lateral{display:block;}
     .area-conteudo{margin-left:0;}
   }
 
@@ -796,9 +1089,87 @@
     .tabela-ponto{font-size:11px;} .tabela-ponto th,.tabela-ponto td{padding:6px 4px;}
     main{padding:0 10px;}
   }
+
+  /* ===================== ACABAMENTO: PROFUNDIDADE E RESPOSTA AO TOQUE =====================
+     As regras acima definem o que cada coisa É. Este bloco define como cada coisa
+     REAGE — e é o que separa uma tela viva de uma tela congelada.
+
+     Duas ideias, aplicadas em todo lugar:
+     1. Nada muda de estado instantaneamente. Cor, borda e sombra levam um piscar de
+        olhos para mudar, e o olho lê isso como maciez.
+     2. Tudo que é clicável afunda sob o dedo (`:active{transform:scale(...)}`). É a
+        assinatura do iOS, e é o que faltava para o clique ter eco.
+
+     Nenhuma cor foi criada aqui: as sombras são preto transparente e o anel de foco é a
+     própria cor da marca diluída. */
+
+  /* --- superfícies: a borda macia que faltava --- */
+  .rec-form,.rec-bloco,.rec-vazio,.painel,.kpi-big,.ini-card,.fechamento,.ven-itens,
+  .encargos-grid,.import-box,.bal-vazio{box-shadow:var(--sombra-1);}
+  .rec-form,.rec-bloco,.painel,.ini-card{border-radius:14px;}
+  .kpi,.kpi-big,.btn-forma,.conferencia,.liquido-box,.rec-somatorio{border-radius:14px;}
+  .barra-dia,.rec-ficha,.aviso-retro,.rec-editando,.troco-calc{border-radius:12px;}
+
+  /* --- botões e quadros clicáveis: resposta ao toque --- */
+  .btn-icon,.btn-olho,.btn-dia,.chip-nuvem,.rec-sg,.cal-dia,.btn-voltar-hoje,.rm-add,.rm-resto,.rm-botao{
+    transition:background var(--t-rapido) var(--suave), border-color var(--t-rapido) var(--suave),
+               color var(--t-rapido) var(--suave), box-shadow var(--t-rapido) var(--suave),
+               transform var(--t-rapido) var(--suave);}
+  .btn-icon:active,.btn-olho:active,.btn-dia:active,.chip-nuvem:active,.rec-sg:active,
+  .cal-dia:active,.btn-voltar-hoje:active{transform:scale(.93);}
+  .btn-icon,.btn-olho,.btn-dia{border-radius:10px;}
+
+  /* --- os quadros grandes de modalidade e os botões do relatório --- */
+  .btn-forma{transition:border-color var(--t-rapido) var(--suave), background var(--t-rapido) var(--suave),
+                        box-shadow var(--t-medio) var(--suave), transform var(--t-medio) var(--mola);}
+  .btn-forma:hover{box-shadow:var(--sombra-2);transform:translateY(-2px);}
+  .btn-forma:active{transform:translateY(0) scale(.985);}
+  .btn-forma.ativa{box-shadow:var(--sombra-1);}
+  .rec-mod{transition:border-color var(--t-medio) var(--suave), background var(--t-medio) var(--suave),
+                      box-shadow var(--t-medio) var(--suave);}
+  .rec-mod.preenchida{box-shadow:var(--sombra-1);}
+  /* O campo dentro do quadro de modalidade não tem borda própria: o anel de foco cheio
+     estouraria o desenho. Ali o foco é só a linha de baixo engrossando. */
+  .rec-mod input:focus{box-shadow:none;border-bottom-color:var(--marca);}
+
+  /* --- listas de sugestão: abrem crescendo a partir do campo --- */
+  /* Só desliza, não escala: escalar reamostra o texto e a lista aparece um instante
+     borrada — o mesmo defeito que pesava nos modais. */
+  .rec-sug{display:block;opacity:0;visibility:hidden;pointer-events:none;
+    transform:translate3d(0,-7px,0);
+    box-shadow:0 12px 30px rgba(20,50,80,.16), 0 2px 6px rgba(20,50,80,.08);border-radius:12px;
+    transition:opacity .12s var(--saida), transform .12s var(--saida), visibility 0s linear .12s;}
+  .rec-sug.show{opacity:1;visibility:visible;pointer-events:auto;transform:translate3d(0,0,0);
+    transition:opacity .13s var(--suave), transform .26s var(--expo), visibility 0s;}
+  .rec-sug-item{transition:background var(--t-rapido) var(--suave);}
+  .rec-sug-item:hover{background:var(--marca-cl);}
+
+  /* --- faixas de aviso: entram empurrando, não piscando --- */
+  .aviso-retro,.rec-editando{display:flex;overflow:hidden;
+    max-height:0;opacity:0;padding-top:0;padding-bottom:0;margin-bottom:0;border-width:0;
+    transition:max-height var(--t-medio) var(--saida), opacity var(--t-rapido) var(--saida),
+               padding var(--t-medio) var(--saida), margin var(--t-medio) var(--saida);}
+  .aviso-retro.show,.rec-editando.show{max-height:160px;opacity:1;border-width:1px;
+    padding-top:10px;padding-bottom:10px;margin-bottom:14px;
+    transition:max-height var(--t-lento) var(--mola), opacity var(--t-medio) var(--suave),
+               padding var(--t-lento) var(--mola), margin var(--t-lento) var(--mola);}
+
+  /* --- tabelas: a linha sob o mouse acende --- */
+  .tabela-ponto tbody tr{transition:background var(--t-rapido) var(--suave);}
+  .linha-salario{transition:border-color var(--t-rapido) var(--suave), box-shadow var(--t-rapido) var(--suave);}
+  .linha-salario:focus-within{border-color:var(--marca);box-shadow:var(--foco);}
+
+  /* --- barra de rolagem discreta, no lugar da barra cinza padrão do Windows --- */
+  *::-webkit-scrollbar{width:10px;height:10px;}
+  *::-webkit-scrollbar-track{background:transparent;}
+  *::-webkit-scrollbar-thumb{background:rgba(38,51,61,.2);border-radius:20px;border:2.5px solid transparent;
+    background-clip:content-box;}
+  *::-webkit-scrollbar-thumb:hover{background:rgba(38,51,61,.34);background-clip:content-box;}
+  .bl-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.22);background-clip:content-box;}
+  .bl-nav::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.36);background-clip:content-box;}
 </style>
 </head>
-<body>
+<body class="sem-animacao">
 
 <div class="overlay show" id="overlayLogin" style="z-index:200;">
   <div class="modal" style="max-width:360px;margin-top:12vh;">
@@ -845,7 +1216,7 @@
         <span class="bl-sino bl-sino-grupo" id="sinoGrupoRh" style="display:none;">0</span>
         <svg class="bl-seta bl-rotulo" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
-      <div class="bl-sub">
+      <div class="bl-sub"><div class="bl-sub-int">
         <button class="bl-item bl-filho" data-aba="dashboard" title="Painel">
           <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
           <span class="bl-rotulo">Painel</span>
@@ -876,7 +1247,7 @@
           <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="9" y1="17" x2="9" y2="13"/><line x1="12.5" y1="17" x2="12.5" y2="10"/><line x1="16" y1="17" x2="16" y2="14"/></svg>
           <span class="bl-rotulo">Relatórios</span>
         </button>
-      </div>
+      </div></div>
     </div>
 
     <!-- A Loja vem antes do Caixa de propósito: é ali que a venda nasce, e o Caixa é
@@ -888,7 +1259,7 @@
         <span class="bl-rotulo">Loja do Escritório</span>
         <svg class="bl-seta bl-rotulo" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
-      <div class="bl-sub">
+      <div class="bl-sub"><div class="bl-sub-int">
         <button class="bl-item bl-filho" data-aba="lojaVender" title="Registrar Venda">
           <svg viewBox="0 0 24 24"><circle cx="9.5" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 12.4h11.3L21 7H6"/></svg>
           <span class="bl-rotulo">Registrar Venda</span>
@@ -905,7 +1276,7 @@
           <svg viewBox="0 0 24 24"><path d="M3 20h18"/><rect x="5" y="11" width="3.5" height="7"/><rect x="10.2" y="6" width="3.5" height="12"/><rect x="15.4" y="14" width="3.5" height="4"/></svg>
           <span class="bl-rotulo">Balanço da Loja</span>
         </button>
-      </div>
+      </div></div>
     </div>
 
     <div class="bl-grupo" data-grupo="rec">
@@ -914,7 +1285,7 @@
         <span class="bl-rotulo">Controle de Caixa Administrativo</span>
         <svg class="bl-seta bl-rotulo" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
-      <div class="bl-sub">
+      <div class="bl-sub"><div class="bl-sub-int">
         <button class="bl-item bl-filho" data-aba="recLancar" title="Lançar Recebimento">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
           <span class="bl-rotulo">Lançar Recebimento</span>
@@ -944,7 +1315,7 @@
           <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
           <span class="bl-rotulo">Relatório de Caixa</span>
         </button>
-      </div>
+      </div></div>
     </div>
   </nav>
   <div class="bl-rodape bl-rotulo">Acesso restrito à<br>equipe administrativa
@@ -954,7 +1325,7 @@
 
 <div class="area-conteudo">
 <header>
-  <button class="btn-hamburguer" id="btnMenu" title="Recolher / expandir o menu" aria-label="Menu">
+  <button class="btn-hamburguer" id="btnMenu" title="Abrir / fechar o menu" aria-label="Menu">
     <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
   </button>
   <h1 id="tituloAba">Painel</h1>
@@ -2188,7 +2559,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '17/08/2026b · Loja do Escritório e Suprimento de Caixa';
+const VERSAO_SISTEMA = '17/08/2026d · Interface com animações';
 
 const SUPABASE_URL  = 'https://vieafcgghboxwhultile.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_HaMcgvr_2xmWYotvzetmVA_yscPz2eT';
@@ -2209,7 +2580,32 @@ function mostrarApp(session){
   document.getElementById('appConteudo').style.display = '';
   const email = session && session.user && session.user.email;
   document.getElementById('usuarioLogado').textContent = NOMES_USUARIO[email] || email || '';
+  liberarAnimacoes();
   conectarBanco();
+}
+
+/* Solta as animações só depois que a tela está de fato desenhada — ver a regra
+   `body.sem-animacao` no CSS. Os dois quadros de espera não são superstição: o primeiro
+   deixa o navegador aplicar o `display`, o segundo deixa ele calcular o layout. Soltar
+   antes disso é o mesmo que não ter esperado.
+
+   O relógio de 400ms não é redundância à toa: em aba de segundo plano o navegador
+   congela o `requestAnimationFrame`, e sem ele quem entrasse pelo sistema numa aba que
+   não está à vista ficaria com a interface sem animação nenhuma até recarregar. */
+function liberarAnimacoes(){
+  if(!document.body.classList.contains('sem-animacao')) return;
+  requestAnimationFrame(()=> requestAnimationFrame(soltarAnimacoesAgora));
+  setTimeout(soltarAnimacoesAgora, 400);
+}
+
+function soltarAnimacoesAgora(){
+  if(!document.body.classList.contains('sem-animacao')) return;   /* já soltou */
+  /* Transição que tenha nascido presa na árvore escondida é encerrada na marra: sem
+     isto ela continuaria pendurada no valor inicial mesmo depois da liberação. */
+  document.querySelectorAll('.bl-sub').forEach(el=>{
+    el.getAnimations().forEach(a=>{ try{ a.finish(); }catch(e){} });
+  });
+  document.body.classList.remove('sem-animacao');
 }
 
 function mostrarLogin(){
@@ -2263,6 +2659,30 @@ function carregarCache(){
 function gravarCache(){
   try{ localStorage.setItem(LS_KEY, JSON.stringify(state)); }catch(e){}
 }
+
+/* Gravação do cache sem travar o clique. Serve para o que muda de tela mas não muda
+   dado: navegação, o dia em foco no caixa. Se a pessoa clicar em cinco telas seguidas,
+   grava uma vez só no fim. O `pagehide` é a rede de segurança — fechar a aba dentro da
+   janela de espera não pode perder a última gravação. */
+let cacheTimer = null;
+function agendarCache(){
+  clearTimeout(cacheTimer);
+  cacheTimer = setTimeout(gravarCache, 900);
+}
+
+/* Buscar é a única coisa no sistema que reconstrói uma tabela inteira a cada TECLA.
+   Digitar "silva" no histórico do caixa redesenhava a lista cinco vezes, e as quatro
+   primeiras ninguém chegou a ler — com o ano cheio de lançamento, é isso que faz o
+   campo de busca engasgar e comer letra. A espera curta junta as teclas de uma palavra
+   numa redesenhada só. Treze centésimos é abaixo do que se percebe como atraso, e é
+   mais que o intervalo entre duas teclas de quem digita depressa. */
+function buscaComEspera(id, render){
+  const el = document.getElementById(id);
+  if(!el) return;
+  let t = null;
+  el.addEventListener('input', ()=>{ clearTimeout(t); t = setTimeout(render, 130); });
+}
+window.addEventListener('pagehide', ()=>{ if(cacheTimer){ clearTimeout(cacheTimer); cacheTimer = null; gravarCache(); } });
 
 /* --------- sincronização com o banco --------- */
 let nuvemTimer = null;     /* debounce do envio */
@@ -2918,7 +3338,7 @@ function renderLista(){
     grid.appendChild(card);
   });
 }
-document.getElementById('busca').addEventListener('input', renderLista);
+buscaComEspera('busca', renderLista);
 document.getElementById('ordenarPor').addEventListener('change', renderLista);
 
 /* ============================= MODAL COLABORADOR ============================= */
@@ -5525,7 +5945,7 @@ document.getElementById('balCorpo').addEventListener('click', (e)=>{
   renderBalanco();
 });
 
-document.getElementById('balBusca').addEventListener('input', renderBalanco);
+buscaComEspera('balBusca', renderBalanco);
 document.getElementById('balFiltro').addEventListener('change', renderBalanco);
 
 document.getElementById('btnBalancoMarcar').addEventListener('click', ()=>{
@@ -6788,20 +7208,33 @@ function trocarAba(aba){
   if(aba==='lojaProdutos') renderProdutos();
   if(aba==='lojaBalanco') renderBalancoLoja();
   atualizarSinoPonto();
-  document.body.classList.remove('menu-aberto');   /* no celular, fecha a gaveta */
+  document.body.classList.remove('menu-aberto');   /* escolhida a tela, o menu se fecha */
   window.scrollTo(0, 0);
-  salvarEstado();
+  /* ---------- POR QUE AQUI NÃO É `salvarEstado()` ----------
+     Era, e era o lugar mais caro do sistema. Trocar de tela não altera dado nenhum: o
+     que mudava era `state.abaAtual` e, nas telas de lançamento, o dia em foco. Mas
+     `salvarEstado()` faz duas coisas pesadas — um `JSON.stringify` do sistema INTEIRO
+     gravado em disco na hora, travando o clique, e o agendamento de uma subida do
+     estado completo para o banco. A cada clique de navegação, cinquenta vezes por dia,
+     e piorando à medida que o escritório acumula lançamento.
+
+     Pior: era trabalho jogado fora. `state.abaAtual` nunca é lido na abertura — o
+     sistema sempre abre no Início (ver a INICIALIZAÇÃO, lá no fim). Estávamos pagando
+     o preço todo para guardar um valor que a próxima abertura descarta.
+
+     Agora o cache é gravado no ócio, e o banco não é acordado por navegação. Quem
+     mexeu em dado de verdade continua chamando `salvarEstado()` como sempre. */
+  agendarCache();
 }
 document.querySelectorAll('.bl-item[data-aba]').forEach(t=> t.addEventListener('click', ()=> trocarAba(t.dataset.aba)));
 
 document.querySelectorAll('.bl-cabeca').forEach(cab=>{
   cab.addEventListener('click', ()=>{
     const grupo = cab.parentElement;
-    /* Com a barra recolhida em só ícones não há onde mostrar as telas de dentro:
-       o clique reabre a barra já com a área escolhida aberta. */
-    if(document.body.classList.contains('menu-recolhido') && window.innerWidth > 900){
-      document.body.classList.remove('menu-recolhido');
-      try{ localStorage.setItem(LS_MENU, '0'); }catch(e){}
+    /* Na faixa de só ícones não há onde mostrar as telas de dentro: o clique no ícone
+       da área abre a barra por cima do conteúdo, já com aquela área aberta. */
+    if(!document.body.classList.contains('menu-aberto') && window.innerWidth > 900){
+      document.body.classList.add('menu-aberto');
       abrirGrupo(grupo.dataset.grupo);
       return;
     }
@@ -6810,22 +7243,20 @@ document.querySelectorAll('.bl-cabeca').forEach(cab=>{
   });
 });
 
-/* Hambúrguer: em tela grande recolhe a barra para só os ícones; no celular abre a gaveta.
-   A preferência fica só neste navegador — é ajuste de tela, não dado do sistema. */
-const LS_MENU = 'rh_menu_recolhido';
+/* Hambúrguer: uma coisa só em qualquer tela — abre e fecha a barra POR CIMA do
+   conteúdo, com a cortina escura e desfocada atrás dela. Não há mais preferência a
+   guardar: o menu aberto é um estado de passagem, como um modal, e sempre começa
+   fechado. Ao abrir, já se desdobra a área da tela em uso, para o lugar onde a
+   pessoa está aparecer marcado sem precisar procurar. */
 function alternarMenu(){
-  if(window.innerWidth <= 900){
-    document.body.classList.toggle('menu-aberto');
-  }else{
-    const recolhido = document.body.classList.toggle('menu-recolhido');
-    try{ localStorage.setItem(LS_MENU, recolhido ? '1' : '0'); }catch(e){}
-    if(!recolhido && state.abaAtual && ABAS[state.abaAtual]) abrirGrupo(ABAS[state.abaAtual].grupo);
-  }
+  const aberto = document.body.classList.toggle('menu-aberto');
+  if(aberto && state.abaAtual && ABAS[state.abaAtual]) abrirGrupo(ABAS[state.abaAtual].grupo);
 }
 document.getElementById('btnMenu').addEventListener('click', alternarMenu);
 document.getElementById('fundoLateral').addEventListener('click', ()=> document.body.classList.remove('menu-aberto'));
 document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') document.body.classList.remove('menu-aberto'); });
-try{ if(localStorage.getItem(LS_MENU)==='1') document.body.classList.add('menu-recolhido'); }catch(e){}
+/* Resquício da versão em que a barra recolhida era uma preferência guardada. */
+try{ localStorage.removeItem('rh_menu_recolhido'); }catch(e){}
 
 /* Sinalizador do menu: quantidade de pendências do cartão ponto do mês
    (faltas, registros ausentes e nomes ainda sem vínculo com a folha). */
@@ -7132,7 +7563,7 @@ function renderValores(dados){
   corpo.querySelectorAll('tbody tr').forEach(tr=> tr.addEventListener('click', (e)=>{ if(e.target.closest('.menu-acoes')) return; abrirEspelho(parseInt(tr.dataset.idx,10)); }));
 }
 
-document.getElementById('pontoBusca').addEventListener('input', renderPonto);
+buscaComEspera('pontoBusca', renderPonto);
 document.getElementById('pontoFiltro').addEventListener('change', renderPonto);
 document.querySelectorAll('.subtab').forEach(b=> b.addEventListener('click', ()=>{
   state.pontoAba = b.dataset.sub;
@@ -9619,7 +10050,7 @@ function renderLancamentos(){
     }).join('') + '</tbody></table>';
 }
 
-document.getElementById('lanBusca').addEventListener('input', renderLancamentos);
+buscaComEspera('lanBusca', renderLancamentos);
 document.getElementById('lanFiltro').addEventListener('change', renderLancamentos);
 
 /* --------------------------------------------------------------- tela de clientes */
@@ -9697,7 +10128,7 @@ function renderClientes(){
     ).join('') + '</tbody></table>';
 }
 
-document.getElementById('cliBusca').addEventListener('input', renderClientes);
+buscaComEspera('cliBusca', renderClientes);
 document.getElementById('cliFiltro').addEventListener('change', renderClientes);
 document.getElementById('cliOrdem').addEventListener('change', renderClientes);
 document.getElementById('cliCorpo').addEventListener('click', (e)=>{
@@ -10130,7 +10561,7 @@ function renderHistorico(){
     blocosExtras;
 }
 
-document.getElementById('hisBusca').addEventListener('input', renderHistorico);
+buscaComEspera('hisBusca', renderHistorico);
 document.getElementById('hisFiltro').addEventListener('change', renderHistorico);
 document.getElementById('hisFormas').addEventListener('click', (e)=>{
   const btn = e.target.closest('button[data-forma-btn]');
@@ -11145,7 +11576,7 @@ function renderLojaVendas(){
     '</tbody></table>';
 }
 
-document.getElementById('lvBusca').addEventListener('input', renderLojaVendas);
+buscaComEspera('lvBusca', renderLojaVendas);
 document.getElementById('lvCategoria').addEventListener('change', renderLojaVendas);
 
 /* --------------------------------------------------------------- base de produtos */
@@ -11212,7 +11643,7 @@ function renderProdutos(){
     '</tbody></table>';
 }
 
-document.getElementById('prdBusca').addEventListener('input', renderProdutos);
+buscaComEspera('prdBusca', renderProdutos);
 document.getElementById('prdCategoria').addEventListener('change', renderProdutos);
 document.getElementById('prdOrdem').addEventListener('change', renderProdutos);
 document.getElementById('prdCorpo').addEventListener('click', (e)=>{
@@ -11707,7 +12138,7 @@ function atualizarSinoFerias(){
   return n;
 }
 
-document.getElementById('ferBusca').addEventListener('input', renderFerias);
+buscaComEspera('ferBusca', renderFerias);
 document.getElementById('ferFiltro').addEventListener('change', renderFerias);
 document.getElementById('ferCorpo').addEventListener('click', (e)=>{
   const bRec = e.target.closest('button[data-recibo-ferias]');
