@@ -1852,6 +1852,7 @@
     </select>
     <div class="spacer"></div>
     <button class="btn btn-outline" id="btnExportarClientes">Exportar base</button>
+    <button class="btn btn-outline" id="btnImportarClientes">Importar clientes</button>
     <button class="btn btn-primary" id="btnNovoCliente">+ Cadastrar Cliente</button>
   </div>
   <main>
@@ -2128,6 +2129,34 @@
         <button type="button" class="btn btn-vermelho" id="btnExcluirCliente" style="display:none;">Excluir cliente</button>
         <button type="button" class="btn btn-outline" id="btnCancelarCliente">Cancelar</button>
         <button type="submit" class="btn btn-primary" id="btnSalvarCliente">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal de importação em massa de clientes -->
+<div class="overlay" id="overlayImportarClientes">
+  <div class="modal" style="max-width:640px;">
+    <button class="modal-close" id="fecharImportarClientes">✕</button>
+    <h2>Importar clientes</h2>
+    <div class="sub">
+      Aceita o relatório "Relação de Clientes" exportado do SG (Relatórios) ou uma lista simples,
+      um nome por linha. Quem já está na base é identificado pelo nome e não duplica.
+    </div>
+    <form id="formImportarClientes">
+      <div class="campo" style="margin-bottom:10px;">
+        <label for="impArquivo">Arquivo (.xls, .csv ou .txt)</label>
+        <input type="file" id="impArquivo" accept=".xls,.xlsx,.csv,.txt">
+      </div>
+      <div class="campo" style="margin-bottom:12px;">
+        <label for="impTexto">Ou cole a lista aqui</label>
+        <textarea id="impTexto" rows="6" style="width:100%;padding:10px 12px;border:1px solid var(--cinza-borda);border-radius:10px;font-size:13px;font-family:inherit;resize:vertical;" placeholder="Um cliente por linha, ou cole o relatório exportado do SG"></textarea>
+      </div>
+      <div id="impPrevia"></div>
+      <div class="acoes-modal">
+        <button type="button" class="btn btn-outline" id="btnCancelarImportarClientes">Cancelar</button>
+        <button type="button" class="btn btn-outline" id="btnPrevisualizarImportarClientes">Conferir lista</button>
+        <button type="submit" class="btn btn-primary" id="btnConfirmarImportarClientes" style="display:none;" disabled>Cadastrar clientes</button>
       </div>
     </form>
   </div>
@@ -2559,7 +2588,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '17/08/2026d · Interface com animações';
+const VERSAO_SISTEMA = '22/08/2026a · Base de clientes completa';
 
 const SUPABASE_URL  = 'https://vieafcgghboxwhultile.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_HaMcgvr_2xmWYotvzetmVA_yscPz2eT';
@@ -8434,19 +8463,60 @@ function renderCaixaAtual(){
   if(typeof atualizarFichaRec === 'function' && state.abaAtual === 'recLancar') atualizarFichaRec();
 }
 
+/* O banco devolve no máximo 1000 linhas por pedido. Quando a base de clientes passou
+   desse número, os cadastros seguintes deixaram de chegar ao navegador — e o
+   recebimento deles aparecia na tela como "Cliente removido", com o cadastro inteiro
+   e intacto no banco. Pior: o balcão também não achava o cliente na busca do
+   lançamento e cadastrava a mesma pessoa de novo, partindo o histórico em dois.
+   Aconteceu de verdade em 22/08/2026, com a base em 1266 clientes.
+
+   Por isso a leitura vem em blocos, até a tabela acabar. Duas garantias para nunca
+   mais ler pela metade sem perceber:
+
+   1. A ordem é fixa, por `id`. Sem ordem definida o banco pode devolver a mesma linha
+      em dois blocos e pular outra: a lista chegaria com o tamanho certo e o conteúdo
+      errado, que é pior do que chegar curta.
+   2. O banco informa quantas linhas existem no total. Se o que chegou não bate com
+      esse total, a leitura falha de propósito em vez de instalar uma lista incompleta
+      — o que já estava na tela continua de pé e a luz da nuvem fica vermelha. Antes
+      um bloco perdido virava dado sumido em silêncio. */
+const BLOCO_LEITURA_CAIXA = 1000;
+const MAX_BLOCOS_CAIXA = 500;   /* trava de segurança: nunca vira laço infinito */
+
+async function lerTabelaInteira(tabela){
+  const linhas = [];
+  let total = null;
+  for(let bloco = 0; bloco < MAX_BLOCOS_CAIXA; bloco++){
+    const de = bloco * BLOCO_LEITURA_CAIXA;
+    const resp = await db.from(tabela)
+      .select('dados', {count:'exact'})
+      .order('id', {ascending:true})
+      .range(de, de + BLOCO_LEITURA_CAIXA - 1);
+    if(resp.error) throw resp.error;
+    const pagina = resp.data || [];
+    for(const linha of pagina) linhas.push(linha);
+    if(typeof resp.count === 'number') total = resp.count;
+    if(pagina.length < BLOCO_LEITURA_CAIXA) break;
+    if(total !== null && linhas.length >= total) break;
+  }
+  if(total !== null && linhas.length !== total){
+    throw new Error('Leitura incompleta de ' + tabela + ': chegaram ' + linhas.length +
+      ' de ' + total + ' registros');
+  }
+  return linhas;
+}
+
 async function carregarCaixa(avisar){
   if(!db || caixaLendo) return;
   caixaLendo = true;
   try{
     await escoarFilaCaixa();   /* o que este navegador deve ao banco vai antes de reler */
     const tipos = Object.keys(CAIXA_TABELAS);
-    const respostas = await Promise.all(tipos.map(t=> db.from(CAIXA_TABELAS[t].tabela).select('dados')));
-    const err = respostas.find(x=> x.error);
-    if(err) throw err.error;
+    const respostas = await Promise.all(tipos.map(t=> lerTabelaInteira(CAIXA_TABELAS[t].tabela)));
     garantirBaseRecebimentos();
     const antes = assinaturaCaixa();
     tipos.forEach((t, i)=>{
-      state[t] = (respostas[i].data || []).map(x=> x.dados).filter(Boolean);
+      state[t] = respostas[i].map(x=> x.dados).filter(Boolean);
     });
     unificarCartoesAntigos();
     gravarCache();
@@ -8459,8 +8529,12 @@ async function carregarCaixa(avisar){
     /* Agora sim dá para saber se o dia está sem abertura. Se a tela aberta é de
        lançamento, o pedido sai daqui — depois de ler o banco, não antes. */
     if(primeira) pedirAberturaDoDia(state.caixaDia || hojeISO());
+    statusNuvem('ok');
   }catch(e){
-    nuvemErro = e.message || String(e);
+    /* Falhou a leitura: o estado que já estava na tela NÃO é substituído por uma lista
+       pela metade. A luz vermelha é o aviso de que o que está à vista pode estar
+       desatualizado — silêncio aqui foi o que deixou o "Cliente removido" passar. */
+    statusNuvem('erro', 'Sem conexão');
   }finally{
     caixaLendo = false;
   }
@@ -10239,6 +10313,174 @@ document.getElementById('btnExcluirCliente').addEventListener('click', ()=>{
   fecharModalCliente();
   renderClientes();
   mostrarToast('Cliente excluído');
+});
+
+/* ============================= IMPORTAÇÃO EM MASSA DE CLIENTES =============================
+   Cadastra de uma vez uma lista de clientes, para eles já aparecerem na busca do
+   Lançamento de Recebimentos sem precisar digitar cada nome pela primeira vez ali.
+
+   Entende dois formatos:
+   1. O relatório "Relação de Clientes" do SG (Relatórios), colunas separadas por TAB,
+      com uma linha de cabeçalho contendo NOME/RAZAO SOCIAL, CIDADE, UF etc.
+   2. Uma lista simples, um nome por linha (opcionalmente "Nome; telefone").
+
+   Quem já existe na base (mesmo nome, ignorando acento/maiúscula) é pulado — a
+   importação só acrescenta gente nova, nunca sobrescreve um cadastro que já tem
+   telefone ou observação preenchidos à mão. */
+let impRegistrosPendentes = null;
+
+function parseImportacaoClientes(texto){
+  const linhas = String(texto||'').split(/\r?\n/);
+  let headerIdx = -1, cols = [];
+  for(let i=0;i<Math.min(linhas.length, 30);i++){
+    if(linhas[i].indexOf('\t') >= 0 && /NOME/i.test(linhas[i])){
+      headerIdx = i;
+      cols = linhas[i].split('\t').map(c=> c.trim().toUpperCase());
+      break;
+    }
+  }
+  const registros = [];
+  if(headerIdx >= 0){
+    /* Relatório do SG: pega nome, e cidade/UF só para compor a observação. */
+    const idxNome = cols.findIndex(c=> c.indexOf('NOME') >= 0 || c.indexOf('RAZAO') >= 0);
+    const idxCidade = cols.findIndex(c=> c.indexOf('CIDADE') >= 0);
+    const idxUf = cols.findIndex(c=> c === 'UF');
+    if(idxNome >= 0){
+      for(let i=headerIdx+1;i<linhas.length;i++){
+        const l = linhas[i];
+        if(!l || l.indexOf('\t') < 0) continue;
+        const partes = l.split('\t');
+        let nome = arrumarNome((partes[idxNome]||'').trim());
+        if(!nome || /^TOTAL DE CLIENTES/i.test(nome)) continue;
+        const cidade = idxCidade>=0 ? (partes[idxCidade]||'').trim() : '';
+        const uf = idxUf>=0 ? (partes[idxUf]||'').trim() : '';
+        const obs = cidade ? (cidade + (uf ? ' - ' + uf : '')) : '';
+        registros.push({nome, telefone:'', obs});
+      }
+    }
+  }
+  if(!registros.length){
+    /* Fallback: lista simples, um nome por linha. */
+    linhas.forEach(l=>{
+      const t = l.trim();
+      if(!t) return;
+      const partes = t.split(/[;,\t]/).map(p=> p.trim());
+      const nome = arrumarNome(partes[0]);
+      if(!nome) return;
+      registros.push({nome, telefone: partes[1]||'', obs:''});
+    });
+  }
+  return registros;
+}
+
+function montarPreviaImportacao(){
+  garantirBaseRecebimentos();
+  const arquivo = document.getElementById('impArquivo').files[0];
+  const previa = document.getElementById('impPrevia');
+  const btnConfirmar = document.getElementById('btnConfirmarImportarClientes');
+  const processar = (texto)=>{
+    const registros = parseImportacaoClientes(texto);
+    const existentesPorNome = new Map((state.clientes||[]).map(c=> [norm(c.nome), c]));
+    const vistos = new Set();
+    const novos = [];
+    let repetidosNaLista = 0, jaNaBase = 0;
+    registros.forEach(r=>{
+      const chave = norm(r.nome);
+      if(!chave) return;
+      if(existentesPorNome.has(chave)){ jaNaBase++; return; }
+      if(vistos.has(chave)){ repetidosNaLista++; return; }
+      vistos.add(chave);
+      novos.push(r);
+    });
+    impRegistrosPendentes = novos;
+    if(!registros.length){
+      previa.innerHTML = '<div class="lista-info">Não encontrei nenhum nome nessa lista. ' +
+        'Confira o arquivo ou cole o texto na caixa acima.</div>';
+      btnConfirmar.style.display = 'none';
+      btnConfirmar.disabled = true;
+      return;
+    }
+    const amostra = novos.slice(0, 8).map(r=> escHtml(r.nome)).join(', ') +
+      (novos.length > 8 ? ' … e mais ' + (novos.length - 8) : '');
+    previa.innerHTML =
+      '<div class="lista-info" style="margin-top:0;">' +
+        '<b>' + novos.length + ' cliente(s) novo(s)</b> serão cadastrados' +
+        (jaNaBase ? ', ' + jaNaBase + ' já estão na base e serão ignorados' : '') +
+        (repetidosNaLista ? ', ' + repetidosNaLista + ' repetido(s) na própria lista' : '') + '.' +
+        (novos.length ? '<br>' + amostra : '') +
+      '</div>';
+    btnConfirmar.style.display = '';
+    btnConfirmar.disabled = novos.length === 0;
+  };
+  if(arquivo){
+    const leitor = new FileReader();
+    leitor.onload = (e)=> processar(String(e.target.result||''));
+    leitor.onerror = ()=> mostrarToast('Não consegui ler o arquivo');
+    leitor.readAsText(arquivo, 'utf-8');
+  }else{
+    processar(document.getElementById('impTexto').value);
+  }
+}
+
+async function executarImportacaoClientes(novos){
+  if(!novos || !novos.length) return;
+  const registros = novos.map(r=> Object.assign({id: novoIdRec('c_'), criadoEm: new Date().toISOString()}, r));
+  state.clientes = (state.clientes||[]).concat(registros);
+  gravarCache();
+  renderClientes();
+  mostrarToast('Cadastrando ' + registros.length + ' cliente(s)…');
+  if(db){
+    const linhaFn = CAIXA_TABELAS.clientes.linha;
+    const TAM_LOTE = 300;
+    let falhas = 0;
+    for(let i=0;i<registros.length;i+=TAM_LOTE){
+      const lote = registros.slice(i, i+TAM_LOTE);
+      try{
+        const resp = await db.from(CAIXA_TABELAS.clientes.tabela)
+          .upsert(lote.map(o=> Object.assign(linhaFn(o), {atualizado_em: new Date().toISOString()})));
+        if(resp.error) throw resp.error;
+      }catch(e){
+        falhas += lote.length;
+        lote.forEach(o=> enfileirarCaixa('gravar', 'clientes', o.id, o));
+      }
+    }
+    gravarFilaCaixa();
+    if(falhas){
+      statusNuvem('pendente');
+      mostrarToast(falhas + ' cliente(s) ficaram pendentes de conexão — sobem sozinhos quando a internet voltar');
+    }else{
+      statusNuvem('ok');
+      mostrarToast(registros.length + ' cliente(s) cadastrado(s) na base');
+    }
+  }else{
+    registros.forEach(o=> enfileirarCaixa('gravar', 'clientes', o.id, o));
+    statusNuvem('pendente');
+    mostrarToast(registros.length + ' cliente(s) guardado(s) — sobem para o banco quando a conexão voltar');
+  }
+}
+
+function fecharModalImportarClientes(){
+  document.getElementById('overlayImportarClientes').classList.remove('show');
+  document.getElementById('impArquivo').value = '';
+  document.getElementById('impTexto').value = '';
+  document.getElementById('impPrevia').innerHTML = '';
+  document.getElementById('btnConfirmarImportarClientes').style.display = 'none';
+  document.getElementById('btnConfirmarImportarClientes').disabled = true;
+  impRegistrosPendentes = null;
+}
+
+document.getElementById('btnImportarClientes').addEventListener('click', ()=>{
+  document.getElementById('overlayImportarClientes').classList.add('show');
+});
+document.getElementById('fecharImportarClientes').addEventListener('click', fecharModalImportarClientes);
+document.getElementById('btnCancelarImportarClientes').addEventListener('click', fecharModalImportarClientes);
+document.getElementById('btnPrevisualizarImportarClientes').addEventListener('click', montarPreviaImportacao);
+document.getElementById('formImportarClientes').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  if(!impRegistrosPendentes || !impRegistrosPendentes.length) return;
+  const registros = impRegistrosPendentes;
+  fecharModalImportarClientes();
+  await executarImportacaoClientes(registros);
 });
 
 /* --------------------------------------------------------------- histórico do caixa */
@@ -12823,6 +13065,7 @@ trocarAba('inicio');
 fecharAoClicarFora('overlayNuvem');
 fecharAoClicarFora('overlayVincular');
 fecharAoClicarFora('overlayCliente');
+fecharAoClicarFora('overlayImportarClientes');
 fecharAoClicarFora('overlayFerias');
 fecharAoClicarFora('overlayAbertura');
 fecharAoClicarFora('overlayProduto');
