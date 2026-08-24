@@ -2588,13 +2588,24 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '22/08/2026a · Base de clientes completa';
+const VERSAO_SISTEMA = '24/08/2026a · Sessão separada do Estoque';
 
 const SUPABASE_URL  = 'https://vieafcgghboxwhultile.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_HaMcgvr_2xmWYotvzetmVA_yscPz2eT';
 const LS_KEY = 'rh_sistema_v3';   /* cache local */
+/* O Sistema de Estoque está publicado no MESMO endereço (mercadogodoyrh-collab.github.io)
+   e usa o MESMO banco. O Supabase guarda quem está logado no armazenamento do navegador
+   por endereço — então, com a chave padrão, os dois sistemas dividiam a MESMA sessão:
+   quem entrasse por último no Estoque trocava, por baixo, o usuário do RH.
+
+   Era isso o "sem conexão" de 24/08/2026. A tela de login do RH continuava dizendo
+   Andressa, mas o banco recebia as chamadas como EDUARDO, do estoque, que não tem acesso
+   ao RH: a leitura voltava vazia e a gravação era recusada. Com chave própria, entrar no
+   Estoque não mexe mais no RH — e vice-versa. */
 const db = (window.supabase && window.supabase.createClient)
-  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+      auth: { storageKey: 'rh_sessao_v1' }
+    })
   : null;   /* se o CDN falhar, o sistema continua rodando só com o cache local */
 
 /* --------- login (equipe administrativa) --------- */
@@ -2637,16 +2648,53 @@ function soltarAnimacoesAgora(){
   document.body.classList.remove('sem-animacao');
 }
 
-function mostrarLogin(){
+function mostrarLogin(aviso){
   document.getElementById('appConteudo').style.display = 'none';
   document.getElementById('overlayLogin').classList.add('show');
+  const erroBox = document.getElementById('loginErro');
+  if(erroBox){
+    erroBox.textContent = aviso || '';
+    erroBox.style.display = aviso ? 'block' : 'none';
+  }
 }
+
+/* Porteiro do RH. Quem responde é o banco, pela mesma função que as permissões usam —
+   não uma lista de e-mails escrita aqui, que envelheceria sozinha.
+
+   Os três retornos são diferentes de propósito:
+     true  → é da equipe administrativa, entra;
+     false → está logado, mas a conta não tem acesso ao RH (é o caso do estoque) — não entra;
+     null  → não deu para perguntar (internet fora, banco mudo). Aqui NÃO se expulsa
+             ninguém: o sistema trabalha com a cópia local, como sempre trabalhou. Tratar
+             falha de rede como falta de permissão poria a equipe para fora do próprio
+             sistema justamente no dia em que a internet oscilasse. */
+async function permissaoRH(){
+  if(!db) return null;
+  try{
+    const { data, error } = await db.rpc('pode_rh');
+    if(error) return null;
+    return data === true;
+  }catch(e){
+    return null;
+  }
+}
+
+const AVISO_SEM_ACESSO = 'Esta conta não tem acesso ao RH. Entre com um usuário da equipe administrativa.';
 
 async function iniciarAutenticacao(){
   if(!db){ mostrarLogin(); return; }
   const { data } = await db.auth.getSession();
-  if(data && data.session){ mostrarApp(data.session); }
-  else{ mostrarLogin(); }
+  const sessao = data && data.session;
+  if(!sessao){ mostrarLogin(); return; }
+  /* A sessão encontrada pode ser a do Estoque, deixada neste navegador antes da separação
+     das chaves. Sem esta conferência o sistema abria inteiro e só quebrava na hora de
+     gravar — com a mensagem errada de "sem conexão". */
+  if(await permissaoRH() === false){
+    await db.auth.signOut();
+    mostrarLogin(AVISO_SEM_ACESSO);
+    return;
+  }
+  mostrarApp(sessao);
 }
 
 document.getElementById('formLogin').addEventListener('submit', async (e)=>{
@@ -2662,6 +2710,13 @@ document.getElementById('formLogin').addEventListener('submit', async (e)=>{
     const { data, error } = await db.auth.signInWithPassword({ email, password: senha });
     if(error) throw error;
     document.getElementById('loginSenha').value = '';
+    /* Senha certa não é o bastante: a conta precisa ter acesso ao RH. */
+    if(await permissaoRH() === false){
+      await db.auth.signOut();
+      erroBox.textContent = AVISO_SEM_ACESSO;
+      erroBox.style.display = 'block';
+      return;
+    }
     mostrarApp(data.session);
   }catch(err){
     erroBox.textContent = 'Usuário ou senha incorretos.';
@@ -2732,6 +2787,29 @@ function statusNuvem(estado, msg){
   nuvemErro = (estado === 'erro') ? (msg || 'Falha ao comunicar com o banco') : null;
 }
 
+/* Recusa por permissão não é falta de internet, e chamar as duas de "Sem conexão" custou
+   um dia de sistema parado: a equipe ficou procurando problema de rede enquanto o banco
+   estava recusando o usuário errado. Estas duas funções separam as coisas. */
+function ehErroDePermissao(e){
+  if(!e) return false;
+  const codigo = String(e.code || e.status || '');
+  const texto  = String(e.message || e.error_description || '');
+  return codigo === '42501' || codigo === '403' || codigo === 'PGRST301' ||
+         /row-level security|permission denied|not authorized|JWT/i.test(texto);
+}
+
+function statusFalha(e){
+  if(ehErroDePermissao(e)){
+    statusNuvem('erro', 'Sem permissão');
+    nuvemErro = 'Esta conta não tem acesso ao RH — provavelmente é a sessão do Estoque. ' +
+                'Clique em Sair e entre de novo com o seu usuário.';
+  }else{
+    statusNuvem('erro', 'Sem conexão');
+    nuvemErro = (e && (e.message || String(e))) || 'Falha ao comunicar com o banco';
+  }
+  return nuvemErro;
+}
+
 /* Chamada em todo ponto do sistema que altera dados — mantém o nome antigo para não
    mexer nas dezenas de chamadas já existentes. */
 function salvarEstado(){
@@ -2776,8 +2854,9 @@ async function enviarParaNuvem(){
     nuvemUltima = new Date();
     statusNuvem('ok');
   }catch(e){
-    statusNuvem('erro', 'Sem conexão');
-    nuvemErro = e.message || String(e);
+    /* Aqui mora o 403 de 24/08/2026: gravação recusada porque a sessão era a do Estoque.
+       Antes isso virava "Sem conexão" e mandava a equipe caçar problema de internet. */
+    statusFalha(e);
   }finally{
     nuvemEnviando = false;
     if(nuvemRefazer){ nuvemRefazer = false; salvarEstado(); }
@@ -2844,9 +2923,9 @@ async function conectarBanco(){
        para a nuvem é que as tira. Dá para confiar no que está em memória e voltar a
        perguntar a abertura quando ela realmente faltar. */
     caixaCarregado = true;
-    statusNuvem('erro', 'Sem conexão');
-    nuvemErro = e.message || String(e);
-    mostrarToast('Sem conexão com o banco — trabalhando com a cópia local');
+    const aviso = statusFalha(e);
+    mostrarToast(ehErroDePermissao(e) ? aviso
+                                      : 'Sem conexão com o banco — trabalhando com a cópia local');
     if(typeof pedirAberturaDoDia === 'function') pedirAberturaDoDia(state.caixaDia || hojeISO());
   }
 }
@@ -2900,8 +2979,7 @@ document.getElementById('btnBaixarNuvem').addEventListener('click', async ()=>{
     document.getElementById('overlayNuvem').classList.remove('show');
     mostrarToast('Dados recarregados do banco');
   }catch(e){
-    statusNuvem('erro','Sem conexão'); nuvemErro = e.message || String(e);
-    mostrarToast('Não foi possível recarregar: ' + nuvemErro);
+    mostrarToast('Não foi possível recarregar: ' + statusFalha(e));
   }
 });
 
@@ -8399,8 +8477,7 @@ async function escoarFilaCaixaAgora(){
       caixaFila = caixaFila.filter(x=> x !== p);
       gravarFilaCaixa();
     }catch(e){
-      nuvemErro = e.message || String(e);
-      statusNuvem('erro', 'Sem conexão');
+      statusFalha(e);
       return false;
     }
   }
@@ -8534,7 +8611,7 @@ async function carregarCaixa(avisar){
     /* Falhou a leitura: o estado que já estava na tela NÃO é substituído por uma lista
        pela metade. A luz vermelha é o aviso de que o que está à vista pode estar
        desatualizado — silêncio aqui foi o que deixou o "Cliente removido" passar. */
-    statusNuvem('erro', 'Sem conexão');
+    statusFalha(e);
   }finally{
     caixaLendo = false;
   }
