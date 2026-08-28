@@ -97,6 +97,40 @@
   .btn-verde{background:var(--verde);color:#fff;}
   .btn-vermelho{background:var(--vermelho);color:#fff;}
   .btn-sm{padding:6px 10px;font-size:12.5px;border-radius:6px;}
+  /* ---------- BOTÃO ALTO ----------
+     O botão que fecha um lançamento — registrar a venda, o recebimento, a retirada — é
+     o fim de um caminho: cliente, valor, modalidades. Ele não pode ter o mesmo peso do
+     "Limpar" ao lado. A borda inferior escura é a ALTURA do botão: ele está levantado
+     da página. No clique ele desce essa altura exata e a sombra some — é a leitura de
+     uma tecla afundando, e é isso que dá a certeza de que o clique pegou, coisa que
+     falta num sistema de balcão onde se lança o dia inteiro sem olhar para a tela.
+
+     A descida é de 0,09s de propósito: mais lento que isso e o botão parece emperrado,
+     porque o dedo já saiu antes de a animação terminar. */
+  .btn-alto{--alto-base:#0a3f26;
+    padding:12px 22px;font-size:14.5px;border-radius:12px;
+    box-shadow:0 4px 0 var(--alto-base), 0 6px 14px rgba(20,45,65,.16);
+    transition:transform .09s var(--suave), box-shadow .09s var(--suave),
+               filter var(--t-rapido) var(--suave);}
+  .btn-alto:hover{filter:brightness(1.05);transform:translateY(-1px);
+    box-shadow:0 5px 0 var(--alto-base), 0 9px 18px rgba(20,45,65,.2);}
+  .btn-alto:active{transform:translateY(4px);filter:brightness(.97);
+    box-shadow:0 0 0 var(--alto-base), 0 1px 2px rgba(20,45,65,.18);}
+  .btn-alto:focus-visible{outline:none;box-shadow:0 4px 0 var(--alto-base), var(--foco);}
+  /* Cada cor tem a sua base: a "altura" é sempre a própria cor escurecida, senão o
+     botão fica com um degrau cinza que não pertence a lugar nenhum. */
+  .btn-alto.btn-primary{--alto-base:#013d22;}
+  .btn-alto.btn-verde{--alto-base:#157a40;}
+  .btn-alto.btn-vermelho{--alto-base:#8e2b20;}
+  /* O par do lado (Limpar, Cancelar) fica alto também, senão os dois botões da mesma
+     linha teriam alturas diferentes e a linha ficaria torta. */
+  /* Menos 1px de recheio de cada lado porque o contornado tem borda e o cheio não:
+     sem isto o "Limpar" fica 2px mais alto que o "Registrar" e a linha sai torta. */
+  .btn-alto.btn-outline{--alto-base:#c9d8d0;background:#fff;padding:11px 21px;}
+  .btn-alto.btn-outline:hover{filter:none;background:var(--marca-cl);}
+  /* O "+ Adicionar" mora numa linha de campos e tem que terminar na mesma altura deles:
+     ali o recheio é menor, e quem sobra por baixo é só o degrau do botão. */
+  .ven-linha .btn-alto{padding:9px 18px;font-size:14px;}
   main{max-width:1180px;margin:18px auto 60px;padding:0 20px;}
   .lista-info{color:var(--texto-fraco);font-size:13px;margin:14px 2px 8px;}
   .tabela-header{display:grid;grid-template-columns:2fr 1.6fr 1fr 110px;gap:16px;padding:0 16px 6px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--texto-fraco);}
@@ -510,30 +544,48 @@
                       transform var(--t-rapido) var(--suave);}
   .bl-item.ativa{box-shadow:0 1px 3px rgba(0,0,0,.12);}
   @media(min-width:901px){
-    /* A faixa de ícones é o estado NORMAL da tela grande, e é ela quem define a margem
-       do conteúdo: 70px, sempre, aberta ou fechada. Antes a margem acompanhava a
-       largura da barra, e era isso que encolhia e esticava a tela toda a cada clique
-       no hambúrguer — com tabelas e gráficos se remontando no meio do caminho. */
-    .area-conteudo{margin-left:70px;}
-    body:not(.menu-aberto) .barra-lateral{width:70px;}
-    body:not(.menu-aberto) .bl-rotulo{display:none;}
-    body:not(.menu-aberto) .bl-secao{opacity:0;height:14px;padding:0;}
-    body:not(.menu-aberto) .bl-item{justify-content:center;padding:11px 0;}
-    body:not(.menu-aberto) .bl-item .bl-sino{display:none;}
-    body:not(.menu-aberto) .bl-topo{justify-content:center;padding:15px 8px;}
-    /* Faixa fechada: some com as telas de dentro e deixa só o ícone de cada área.
-       Clicar no ícone abre a barra já com o grupo aberto (ver o clique em .bl-cabeca). */
-    body:not(.menu-aberto) .bl-sub{display:none !important;}
-    body:not(.menu-aberto) .bl-grupo{margin-bottom:2px;}
-    /* Aberta, a barra cresce para 252px passando por cima do conteúdo — os 182px que
-       sobram da faixa cobrem a tela, e a sombra é o que a faz parecer solta na frente
-       em vez de colada ao lado.
+    /* ---------- COMO A BARRA SE COMPORTA NA TELA GRANDE ----------
+       Antes havia três coisas acontecendo no mesmo lugar: uma faixa de ícones, uma
+       barra que abria POR CIMA do conteúdo com cortina escura, e o fechamento
+       automático a cada tela escolhida. O resultado era que a barra nunca estava onde
+       se esperava — clicava-se no hambúrguer, escolhia-se a tela, e ela sumia; para o
+       próximo lançamento, tudo de novo. Era isso que confundia.
 
-       A sombra é deslocada e curta de propósito. Uma sombra de 46px em volta dos quatro
-       lados é uma área borrada enorme, e como a largura da barra está mudando ela é
-       redesenhada em cada quadro. Empurrada para a direita, que é o único lado onde ela
-       aparece, e com raio curto, o desenho por quadro cai para uma fração disso. */
-    body.menu-aberto .barra-lateral{box-shadow:3px 0 20px rgba(0,0,0,.28);}
+       Agora são dois estados, e só dois:
+
+         FIXA    — a barra fica aberta ao lado, o conteúdo começa depois dela, e ela
+                   NÃO se fecha ao escolher uma tela. É o estado normal de quem passa
+                   o dia lançando, e fica guardado no computador.
+         FAIXA   — só os ícones, 70px. Passar o mouse por cima abre a barra inteira
+                   sobre o conteúdo, sem clique nenhum, e ela recolhe sozinha quando o
+                   mouse sai. Serve para quem quer a tela toda para a tabela.
+
+       O hambúrguer alterna entre os dois. Não há mais cortina escura na tela grande:
+       cortina é coisa de janela modal, e a barra de navegação não é modal. */
+    .area-conteudo{margin-left:70px;
+      transition:margin-left var(--t-lento) var(--mola);}
+    .fundo-lateral{display:none;}
+    body:not(.menu-fixo) .barra-lateral{width:70px;}
+    /* A sombra só aparece quando a barra está flutuando por cima do conteúdo. Fixa, ela
+       é parte da página e sombra ali só sujaria a divisão. */
+    body:not(.menu-fixo) .barra-lateral:hover{width:252px;box-shadow:3px 0 20px rgba(0,0,0,.26);}
+    body.menu-fixo .barra-lateral{width:252px;}
+    body.menu-fixo .area-conteudo{margin-left:252px;}
+
+    /* Estado recolhido = faixa sem o mouse em cima. Tudo que é texto some e sobra o ícone. */
+    body:not(.menu-fixo) .barra-lateral:not(:hover) .bl-rotulo{display:none;}
+    body:not(.menu-fixo) .barra-lateral:not(:hover) .bl-secao{opacity:0;height:14px;padding:0;}
+    body:not(.menu-fixo) .barra-lateral:not(:hover) .bl-item{justify-content:center;padding:11px 0;}
+    body:not(.menu-fixo) .barra-lateral:not(:hover) .bl-item .bl-sino{display:none;}
+    body:not(.menu-fixo) .barra-lateral:not(:hover) .bl-topo{justify-content:center;padding:15px 8px;}
+    body:not(.menu-fixo) .barra-lateral:not(:hover) .bl-sub{display:none !important;}
+    body:not(.menu-fixo) .barra-lateral:not(:hover) .bl-grupo{margin-bottom:2px;}
+    /* Na faixa as telas de dentro estão escondidas, então a tela em uso não apareceria
+       marcada em lugar nenhum — dava para ficar perdido sem saber onde se estava. O
+       ícone da área assume a marca. */
+    body:not(.menu-fixo) .barra-lateral:not(:hover) .bl-cabeca.tem-ativa{background:#fff;color:var(--marca-esc);}
+    /* O hambúrguer diz em que estado se está, para o clique não ser adivinhação. */
+    body.menu-fixo .btn-hamburguer{background:var(--marca-cl);border-color:var(--marca);}
   }
   @media(max-width:900px){
     /* No celular não há espaço nem para a faixa: a barra sai inteira da tela e volta
@@ -893,6 +945,7 @@
   .rec-somatorio .rs-bloco .rs-nota{font-size:10.5px;color:var(--texto-fraco);margin-top:1px;}
   .rec-somatorio .rs-bloco.rs-falta .rs-val{color:var(--vermelho);}
   .rec-somatorio .rs-bloco.rs-troco .rs-val{color:#b9770e;}
+  .rec-somatorio .rs-bloco.rs-notinha .rs-val{color:#6b4fa8;}
   .rec-somatorio .rs-bloco.rs-quitado .rs-val{color:var(--verde);}
   .rec-acoes{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;flex-wrap:wrap;align-items:center;}
   .rec-acoes .rec-aviso{margin-right:auto;font-size:12px;color:var(--texto-fraco);}
@@ -925,10 +978,36 @@
   .ini-card .ini-desc{font-size:11.5px;color:var(--texto-fraco);line-height:1.5;margin-bottom:14px;}
   .ini-card svg{display:block;width:100%;height:auto;overflow:visible;}
   .ini-card .rosca{max-width:244px;margin:0 auto;}
-  .ini-legenda{display:flex;flex-wrap:wrap;gap:9px 18px;margin-top:14px;}
-  .ini-legenda span{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--texto-fraco);}
-  .ini-legenda i{width:10px;height:10px;border-radius:3px;flex:none;}
-  .ini-legenda b{color:var(--texto);}
+  /* ---------- LEGENDA DA ROSCA ----------
+     A legenda não é mais um rótulo: é o controle do gráfico. Cada forma de pagamento é
+     um botão que apaga e acende a sua fatia, e por isso tem que PARECER botão — daí a
+     caixa que acende no hover e o afundar no clique. O item desligado fica riscado, que
+     é o único jeito de não confundir "tirei do gráfico" com "não entrou nada". */
+  .ini-legenda{display:flex;flex-wrap:wrap;gap:7px 8px;margin-top:14px;}
+  .lg-item{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--texto-fraco);
+    font-family:inherit;background:var(--superficie);border:1px solid transparent;border-radius:9px;
+    padding:5px 9px;cursor:pointer;text-align:left;line-height:1.35;
+    transition:background var(--t-rapido) var(--suave), border-color var(--t-rapido) var(--suave),
+               opacity var(--t-rapido) var(--suave), transform var(--t-rapido) var(--suave);}
+  .lg-item:hover{background:var(--marca-cl);border-color:var(--cinza-borda);}
+  .lg-item:active{transform:scale(.97);}
+  .lg-item:focus-visible{outline:none;box-shadow:var(--foco);}
+  .lg-item i{width:10px;height:10px;border-radius:3px;flex:none;
+    transition:background var(--t-rapido) var(--suave), box-shadow var(--t-rapido) var(--suave);}
+  .lg-item b{color:var(--texto);font-variant-numeric:tabular-nums;}
+  .lg-item .lg-pct{opacity:.7;}
+  .lg-item.fora{opacity:.5;text-decoration:line-through;background:var(--cinza);}
+  .lg-item.fora i{background:transparent !important;box-shadow:inset 0 0 0 2px var(--cinza-borda);}
+  .lg-item.fora b{color:var(--texto-fraco);}
+  .lg-nota{font-size:11.5px;color:var(--texto-fraco);margin-top:9px;display:flex;align-items:center;
+    gap:8px;flex-wrap:wrap;}
+  .lg-reset{background:none;border:none;font-family:inherit;font-size:11.5px;color:var(--marca);
+    font-weight:700;cursor:pointer;text-decoration:underline;padding:0;}
+  /* Passar o mouse na rosca apaga as outras fatias e deixa acesa só a de baixo do
+     cursor — junto com o balão do nome e do valor, é a leitura do gráfico sem clicar. */
+  .rosca-fatia{transition:opacity var(--t-rapido) var(--suave);}
+  .rosca:hover .rosca-fatia{opacity:.55;}
+  .rosca .rosca-fatia:hover{opacity:1;}
   .ini-vazio{font-size:12.5px;color:var(--texto-fraco);text-align:center;padding:30px 10px;}
   .ini-alertas{display:flex;flex-direction:column;gap:8px;margin-bottom:18px;}
   .ini-alerta{display:flex;align-items:flex-start;gap:11px;border-radius:10px;padding:11px 15px;font-size:13px;
@@ -1081,6 +1160,14 @@
     font-family:inherit;font-size:15px;font-weight:700;color:var(--texto);}
   .troco-calc b{font-size:17px;color:var(--marca-esc);}
   .troco-calc .tc-falta{color:var(--vermelho);}
+  /* Notinha branca: o vale de troco que o cliente retira nos caixas da frente do
+     mercado. Roxo para não se confundir com o troco que sai da nossa gaveta. */
+  .troco-calc.notinha-box{background:#f7f4fd;border-color:#d9cff0;color:#5b4b7d;}
+  .troco-calc.notinha-box b{color:#6b4fa8;}
+  .troco-calc .tc-usar{background:none;border:none;padding:0;font-family:inherit;font-size:12.5px;
+    font-weight:700;color:#6b4fa8;cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
+  .troco-calc .tc-usar:hover{color:#4d3780;}
+  .troco-calc .tc-linha{flex-basis:100%;font-size:11.5px;line-height:1.45;}
   @media(max-width:820px){
     .rec-linha{grid-template-columns:1fr;}
     .ven-linha{grid-template-columns:1fr;}
@@ -1653,6 +1740,13 @@
       <input type="hidden" id="recTroco" value="">
       <input type="hidden" id="recTrocoForma" value="dinheiro">
 
+      <div class="troco-calc notinha-box">
+        <span>Notinha branca</span>
+        <input type="text" inputmode="decimal" id="recNotinha" placeholder="0,00">
+        <button type="button" class="tc-usar" id="btnRecNotinhaSobra" style="display:none;"></button>
+        <div class="tc-linha" id="recNotinhaTxt"></div>
+      </div>
+
       <div class="rec-somatorio" id="recSomatorio"></div>
 
       <div class="campo" style="margin-top:16px;">
@@ -1662,8 +1756,8 @@
 
       <div class="rec-acoes">
         <span class="rec-aviso" id="recAviso"></span>
-        <button class="btn btn-outline" id="btnRecLimpar">Limpar</button>
-        <button class="btn btn-primary" id="btnRecSalvar">Registrar recebimento</button>
+        <button class="btn btn-outline btn-alto" id="btnRecLimpar">Limpar</button>
+        <button class="btn btn-primary btn-alto" id="btnRecSalvar">Registrar recebimento</button>
       </div>
     </div>
 
@@ -1716,8 +1810,8 @@
 
       <div class="rec-acoes">
         <span class="rec-aviso" id="retAviso"></span>
-        <button class="btn btn-outline" id="btnRetLimpar">Limpar</button>
-        <button class="btn btn-primary" id="btnRetSalvar">Registrar retirada</button>
+        <button class="btn btn-outline btn-alto" id="btnRetLimpar">Limpar</button>
+        <button class="btn btn-primary btn-alto" id="btnRetSalvar">Registrar retirada</button>
       </div>
     </div>
 
@@ -1782,8 +1876,8 @@
 
       <div class="rec-acoes">
         <span class="rec-aviso" id="supAviso"></span>
-        <button class="btn btn-outline" id="btnSupLimpar">Limpar</button>
-        <button class="btn btn-primary" id="btnSupSalvar">Registrar entrada</button>
+        <button class="btn btn-outline btn-alto" id="btnSupLimpar">Limpar</button>
+        <button class="btn btn-primary btn-alto" id="btnSupSalvar">Registrar entrada</button>
       </div>
     </div>
 
@@ -1936,7 +2030,7 @@
         </div>
         <div class="campo">
           <label>&nbsp;</label>
-          <button type="button" class="btn btn-primary" id="btnVenAddItem">+ Adicionar</button>
+          <button type="button" class="btn btn-primary btn-alto" id="btnVenAddItem">+ Adicionar</button>
         </div>
       </div>
 
@@ -1955,6 +2049,14 @@
         <span>Cliente entregou em dinheiro</span>
         <input type="text" inputmode="decimal" id="venEntregue" placeholder="0,00">
         <span id="venTrocoTxt">— informe para calcular o troco.</span>
+        <button type="button" class="tc-usar" id="btnVenTrocoNotinha" style="display:none;"></button>
+      </div>
+
+      <div class="troco-calc notinha-box">
+        <span>Notinha branca</span>
+        <input type="text" inputmode="decimal" id="venNotinha" placeholder="0,00">
+        <button type="button" class="tc-usar" id="btnVenNotinhaSobra" style="display:none;"></button>
+        <div class="tc-linha" id="venNotinhaTxt"></div>
       </div>
 
       <div class="rec-somatorio" id="venSomatorio"></div>
@@ -1966,8 +2068,8 @@
 
       <div class="rec-acoes">
         <span class="rec-aviso" id="venAviso"></span>
-        <button class="btn btn-outline" id="btnVenLimpar">Limpar</button>
-        <button class="btn btn-primary" id="btnVenSalvar">Registrar venda</button>
+        <button class="btn btn-outline btn-alto" id="btnVenLimpar">Limpar</button>
+        <button class="btn btn-primary btn-alto" id="btnVenSalvar">Registrar venda</button>
       </div>
     </div>
 
@@ -2061,6 +2163,7 @@
         <select id="trocoForma">
           <option value="dinheiro">Dinheiro</option>
           <option value="pix">Pix</option>
+          <option value="notinha">Notinha branca (caixa da frente)</option>
         </select>
       </div>
       <div class="rec-ficha" id="trocoResumo" style="margin-bottom:2px;"></div>
@@ -7271,13 +7374,16 @@ function abrirGrupo(nome){
   });
   marcarGrupos();
 }
-/* Grupo fechado que contém a tela em uso fica destacado, para não sumir a referência. */
+/* O ícone da área onde se está trabalhando fica destacado sempre que as telas de dentro
+   não estão à vista: com o grupo recolhido, e também na faixa de ícones — onde NENHUM
+   submenu aparece e, sem esta marca, não havia como saber em que área se estava. */
 function marcarGrupos(){
+  const faixa = window.innerWidth > 900 && !document.body.classList.contains('menu-fixo');
   document.querySelectorAll('.bl-grupo').forEach(g=>{
     const cab = g.querySelector('.bl-cabeca');
     const aberto = g.classList.contains('aberto');
     cab.setAttribute('aria-expanded', aberto ? 'true' : 'false');
-    cab.classList.toggle('tem-ativa', !aberto && !!g.querySelector('.bl-item.ativa'));
+    cab.classList.toggle('tem-ativa', (faixa || !aberto) && !!g.querySelector('.bl-item.ativa'));
   });
   atualizarSinoPonto();
 }
@@ -7335,13 +7441,15 @@ function trocarAba(aba){
 }
 document.querySelectorAll('.bl-item[data-aba]').forEach(t=> t.addEventListener('click', ()=> trocarAba(t.dataset.aba)));
 
+/* ---------- CLIQUE NO NOME DA ÁREA ----------
+   Na faixa de ícones as telas de dentro estão escondidas, então clicar no ícone da área
+   não pode "abrir e não mostrar nada". Ele fixa a barra e já deixa aquela área aberta —
+   e ela FICA onde a pessoa a colocou, em vez de se fechar sozinha um segundo depois. */
 document.querySelectorAll('.bl-cabeca').forEach(cab=>{
   cab.addEventListener('click', ()=>{
     const grupo = cab.parentElement;
-    /* Na faixa de só ícones não há onde mostrar as telas de dentro: o clique no ícone
-       da área abre a barra por cima do conteúdo, já com aquela área aberta. */
-    if(!document.body.classList.contains('menu-aberto') && window.innerWidth > 900){
-      document.body.classList.add('menu-aberto');
+    if(window.innerWidth > 900 && !document.body.classList.contains('menu-fixo')){
+      fixarMenu(true);
       abrirGrupo(grupo.dataset.grupo);
       return;
     }
@@ -7350,18 +7458,44 @@ document.querySelectorAll('.bl-cabeca').forEach(cab=>{
   });
 });
 
-/* Hambúrguer: uma coisa só em qualquer tela — abre e fecha a barra POR CIMA do
-   conteúdo, com a cortina escura e desfocada atrás dela. Não há mais preferência a
-   guardar: o menu aberto é um estado de passagem, como um modal, e sempre começa
-   fechado. Ao abrir, já se desdobra a área da tela em uso, para o lugar onde a
-   pessoa está aparecer marcado sem precisar procurar. */
+/* ---------- HAMBÚRGUER ----------
+   Na tela grande ele alterna os dois únicos estados da barra — FIXA ao lado ou FAIXA de
+   ícones — e a escolha fica guardada no computador: quem passa o dia lançando deixa
+   fixa uma vez e não mexe mais. No celular continua sendo a gaveta de sempre, que abre
+   por cima do conteúdo e fecha ao escolher a tela. */
+function fixarMenu(fixa){
+  document.body.classList.toggle('menu-fixo', !!fixa);
+  const btn = document.getElementById('btnMenu');
+  if(btn) btn.title = fixa ? 'Recolher o menu para a faixa de ícones'
+                           : 'Deixar o menu aberto ao lado do conteúdo';
+  try{ localStorage.setItem('rh_menu_fixo', fixa ? '1' : '0'); }catch(e){}
+  marcarGrupos();
+}
 function alternarMenu(){
+  if(window.innerWidth > 900){
+    const fixa = !document.body.classList.contains('menu-fixo');
+    fixarMenu(fixa);
+    if(fixa && state.abaAtual && ABAS[state.abaAtual]) abrirGrupo(ABAS[state.abaAtual].grupo);
+    return;
+  }
   const aberto = document.body.classList.toggle('menu-aberto');
   if(aberto && state.abaAtual && ABAS[state.abaAtual]) abrirGrupo(ABAS[state.abaAtual].grupo);
 }
 document.getElementById('btnMenu').addEventListener('click', alternarMenu);
 document.getElementById('fundoLateral').addEventListener('click', ()=> document.body.classList.remove('menu-aberto'));
 document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') document.body.classList.remove('menu-aberto'); });
+/* A barra abre no estado em que ficou da última vez. Sem preferência guardada ela
+   começa FIXA, que é o estado em que ninguém precisa procurar o menu. Aqui não se
+   chama `fixarMenu`: ela mexe nos sinalizadores, e nesta altura o sistema ainda não
+   terminou de carregar os dados que alimentam a contagem. */
+(function(){
+  let fixa = true;
+  try{ const v = localStorage.getItem('rh_menu_fixo'); if(v !== null) fixa = (v === '1'); }catch(e){}
+  document.body.classList.toggle('menu-fixo', fixa);
+  const btn = document.getElementById('btnMenu');
+  if(btn) btn.title = fixa ? 'Recolher o menu para a faixa de ícones'
+                           : 'Deixar o menu aberto ao lado do conteúdo';
+})();
 /* Resquício da versão em que a barra recolhida era uma preferência guardada. */
 try{ localStorage.removeItem('rh_menu_recolhido'); }catch(e){}
 
@@ -8318,10 +8452,12 @@ async function emitirDocumento(chave, modo){
    digitado que ainda não existe entra na base ao registrar, e da próxima vez já aparece
    sugerido na busca.
 
-   O que ficou pendente de uma conta (total maior que o pago) vira saldo em aberto do
-   cliente — a soma dessas diferenças é o que ele ainda deve. Pagar mais do que o total
-   da conta abate esse saldo antigo (por isso a diferença negativa é tratada como
-   crédito, não como erro).
+   O que ficou pendente de uma conta (total maior que o pago) vira o saldo em aberto do
+   cliente — e é só o restante do ÚLTIMO lançamento que vale. O total digitado no balcão
+   já traz o débito antigo dentro dele, então o restante de hoje SUBSTITUI o de ontem em
+   vez de somar com ele: quem devia 40 e volta pagando 30 de uma conta de 40 fica devendo
+   10, não 50. Pagar mais do que o total da conta vira crédito (diferença negativa), não
+   erro.
 
    Os dados moram em state.clientes e state.recebimentos: como toda chave do estado que
    não é funcionários/folha/ponto, vão para a tabela rh_config do banco sem precisar de
@@ -8716,18 +8852,39 @@ function nomeCliente(id){
   const c = clientePorId(id);
   return c ? c.nome : 'Cliente removido';
 }
+/* ===================== NOTINHA BRANCA =====================
+   O vale de troco que o cliente retira nos caixas da frente do mercado. O cliente
+   entrega a nota de 100 numa conta de 43 e o troco não sai da nossa gaveta: a nota
+   entra INTEIRA aqui e os 57 ele pega lá na frente, contra o papel.
+
+   Daí as duas regras, que são o contrário uma da outra:
+     • para o CAIXA a notinha não existe — os 100 estão na gaveta e é isso que tem que
+       ser conferido no fechamento. Por isso o valor gravado na modalidade é o cheio e
+       `entradaEmCaixa` não desconta nada;
+     • para a CONTA (e para o total da venda) a notinha não paga — só 43 quitaram, então
+       ela sai de `pagoDoRecebimento` e do que a venda precisa fechar.
+   É exatamente o oposto do troco do cheque, que sai da nossa modalidade e some do
+   caixa. Um é dinheiro que saiu, o outro é dinheiro que ficou e virá a ser pago na
+   frente do mercado. */
+const TROCO_NOTINHA = 'notinha';
+function notinhaDe(r){ return r ? r2(toNum(r.notinha)) : 0; }
+
 /* Quanto da conta foi QUITADO — inclui o Juros/Haver, porque para o cliente a conta
-   está paga do mesmo jeito. É o número que zera o saldo devedor dele. */
+   está paga do mesmo jeito, e desconta a notinha branca, porque aquele pedaço da nota
+   voltou para o cliente. É o número que zera o saldo devedor dele. */
 function pagoDoRecebimento(r){
   if(!r) return 0;
   /* As chaves antigas entram na soma mesmo antes de serem convertidas em cartão:
      nenhum registro velho pode aparecer com valor pago menor do que foi recebido. */
-  return FORMAS_RECEBIMENTO.reduce((s,f)=> s + toNum(r[f.chave]), 0)
-       + FORMAS_ANTIGAS.reduce((s,k)=> s + toNum(r[k]), 0);
+  return r2(FORMAS_RECEBIMENTO.reduce((s,f)=> s + toNum(r[f.chave]), 0)
+          + FORMAS_ANTIGAS.reduce((s,k)=> s + toNum(r[k]), 0)
+          - notinhaDe(r));
 }
 
 /* Quanto ENTROU de dinheiro no caixa — o Juros/Haver fica de fora, porque não passou
-   pela gaveta nem pela maquininha. É este o número do fechamento e dos relatórios. */
+   pela gaveta nem pela maquininha. É este o número do fechamento e dos relatórios.
+   A notinha branca NÃO é descontada aqui de propósito: a nota entrou inteira e está na
+   gaveta para ser conferida; quem paga aquele troco é o caixa da frente. */
 function entradaEmCaixa(r){
   if(!r) return 0;
   return FORMAS_EM_CAIXA.reduce((s,f)=> s + toNum(r[f.chave]), 0)
@@ -8767,17 +8924,35 @@ function unificarCartoesAntigos(){
 function recebimentosDoCliente(id){
   return (state.recebimentos||[]).filter(r=> r.clienteId===id);
 }
-/* Saldo em aberto = soma das diferenças entre o total das contas e o que foi pago.
-   Negativo significa crédito: o cliente pagou mais do que as contas registradas. */
+/* Os recebimentos do cliente em ordem cronológica: o dia manda, e dentro do mesmo dia
+   vale a hora em que foi lançado (o id desempata registros antigos sem `criadoEm`).
+   É desta ordem que sai qual é o ÚLTIMO pagamento — o que define o que ele ainda deve. */
+function recebimentosDoClienteEmOrdem(id){
+  return recebimentosDoCliente(id).slice().sort((a,b)=>
+    String(a.data||'').localeCompare(String(b.data||'')) ||
+    String(a.criadoEm||'').localeCompare(String(b.criadoEm||'')) ||
+    String(a.id||'').localeCompare(String(b.id||'')));
+}
+/* Saldo em aberto = o restante do ÚLTIMO recebimento, e só dele. Cada conta lançada no
+   balcão já vem com o débito antigo embutido no total, então o restante que o cliente
+   deixa hoje SUBSTITUI o de antes — não se soma com ele. Somar as diferenças de todos
+   os lançamentos contaria a mesma dívida de novo a cada pagamento parcial.
+   Exemplo: conta de 100, pagou 60 → deve 40. Volta com a conta de 40, paga 30 → deve
+   10 (e não 50). Pagou a conta inteira, deve nada, mesmo que tenha sobrado antes.
+   Negativo continua significando crédito: pagou mais do que a conta da vez.
+   `contas` e `pago` seguem sendo o histórico somado — é o "total já pago" das telas,
+   e por isso não bate mais com o saldo, que é sempre o do último lançamento. */
 function resumoCliente(id){
-  const lista = recebimentosDoCliente(id);
-  let pago = 0, contas = 0, ultima = '';
+  const lista = recebimentosDoClienteEmOrdem(id);
+  let pago = 0, contas = 0;
   lista.forEach(r=>{
     pago += pagoDoRecebimento(r);
     contas += toNum(r.total);
-    if(!ultima || String(r.data) > ultima) ultima = String(r.data||'');
   });
-  return { qtd: lista.length, pago: r2(pago), contas: r2(contas), saldo: r2(contas - pago), ultima };
+  const ultimo = lista.length ? lista[lista.length - 1] : null;
+  return { qtd: lista.length, pago: r2(pago), contas: r2(contas),
+           saldo: ultimo ? r2(toNum(ultimo.total) - pagoDoRecebimento(ultimo)) : 0,
+           ultima: ultimo ? String(ultimo.data||'') : '', ultimo };
 }
 function situacaoRecebimento(r){
   const dif = r2(toNum(r.total) - pagoDoRecebimento(r));
@@ -8836,7 +9011,6 @@ function resumoFormas(r){
   /* Modalidade com valor negativo é a que pagou o troco: aparece com o sinal, porque
      ali saiu dinheiro do caixa em vez de entrar. */
   const usadas = FORMAS_RECEBIMENTO.filter(f=> Math.abs(toNum(r[f.chave])) > 0.004);
-  if(!usadas.length) return '—';
   const partes = usadas.map(f=>{
     const n = parcelasDe(r, f.chave).length;
     return f.rotulo + ' ' + fmtMoeda(toNum(r[f.chave])) + (n > 1 ? ' (' + n + ' ' + f.plural + ')' : '');
@@ -8845,7 +9019,10 @@ function resumoFormas(r){
     const ft = FORMAS_RECEBIMENTO.find(f=> f.chave === r.trocoForma);
     partes.push('troco ' + fmtMoeda(toNum(r.troco)) + ' em ' + (ft ? ft.rotulo.toLowerCase() : r.trocoForma));
   }
-  return partes.join(' · ');
+  /* A notinha aparece aqui porque sem ela a linha não fecha: o quadro mostra a nota de
+     100 e a conta era de 43 — o papel de 57 é o que explica a diferença. */
+  if(notinhaDe(r) > 0) partes.push('notinha branca ' + fmtMoeda(notinhaDe(r)));
+  return partes.length ? partes.join(' · ') : '—';
 }
 
 /* ================== O DIA DO CAIXA ==================
@@ -8881,20 +9058,24 @@ function totaisDoDia(iso){
   const zerado = ()=>{ const o = {}; FORMAS_RECEBIMENTO.forEach(f=> o[f.chave] = 0); return o; };
   const porFormaRec = zerado(), porFormaVen = zerado(), porFormaSup = zerado(), porForma = zerado();
 
-  let entrouRec = 0, contas = 0, quitado = 0, haver = 0;
+  /* `notinhaRec`/`notinhaVen`: o troco que ficou na gaveta como papel. Não sai de
+     nenhum total do caixa — é o dinheiro que o caixa da frente vai pagar por nós. */
+  let entrouRec = 0, contas = 0, quitado = 0, haver = 0, notinhaRec = 0;
   rec.forEach(r=>{
     FORMAS_RECEBIMENTO.forEach(f=> porFormaRec[f.chave] += toNum(r[f.chave]));
     entrouRec += entradaEmCaixa(r);     /* dinheiro que entrou de verdade */
     quitado   += pagoDoRecebimento(r);  /* o que as contas deixaram de dever */
     haver     += haverDoRecebimento(r);
+    notinhaRec += notinhaDe(r);
     contas    += toNum(r.total);
   });
 
-  let entrouVen = 0, vendido = 0, itensVendidos = 0;
+  let entrouVen = 0, vendido = 0, itensVendidos = 0, notinhaVen = 0;
   ven.forEach(v=>{
     FORMAS_VENDA.forEach(f=> porFormaVen[f.chave] += toNum(v[f.chave]));
     entrouVen += entradaEmCaixa(v);
     vendido   += toNum(v.total);
+    notinhaVen += notinhaDe(v);
     itensVendidos += itensDaVenda(v).reduce((s,i)=> s + toNum(i.qtd), 0);
   });
 
@@ -8921,6 +9102,8 @@ function totaisDoDia(iso){
     porForma, porFormaRec, porFormaVen, porFormaSup,
     entrou, entrouRec: r2(entrouRec), entrouVen: r2(entrouVen), entrouSup: r2(entrouSup),
     quitado: r2(quitado), haver: r2(haver), contas: r2(contas),
+    notinha: r2(notinhaRec + notinhaVen), notinhaRec: r2(notinhaRec), notinhaVen: r2(notinhaVen),
+    qtdNotinha: rec.filter(r=> notinhaDe(r) > 0).length + ven.filter(v=> notinhaDe(v) > 0).length,
     vendido: r2(vendido), itensVendidos: r2(itensVendidos), saiu,
     sobrou: r2(entrou - saiu),
     dinheiroFinal: r2(inicial + porForma.dinheiro - saiu)   /* o que tem que estar na gaveta */
@@ -9259,8 +9442,13 @@ function abrirModalTroco(chave){
   if(!f) return;
   trocoModChave = chave;
   const bruto = valorDaMod(chave);
-  const troco = r2(toNum(document.getElementById('recTroco').value));
   const forma = document.getElementById('recTrocoForma').value || 'dinheiro';
+  /* Troco em notinha não fica em `recTroco` — foi para o campo da notinha, porque ele
+     não desconta modalidade nenhuma. Aqui ele volta ao modal para poder ser corrigido
+     no mesmo lugar em que foi digitado. */
+  const troco = forma === TROCO_NOTINHA
+    ? r2(toNum(document.getElementById('recNotinha').value))
+    : r2(toNum(document.getElementById('recTroco').value));
   document.getElementById('trocoTitulo').textContent = f.rotulo;
   document.getElementById('trocoBruto').value = bruto ? bruto.toFixed(2).replace('.',',') : '';
   document.getElementById('trocoValor').value = troco ? troco.toFixed(2).replace('.',',') : '';
@@ -9278,25 +9466,40 @@ function fecharModalTroco(){
 function atualizarResumoTroco(){
   const bruto = r2(toNum(document.getElementById('trocoBruto').value));
   const troco = r2(toNum(document.getElementById('trocoValor').value));
+  const ehNotinha = document.getElementById('trocoForma').value === TROCO_NOTINHA;
   const liquido = r2(bruto - troco);
   document.getElementById('trocoResumo').innerHTML =
     '<div>Entra na conta <b>'+fmtMoeda(liquido)+'</b></div>' +
-    (troco > 0 ? '<div>Sai do caixa <b>'+fmtMoeda(troco)+'</b></div>' : '');
+    (troco > 0
+      ? (ehNotinha
+        ? '<div>Fica no caixa <b>'+fmtMoeda(troco)+'</b> <span class="rec-mini">— vale branco, o cliente ' +
+          'retira nos caixas da frente</span></div>'
+        : '<div>Sai do caixa <b>'+fmtMoeda(troco)+'</b></div>')
+      : '');
 }
 ['trocoBruto','trocoValor','trocoForma'].forEach(id=>
   document.getElementById(id).addEventListener('input', atualizarResumoTroco));
+document.getElementById('trocoForma').addEventListener('change', atualizarResumoTroco);
 
 document.getElementById('formTroco').addEventListener('submit', (e)=>{
   e.preventDefault();
   const bruto = r2(toNum(document.getElementById('trocoBruto').value));
   const troco = r2(toNum(document.getElementById('trocoValor').value));
+  const forma = document.getElementById('trocoForma').value;
   if(troco > 0 && troco >= bruto){
     mostrarToast('O troco não pode ser igual nem maior que o valor do cheque');
     return;
   }
   document.getElementById('recPg_' + trocoModChave).value = bruto ? String(bruto) : '';
-  document.getElementById('recTroco').value = troco ? String(troco) : '';
-  document.getElementById('recTrocoForma').value = document.getElementById('trocoForma').value;
+  /* Os dois caminhos gravam em campos diferentes de propósito: troco comum some da
+     modalidade escolhida, notinha branca fica no caixa e só não quita a conta. */
+  document.getElementById('recTrocoForma').value = forma;
+  if(forma === TROCO_NOTINHA){
+    document.getElementById('recTroco').value = '';
+    document.getElementById('recNotinha').value = troco ? String(troco) : '';
+  }else{
+    document.getElementById('recTroco').value = troco ? String(troco) : '';
+  }
   fecharModalTroco();
   atualizarSomatorioRec();
 });
@@ -9312,7 +9515,10 @@ function atualizarSomatorioRec(){
      a diferença de volta. Quem paga a conta é o líquido. */
   const troco = r2(toNum(document.getElementById('recTroco').value));
   const trocoForma = document.getElementById('recTrocoForma').value;
-  const pago = r2(bruto - troco);
+  /* A notinha branca também não quita conta — mas, ao contrário do troco, o dinheiro
+     dela continua na nossa gaveta. Ver "NOTINHA BRANCA". */
+  const notinha = r2(toNum(document.getElementById('recNotinha').value));
+  const pago = r2(bruto - troco - notinha);
   const dif = r2(total - pago);
 
   FORMAS_RECEBIMENTO.forEach(f=>{
@@ -9329,7 +9535,8 @@ function atualizarSomatorioRec(){
       cx.querySelector('.rm-valor[data-valor="'+f.chave+'"]').textContent = fmtMoeda(formas[f.chave]);
       const nomeF = (FORMAS_RECEBIMENTO.find(x=> x.chave===trocoForma)||{rotulo:''}).rotulo.toLowerCase();
       cx.querySelector('.rm-soma[data-soma="'+f.chave+'"]').textContent =
-        troco > 0 ? 'troco ' + fmtMoeda(troco) + ' em ' + nomeF : '';
+        troco > 0 ? 'troco ' + fmtMoeda(troco) + ' em ' + nomeF
+        : (trocoForma === TROCO_NOTINHA && notinha > 0 ? 'troco ' + fmtMoeda(notinha) + ' em notinha branca' : '');
     }
   });
 
@@ -9339,11 +9546,13 @@ function atualizarSomatorioRec(){
   else blocoDif = {cls:'rs-quitado', rot:'Diferença', val:fmtMoeda(0), nota:'conta quitada por inteiro'};
 
   const nomeTrocoForma = (FORMAS_RECEBIMENTO.find(f=> f.chave===trocoForma)||{rotulo:trocoForma}).rotulo.toLowerCase();
+  const abatidos = [troco > 0 ? fmtMoeda(troco) + ' de troco' : '',
+                    notinha > 0 ? fmtMoeda(notinha) + ' de notinha' : ''].filter(Boolean);
   const partes = [
     '<div class="rs-bloco"><div class="rs-rot">Total da conta</div><div class="rs-val">'+fmtMoeda(total)+'</div></div>',
     '<div class="rs-bloco"><div class="rs-rot">Quantia paga</div><div class="rs-val">'+fmtMoeda(pago)+'</div>' +
-      '<div class="rs-nota">'+ (troco > 0
-        ? fmtMoeda(bruto) + ' menos ' + fmtMoeda(troco) + ' de troco'
+      '<div class="rs-nota">'+ (abatidos.length
+        ? fmtMoeda(bruto) + ' menos ' + abatidos.join(' e ')
         : (pago>0 ? FORMAS_RECEBIMENTO.filter(f=>formas[f.chave]>0).length + ' modalidade(s)' : 'nenhuma modalidade preenchida')) +'</div></div>',
     '<div class="rs-bloco '+blocoDif.cls+'"><div class="rs-rot">'+blocoDif.rot+'</div><div class="rs-val">'+blocoDif.val+'</div>' +
       '<div class="rs-nota">'+blocoDif.nota+'</div></div>'
@@ -9353,8 +9562,38 @@ function atualizarSomatorioRec(){
       '<div class="rs-val">'+fmtMoeda(troco)+'</div>' +
       '<div class="rs-nota">sai do ' + nomeTrocoForma + ' do caixa</div></div>');
   }
+  if(notinha > 0){
+    partes.push('<div class="rs-bloco rs-notinha"><div class="rs-rot">Notinha branca</div>' +
+      '<div class="rs-val">'+fmtMoeda(notinha)+'</div>' +
+      '<div class="rs-nota">fica na gaveta; o cliente retira na frente</div></div>');
+  }
 
   document.getElementById('recSomatorio').innerHTML = partes.join('');
+  atualizarCaixaNotinhaRec(bruto, troco, notinha, total);
+}
+
+/* A caixa roxa embaixo das modalidades: diz em uma linha o que a notinha está fazendo
+   com o lançamento e, quando o cliente entregou mais do que a conta, oferece o valor
+   exato num clique — é o gesto do balcão, a nota de 100 numa conta de 43. */
+function atualizarCaixaNotinhaRec(bruto, troco, notinha, total){
+  const txt = document.getElementById('recNotinhaTxt');
+  const btn = document.getElementById('btnRecNotinhaSobra');
+  if(!txt || !btn) return;
+  const sobra = r2(bruto - troco - notinha - total);
+  if(notinha > 0){
+    txt.innerHTML = 'Entrou <b>' + fmtMoeda(bruto - troco) + '</b> na gaveta, mas só <b>' +
+      fmtMoeda(r2(bruto - troco - notinha)) + '</b> quitam a conta — os ' + fmtMoeda(notinha) +
+      ' do papel o cliente retira nos caixas da frente do mercado.';
+  }else{
+    txt.innerHTML = 'Vale de troco que o cliente retira nos caixas da frente. A nota entra ' +
+      'inteira no nosso caixa e não sai dinheiro daqui — deixe zerado quando o troco sair da gaveta.';
+  }
+  const oferecer = total > 0.004 && sobra > 0.004;
+  btn.style.display = oferecer ? '' : 'none';
+  if(oferecer){
+    btn.textContent = 'lançar ' + fmtMoeda(sobra) + ' em notinha';
+    btn.dataset.valor = String(sobra);
+  }
 }
 
 function atualizarFichaRec(){
@@ -9511,6 +9750,7 @@ function limparFormRec(manterCliente){
   });
   document.getElementById('recTroco').value = '';
   document.getElementById('recTrocoForma').value = 'dinheiro';
+  document.getElementById('recNotinha').value = '';
   document.getElementById('recAviso').textContent = '';
   atualizarFichaRec();
 }
@@ -9599,13 +9839,36 @@ function salvarRecebimento(){
   const bruto = r2(FORMAS_RECEBIMENTO.reduce((s,f)=> s + formas[f.chave], 0));
   const troco = r2(toNum(document.getElementById('recTroco').value));
   const trocoForma = document.getElementById('recTrocoForma').value;
-  const pago = r2(bruto - troco);
+  const notinha = r2(toNum(document.getElementById('recNotinha').value));
+  const pago = r2(bruto - troco - notinha);
 
   if(!nome){ aviso.textContent = 'Informe o nome do cliente.'; document.getElementById('recCliente').focus(); return; }
   if(total <= 0 && pago <= 0){ aviso.textContent = 'Informe o total da conta e a quantia paga.'; return; }
   if(troco > 0 && troco >= bruto){
     aviso.textContent = 'O troco não pode ser igual nem maior que o valor entregue pelo cliente.';
     document.getElementById('recTroco').focus();
+    return;
+  }
+  if(notinha < 0){
+    aviso.textContent = 'A notinha branca não pode ser negativa.';
+    document.getElementById('recNotinha').focus();
+    return;
+  }
+  /* A notinha é troco: ela sai do que o cliente entregou. Se não sobra nada para a
+     conta, o que foi digitado não descreve o que aconteceu no balcão. */
+  if(notinha > 0 && r2(troco + notinha) >= bruto){
+    aviso.textContent = 'A notinha branca não pode consumir tudo o que o cliente entregou — ' +
+      'o troco sai da nota, e a nota tem que cobrir a conta também.';
+    document.getElementById('recNotinha').focus();
+    return;
+  }
+  /* Notinha só faz sentido contra dinheiro que passou pela gaveta: não dá para emitir
+     vale de troco em cima de Juros/Haver, que nem entrou no caixa. */
+  const brutoEmCaixa = r2(FORMAS_EM_CAIXA.reduce((s,f)=> s + formas[f.chave], 0));
+  if(notinha > 0 && r2(troco + notinha) > brutoEmCaixa){
+    aviso.textContent = 'A notinha branca de ' + fmtMoeda(notinha) + ' passa do que entrou no caixa neste ' +
+      'pagamento (' + fmtMoeda(brutoEmCaixa) + ') — o vale sai da nota que o cliente entregou.';
+    document.getElementById('recNotinha').focus();
     return;
   }
 
@@ -9654,6 +9917,11 @@ function salvarRecebimento(){
   dados.trocoForma = troco > 0 ? trocoForma : '';
   if(troco > 0) dados[trocoForma] = r2(toNum(dados[trocoForma]) - troco);
 
+  /* A notinha branca é o contrário: fica gravada à parte e NÃO desconta modalidade
+     nenhuma, porque aquele dinheiro não saiu daqui. Quem tira ela da conta é
+     `pagoDoRecebimento`; o caixa continua contando a nota inteira. */
+  dados.notinha = notinha > 0 ? notinha : 0;
+
   /* Guarda o detalhe só quando houve mais de uma entrada na modalidade — com um cartão
      só, o valor em `cartao` já diz tudo e a lista seria ruído. */
   const parcelas = {};
@@ -9682,6 +9950,7 @@ function salvarRecebimento(){
     const dif = r2(total - pago);
     mostrarToast('Recebido ' + fmtMoeda(pago) + ' de ' + cli.nome +
       (dif > 0.004 ? ' — ficou devendo ' + fmtMoeda(dif) : '') +
+      (notinha > 0 ? ' · notinha branca de ' + fmtMoeda(notinha) : '') +
       (novoCadastro ? ' (cliente cadastrado)' : ''));
   }
 
@@ -9718,6 +9987,11 @@ function editarRecebimento(id){
   });
   document.getElementById('recTroco').value = troco ? troco.toFixed(2).replace('.',',') : '';
   document.getElementById('recTrocoForma').value = trocoForma;
+  /* A notinha volta como foi digitada: ela nunca foi descontada de modalidade nenhuma,
+     então não há o que somar de volta como no troco. */
+  const notinhaGravada = notinhaDe(r);
+  document.getElementById('recNotinha').value =
+    notinhaGravada ? notinhaGravada.toFixed(2).replace('.',',') : '';
   document.getElementById('recEditandoTxt').textContent =
     'Corrigindo o recebimento de ' + nomeCliente(r.clienteId) + ' de ' + dataBR(r.data) + '.';
   document.getElementById('recEditandoAviso').classList.add('show');
@@ -9772,6 +10046,14 @@ document.getElementById('recData').addEventListener('change', (e)=>{
   atualizarAvisosData();
 });
 document.getElementById('recTotal').addEventListener('input', atualizarSomatorioRec);
+document.getElementById('recNotinha').addEventListener('input', atualizarSomatorioRec);
+document.getElementById('btnRecNotinhaSobra').addEventListener('click', (e)=>{
+  const v = r2(toNum(e.currentTarget.dataset.valor));
+  const campo = document.getElementById('recNotinha');
+  campo.value = v > 0 ? v.toFixed(2).replace('.',',') : '';
+  atualizarSomatorioRec();
+  campo.focus();
+});
 fecharAoClicarFora('overlayTroco');
 /* Enter no total pula direto para a primeira modalidade — o fluxo é sempre esse. */
 document.getElementById('recTotal').addEventListener('keydown', (e)=>{
@@ -10718,6 +11000,14 @@ function renderHistorico(){
         ? '<div class="fc-linha" style="margin-top:10px;"><span>Quitado em Juros/Haver <span class="rec-mini">' +
           '(abate a conta do cliente, mas não entra no caixa)</span></span><b>'+fmtMoeda(t.haver)+'</b></div>'
         : '') +
+      /* A notinha NÃO sai da conta da gaveta: o dinheiro dela está aqui dentro. Aparece
+         embaixo do total para quem confere entender por que a gaveta tem mais do que as
+         contas e as vendas do dia somam. */
+      (t.notinha > 0
+        ? '<div class="fc-linha" style="margin-top:10px;"><span>Notinhas brancas emitidas <span class="rec-mini">' +
+          '(' + t.qtdNotinha + ' vale(s) — o dinheiro ficou na gaveta, o troco sai no caixa da frente)' +
+          '</span></span><b>'+fmtMoeda(t.notinha)+'</b></div>'
+        : '') +
       '<div class="rec-mini" style="margin-top:9px;">' +
         (t.abertura ? 'Cartão, pix e cheque não entram nesta conta — não são dinheiro em espécie.'
                     : 'Informe a abertura do caixa para esta conta fechar.') + '</div>' +
@@ -10847,7 +11137,7 @@ function renderHistorico(){
   corpo.innerHTML = '<table class="tabela-ponto"><thead><tr>' +
     '<th class="esq">Data / hora</th><th class="esq">Cliente</th><th>Total da conta</th>' +
     FORMAS_RECEBIMENTO.map(f=> '<th'+(f.chave===formaSel?' class="col-destaque"':'')+'>'+f.rotulo+'</th>').join('') +
-    '<th>Pago</th><th>Situação</th><th>Baixa no SG</th></tr></thead><tbody>' +
+    '<th>Notinha branca</th><th>Pago</th><th>Situação</th><th>Baixa no SG</th></tr></thead><tbody>' +
     lista.map(r=>{
       const sit = situacaoRecebimento(r);
       const dif = r2(toNum(r.total) - pagoDoRecebimento(r));
@@ -10865,6 +11155,7 @@ function renderHistorico(){
             (ehTroco ? '<div class="rec-mini">troco devolvido</div>' : '') +
             (p.length > 1 ? '<div class="rec-mini">'+p.map(v=> fmtMoeda(v)).join(' + ')+'</div>' : '') + '</td>';
         }).join('') +
+        '<td>'+(notinhaDe(r) ? fmtMoeda(notinhaDe(r)) : '—')+'</td>' +
         '<td><b>'+fmtMoeda(pagoDoRecebimento(r))+'</b></td>' +
         '<td><span class="rec-tag '+sit.classe+'">'+sit.rot+'</span>' +
           (dif>0.004 ? '<div class="rec-mini">falta '+fmtMoeda(dif)+'</div>' : '') + '</td>' +
@@ -10875,6 +11166,7 @@ function renderHistorico(){
     '<td><b>'+fmtMoeda(r2(lista.reduce((s,r)=> s + toNum(r.total), 0)))+'</b></td>' +
     FORMAS_RECEBIMENTO.map(f=> '<td'+(f.chave===formaSel?' class="col-destaque"':'')+'><b>' +
       fmtMoeda(r2(lista.reduce((s,r)=> s + toNum(r[f.chave]), 0)))+'</b></td>').join('') +
+    '<td><b>'+fmtMoeda(r2(lista.reduce((s,r)=> s + notinhaDe(r), 0)))+'</b></td>' +
     '<td><b>'+fmtMoeda(r2(lista.reduce((s,r)=> s + pagoDoRecebimento(r), 0)))+'</b></td><td></td><td></td></tr>' +
     '</tbody></table>' +
     blocosExtras;
@@ -10925,6 +11217,8 @@ function renderBalancoCaixa(){
   const saiu   = soma(t=> t.saiu);
   const contas = soma(t=> t.contas);
   const haver  = soma(t=> t.haver);
+  const notinha = soma(t=> t.notinha);
+  const qtdNotinha = linhas.reduce((s,t)=> s + t.qtdNotinha, 0);
   const vendido = soma(t=> t.vendido);
   const avulso  = soma(t=> t.entrouSup);
   const porForma = {};
@@ -10956,6 +11250,11 @@ function renderBalancoCaixa(){
       ? '<div class="kpi kpi-info"><div class="kpi-rot">Quitado em Juros/Haver</div>' +
         '<div class="kpi-val">'+fmtMoeda(haver)+'</div>' +
         '<div class="kpi-sub">abateu conta sem entrar no caixa</div></div>'
+      : '') +
+    (notinha > 0
+      ? '<div class="kpi kpi-info"><div class="kpi-rot">Notinhas brancas</div>' +
+        '<div class="kpi-val">'+fmtMoeda(notinha)+'</div>' +
+        '<div class="kpi-sub">'+qtdNotinha+' vale(s) — troco retirado no caixa da frente</div></div>'
       : '') +
     '<div class="kpi '+(semAbertura?'kpi-alerta':'kpi-ok')+'"><div class="kpi-rot">Dias sem abertura</div>' +
       '<div class="kpi-val">'+semAbertura+'</div>' +
@@ -11031,23 +11330,23 @@ document.getElementById('btnExportarBalancoCaixa').addEventListener('click', ()=
 
   const aoa = [['BALANÇO MENSAL DO CAIXA — ' + mesLabel(mes)], [],
     ['Dia','Dia da semana','Abertura'].concat(FORMAS_RECEBIMENTO.map(f=> f.rotulo))
-      .concat(['Loja','Entradas avulsas','Entrou','Retiradas','Fechamento em espécie',
+      .concat(['Loja','Entradas avulsas','Entrou','Notinha branca','Retiradas','Fechamento em espécie',
                'Recebimentos','Vendas','Avulsas','Retiradas (qtd)'])];
   linhas.forEach(t=>{
     aoa.push([dataBR(t.iso), DIAS_SEMANA[deISO(t.iso).getDay()], t.abertura ? t.inicial : '']
       .concat(FORMAS_RECEBIMENTO.map(f=> t.porForma[f.chave]))
-      .concat([t.vendido, t.entrouSup, t.entrou, t.saiu, t.dinheiroFinal,
+      .concat([t.vendido, t.entrouSup, t.entrou, t.notinha, t.saiu, t.dinheiroFinal,
                t.rec.length, t.ven.length, t.sup.length, t.ret.length]));
   });
   aoa.push(['TOTAL','','']
     .concat(FORMAS_RECEBIMENTO.map(f=> soma(t=> t.porForma[f.chave])))
-    .concat([soma(t=> t.vendido), soma(t=> t.entrouSup), soma(t=> t.entrou), soma(t=> t.saiu), '',
+    .concat([soma(t=> t.vendido), soma(t=> t.entrouSup), soma(t=> t.entrou), soma(t=> t.notinha), soma(t=> t.saiu), '',
              linhas.reduce((s,t)=> s + t.rec.length, 0), linhas.reduce((s,t)=> s + t.ven.length, 0),
              linhas.reduce((s,t)=> s + t.sup.length, 0), linhas.reduce((s,t)=> s + t.ret.length, 0)]));
 
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   ws['!cols'] = [{wch:12},{wch:15},{wch:13}].concat(FORMAS_RECEBIMENTO.map(()=> ({wch:13})))
-    .concat([{wch:13},{wch:17},{wch:13},{wch:13},{wch:20},{wch:14},{wch:10},{wch:10},{wch:14}]);
+    .concat([{wch:13},{wch:17},{wch:13},{wch:15},{wch:13},{wch:20},{wch:14},{wch:10},{wch:10},{wch:14}]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Balanço ' + mes);
   XLSX.writeFile(wb, 'Balanco_Caixa_' + mes + '.xlsx');
@@ -11068,7 +11367,7 @@ document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=
   const multiplas = FORMAS_RECEBIMENTO.filter(f=> f.multiplo);
   linhas.push(['Data','Hora','Cliente','Total da conta'].concat(FORMAS_RECEBIMENTO.map(f=> f.rotulo))
     .concat(multiplas.map(f=> f.plural.charAt(0).toUpperCase()+f.plural.slice(1)+' (detalhe)'))
-    .concat(['Total pago','Diferença','Situação','Baixa no SG','Observação']));
+    .concat(['Notinha branca','Total pago','Diferença','Situação','Baixa no SG','Observação']));
   doMes.forEach(r=>{
     const pago = pagoDoRecebimento(r);
     linhas.push([dataBR(r.data), horaDe(r.criadoEm), nomeCliente(r.clienteId), r2(toNum(r.total))]
@@ -11077,7 +11376,7 @@ document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=
         const p = parcelasDe(r, f.chave);
         return p.length > 1 ? p.map(v=> v.toFixed(2).replace('.',',')).join(' + ') : '';
       }))
-      .concat([r2(pago), r2(toNum(r.total)-pago), situacaoRecebimento(r).rot,
+      .concat([notinhaDe(r), r2(pago), r2(toNum(r.total)-pago), situacaoRecebimento(r).rot,
                baixaSgFeita(r) ? 'Baixado em ' + new Date(r.sgBaixadoEm).toLocaleDateString('pt-BR') : 'Pendente',
                r.obs||'']));
   });
@@ -11085,13 +11384,13 @@ document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=
   linhas.push(['TOTAL','','', soma(r=> toNum(r.total))]
     .concat(FORMAS_RECEBIMENTO.map(f=> soma(r=> toNum(r[f.chave]))))
     .concat(multiplas.map(()=> ''))
-    .concat([soma(pagoDoRecebimento), soma(r=> toNum(r.total)-pagoDoRecebimento(r)), '',
+    .concat([soma(notinhaDe), soma(pagoDoRecebimento), soma(r=> toNum(r.total)-pagoDoRecebimento(r)), '',
              doMes.filter(r=> !baixaSgFeita(r)).length + ' pendente(s)', '']));
 
   const ws = XLSX.utils.aoa_to_sheet(linhas);
   ws['!cols'] = [{wch:12},{wch:8},{wch:32},{wch:15}].concat(FORMAS_RECEBIMENTO.map(()=> ({wch:13})))
     .concat(multiplas.map(()=> ({wch:26})))
-    .concat([{wch:13},{wch:13},{wch:13},{wch:20},{wch:30}]);
+    .concat([{wch:15},{wch:13},{wch:13},{wch:13},{wch:20},{wch:30}]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Entradas');
 
@@ -11129,6 +11428,7 @@ document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=
   linhasRet.push(['', 'Entradas avulsas', t.entrouSup]);
   linhasRet.push(['', '= Entrou no caixa (dinheiro, cartão, pix, cheque)', t.entrou]);
   if(t.haver) linhasRet.push(['', 'Quitado em Juros/Haver (não entra no caixa)', t.haver]);
+  if(t.notinha) linhasRet.push(['', 'Notinhas brancas emitidas (o dinheiro ficou na gaveta; o troco sai no caixa da frente)', t.notinha]);
   linhasRet.push(['', 'Saiu (retiradas, sempre em dinheiro)', t.saiu]);
   linhasRet.push(['', 'Sobrou', t.sobrou]);
   linhasRet.push([]);
@@ -11139,6 +11439,11 @@ document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=
   linhasRet.push(['', '+ Entradas avulsas em dinheiro', t.porFormaSup.dinheiro]);
   linhasRet.push(['', '− Retiradas', t.saiu]);
   linhasRet.push(['', '= Deve ter na gaveta', t.dinheiroFinal]);
+  /* A notinha entra na gaveta e fica: a nota do cliente é nossa até o caixa da frente
+     pagar o vale por nós. Por isso vem depois do total, como lembrete, e não como
+     subtração — tirá-la daqui faria a conferência acusar furo. */
+  if(t.notinha) linhasRet.push(['', '   dentro deste total há ' + fmtMoeda(t.notinha) +
+    ' de notinhas brancas — o troco será pago no caixa da frente', '']);
   const wsRet = XLSX.utils.aoa_to_sheet(linhasRet);
   wsRet['!cols'] = [{wch:8},{wch:46},{wch:16},{wch:22}];
   XLSX.utils.book_append_sheet(wb, wsRet, 'Fechamento');
@@ -11523,7 +11828,12 @@ function atualizarSomatorioVenda(){
   if(!venModsMontadas) return;
   const total = totalDoCarrinho();
   const formas = valoresFormasVenda();
-  const pago = r2(FORMAS_VENDA.reduce((s,f)=> s + formas[f.chave], 0));
+  const bruto = r2(FORMAS_VENDA.reduce((s,f)=> s + formas[f.chave], 0));
+  /* Notinha branca: o cliente entregou a nota de 100 numa compra de 43 e leva um vale
+     de 57 para retirar nos caixas da frente. A nota inteira fica na nossa gaveta — o
+     que ela paga de produto é o líquido. Ver "NOTINHA BRANCA". */
+  const notinha = r2(toNum(document.getElementById('venNotinha').value));
+  const pago = r2(bruto - notinha);
   const dif = r2(total - pago);
 
   FORMAS_VENDA.forEach(f=>{
@@ -11544,13 +11854,43 @@ function atualizarSomatorioVenda(){
     '<div class="rs-bloco"><div class="rs-rot">Total da venda</div><div class="rs-val">'+fmtMoeda(total)+'</div>' +
       '<div class="rs-nota">'+ (venCarrinho.length ? venCarrinho.length + ' produto(s)' : 'carrinho vazio') +'</div></div>' +
     '<div class="rs-bloco"><div class="rs-rot">Quantia paga</div><div class="rs-val">'+fmtMoeda(pago)+'</div>' +
-      '<div class="rs-nota">'+ (pago > 0
-        ? FORMAS_VENDA.filter(f=> formas[f.chave] > 0).map(f=> f.rotulo.toLowerCase()).join(' + ')
-        : 'nenhuma modalidade preenchida') +'</div></div>' +
+      '<div class="rs-nota">'+ (notinha > 0
+        ? fmtMoeda(bruto) + ' menos ' + fmtMoeda(notinha) + ' de notinha'
+        : (pago > 0
+          ? FORMAS_VENDA.filter(f=> formas[f.chave] > 0).map(f=> f.rotulo.toLowerCase()).join(' + ')
+          : 'nenhuma modalidade preenchida')) +'</div></div>' +
     '<div class="rs-bloco '+blocoDif.cls+'"><div class="rs-rot">'+blocoDif.rot+'</div>' +
-      '<div class="rs-val">'+blocoDif.val+'</div><div class="rs-nota">'+blocoDif.nota+'</div></div>';
+      '<div class="rs-val">'+blocoDif.val+'</div><div class="rs-nota">'+blocoDif.nota+'</div></div>' +
+    (notinha > 0
+      ? '<div class="rs-bloco rs-notinha"><div class="rs-rot">Notinha branca</div>' +
+        '<div class="rs-val">'+fmtMoeda(notinha)+'</div>' +
+        '<div class="rs-nota">fica na gaveta; o cliente retira na frente</div></div>'
+      : '');
 
+  atualizarCaixaNotinhaVen(bruto, notinha, total);
   atualizarTrocoVenda();
+}
+
+/* Mesma caixa roxa do recebimento: explica o que a notinha fez com a venda e oferece a
+   sobra num clique quando o que foi lançado passou do total do carrinho. */
+function atualizarCaixaNotinhaVen(bruto, notinha, total){
+  const txt = document.getElementById('venNotinhaTxt');
+  const btn = document.getElementById('btnVenNotinhaSobra');
+  if(!txt || !btn) return;
+  const sobra = r2(bruto - notinha - total);
+  if(notinha > 0){
+    txt.innerHTML = 'Entrou <b>' + fmtMoeda(bruto) + '</b> na gaveta e <b>' + fmtMoeda(r2(bruto - notinha)) +
+      '</b> pagam os produtos — os ' + fmtMoeda(notinha) + ' do papel o cliente retira nos caixas da frente.';
+  }else{
+    txt.innerHTML = 'Vale de troco que o cliente retira nos caixas da frente. A nota entra ' +
+      'inteira no nosso caixa e não sai dinheiro daqui — deixe zerado quando o troco sair da gaveta.';
+  }
+  const oferecer = total > 0.004 && sobra > 0.004;
+  btn.style.display = oferecer ? '' : 'none';
+  if(oferecer){
+    btn.textContent = 'lançar ' + fmtMoeda(sobra) + ' em notinha';
+    btn.dataset.valor = String(sobra);
+  }
 }
 
 /* Calculadora de troco: o cliente entrega uma nota de 50 numa compra de 12 e leva 38 de
@@ -11560,16 +11900,30 @@ function atualizarSomatorioVenda(){
 function atualizarTrocoVenda(){
   const campo = document.getElementById('venEntregue');
   const txt = document.getElementById('venTrocoTxt');
+  const btn = document.getElementById('btnVenTrocoNotinha');
   if(!campo || !txt) return;
   const entregue = r2(toNum(campo.value));
   const emDinheiro = valorDaModVenda('dinheiro');
-  if(entregue <= 0){ txt.innerHTML = '— informe para calcular o troco.'; return; }
+  const esconder = ()=>{ if(btn) btn.style.display = 'none'; };
+  if(entregue <= 0){ txt.innerHTML = '— informe para calcular o troco.'; esconder(); return; }
   const troco = r2(entregue - emDinheiro);
   if(troco < -0.004){
     txt.innerHTML = '<span class="tc-falta">Falta receber <b class="tc-falta">' + fmtMoeda(-troco) + '</b> — o cliente entregou menos que o lançado em dinheiro.</span>';
+    esconder();
   }else{
     txt.innerHTML = 'Troco a devolver <b>' + fmtMoeda(troco) + '</b> ' +
       '<span class="rec-mini">(sobre ' + fmtMoeda(emDinheiro) + ' lançados em dinheiro — só a conta, nada é gravado)</span>';
+    /* Sem troco na gaveta, este botão faz o lançamento inteiro de uma vez: a nota
+       entregue vai para o dinheiro e a diferença vira o vale branco. */
+    if(btn){
+      const oferecer = troco > 0.004;
+      btn.style.display = oferecer ? '' : 'none';
+      if(oferecer){
+        btn.textContent = 'pagar esse troco em notinha branca';
+        btn.dataset.entregue = String(entregue);
+        btn.dataset.troco = String(troco);
+      }
+    }
   }
 }
 
@@ -11586,6 +11940,7 @@ function limparFormVenda(){
   document.getElementById('venPreco').value = '';
   document.getElementById('venObs').value = '';
   document.getElementById('venEntregue').value = '';
+  document.getElementById('venNotinha').value = '';
   sincronizarCategoriaVen();
   document.getElementById('venData').value = state.caixaDia || hojeISO();
   document.getElementById('venAviso').textContent = '';
@@ -11650,15 +12005,29 @@ function salvarVenda(){
   const aviso = document.getElementById('venAviso');
   const total = totalDoCarrinho();
   const formas = valoresFormasVenda();
-  const pago = r2(FORMAS_VENDA.reduce((s,f)=> s + formas[f.chave], 0));
+  const bruto = r2(FORMAS_VENDA.reduce((s,f)=> s + formas[f.chave], 0));
+  const notinha = r2(toNum(document.getElementById('venNotinha').value));
+  const pago = r2(bruto - notinha);
 
   if(!venCarrinho.length){
     aviso.textContent = 'Adicione pelo menos um produto à venda.';
     document.getElementById('venProduto').focus();
     return;
   }
+  if(notinha < 0){
+    aviso.textContent = 'A notinha branca não pode ser negativa.';
+    document.getElementById('venNotinha').focus();
+    return;
+  }
+  if(notinha > 0 && notinha >= bruto){
+    aviso.textContent = 'A notinha branca não pode consumir tudo o que o cliente entregou — ' +
+      'o vale é o troco da nota, e a nota tem que pagar os produtos também.';
+    document.getElementById('venNotinha').focus();
+    return;
+  }
   /* Venda à vista: o pagamento tem que fechar com o total. Produto que sai sem pagar
-     não é venda da loja — é conta, e conta se lança no recebimento. */
+     não é venda da loja — é conta, e conta se lança no recebimento. A notinha branca
+     não conta como pagamento: ela é o troco que o cliente vai retirar na frente. */
   if(r2(total - pago) > 0.004){
     aviso.textContent = 'Falta distribuir ' + fmtMoeda(r2(total - pago)) +
       ' nas modalidades — a venda da loja é sempre à vista.';
@@ -11666,7 +12035,8 @@ function salvarVenda(){
   }
   if(r2(pago - total) > 0.004){
     aviso.textContent = 'O pagamento passou ' + fmtMoeda(r2(pago - total)) +
-      ' do total da venda. Se houve troco em dinheiro, lance só o valor da venda.';
+      ' do total da venda. Se houve troco em dinheiro, lance só o valor da venda; ' +
+      'se o troco saiu em notinha branca, lance a diferença no campo Notinha branca.';
     return;
   }
 
@@ -11708,6 +12078,9 @@ function salvarVenda(){
     obs: document.getElementById('venObs').value.trim()
   };
   FORMAS_VENDA.forEach(f=> dados[f.chave] = formas[f.chave]);
+  /* Igual ao recebimento: a modalidade guarda a nota inteira, e a notinha fica à parte
+     porque aquele dinheiro não saiu do nosso caixa. Ver "NOTINHA BRANCA". */
+  dados.notinha = notinha > 0 ? notinha : 0;
 
   if(venEditandoId){
     const v = (state.vendas||[]).find(x=> x.id===venEditandoId);
@@ -11724,6 +12097,7 @@ function salvarVenda(){
     state.vendas.push(nova);
     salvarNoCaixa('vendas', nova);
     mostrarToast('Venda de ' + fmtMoeda(total) + ' registrada' +
+      (notinha > 0 ? ' · notinha branca de ' + fmtMoeda(notinha) : '') +
       (cadastrados ? ' (' + cadastrados + ' produto(s) cadastrado(s))' : ''));
   }
 
@@ -11748,6 +12122,9 @@ function editarVenda(id){
   document.getElementById('venData').value = v.data || hojeISO();
   document.getElementById('venObs').value = v.obs || '';
   document.getElementById('venEntregue').value = '';
+  const notinhaGravada = notinhaDe(v);
+  document.getElementById('venNotinha').value =
+    notinhaGravada ? notinhaGravada.toFixed(2).replace('.',',') : '';
   FORMAS_VENDA.forEach(f=>{
     const val = toNum(v[f.chave]);
     document.getElementById('venPg_'+f.chave).value = val ? val.toFixed(2).replace('.',',') : '';
@@ -11786,6 +12163,30 @@ document.getElementById('venData').addEventListener('change', (e)=>{
   atualizarAvisosData();
 });
 document.getElementById('venEntregue').addEventListener('input', atualizarTrocoVenda);
+document.getElementById('venNotinha').addEventListener('input', ()=>{
+  venDinheiroAuto = false;   /* mexeu na notinha, o dinheiro para de seguir o carrinho */
+  atualizarSomatorioVenda();
+});
+document.getElementById('btnVenNotinhaSobra').addEventListener('click', (e)=>{
+  const v = r2(toNum(e.currentTarget.dataset.valor));
+  const campo = document.getElementById('venNotinha');
+  venDinheiroAuto = false;
+  campo.value = v > 0 ? v.toFixed(2).replace('.',',') : '';
+  atualizarSomatorioVenda();
+  campo.focus();
+});
+/* O caminho curto do balcão: "cliente entregou 100" e não há troco na gaveta. Um clique
+   lança a nota inteira no dinheiro e a diferença como vale branco. */
+document.getElementById('btnVenTrocoNotinha').addEventListener('click', (e)=>{
+  const entregue = r2(toNum(e.currentTarget.dataset.entregue));
+  const troco = r2(toNum(e.currentTarget.dataset.troco));
+  if(troco <= 0) return;
+  venDinheiroAuto = false;
+  document.getElementById('venPg_dinheiro').value = entregue.toFixed(2).replace('.',',');
+  document.getElementById('venNotinha').value = troco.toFixed(2).replace('.',',');
+  atualizarSomatorioVenda();
+  mostrarToast('Notinha branca de ' + fmtMoeda(troco) + ' — a nota de ' + fmtMoeda(entregue) + ' fica no caixa');
+});
 /* Enter percorre o caminho da venda: produto ▸ preço ▸ quantidade ▸ adiciona. */
 document.getElementById('venPreco').addEventListener('keydown', (e)=>{
   if(e.key==='Enter'){ e.preventDefault(); document.getElementById('venQtd').focus(); }
@@ -11867,6 +12268,7 @@ function renderLojaVendas(){
   corpo.innerHTML = '<table class="tabela-ponto"><thead><tr>' +
     '<th class="esq">Data / hora</th><th class="esq">Produtos</th><th>Peças</th><th>Total</th>' +
     FORMAS_VENDA.map(f=> '<th>'+f.rotulo+'</th>').join('') +
+    '<th>Notinha branca</th>' +
     '<th class="esq">Registrada por</th><th></th></tr></thead><tbody>' +
     lista.map(v=>{
       const itens = itensDaVenda(v);
@@ -11880,6 +12282,7 @@ function renderLojaVendas(){
         '<td>'+r2(itens.reduce((s,it)=> s + toNum(it.qtd), 0))+'</td>' +
         '<td><b>'+fmtMoeda(toNum(v.total))+'</b></td>' +
         FORMAS_VENDA.map(f=> '<td>'+(toNum(v[f.chave]) ? fmtMoeda(toNum(v[f.chave])) : '—')+'</td>').join('') +
+        '<td>'+(notinhaDe(v) ? fmtMoeda(notinhaDe(v)) : '—')+'</td>' +
         '<td class="esq rec-mini">'+escHtml(v.usuario||'—')+
           (v.alteradoEm ? '<div class="rec-mini">corrigida em '+new Date(v.alteradoEm).toLocaleDateString('pt-BR')+'</div>' : '') + '</td>' +
         '<td><div class="rec-acoes-linha">' +
@@ -11891,6 +12294,7 @@ function renderLojaVendas(){
     '<td><b>'+r2(lista.reduce((s,v)=> s + itensDaVenda(v).reduce((q,it)=> q + toNum(it.qtd), 0), 0))+'</b></td>' +
     '<td><b>'+fmtMoeda(r2(lista.reduce((s,v)=> s + toNum(v.total), 0)))+'</b></td>' +
     FORMAS_VENDA.map(f=> '<td><b>'+fmtMoeda(r2(lista.reduce((s,v)=> s + toNum(v[f.chave]), 0)))+'</b></td>').join('') +
+    '<td><b>'+fmtMoeda(r2(lista.reduce((s,v)=> s + notinhaDe(v), 0)))+'</b></td>' +
     '<td></td><td></td></tr>' +
     '</tbody></table>';
 }
@@ -12162,22 +12566,22 @@ document.getElementById('btnExportarVendas').addEventListener('click', ()=>{
      venda aparece só na primeira linha dela, para não somar duas vezes. */
   const aoa = [['VENDAS DA LOJA — ' + dataBR(dia)], [],
     ['Hora','Produto','Categoria','Qtd','Preço unit.','Subtotal','Total da venda']
-      .concat(FORMAS_VENDA.map(f=> f.rotulo)).concat(['Registrada por','Observação'])];
+      .concat(FORMAS_VENDA.map(f=> f.rotulo)).concat(['Notinha branca','Registrada por','Observação'])];
   lista.forEach(v=>{
     itensDaVenda(v).forEach((it, i)=>{
       aoa.push([i===0 ? horaDe(v.criadoEm) : '', it.nome||'', categoriaDoItem(it),
                 r2(toNum(it.qtd)), r2(toNum(it.preco)), r2(toNum(it.subtotal)),
                 i===0 ? r2(toNum(v.total)) : '']
         .concat(FORMAS_VENDA.map(f=> i===0 ? r2(toNum(v[f.chave])) : ''))
-        .concat([i===0 ? (v.usuario||'') : '', i===0 ? (v.obs||'') : '']));
+        .concat([i===0 ? notinhaDe(v) : '', i===0 ? (v.usuario||'') : '', i===0 ? (v.obs||'') : '']));
     });
   });
   aoa.push(['TOTAL','','', t.itensVendidos, '', t.vendido, t.vendido]
-    .concat(FORMAS_VENDA.map(f=> t.porFormaVen[f.chave])).concat(['','']));
+    .concat(FORMAS_VENDA.map(f=> t.porFormaVen[f.chave])).concat([t.notinhaVen, '','']));
 
   const ws = XLSX.utils.aoa_to_sheet(aoa);
   ws['!cols'] = [{wch:8},{wch:34},{wch:16},{wch:8},{wch:13},{wch:13},{wch:15}]
-    .concat(FORMAS_VENDA.map(()=> ({wch:13}))).concat([{wch:20},{wch:30}]);
+    .concat(FORMAS_VENDA.map(()=> ({wch:13}))).concat([{wch:15},{wch:20},{wch:30}]);
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Vendas');
   XLSX.writeFile(wb, 'Loja_' + dia + '.xlsx');
@@ -12851,46 +13255,118 @@ const CORES_GRAFICO = ['#016d3c', '#2471a3', '#d68910', '#6a4fa3', '#c0392b', '#
    ou de virar letra de formiga num cartão estreito. */
 const LARGURA_GRAFICO = 545;
 
-/* --------- gráfico de rosca (pizza com furo no meio) --------- */
+/* --------- gráfico de rosca (pizza com furo no meio) ---------
+   A rosca é interativa: clicar numa forma de pagamento na legenda tira aquela fatia do
+   desenho e o total do meio é recalculado com o que sobrou. É assim que se responde
+   "e sem o dinheiro, quanto foi?" sem precisar de outra tela. Clicar de novo devolve.
+
+   Cada rosca desenhada se registra aqui com um número de série, porque o clique na
+   legenda precisa saber QUAL rosca redesenhar — a tela inicial tem duas. O registro é
+   esvaziado a cada render da tela (ver renderInicio), senão cresce a cada visita. */
+const ROSCAS = {};
+let seqRosca = 0;
+
 function svgRosca(dados, rotuloCentro){
-  const itens = dados.filter(d=> toNum(d.valor) > 0);
-  const total = itens.reduce((s,d)=> s + toNum(d.valor), 0);
-  if(!itens.length || total <= 0) return '<div class="ini-vazio">Sem valores para este período.</div>';
+  const itens = (dados||[]).filter(d=> toNum(d.valor) > 0);
+  if(!itens.length) return '<div class="ini-vazio">Sem valores para este período.</div>';
+  const id = 'rosca' + (++seqRosca);
+  ROSCAS[id] = {itens: itens, rotulo: rotuloCentro || 'Total', fora: {}};
+  return '<div class="rosca-bloco" id="'+id+'">' + desenhoRosca(id) + '</div>';
+}
+
+/* O desenho de uma rosca já registrada: o SVG e a legenda embaixo. Sai daqui tanto na
+   primeira montagem quanto a cada clique na legenda. */
+function desenhoRosca(id){
+  const g = ROSCAS[id];
+  if(!g) return '';
+  const ativos = g.itens.filter((d,i)=> !g.fora[i]);
+  const total = ativos.reduce((s,d)=> s + toNum(d.valor), 0);
 
   const L = 260, cx = 130, cy = 130, raio = 104, furo = 62;
-  let ang = -Math.PI / 2;
   let fatias;
 
-  if(itens.length === 1){
+  if(!ativos.length || total <= 0){
+    fatias = '<circle cx="'+cx+'" cy="'+cy+'" r="'+raio+'" fill="#e6ebee"/>';
+  }else if(ativos.length === 1){
     /* Uma fatia só não fecha arco: vira círculo cheio. */
-    fatias = '<circle cx="'+cx+'" cy="'+cy+'" r="'+raio+'" fill="'+itens[0].cor+'"/>';
+    fatias = '<circle class="rosca-fatia" cx="'+cx+'" cy="'+cy+'" r="'+raio+'" fill="'+ativos[0].cor+'">' +
+             '<title>'+escHtml(ativos[0].rot)+': '+fmtMoeda(r2(ativos[0].valor))+'</title></circle>';
   }else{
-    fatias = itens.map(d=>{
+    let ang = -Math.PI / 2;
+    fatias = ativos.map(d=>{
       const fatia = toNum(d.valor) / total * Math.PI * 2;
       const x1 = cx + raio*Math.cos(ang), y1 = cy + raio*Math.sin(ang);
       ang += fatia;
       const x2 = cx + raio*Math.cos(ang), y2 = cy + raio*Math.sin(ang);
       const grande = fatia > Math.PI ? 1 : 0;
-      return '<path d="M '+cx+' '+cy+' L '+x1.toFixed(1)+' '+y1.toFixed(1)+
-             ' A '+raio+' '+raio+' 0 '+grande+' 1 '+x2.toFixed(1)+' '+y2.toFixed(1)+' Z" fill="'+d.cor+'"/>';
+      return '<path class="rosca-fatia" d="M '+cx+' '+cy+' L '+x1.toFixed(1)+' '+y1.toFixed(1)+
+             ' A '+raio+' '+raio+' 0 '+grande+' 1 '+x2.toFixed(1)+' '+y2.toFixed(1)+' Z" fill="'+d.cor+'">' +
+             '<title>'+escHtml(d.rot)+': '+fmtMoeda(r2(d.valor))+
+             ' ('+Math.round(toNum(d.valor)/total*100)+'%)</title></path>';
     }).join('');
   }
 
+  const valor = fmtMoeda(r2(total));
   return '<div class="rosca"><svg viewBox="0 0 '+L+' '+L+'" role="img">' + fatias +
     '<circle cx="'+cx+'" cy="'+cy+'" r="'+furo+'" fill="var(--superficie)"/>' +
     '<text x="'+cx+'" y="'+(cy-6)+'" text-anchor="middle" font-size="11" fill="#6b7a86" ' +
-      'font-family="Arial, Helvetica, sans-serif">'+escHtml(rotuloCentro||'Total')+'</text>' +
-    '<text x="'+cx+'" y="'+(cy+16)+'" text-anchor="middle" font-size="17" font-weight="800" fill="#014a29" ' +
-      'font-family="Arial, Helvetica, sans-serif">'+fmtMoeda(r2(total))+'</text>' +
-    '</svg></div>' + legendaGrafico(itens, total);
+      'font-family="Arial, Helvetica, sans-serif">'+escHtml(g.rotulo)+'</text>' +
+    '<text x="'+cx+'" y="'+(cy+16)+'" text-anchor="middle" font-size="'+fonteMiolo(valor)+'" font-weight="800" ' +
+      'fill="#014a29" font-family="Arial, Helvetica, sans-serif">'+valor+'</text>' +
+    '</svg></div>' + legendaGrafico(id, total);
 }
 
-function legendaGrafico(itens, total){
-  return '<div class="ini-legenda">' + itens.map(d=>
-    '<span><i style="background:'+d.cor+'"></i>'+escHtml(d.rot)+' <b>'+fmtMoeda(r2(d.valor))+'</b>' +
-    (total ? ' <span style="opacity:.7">('+Math.round(toNum(d.valor)/total*100)+'%)</span>' : '') + '</span>'
-  ).join('') + '</div>';
+/* ---------- POR QUE O NÚMERO DO MEIO MUDA DE TAMANHO ----------
+   O buraco da rosca tem 124 de diâmetro. "R$ 128.430,55" escrito a 17 mede perto de
+   140: escorria por cima das fatias e ficava ilegível — era o vazamento que se via nos
+   meses de seis dígitos. Cortar o número não é opção (é justamente o número principal
+   do gráfico), então quem cede é o tamanho da letra: calcula-se a largura que o texto
+   teria e reduz-se a fonte só o necessário para caber. Valor pequeno continua grande
+   como sempre foi; valor grande encolhe um pouco e cabe inteiro. */
+function fonteMiolo(txt){
+  const largura = 2*62 - 16;      /* o furo, menos uma folga de cada lado */
+  const porLetra = 0.585;         /* largura média de um caractere, em fração da fonte */
+  const fs = largura / (Math.max(1, String(txt).length) * porLetra);
+  return Math.max(9.5, Math.min(17, fs)).toFixed(1);
 }
+
+/* ---------- LEGENDA CLICÁVEL ----------
+   Cada item é um botão de verdade: liga e desliga a sua fatia. O item desligado fica
+   riscado e apagado (e não só cinza) para ninguém confundir "está fora do gráfico" com
+   "vale zero". Quando há algo de fora aparece o atalho de trazer tudo de volta. */
+function legendaGrafico(id, total){
+  const g = ROSCAS[id];
+  const temFora = g.itens.some((d,i)=> g.fora[i]);
+  return '<div class="ini-legenda">' + g.itens.map((d,i)=>{
+    const fora = !!g.fora[i];
+    const pct = (!fora && total) ? ' <span class="lg-pct">('+Math.round(toNum(d.valor)/total*100)+'%)</span>' : '';
+    return '<button type="button" class="lg-item'+(fora?' fora':'')+'" data-rosca="'+id+'" data-fatia="'+i+'" ' +
+      'aria-pressed="'+(fora?'false':'true')+'" ' +
+      'title="'+(fora?'Clique para trazer de volta ao gráfico':'Clique para tirar do gráfico')+'">' +
+      '<i style="background:'+d.cor+'"></i>'+escHtml(d.rot)+' <b>'+fmtMoeda(r2(d.valor))+'</b>'+pct+'</button>';
+  }).join('') + '</div>' +
+  (temFora ? '<div class="lg-nota">Total do meio recalculado só com o que está aceso. ' +
+             '<button type="button" class="lg-reset" data-rosca="'+id+'">Mostrar tudo</button></div>' : '');
+}
+
+/* Um ouvinte só, para todas as roscas da tela: os botões da legenda são recriados a
+   cada clique, e ouvinte pendurado em botão recriado se perde. */
+document.addEventListener('click', function(ev){
+  const alvo = ev.target && ev.target.closest ? ev.target.closest('[data-rosca]') : null;
+  if(!alvo) return;
+  const id = alvo.getAttribute('data-rosca');
+  const g = ROSCAS[id], bloco = document.getElementById(id);
+  if(!g || !bloco) return;
+  if(alvo.classList.contains('lg-reset')){
+    g.fora = {};
+  }else{
+    const i = parseInt(alvo.getAttribute('data-fatia'), 10);
+    if(g.fora[i]) delete g.fora[i]; else g.fora[i] = true;
+    /* Desligar a última acesa deixaria uma rosca vazia sem serventia: devolve na hora. */
+    if(g.itens.every((d,k)=> g.fora[k])) delete g.fora[i];
+  }
+  bloco.innerHTML = desenhoRosca(id);
+});
 
 /* --------- barras verticais (evolução mês a mês) --------- */
 function svgBarras(dados, opcoes){
@@ -12990,6 +13466,10 @@ function mesesComFolha(){
 }
 
 function renderInicio(){
+  /* A tela é remontada inteira: as roscas antigas não existem mais e o registro delas
+     iria só acumulando. Zerar aqui também devolve os gráficos completos a cada volta
+     ao Início — quem desligou uma fatia não vai encontrá-la desligada amanhã. */
+  Object.keys(ROSCAS).forEach(k=> delete ROSCAS[k]);
   garantirBaseRecebimentos();
   const mes = state.mesAtual;
   document.getElementById('iniMes').textContent = mesLabel(mes);
@@ -13028,7 +13508,6 @@ function renderInicio(){
     kpiGrande('Folha do mês', fmtMoeda(r2(fin.geral.liquido)), fin.geral.qtd + ' colaborador(es) · líquido a pagar', '') +
     kpiGrande('Custo total com pessoal', fmtMoeda(custoTotal), 'vencimentos + FGTS de ' + enc.registrados + ' registrado(s)', 'kb-neutro') +
     kpiGrande('Entrou no caixa', fmtMoeda(caixaEntrou), mesLabel(mesCaixa) + ' · ' + diasCaixa.length + ' dia(s) com movimento', '') +
-    kpiGrande('Saiu do caixa', fmtMoeda(caixaSaiu), 'retiradas para fornecedor e despesas', caixaSaiu > 0 ? 'kb-alerta' : 'kb-neutro') +
     kpiGrande('A receber de clientes', fmtMoeda(aReceber), resumos.filter(x=> x.r.saldo > 0.004).length + ' cliente(s) com conta em aberto',
               aReceber > 0 ? 'kb-critico' : 'kb-neutro');
 
