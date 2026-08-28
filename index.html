@@ -878,8 +878,15 @@
      Tela de digitação rápida: o operador escreve o nome do cliente, o total da conta e
      distribui o que foi pago entre as modalidades. A base de clientes cresce
      sozinha — todo nome digitado que ainda não existe vira cadastro no ato. */
-  .rec-form{background:#fff;border:1px solid var(--cinza-borda);border-radius:12px;padding:20px 22px 22px;
-    }
+  /* O bloco do lançamento é o "balcão": tudo que se digita para receber acontece aqui
+     dentro. Ele salta da página com aresta clara embaixo e sombra larga ao redor, para
+     a pessoa reconhecer de longe onde o atendimento é feito — sem isso a tela virava um
+     tapete uniforme de campos e o olho não sabia onde pousar. */
+  .rec-form{background:#fff;border:1px solid #d2dade;border-radius:14px;padding:20px 22px 22px;
+    box-shadow:inset 0 1px 0 #fff,
+               0 3px 0 #e7ecee,
+               0 8px 18px rgba(20,45,32,.11),
+               0 24px 48px rgba(20,45,32,.10);}
   .rec-form h3{margin:0 0 14px;font-size:15px;color:var(--marca-esc);}
   .rec-linha{display:grid;grid-template-columns:2fr 1fr 1fr;gap:14px;margin-bottom:16px;align-items:start;}
   .rec-busca-wrap{position:relative;}
@@ -902,6 +909,122 @@
   .rec-ficha b{color:var(--texto);font-size:13.5px;}
   .rec-ficha .rf-devendo b{color:var(--vermelho);}
   .rec-ficha .spacer{flex:1;}
+  /* Caixa do total da conta. Ela é maior de propósito: o erro que custou uma
+     conferência foi digitar aqui o valor da conta achando que era o da nota entregue,
+     e um campo do mesmo tamanho dos outros não avisa nada. À direita vive a somadora,
+     que recebe notinha por notinha e alimenta o campo — a conta de cabeça (ou na
+     calculadora de mesa) sumia sem deixar como conferir. */
+  /* Coluna do lançamento à esquerda, calculadora à direita. A calculadora é alta e o
+     total é baixo: com só o total do lado esquerdo sobrava um vazio enorme, então as
+     formas de pagamento subiram para lá e preenchem a altura. */
+  .conta-box{display:grid;grid-template-columns:1fr minmax(206px,232px);gap:18px;align-items:start;
+             margin-bottom:6px;}
+  .conta-box .cb-esq{min-width:0;}
+  .conta-box .cb-esq .secao-title{margin-top:0;padding-top:0;border-top:none;}
+  .conta-box .cb-esq .secao-title ~ .secao-title{margin-top:24px;}
+  .conta-box .cb-campo{display:flex;flex-direction:column;gap:5px;background:var(--marca-cl);
+                       border:1px solid var(--marca);border-radius:12px;padding:15px 17px;}
+  .conta-box .cb-campo label{font-size:11.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+                             color:var(--marca-esc);}
+  .conta-box .cb-campo input{font-size:26px;font-weight:800;letter-spacing:-.02em;color:var(--marca-esc);
+                             font-variant-numeric:tabular-nums;background:#fff;
+                             border:2px solid var(--marca);border-radius:9px;padding:9px 13px;width:100%;}
+  .conta-box .cb-campo input:focus{outline:none;border-color:var(--marca-esc);
+                                   box-shadow:0 0 0 3px rgba(0,0,0,.06);}
+  .conta-box .cb-nota{font-size:11px;color:var(--texto-fraco);line-height:1.45;}
+  /* Calculadora nas cores da casa — branca com o verde da marca. É compacta de
+     propósito: quanto mais estreita ela for, mais sobra para as cinco formas de
+     pagamento caberem numa linha só ao lado. */
+  /* O corpo da máquina. A aresta sólida embaixo é a espessura da caixa, e as duas
+     sombras que vêm depois são a distância dela até a mesa — é o que faz o quadro ler
+     como um aparelho pousado ali, e não como mais um campo do formulário. */
+  .conta-box .cb-soma{background:linear-gradient(#fcfdfd,#e8edee);
+                      border:1px solid #b8c4c9;border-radius:13px;padding:10px 10px 11px;min-width:0;
+                      box-shadow:inset 0 1px 0 #fff, inset 0 -1px 0 rgba(255,255,255,.55),
+                                 0 4px 0 #c2ccd0,
+                                 0 7px 11px rgba(20,45,32,.17),
+                                 0 16px 30px rgba(20,45,32,.13);}
+  .conta-box .calc-topo{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;}
+  .conta-box .calc-rot{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+                       color:var(--marca);text-shadow:0 1px 0 #fff;}
+  .conta-box .calc-limpar{background:none;border:none;padding:0;font-family:inherit;font-size:10.5px;
+                          color:var(--texto-fraco);text-decoration:underline;cursor:pointer;}
+  .conta-box .calc-limpar:hover{color:var(--vermelho);}
+  /* O visor é afundado — sombra para dentro, como o mostrador atrás do vidro. */
+  .conta-box .calc-visor{background:var(--marca-cl);border:1px solid var(--marca);border-radius:7px;
+                         padding:4px 10px 3px;margin-bottom:7px;
+                         box-shadow:inset 0 2px 5px rgba(1,74,41,.18), inset 0 -1px 0 rgba(255,255,255,.7);}
+  .conta-box .calc-acum{font-size:10px;color:var(--marca-esc);opacity:.72;text-align:right;min-height:13px;
+                        font-variant-numeric:tabular-nums;}
+  .conta-box .calc-visor input{width:100%;background:none;border:none;outline:none;text-align:right;
+                               font-family:inherit;font-size:23px;font-weight:800;color:var(--marca-esc);
+                               letter-spacing:-.02em;font-variant-numeric:tabular-nums;padding:0;line-height:1.25;}
+  .conta-box .calc-visor input::placeholder{color:var(--marca);opacity:.3;font-weight:800;}
+  .conta-box .calc-visor:focus-within{border-color:var(--marca-esc);
+                                      box-shadow:inset 0 2px 5px rgba(1,74,41,.18), 0 0 0 2px rgba(1,109,60,.18);}
+  /* Teclas saltadas: a borda de baixo em sombra sólida é a "altura" do botão, e no
+     clique ela encolhe enquanto a tecla desce — é o afundar da registradora antiga. */
+  .conta-box .calc-teclas{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;}
+  .conta-box .calc-teclas button{background:linear-gradient(#fff,#eff2f3);
+                                 border:1px solid #c4ced3;border-radius:7px;padding:6px 0 7px;
+                                 font-family:inherit;font-size:15px;font-weight:700;color:var(--texto);
+                                 cursor:pointer;text-shadow:0 1px 0 rgba(255,255,255,.9);
+                                 box-shadow:0 2px 0 #c4ced3, 0 3px 4px rgba(20,40,30,.16),
+                                            inset 0 1px 0 rgba(255,255,255,.95);
+                                 transition:background .1s,box-shadow .08s,transform .08s;}
+  .conta-box .calc-teclas button:hover{background:linear-gradient(#fff,#e6f0ea);border-color:var(--marca);}
+  .conta-box .calc-teclas button:active{transform:translateY(2px);
+                                        box-shadow:0 0 0 #c4ced3, 0 1px 2px rgba(20,40,30,.18),
+                                                   inset 0 1px 3px rgba(20,40,30,.16);}
+  .conta-box .calc-teclas .ct-func{background:linear-gradient(#f4f6f7,#e3e8ea);font-size:12.5px;
+                                   color:var(--texto-fraco);}
+  .conta-box .calc-teclas .ct-func:hover{background:linear-gradient(#f2f8f4,#dfeee5);color:var(--marca-esc);}
+  .conta-box .calc-teclas .ct-mais{background:linear-gradient(#0a8a4d,var(--marca));
+                                   border-color:var(--marca-esc);color:#fff;font-size:20px;font-weight:800;
+                                   text-shadow:0 1px 1px rgba(0,0,0,.28);
+                                   box-shadow:0 2px 0 var(--marca-esc), 0 3px 5px rgba(1,74,41,.35),
+                                              inset 0 1px 0 rgba(255,255,255,.28);}
+  .conta-box .calc-teclas .ct-mais:hover{background:linear-gradient(#0c9856,#017a43);border-color:var(--marca-esc);}
+  .conta-box .calc-teclas .ct-mais:active{box-shadow:0 0 0 var(--marca-esc), 0 1px 2px rgba(1,74,41,.4),
+                                                     inset 0 1px 4px rgba(0,0,0,.3);}
+  /* Faixa das notinhas somadas, dentro do cartão do total e logo abaixo do visor.
+     Fica escondida enquanto não há nenhuma: uma moldura vazia só ocuparia a tela sem
+     dizer nada, e as formas de pagamento subiriam de volta para o lugar dela. */
+  .conta-box .notas-area{border-top:1px solid var(--marca);margin-top:11px;padding-top:11px;}
+  .conta-box .na-topo{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;margin-bottom:9px;}
+  .conta-box .na-rot{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+                     color:var(--marca-esc);}
+  .conta-box .na-resumo{font-size:11.5px;color:var(--texto-fraco);line-height:1.4;}
+  .conta-box .na-resumo b{color:var(--marca-esc);}
+  .conta-box .cb-chips{display:flex;flex-wrap:wrap;gap:6px;}
+  .conta-box .cb-chip{display:inline-flex;align-items:center;gap:5px;background:#fff;
+                      border:1px solid var(--marca);border-radius:999px;padding:3px 6px 3px 10px;
+                      font-size:12.5px;font-weight:700;color:var(--marca-esc);font-variant-numeric:tabular-nums;}
+  .conta-box .cb-chip .cb-num{font-size:9.5px;font-weight:700;color:var(--marca);opacity:.7;}
+  .conta-box .cb-chip button{background:none;border:none;cursor:pointer;font-family:inherit;font-size:13px;
+                             line-height:1;color:var(--marca);padding:2px 3px;border-radius:50%;}
+  .conta-box .cb-chip button:hover{color:var(--vermelho);background:rgba(0,0,0,.07);}
+  .conta-box .cb-soma-txt{font-size:10.5px;color:var(--texto-fraco);line-height:1.4;margin-top:7px;}
+  .conta-box .cb-soma-txt b{color:var(--marca-esc);}
+  .conta-box .cb-soma-txt.cb-alerta{color:var(--vermelho);}
+
+  /* As cinco formas de pagamento numa linha só. São sempre cinco, então a grade é fixa
+     em vez de auto-fit: com auto-fit uma delas caía sozinha para a segunda linha assim
+     que a janela encolhia um pouco, e a leitura da linha se perdia. */
+  .conta-box .cb-esq .rec-mods{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;}
+  .conta-box .cb-esq .rec-mod{padding:8px 10px 7px;}
+  .conta-box .cb-esq .rec-mod .rm-topo{font-size:10px;gap:5px;}
+  .conta-box .cb-esq .rec-mod .rm-topo svg{width:12px;height:12px;}
+  .conta-box .cb-esq .rec-mod input{font-size:15.5px;padding:4px 0 2px;}
+  .conta-box .cb-esq .rec-mod .rm-valor{font-size:13.5px;}
+  .conta-box .cb-esq .rec-mod .rm-nota{font-size:9px;}
+  @media(max-width:1180px){
+    .conta-box .cb-esq .rec-mods{grid-template-columns:repeat(auto-fit,minmax(140px,1fr));}
+  }
+  @media(max-width:820px){
+    .conta-box{grid-template-columns:1fr;}
+  }
+
   .rec-mods{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:10px;margin-bottom:6px;}
   .rec-mod{border:1px solid var(--cinza-borda);border-radius:9px;padding:9px 12px 8px;background:#fff;
     transition:border-color .12s,background .12s;}
@@ -977,6 +1100,39 @@
   .ini-card h3{margin:0 0 2px;font-size:14px;color:var(--marca-esc);}
   .ini-card .ini-desc{font-size:11.5px;color:var(--texto-fraco);line-height:1.5;margin-bottom:14px;}
   .ini-card svg{display:block;width:100%;height:auto;overflow:visible;}
+
+  /* --- entradas dia a dia: resumo, seletor de modo e a dica que segue o mouse --- */
+  .dg-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px;}
+  .dg-kpi{background:var(--marca-cl);border:1px solid var(--marca);border-radius:10px;padding:8px 11px 9px;
+          box-shadow:inset 0 1px 0 rgba(255,255,255,.8), 0 2px 0 #b9dbc6, 0 4px 9px rgba(1,74,41,.13);}
+  .dg-kpi .dg-rot{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+                  color:var(--marca-esc);opacity:.8;}
+  .dg-kpi .dg-val{font-size:16px;font-weight:800;color:var(--marca-esc);letter-spacing:-.01em;
+                  margin-top:1px;font-variant-numeric:tabular-nums;}
+  .dg-kpi .dg-sub{font-size:9.5px;color:var(--texto-fraco);line-height:1.35;margin-top:1px;}
+  .dg-topo{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:4px;}
+  .dg-legenda{font-size:10.5px;color:var(--texto-fraco);}
+  .dg-modos{display:inline-flex;background:var(--cinza);border:1px solid var(--cinza-borda);
+            border-radius:999px;padding:2px;gap:2px;}
+  .dg-modo{background:none;border:none;border-radius:999px;padding:4px 12px;font-family:inherit;
+           font-size:11.5px;font-weight:700;color:var(--texto-fraco);cursor:pointer;
+           transition:background .12s,color .12s,box-shadow .12s;}
+  .dg-modo:hover{color:var(--marca-esc);}
+  .dg-modo.ativo{background:#fff;color:var(--marca-esc);box-shadow:0 1px 3px rgba(20,45,32,.18);}
+  /* A dica é posicionada em pixels dentro deste retângulo — daí o `relative`. */
+  .dg-tela{position:relative;}
+  .dg-col .dg-hit{fill:transparent;pointer-events:all;cursor:default;}
+  /* Ao entrar no gráfico todos os dias desbotam e só o dia sob o mouse fica cheio —
+     é o que faz a dica e a barra apontarem para o mesmo dia sem margem de dúvida. */
+  .dg-barra,.dg-ponto{transition:opacity .1s;}
+  .dg-tela:hover .dg-barra,.dg-tela:hover .dg-ponto{opacity:.4;}
+  .dg-col:hover .dg-barra,.dg-col:hover .dg-ponto{opacity:1;}
+  .dg-dica{position:absolute;display:none;background:#1f2a30;color:#fff;border-radius:8px;
+           padding:6px 10px;font-size:11.5px;line-height:1.35;white-space:nowrap;pointer-events:none;
+           box-shadow:0 4px 12px rgba(0,0,0,.28);z-index:3;}
+  .dg-dica b{display:block;font-weight:700;font-size:10.5px;opacity:.8;}
+  .dg-dica span{font-weight:800;font-size:13.5px;font-variant-numeric:tabular-nums;}
+  @media(max-width:560px){ .dg-kpis{grid-template-columns:1fr;} }
   .ini-card .rosca{max-width:244px;margin:0 auto;}
   /* ---------- LEGENDA DA ROSCA ----------
      A legenda não é mais um rótulo: é o controle do gráfico. Cada forma de pagamento é
@@ -1164,6 +1320,27 @@
      mercado. Roxo para não se confundir com o troco que sai da nossa gaveta. */
   .troco-calc.notinha-box{background:#f7f4fd;border-color:#d9cff0;color:#5b4b7d;}
   .troco-calc.notinha-box b{color:#6b4fa8;}
+  .troco-calc.notinha-box{box-shadow:inset 0 1px 0 rgba(255,255,255,.8), 0 2px 0 #ddd2f0,
+                                     0 4px 10px rgba(75,55,128,.14);}
+
+  /* Quadro do troco. Ele troca de cor com o checkbox — cinza quando o dinheiro sai da
+     gaveta, roxo quando fica como notinha — porque o número é o mesmo nos dois casos e
+     a cor é o que avisa, de longe, qual dos dois está valendo. */
+  .troco-box .tb-rot{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+                     color:var(--texto-fraco);}
+  .troco-box.notinha-box .tb-rot{color:#6b4fa8;}
+  .troco-box > input[type="text"]{font-size:17px;font-weight:800;text-align:right;
+                                  font-variant-numeric:tabular-nums;color:var(--texto);}
+  .troco-box.notinha-box > input[type="text"]{color:#5b4b7d;border-color:#cbbde8;}
+  .troco-box .tb-check{display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+                       font-size:12.5px;font-weight:700;color:var(--texto-fraco);user-select:none;
+                       padding:5px 11px 5px 9px;border:1px solid var(--cinza-borda);border-radius:999px;
+                       background:#fff;transition:background .12s,border-color .12s,color .12s;}
+  .troco-box .tb-check:hover{border-color:#b9a9dd;color:#5b4b7d;}
+  .troco-box .tb-check input[type="checkbox"]{width:16px;height:16px;flex:none;margin:0;padding:0;
+                                              accent-color:#6b4fa8;cursor:pointer;}
+  .troco-box .tb-check i{font-style:normal;font-weight:400;opacity:.8;}
+  .troco-box.notinha-box .tb-check{background:#efe8fb;border-color:#c3b2e6;color:#4d3780;}
   .troco-calc .tc-usar{background:none;border:none;padding:0;font-family:inherit;font-size:12.5px;
     font-weight:700;color:#6b4fa8;cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
   .troco-calc .tc-usar:hover{color:#4d3780;}
@@ -1191,7 +1368,10 @@
      própria cor da marca diluída. */
 
   /* --- superfícies: a borda macia que faltava --- */
-  .rec-form,.rec-bloco,.rec-vazio,.painel,.kpi-big,.ini-card,.fechamento,.ven-itens,
+  /* `.rec-form` ficou de fora desta lista de propósito: o bloco do lançamento tem
+     sombra própria, bem mais alta, para saltar da página. Ela está definida lá em cima
+     junto do resto do quadro — se voltar para cá, esta regra a apaga. */
+  .rec-bloco,.rec-vazio,.painel,.kpi-big,.ini-card,.fechamento,.ven-itens,
   .encargos-grid,.import-box,.bal-vazio{box-shadow:var(--sombra-1);}
   .rec-form,.rec-bloco,.painel,.ini-card{border-radius:14px;}
   .kpi,.kpi-big,.btn-forma,.conferencia,.liquido-box,.rec-somatorio{border-radius:14px;}
@@ -1214,7 +1394,22 @@
   .btn-forma.ativa{box-shadow:var(--sombra-1);}
   .rec-mod{transition:border-color var(--t-medio) var(--suave), background var(--t-medio) var(--suave),
                       box-shadow var(--t-medio) var(--suave);}
-  .rec-mod.preenchida{box-shadow:var(--sombra-1);}
+  /* --- relevo dos quadros de dentro do lançamento ---
+     Mesma gramática das teclas da calculadora, em escala menor: uma aresta sólida
+     embaixo é a espessura do quadro, e a sombra difusa depois dela é a distância até o
+     bloco branco. Cada quadro herda a aresta da própria cor — o de modalidade cheia e
+     o do total puxam para o verde, o da notinha para o roxo — senão a borda de baixo
+     apareceria como um risco cinza solto por cima do fundo colorido. */
+  .rec-mod{box-shadow:inset 0 1px 0 #fff, 0 2px 0 #e4eaed, 0 3px 7px rgba(20,45,32,.10);}
+  .rec-mod.preenchida{box-shadow:inset 0 1px 0 rgba(255,255,255,.75), 0 2px 0 #b9dbc6,
+                                 0 4px 9px rgba(1,74,41,.16);}
+  .conta-box .cb-campo{box-shadow:inset 0 1px 0 rgba(255,255,255,.8), 0 3px 0 #b9dbc6,
+                                  0 6px 13px rgba(1,74,41,.15);}
+  .troco-calc{box-shadow:inset 0 1px 0 #fff, 0 2px 0 #e2e8ea, 0 4px 9px rgba(20,45,32,.10);}
+  .troco-calc.notinha-box{box-shadow:inset 0 1px 0 rgba(255,255,255,.8), 0 2px 0 #ddd2f0,
+                                     0 4px 10px rgba(75,55,128,.14);}
+  .rec-somatorio{box-shadow:inset 0 1px 0 rgba(255,255,255,.8), 0 3px 0 #b9dbc6,
+                            0 6px 13px rgba(1,74,41,.14);}
   /* O campo dentro do quadro de modalidade não tem borda própria: o anel de foco cheio
      estouraria o desenho. Ali o foco é só a linha de baixo engrossando. */
   .rec-mod input:focus{box-shadow:none;border-bottom-color:var(--marca);}
@@ -1714,7 +1909,7 @@
     </div>
 
     <div class="rec-form">
-      <div class="rec-linha">
+      <div class="rec-linha" style="grid-template-columns:2fr 1fr;">
         <div class="campo rec-busca-wrap">
           <label for="recCliente">Cliente</label>
           <input type="text" id="recCliente" class="nome-cli" autocomplete="off" spellcheck="false" placeholder="Digite o nome do cliente…">
@@ -1725,26 +1920,95 @@
           <label for="recData">Data do recebimento</label>
           <input type="date" id="recData">
         </div>
-        <div class="campo">
-          <label for="recTotal">Total da conta</label>
-          <input type="text" inputmode="decimal" id="recTotal" placeholder="0,00">
-          <div class="campo-nota">Quanto o cliente devia nesta conta.</div>
-        </div>
       </div>
 
       <div class="rec-ficha" id="recFicha" style="display:none;"></div>
 
-      <div class="secao-title">Modalidades do pagamento</div>
-      <div class="rec-mods" id="recMods"></div>
+      <!-- A tela em duas colunas: à esquerda o caminho do lançamento (o total e depois
+           as formas de pagamento), à direita a calculadora, parada no mesmo lugar do
+           começo ao fim. O total ganhou corpo grande porque é o número que o resto da
+           tela persegue — as modalidades, o troco e a notinha só fazem sentido contra
+           ele, e um campo do tamanho dos outros não avisava nada. -->
+      <div class="conta-box">
+        <div class="cb-esq">
+          <div class="secao-title">Total da conta</div>
+          <div class="cb-campo">
+            <label for="recTotal">Soma das notinhas de compra</label>
+            <input type="text" inputmode="decimal" id="recTotal" placeholder="0,00">
+            <div class="cb-nota">O total que o cliente devia nesta conta — a soma de tudo que ele levou fiado.</div>
 
+            <!-- As notinhas somadas ficam aqui, logo abaixo do visor do total e não
+                 dentro da calculadora: na coluna estreita elas quebravam de duas em
+                 duas e um maço de dez virava uma pilha rolante. Nesta largura cabem
+                 muitas por linha, que é o que permite bater o olho na lista inteira
+                 contra o maço de papel na mão — e coladas no número que elas formam. -->
+            <div class="notas-area" id="recSomaArea" style="display:none;">
+              <div class="na-topo">
+                <span class="na-rot">Notinhas somadas</span>
+                <span class="na-resumo" id="recSomaTxt"></span>
+              </div>
+              <div class="cb-chips" id="recSomaChips"></div>
+            </div>
+          </div>
+
+          <div class="secao-title">Formas de pagamento</div>
+          <div class="rec-mods" id="recMods"></div>
+        </div>
+        <!-- Calculadora de verdade, e não um campo com botão: quem soma notinha o dia
+             inteiro faz isso no teclado numérico, sem tirar a mão para clicar. O visor
+             é um <input> de propósito — assim as teclas só valem com o foco aqui dentro
+             e digitar o nome do cliente não vira número no meio da soma. -->
+        <div class="cb-soma">
+          <div class="calc-topo">
+            <span class="calc-rot">Calculadora de débitos</span>
+            <button type="button" class="calc-limpar" id="btnRecSomaLimpar" style="display:none;">limpar tudo</button>
+          </div>
+          <div class="calc-visor">
+            <div class="calc-acum" id="recSomaAcum">nenhuma notinha somada</div>
+            <input type="text" inputmode="decimal" id="recSomaVal" placeholder="0,00"
+                   autocomplete="off" spellcheck="false" aria-label="Valor da notinha">
+          </div>
+          <div class="calc-teclas" id="recSomaTeclas">
+            <button type="button" class="ct-func" data-k="C" title="limpa o visor e a lista inteira">C</button>
+            <button type="button" class="ct-func" data-k="CE" title="limpa só o visor (Esc)">CE</button>
+            <button type="button" class="ct-func" data-k="BS" title="apaga o último dígito">&#9003;</button>
+            <button type="button" data-k="7">7</button>
+            <button type="button" data-k="8">8</button>
+            <button type="button" data-k="9">9</button>
+            <button type="button" data-k="4">4</button>
+            <button type="button" data-k="5">5</button>
+            <button type="button" data-k="6">6</button>
+            <button type="button" data-k="1">1</button>
+            <button type="button" data-k="2">2</button>
+            <button type="button" data-k="3">3</button>
+            <button type="button" data-k="0">0</button>
+            <button type="button" data-k=",">,</button>
+            <button type="button" class="ct-mais" data-k="+" title="soma esta notinha (tecla + ou Enter)">+</button>
+          </div>
+          <div class="cb-soma-txt" id="recSomaDica">Digite o valor da notinha e aperte <b>+</b>. Ele soma e já limpa o visor para a próxima.</div>
+        </div>
+      </div>
+
+      <!-- Os três campos escondidos continuam sendo a verdade que o resto do sistema lê
+           (gravação, fechamento, relatórios). O quadro visível abaixo é só a maneira de
+           preenchê-los: um valor e uma pergunta — o dinheiro sai da gaveta ou fica? -->
       <input type="hidden" id="recTroco" value="">
       <input type="hidden" id="recTrocoForma" value="dinheiro">
+      <input type="hidden" id="recNotinha" value="">
 
-      <div class="troco-calc notinha-box">
-        <span>Notinha branca</span>
-        <input type="text" inputmode="decimal" id="recNotinha" placeholder="0,00">
-        <button type="button" class="tc-usar" id="btnRecNotinhaSobra" style="display:none;"></button>
-        <div class="tc-linha" id="recNotinhaTxt"></div>
+      <!-- O troco não se digita mais: ele É o que o cliente entregou menos a conta, e o
+           sistema sabe os dois. O que se decide aqui é o destino dele. Antes o campo era
+           "notinha branca" e pedia o valor na mão — foi assim que um troco de 64,35 ficou
+           sem lançar e a gaveta fechou com sobra que ninguém explicava. -->
+      <div class="troco-calc troco-box" id="recTrocoBox">
+        <span class="tb-rot">Troco</span>
+        <input type="text" inputmode="decimal" id="recTrocoValor" placeholder="0,00">
+        <button type="button" class="tc-usar" id="btnRecTrocoAuto" style="display:none;"></button>
+        <label class="tb-check" for="recTrocoNotinha">
+          <input type="checkbox" id="recTrocoNotinha">
+          <span>É notinha branca <i>— o dinheiro fica no caixa</i></span>
+        </label>
+        <div class="tc-linha" id="recTrocoTxt"></div>
       </div>
 
       <div class="rec-somatorio" id="recSomatorio"></div>
@@ -2042,7 +2306,7 @@
       <div class="ven-itens" id="venItens"></div>
       <div class="rec-mini" id="venItensNota" style="margin-bottom:16px;"></div>
 
-      <div class="secao-title">Modalidades do pagamento</div>
+      <div class="secao-title">Formas de pagamento</div>
       <div class="rec-mods" id="venMods"></div>
 
       <div class="troco-calc">
@@ -9007,6 +9271,14 @@ function parcelasDe(r, chave){
   return p.map(v=> r2(toNum(v))).filter(v=> v > 0);
 }
 
+/* As notinhas de compra que somaram o total da conta, quando foram batidas na somadora.
+   Lançamento antigo (ou total digitado à mão) não tem lista — e isso é normal. */
+function notasCompraDe(r){
+  const p = r && r.notasCompra;
+  if(!Array.isArray(p)) return [];
+  return p.map(v=> r2(toNum(v))).filter(v=> v > 0);
+}
+
 function resumoFormas(r){
   /* Modalidade com valor negativo é a que pagou o troco: aparece com o sinal, porque
      ali saiu dinheiro do caixa em vez de entrar. */
@@ -9442,13 +9714,12 @@ function abrirModalTroco(chave){
   if(!f) return;
   trocoModChave = chave;
   const bruto = valorDaMod(chave);
-  const forma = document.getElementById('recTrocoForma').value || 'dinheiro';
-  /* Troco em notinha não fica em `recTroco` — foi para o campo da notinha, porque ele
-     não desconta modalidade nenhuma. Aqui ele volta ao modal para poder ser corrigido
-     no mesmo lugar em que foi digitado. */
-  const troco = forma === TROCO_NOTINHA
-    ? r2(toNum(document.getElementById('recNotinha').value))
-    : r2(toNum(document.getElementById('recTroco').value));
+  /* O modal lê o quadro do troco, que é a fonte única — não importa se aquele valor
+     está hoje em `recTroco` ou em `recNotinha`, o quadro mostra o mesmo número. */
+  const forma = document.getElementById('recTrocoNotinha').checked
+    ? TROCO_NOTINHA
+    : (document.getElementById('recTrocoForma').value || 'dinheiro');
+  const troco = r2(toNum(document.getElementById('recTrocoValor').value));
   document.getElementById('trocoTitulo').textContent = f.rotulo;
   document.getElementById('trocoBruto').value = bruto ? bruto.toFixed(2).replace('.',',') : '';
   document.getElementById('trocoValor').value = troco ? troco.toFixed(2).replace('.',',') : '';
@@ -9491,26 +9762,72 @@ document.getElementById('formTroco').addEventListener('submit', (e)=>{
     return;
   }
   document.getElementById('recPg_' + trocoModChave).value = bruto ? String(bruto) : '';
-  /* Os dois caminhos gravam em campos diferentes de propósito: troco comum some da
-     modalidade escolhida, notinha branca fica no caixa e só não quita a conta. */
+  /* O modal não escreve mais nos campos escondidos direto: ele preenche o quadro do
+     troco, que é quem os alimenta. Uma fonte só — foi ter duas que deixou o valor da
+     notinha poder discordar do resto do lançamento. Entra como manual porque o modal é
+     uma decisão explícita da pessoa sobre este cheque. */
   document.getElementById('recTrocoForma').value = forma;
-  if(forma === TROCO_NOTINHA){
-    document.getElementById('recTroco').value = '';
-    document.getElementById('recNotinha').value = troco ? String(troco) : '';
-  }else{
-    document.getElementById('recTroco').value = troco ? String(troco) : '';
-  }
+  definirTrocoRec(troco, forma === TROCO_NOTINHA, true);
   fecharModalTroco();
   atualizarSomatorioRec();
 });
 document.getElementById('fecharTroco').addEventListener('click', fecharModalTroco);
 document.getElementById('btnCancelarTroco').addEventListener('click', fecharModalTroco);
 
+/* ===================== O TROCO E SEU DESTINO =====================
+   O troco é uma conta, não uma digitação: é o que o cliente entregou menos o que ele
+   devia. O sistema conhece as duas pontas, então calcula sozinho e escreve no campo.
+
+   O que sobra para a pessoa decidir é o DESTINO daquele dinheiro, e é só isso que o
+   checkbox pergunta:
+     • desmarcado — troco normal: o dinheiro sai da gaveta e é descontado da modalidade
+       (`recTroco`), como sempre foi;
+     • marcado — notinha branca: o dinheiro FICA na gaveta e vira papel que o cliente
+       retira nos caixas da frente (`recNotinha`), sem descontar modalidade nenhuma.
+
+   Os dois campos escondidos continuam sendo o que todo o resto lê. Aqui eles são
+   apenas escritos, a partir do valor e do checkbox — uma fonte só, que é o que faltava
+   quando o valor da notinha era digitado à parte e podia não bater com nada. */
+let trocoManualRec = false;   /* a pessoa digitou por cima do calculado? */
+
+function sincronizarTrocoRec(){
+  const valor = Math.max(0, r2(toNum(document.getElementById('recTrocoValor').value)));
+  const ehNotinha = document.getElementById('recTrocoNotinha').checked;
+  document.getElementById('recNotinha').value = (ehNotinha && valor > 0) ? String(valor) : '';
+  document.getElementById('recTroco').value   = (!ehNotinha && valor > 0) ? String(valor) : '';
+  /* `trocoForma` guarda de onde o troco saiu. Em notinha não sai de lugar nenhum, mas o
+     valor é mantido para a tela de edição e o modal do cheque reabrirem no mesmo modo. */
+  const campoForma = document.getElementById('recTrocoForma');
+  if(ehNotinha) campoForma.value = TROCO_NOTINHA;
+  else if(campoForma.value === TROCO_NOTINHA) campoForma.value = 'dinheiro';
+  document.getElementById('recTrocoBox').classList.toggle('notinha-box', ehNotinha);
+}
+
+/* Escreve um valor no quadro vindo de fora (cálculo automático, modal do cheque,
+   edição de um lançamento antigo) e alinha os campos escondidos com ele. */
+function definirTrocoRec(valor, ehNotinha, manual){
+  const v = Math.max(0, r2(toNum(valor)));
+  document.getElementById('recTrocoValor').value = v > 0 ? v.toFixed(2).replace('.',',') : '';
+  document.getElementById('recTrocoNotinha').checked = !!ehNotinha;
+  trocoManualRec = !!manual;
+  sincronizarTrocoRec();
+}
+
 function atualizarSomatorioRec(){
   if(!recModsMontadas) return;   /* nada a somar antes de a tela de lançamento existir */
   const total = r2(toNum(document.getElementById('recTotal').value));
   const formas = valoresFormasDoForm();
   const bruto = r2(FORMAS_RECEBIMENTO.reduce((s,f)=> s + formas[f.chave], 0));
+
+  /* O cálculo do troco vem ANTES da leitura: entregue menos conta. Só não sobrescreve
+     quando a pessoa digitou um valor diferente à mão — aí a escolha dela manda, e o
+     botão "usar o calculado" fica ali para desfazer. */
+  const sugerido = Math.max(0, r2(bruto - total));
+  if(!trocoManualRec){
+    document.getElementById('recTrocoValor').value = sugerido > 0 ? sugerido.toFixed(2).replace('.',',') : '';
+  }
+  sincronizarTrocoRec();
+
   /* Troco sai da modalidade escolhida: o cliente entregou mais do que a conta e levou
      a diferença de volta. Quem paga a conta é o líquido. */
   const troco = r2(toNum(document.getElementById('recTroco').value));
@@ -9569,30 +9886,42 @@ function atualizarSomatorioRec(){
   }
 
   document.getElementById('recSomatorio').innerHTML = partes.join('');
-  atualizarCaixaNotinhaRec(bruto, troco, notinha, total);
+  atualizarCaixaTrocoRec(bruto, troco, notinha, total, sugerido);
 }
 
-/* A caixa roxa embaixo das modalidades: diz em uma linha o que a notinha está fazendo
-   com o lançamento e, quando o cliente entregou mais do que a conta, oferece o valor
-   exato num clique — é o gesto do balcão, a nota de 100 numa conta de 43. */
-function atualizarCaixaNotinhaRec(bruto, troco, notinha, total){
-  const txt = document.getElementById('recNotinhaTxt');
-  const btn = document.getElementById('btnRecNotinhaSobra');
+/* A linha embaixo do quadro do troco: diz, em português, o que vai acontecer com aquele
+   dinheiro. É a frase que impede a confusão entre os dois casos, porque o número é o
+   mesmo nos dois e só o destino muda. */
+function atualizarCaixaTrocoRec(bruto, troco, notinha, total, sugerido){
+  const txt = document.getElementById('recTrocoTxt');
+  const btn = document.getElementById('btnRecTrocoAuto');
   if(!txt || !btn) return;
-  const sobra = r2(bruto - troco - notinha - total);
-  if(notinha > 0){
-    txt.innerHTML = 'Entrou <b>' + fmtMoeda(bruto - troco) + '</b> na gaveta, mas só <b>' +
-      fmtMoeda(r2(bruto - troco - notinha)) + '</b> quitam a conta — os ' + fmtMoeda(notinha) +
-      ' do papel o cliente retira nos caixas da frente do mercado.';
+  const valor = r2(troco + notinha);
+  const ehNotinha = document.getElementById('recTrocoNotinha').checked;
+
+  if(valor > 0 && ehNotinha){
+    txt.innerHTML = 'Entra <b>' + fmtMoeda(bruto) + '</b> inteiro na gaveta, mas só <b>' +
+      fmtMoeda(r2(bruto - valor)) + '</b> quitam a conta — os ' + fmtMoeda(valor) +
+      ' do papel o cliente retira nos caixas da frente. <b>Nada sai daqui.</b>';
+  }else if(valor > 0){
+    txt.innerHTML = 'Saem <b>' + fmtMoeda(valor) + '</b> da gaveta como troco. Na conta entram <b>' +
+      fmtMoeda(r2(bruto - valor)) + '</b>. Marque a caixa se o troco foi em notinha branca.';
+  }else if(bruto > 0 && r2(total - bruto) > 0.004){
+    txt.innerHTML = 'O cliente entregou <b>' + fmtMoeda(bruto) + '</b> de uma conta de <b>' +
+      fmtMoeda(total) + '</b> — não há troco, e a conta fica devendo a diferença.';
+  }else if(bruto > 0){
+    txt.innerHTML = 'Valor exato: não há troco a devolver.';
   }else{
-    txt.innerHTML = 'Vale de troco que o cliente retira nos caixas da frente. A nota entra ' +
-      'inteira no nosso caixa e não sai dinheiro daqui — deixe zerado quando o troco sair da gaveta.';
+    txt.innerHTML = 'Calculado sozinho assim que a conta e o que o cliente entregou estiverem preenchidos.';
   }
-  const oferecer = total > 0.004 && sobra > 0.004;
-  btn.style.display = oferecer ? '' : 'none';
-  if(oferecer){
-    btn.textContent = 'lançar ' + fmtMoeda(sobra) + ' em notinha';
-    btn.dataset.valor = String(sobra);
+
+  /* O botão só aparece quando o campo saiu do calculado — é o caminho de volta depois
+     de uma digitação à mão que não era o que se queria. */
+  const fora = trocoManualRec && Math.abs(r2(valor - sugerido)) > 0.004;
+  btn.style.display = fora ? '' : 'none';
+  if(fora){
+    btn.textContent = 'usar o calculado (' + fmtMoeda(sugerido) + ')';
+    btn.dataset.valor = String(sugerido);
   }
 }
 
@@ -9741,6 +10070,7 @@ function limparFormRec(manterCliente){
     recClienteSel = null;
   }
   document.getElementById('recTotal').value = '';
+  limparSomadoraRec();   /* o total já foi zerado acima; aqui some a lista de notinhas */
   document.getElementById('recObs').value = '';
   document.getElementById('recData').value = state.caixaDia || hojeISO();
   atualizarAvisosData();
@@ -9748,9 +10078,8 @@ function limparFormRec(manterCliente){
     if(f.multiplo) montarLinhasMod(f.chave, ['']);
     else document.getElementById('recPg_'+f.chave).value = '';
   });
-  document.getElementById('recTroco').value = '';
   document.getElementById('recTrocoForma').value = 'dinheiro';
-  document.getElementById('recNotinha').value = '';
+  definirTrocoRec(0, false, false);   /* zera valor, checkbox e os campos escondidos */
   document.getElementById('recAviso').textContent = '';
   atualizarFichaRec();
 }
@@ -9817,7 +10146,7 @@ function renderUltimosRec(){
         celulaDataHora(r.data, r.criadoEm) +
         '<td class="esq"><span class="rec-cli-nome nome-cli">'+escHtml(nomeCliente(r.clienteId))+'</span>' +
           (r.obs ? '<div class="rec-mini">'+escHtml(r.obs)+'</div>' : '') + '</td>' +
-        '<td>'+fmtMoeda(toNum(r.total))+'</td>' +
+        '<td>'+fmtMoeda(toNum(r.total))+(notasCompraDe(r).length>1 ? '<div class="rec-mini">'+notasCompraDe(r).length+' notinhas</div>' : '')+'</td>' +
         '<td><b>'+fmtMoeda(pagoDoRecebimento(r))+'</b></td>' +
         '<td class="esq rec-mini">'+escHtml(resumoFormas(r))+'</td>' +
         '<td><span class="rec-tag '+sit.classe+'">'+sit.rot+'</span>' +
@@ -9846,12 +10175,12 @@ function salvarRecebimento(){
   if(total <= 0 && pago <= 0){ aviso.textContent = 'Informe o total da conta e a quantia paga.'; return; }
   if(troco > 0 && troco >= bruto){
     aviso.textContent = 'O troco não pode ser igual nem maior que o valor entregue pelo cliente.';
-    document.getElementById('recTroco').focus();
+    document.getElementById('recTrocoValor').focus();
     return;
   }
   if(notinha < 0){
     aviso.textContent = 'A notinha branca não pode ser negativa.';
-    document.getElementById('recNotinha').focus();
+    document.getElementById('recTrocoValor').focus();
     return;
   }
   /* A notinha é troco: ela sai do que o cliente entregou. Se não sobra nada para a
@@ -9859,7 +10188,7 @@ function salvarRecebimento(){
   if(notinha > 0 && r2(troco + notinha) >= bruto){
     aviso.textContent = 'A notinha branca não pode consumir tudo o que o cliente entregou — ' +
       'o troco sai da nota, e a nota tem que cobrir a conta também.';
-    document.getElementById('recNotinha').focus();
+    document.getElementById('recTrocoValor').focus();
     return;
   }
   /* Notinha só faz sentido contra dinheiro que passou pela gaveta: não dá para emitir
@@ -9868,7 +10197,7 @@ function salvarRecebimento(){
   if(notinha > 0 && r2(troco + notinha) > brutoEmCaixa){
     aviso.textContent = 'A notinha branca de ' + fmtMoeda(notinha) + ' passa do que entrou no caixa neste ' +
       'pagamento (' + fmtMoeda(brutoEmCaixa) + ') — o vale sai da nota que o cliente entregou.';
-    document.getElementById('recNotinha').focus();
+    document.getElementById('recTrocoValor').focus();
     return;
   }
 
@@ -9931,6 +10260,13 @@ function salvarRecebimento(){
   });
   dados.parcelas = Object.keys(parcelas).length ? parcelas : null;
 
+  /* As notinhas de compra que formaram o total, quando a soma foi feita na somadora.
+     Não entra em conta nenhuma — é memória de conferência: permite refazer amanhã a
+     soma de hoje sem depender de quem lançou lembrar. Com uma notinha só a lista não
+     diz nada além do total e fica de fora. */
+  dados.notasCompra = (recNotasCompra.length > 1 &&
+                       somaNotasCompra() === total) ? recNotasCompra.slice() : null;
+
   if(novoCadastro) salvarNoCaixa('clientes', cli);
 
   if(recEditandoId){
@@ -9970,6 +10306,11 @@ function editarRecebimento(id){
   document.getElementById('recCliente').value = nomeCliente(r.clienteId);
   document.getElementById('recData').value = r.data || hojeISO();
   document.getElementById('recTotal').value = toNum(r.total) ? toNum(r.total).toFixed(2).replace('.',',') : '';
+  /* Traz de volta as notinhas de compra do lançamento, para a correção poder mexer em
+     uma delas em vez de refazer a soma inteira. */
+  recNotasCompra = notasCompraDe(r);
+  document.getElementById('recSomaVal').value = '';
+  renderSomadoraRec(false);
   document.getElementById('recObs').value = r.obs || '';
   /* Na gravação o troco foi descontado da modalidade; aqui ele é somado de volta, para
      o operador rever exatamente o que digitou (o cheque cheio, e o troco no seu campo). */
@@ -9985,13 +10326,13 @@ function editarRecebimento(id){
       document.getElementById('recPg_'+f.chave).value = v ? v.toFixed(2).replace('.',',') : '';
     }
   });
-  document.getElementById('recTroco').value = troco ? troco.toFixed(2).replace('.',',') : '';
   document.getElementById('recTrocoForma').value = trocoForma;
   /* A notinha volta como foi digitada: ela nunca foi descontada de modalidade nenhuma,
-     então não há o que somar de volta como no troco. */
+     então não há o que somar de volta como no troco. Entra no quadro como MANUAL, para
+     o recálculo automático não reescrever por cima do que já foi gravado — se o valor
+     tiver que voltar ao calculado, o botão do quadro faz isso num clique. */
   const notinhaGravada = notinhaDe(r);
-  document.getElementById('recNotinha').value =
-    notinhaGravada ? notinhaGravada.toFixed(2).replace('.',',') : '';
+  definirTrocoRec(notinhaGravada > 0 ? notinhaGravada : troco, notinhaGravada > 0, true);
   document.getElementById('recEditandoTxt').textContent =
     'Corrigindo o recebimento de ' + nomeCliente(r.clienteId) + ' de ' + dataBR(r.data) + '.';
   document.getElementById('recEditandoAviso').classList.add('show');
@@ -10045,14 +10386,154 @@ document.getElementById('recData').addEventListener('change', (e)=>{
   trocarDiaCaixa(e.target.value);
   atualizarAvisosData();
 });
-document.getElementById('recTotal').addEventListener('input', atualizarSomatorioRec);
-document.getElementById('recNotinha').addEventListener('input', atualizarSomatorioRec);
-document.getElementById('btnRecNotinhaSobra').addEventListener('click', (e)=>{
-  const v = r2(toNum(e.currentTarget.dataset.valor));
-  const campo = document.getElementById('recNotinha');
-  campo.value = v > 0 ? v.toFixed(2).replace('.',',') : '';
-  atualizarSomatorioRec();
+/* ===================== SOMADORA DE NOTINHAS DE COMPRA =====================
+   O total da conta é a soma das notinhas de compra que o cliente levou fiado. Isso era
+   somado numa calculadora de mesa e só o resultado vinha para cá: se a soma saía
+   errada, ninguém tinha como refazer o caminho depois.
+
+   Aqui cada notinha entra como uma parcela, o total é escrito sozinho no campo e a
+   lista fica guardada no lançamento (`notasCompra`), então a conferência de amanhã
+   consegue repetir a soma de hoje.
+
+   Regra de convivência com a digitação à mão: quem digita o total direto DESLIGA a
+   somadora e a lista é descartada — duas fontes para o mesmo número é como se erra. */
+let recNotasCompra = [];
+
+function somaNotasCompra(){ return r2(recNotasCompra.reduce((s,v)=> s + v, 0)); }
+
+function renderSomadoraRec(escreverTotal){
+  const chips = document.getElementById('recSomaChips');
+  const area  = document.getElementById('recSomaArea');
+  const txt   = document.getElementById('recSomaTxt');
+  const dica  = document.getElementById('recSomaDica');
+  const acum  = document.getElementById('recSomaAcum');
+  const btnL  = document.getElementById('btnRecSomaLimpar');
+  const soma  = somaNotasCompra();
+
+  chips.innerHTML = recNotasCompra.map((v,i)=>
+    '<span class="cb-chip"><span class="cb-num">' + (i+1) + '</span>' + fmtMoeda(v) +
+    '<button type="button" data-i="' + i + '" title="tirar esta notinha">&times;</button></span>').join('');
+  area.style.display = recNotasCompra.length ? '' : 'none';
+  btnL.style.display = recNotasCompra.length ? '' : 'none';
+
+  /* Linha de cima do visor: quantas já entraram e quanto somam. É o que a calculadora
+     de mesa não mostrava — lá só existia o acumulado, sem dizer de quantas parcelas. */
+  acum.textContent = recNotasCompra.length
+    ? recNotasCompra.length + ' notinha(s)  ·  soma ' + fmtMoeda(soma)
+    : 'nenhuma notinha somada';
+
+  txt.innerHTML = recNotasCompra.length
+    ? '<b>' + recNotasCompra.length + ' notinha(s)</b> somando <b>' + fmtMoeda(soma) +
+      '</b> — é este o total da conta. Clique no × para tirar uma que entrou errada.'
+    : '';
+
+  /* O rodapé da calculadora volta a ser a instrução: ele também é onde os avisos de
+     erro aparecem, e um aviso velho não pode sobreviver ao lançamento seguinte. */
+  dica.innerHTML = 'Digite o valor da notinha e aperte <b>+</b>. Ele soma e já limpa o visor para a próxima.';
+  dica.classList.remove('cb-alerta');
+
+  /* Só escreve no campo quando a soma é quem manda. Ao desligar a somadora o total
+     digitado à mão fica onde está. */
+  if(escreverTotal !== false){
+    document.getElementById('recTotal').value = soma > 0 ? soma.toFixed(2).replace('.',',') : '';
+    atualizarSomatorioRec();
+  }
+}
+
+function addNotaCompra(){
+  const campo = document.getElementById('recSomaVal');
+  const v = r2(toNum(campo.value));
+  const dica = document.getElementById('recSomaDica');
+  if(!(v > 0)){
+    dica.textContent = 'Digite o valor da notinha antes de somar.';
+    dica.classList.add('cb-alerta');
+    campo.focus();
+    return;
+  }
+  recNotasCompra.push(v);
+  campo.value = '';
+  renderSomadoraRec();
   campo.focus();
+}
+
+function limparSomadoraRec(zerarTotal){
+  recNotasCompra = [];
+  document.getElementById('recSomaVal').value = '';
+  renderSomadoraRec(zerarTotal === true);
+}
+
+/* O visor aceita só dígitos e UMA vírgula, com no máximo dois decimais — ponto do
+   teclado numérico entra como vírgula, que é como o valor da notinha se escreve. */
+function textoDoVisor(v){
+  v = String(v).replace(/\./g, ',').replace(/[^0-9,]/g, '');
+  const i = v.indexOf(',');
+  if(i >= 0) v = v.slice(0, i+1) + v.slice(i+1).replace(/,/g,'').slice(0,2);
+  return v;
+}
+
+/* Uma tecla da calculadora, venha do clique ou do teclado físico. */
+function teclaSomadora(k){
+  const campo = document.getElementById('recSomaVal');
+  if(k === '+'){ addNotaCompra(); return; }
+  if(k === 'C'){ limparSomadoraRec(true); campo.focus(); return; }
+  if(k === 'CE'){ campo.value = ''; campo.focus(); return; }
+  if(k === 'BS'){ campo.value = campo.value.slice(0, -1); campo.focus(); return; }
+  campo.value = textoDoVisor(campo.value + k);
+  campo.focus();
+}
+
+document.getElementById('recSomaTeclas').addEventListener('click', (e)=>{
+  const b = e.target.closest('button[data-k]');
+  if(b) teclaSomadora(b.dataset.k);
+});
+document.getElementById('recSomaVal').addEventListener('input', (e)=>{
+  e.target.value = textoDoVisor(e.target.value);
+});
+document.getElementById('recSomaVal').addEventListener('keydown', (e)=>{
+  /* "+" fecha a parcela — é a tecla que a pessoa já usa na calculadora de mesa.
+     Enter e "=" fazem o mesmo para quem tem outro costume. */
+  if(e.key === '+' || e.key === 'Enter' || e.key === '='){ e.preventDefault(); addNotaCompra(); return; }
+  if(e.key === 'Escape'){ e.preventDefault(); e.target.value = ''; return; }
+});
+document.getElementById('btnRecSomaLimpar').addEventListener('click', ()=>{
+  limparSomadoraRec(true);
+  document.getElementById('recSomaVal').focus();
+});
+document.getElementById('recSomaChips').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-i]');
+  if(!btn) return;
+  recNotasCompra.splice(Number(btn.dataset.i), 1);
+  renderSomadoraRec();
+});
+
+document.getElementById('recTotal').addEventListener('input', ()=>{
+  /* Digitou por cima da soma: a lista deixa de valer e some, para o lançamento nunca
+     guardar parcelas que não batem com o total gravado. */
+  if(recNotasCompra.length &&
+     r2(toNum(document.getElementById('recTotal').value)) !== somaNotasCompra()){
+    recNotasCompra = [];
+    renderSomadoraRec(false);
+    document.getElementById('recSomaDica').textContent =
+      'Total digitado à mão — a lista de notinhas foi descartada.';
+  }
+  atualizarSomatorioRec();
+});
+/* Digitar por cima do calculado é permitido — há caso de balcão em que o cliente pede
+   só parte do troco — mas passa a mandar, e o botão de voltar ao calculado aparece. */
+document.getElementById('recTrocoValor').addEventListener('input', ()=>{
+  trocoManualRec = true;
+  sincronizarTrocoRec();
+  atualizarSomatorioRec();
+});
+document.getElementById('recTrocoNotinha').addEventListener('change', ()=>{
+  sincronizarTrocoRec();
+  atualizarSomatorioRec();
+});
+document.getElementById('btnRecTrocoAuto').addEventListener('click', (e)=>{
+  definirTrocoRec(e.currentTarget.dataset.valor,
+                  document.getElementById('recTrocoNotinha').checked, false);
+  atualizarSomatorioRec();
+  document.getElementById('recTrocoValor').focus();
 });
 fecharAoClicarFora('overlayTroco');
 /* Enter no total pula direto para a primeira modalidade — o fluxo é sempre esse. */
@@ -10468,7 +10949,7 @@ function renderLancamentos(){
         celulaDataHora(r.data, r.criadoEm) +
         '<td class="esq"><span class="rec-cli-nome nome-cli">'+escHtml(nomeCliente(r.clienteId))+'</span>' +
           (r.obs ? '<div class="rec-mini">'+escHtml(r.obs)+'</div>' : '') + '</td>' +
-        '<td>'+fmtMoeda(toNum(r.total))+'</td>' +
+        '<td>'+fmtMoeda(toNum(r.total))+(notasCompraDe(r).length>1 ? '<div class="rec-mini">'+notasCompraDe(r).length+' notinhas</div>' : '')+'</td>' +
         '<td><b>'+fmtMoeda(pagoDoRecebimento(r))+'</b></td>' +
         '<td class="esq rec-mini">'+escHtml(resumoFormas(r))+'</td>' +
         '<td><span class="rec-tag '+sit.classe+'">'+sit.rot+'</span>' +
@@ -11145,7 +11626,7 @@ function renderHistorico(){
         celulaDataHora(r.data, r.criadoEm) +
         '<td class="esq"><span class="rec-cli-nome nome-cli">'+escHtml(nomeCliente(r.clienteId))+'</span>' +
           (r.obs ? '<div class="rec-mini">'+escHtml(r.obs)+'</div>' : '') + '</td>' +
-        '<td>'+fmtMoeda(toNum(r.total))+'</td>' +
+        '<td>'+fmtMoeda(toNum(r.total))+(notasCompraDe(r).length>1 ? '<div class="rec-mini">'+notasCompraDe(r).length+' notinhas</div>' : '')+'</td>' +
         FORMAS_RECEBIMENTO.map(f=>{
           const cls = (f.chave===formaSel) ? ' class="col-destaque"' : '';
           if(!toNum(r[f.chave])) return '<td'+cls+'>—</td>';
@@ -13396,43 +13877,188 @@ function svgBarras(dados, opcoes){
     barras + '</svg>';
 }
 
-/* --------- linha (evolução dia a dia) --------- */
-function svgLinha(dados, opcoes){
+/* --------- entradas dia a dia: o gráfico com dois modos ---------
+   Substituiu uma linha solta que dizia pouco e ainda vazava: o valor do melhor dia era
+   escrito centrado no ponto, e quando o melhor dia era o PRIMEIRO metade do texto caía
+   em x negativo, aparecendo fora do cartão. Aqui todo rótulo de topo é grudado na borda
+   quando não cabe centrado (ver `rotuloTopo`), e nada mais escapa do desenho.
+
+   O que mudou de conteúdo: em vez de só a curva, o cartão abre com o resumo do mês
+   (total, média, melhor dia, dias com movimento), deixa escolher entre BARRAS e CURVA,
+   e diz o valor de cada dia ao passar o mouse — antes era preciso adivinhar pela altura
+   do ponto de que dia se tratava.
+
+   Cada gráfico se registra aqui pelo mesmo motivo das roscas: o clique no seletor de
+   modo precisa saber qual redesenhar. O registro é esvaziado a cada render do Início. */
+const DIARIOS = {};
+let seqDiario = 0;
+
+function svgDiario(dados, opcoes){
   const o = opcoes || {};
-  const itens = dados || [];
+  const itens = (dados || []).filter(d=> d);
   if(itens.length < 2) return '<div class="ini-vazio">São necessários pelo menos dois dias com movimento.</div>';
-  const maior = Math.max.apply(null, itens.map(d=> toNum(d.valor))) || 1;
-  const L = LARGURA_GRAFICO, A = 210, base = A - 34, topo = 24;
-  const passo = itens.length > 1 ? L / (itens.length - 1) : L;
-  const ponto = (d, i)=> [i*passo, base - (toNum(d.valor)/maior) * (base - topo)];
+  const id = 'diario' + (++seqDiario);
+  DIARIOS[id] = {itens: itens, cor: o.cor || CORES_GRAFICO[0], modo: o.modo || 'barras'};
+  return '<div class="diario-bloco" id="'+id+'">' + desenhoDiario(id) + '</div>';
+}
 
-  const pts = itens.map(ponto);
-  const linha = pts.map((p,i)=> (i?'L':'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
-  const area = linha + ' L '+L+' '+base+' L 0 '+base+' Z';
-  const cor = o.cor || CORES_GRAFICO[0];
+/* Rótulo escrito acima de um ponto/barra. Centrado quando cabe; encostado na borda
+   quando não — é isto que impede o número de sair do cartão. */
+function rotuloTopo(x, y, txt, L){
+  const larg = String(txt).length * 6.3;
+  let anchor = 'middle', px = x;
+  if(x - larg/2 < 1){ anchor = 'start'; px = 1; }
+  else if(x + larg/2 > L - 1){ anchor = 'end'; px = L - 1; }
+  return '<text x="'+px.toFixed(1)+'" y="'+y.toFixed(1)+'" text-anchor="'+anchor+'" font-size="11.5" ' +
+    'font-weight="700" fill="#26333d" stroke="#fff" stroke-width="3" paint-order="stroke" ' +
+    'pointer-events="none" font-family="Arial, Helvetica, sans-serif">'+escHtml(txt)+'</text>';
+}
 
-  /* Só rotula alguns pontos, senão o eixo vira uma mancha de números. */
-  const passoRot = Math.ceil(itens.length / 8);
-  const marcas = pts.map((p,i)=>{
-    const mostra = (i % passoRot === 0) || (i === itens.length-1);
-    return '<circle cx="'+p[0].toFixed(1)+'" cy="'+p[1].toFixed(1)+'" r="3.5" fill="'+cor+'"/>' +
-      (mostra ? '<text x="'+p[0].toFixed(1)+'" y="'+(base+17)+'" text-anchor="middle" font-size="10.5" ' +
-        'fill="#6b7a86" font-family="Arial, Helvetica, sans-serif">'+escHtml(itens[i].rot)+'</text>' : '');
+function desenhoDiario(id){
+  const g = DIARIOS[id];
+  if(!g) return '';
+  const itens = g.itens, cor = g.cor, n = itens.length;
+  const vals = itens.map(d=> toNum(d.valor));
+  const maior = Math.max.apply(null, vals) || 1;
+  const total = r2(vals.reduce((s,v)=> s + v, 0));
+  const comMovimento = vals.filter(v=> v > 0).length;
+  const media = comMovimento ? r2(total / comMovimento) : 0;
+  const iMaior = vals.indexOf(maior);
+
+  const L = LARGURA_GRAFICO, A = 232, base = A - 44, topo = 30;
+  const fatia = L / n;                      /* uma coluna por dia, nos dois modos: é o
+                                               que faz a área de hover ser a mesma */
+  const cx = (i)=> i*fatia + fatia/2;
+  const cy = (v)=> base - (toNum(v)/maior) * (base - topo);
+
+  /* Rotular todo dia vira mancha; rotula-se de N em N, sempre incluindo o último. */
+  const passoRot = Math.ceil(n / 9);
+  const eixo = itens.map((d,i)=>
+    ((i % passoRot === 0) || i === n-1)
+      ? '<text x="'+cx(i).toFixed(1)+'" y="'+(base+17)+'" text-anchor="middle" font-size="10.5" ' +
+        'fill="#6b7a86" font-family="Arial, Helvetica, sans-serif">'+escHtml(d.rot)+'</text>'
+      : '').join('');
+
+  /* A média entra como linha tracejada: é a régua que diz se o dia foi bom ou fraco,
+     leitura que a curva sozinha não dava. O rótulo vai encostado à direita. */
+  const yMedia = cy(media);
+  const linhaMedia = media > 0
+    ? '<line x1="0" y1="'+yMedia.toFixed(1)+'" x2="'+L+'" y2="'+yMedia.toFixed(1)+'" stroke="#9fb0ba" ' +
+        'stroke-width="1" stroke-dasharray="4 4"/>'
+    : '';
+  /* O rótulo da média é desenhado por último, depois das barras, senão some atrás
+     delas. O contorno branco é o que o mantém legível quando cai em cima de uma. */
+  const rotuloMedia = media > 0
+    ? '<text x="'+(L-2)+'" y="'+(yMedia-4).toFixed(1)+'" text-anchor="end" font-size="10" fill="#7c8b95" ' +
+        'stroke="#fff" stroke-width="3" paint-order="stroke" pointer-events="none" ' +
+        'font-family="Arial, Helvetica, sans-serif">média ' + escHtml(fmtCurto(media)) + '</text>'
+    : '';
+
+  /* Só a curva e sua área ficam soltas no desenho — são um traço contínuo, não têm
+     dono por dia. Barras e pontos vão DENTRO da coluna do dia, logo abaixo, porque é o
+     que permite apagar os vizinhos no hover com CSS puro. */
+  const barraL = Math.max(3, fatia * 0.62);
+  let desenho = '';
+  if(g.modo === 'curva'){
+    const pts = itens.map((d,i)=> [cx(i), cy(d.valor)]);
+    const linha = pts.map((p,i)=> (i?'L':'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+    const area = linha + ' L '+pts[n-1][0].toFixed(1)+' '+base+' L '+pts[0][0].toFixed(1)+' '+base+' Z';
+    desenho = '<path d="'+area+'" fill="'+cor+'" opacity="0.10"/>' +
+      '<path d="'+linha+'" fill="none" stroke="'+cor+'" stroke-width="2.5" ' +
+        'stroke-linejoin="round" stroke-linecap="round"/>';
+  }
+
+  /* Uma coluna por dia, com o retângulo invisível por cima: o alvo do mouse é a faixa
+     inteira do dia, e não o pixel exato da barra ou do ponto. */
+  const colunas = itens.map((d,i)=>{
+    const y = cy(d.valor);
+    const marca = g.modo === 'curva'
+      ? '<circle class="dg-ponto" cx="'+cx(i).toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.5" fill="'+cor+'"/>'
+      : '<rect class="dg-barra" x="'+(cx(i)-barraL/2).toFixed(1)+'" y="'+y.toFixed(1)+'" ' +
+          'width="'+barraL.toFixed(1)+'" height="'+Math.max(toNum(d.valor) > 0 ? 2 : 0, base - y).toFixed(1) +
+          '" rx="2.5" fill="'+cor+'"/>';
+    return '<g class="dg-col" data-dg-hit="'+i+'" data-dg-cy="'+y.toFixed(1)+'">' + marca +
+      '<rect class="dg-hit" x="'+(i*fatia).toFixed(1)+'" y="0" width="'+fatia.toFixed(1)+'" height="'+base+'"/>' +
+    '</g>';
   }).join('');
 
-  const maiorItem = itens.reduce((a,b)=> toNum(b.valor) > toNum(a.valor) ? b : a, itens[0]);
-  const iMaior = itens.indexOf(maiorItem);
-  const pMaior = pts[iMaior];
-
-  return '<svg viewBox="0 0 '+L+' '+A+'" role="img">' +
+  const svg = '<svg viewBox="0 0 '+L+' '+A+'" role="img" preserveAspectRatio="xMidYMid meet">' +
+    linhaMedia +
     '<line x1="0" y1="'+base+'" x2="'+L+'" y2="'+base+'" stroke="#e0e6e9" stroke-width="1"/>' +
-    '<path d="'+area+'" fill="'+cor+'" opacity="0.10"/>' +
-    '<path d="'+linha+'" fill="none" stroke="'+cor+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>' +
-    marcas +
-    '<text x="'+pMaior[0].toFixed(1)+'" y="'+(pMaior[1]-10).toFixed(1)+'" text-anchor="middle" font-size="11.5" ' +
-      'font-weight="700" fill="#26333d" font-family="Arial, Helvetica, sans-serif">'+fmtMoeda(r2(maiorItem.valor))+'</text>' +
-    '</svg>';
+    desenho + eixo + colunas + rotuloMedia +
+    rotuloTopo(cx(iMaior), cy(maior) - 9, fmtMoeda(r2(maior)), L) + '</svg>';
+
+  const kpi = (rot, val, sub)=>
+    '<div class="dg-kpi"><div class="dg-rot">'+escHtml(rot)+'</div>' +
+    '<div class="dg-val">'+escHtml(val)+'</div>' +
+    '<div class="dg-sub">'+escHtml(sub)+'</div></div>';
+
+  const btn = (modo, txt)=>
+    '<button type="button" class="dg-modo'+(g.modo===modo?' ativo':'')+'" ' +
+      'data-diario="'+id+'" data-modo="'+modo+'">'+txt+'</button>';
+
+  return '<div class="dg-kpis">' +
+      kpi('Entrou no mês', fmtMoeda(total), n + ' dia(s) no período') +
+      kpi('Média por dia', fmtMoeda(media), comMovimento + ' dia(s) com movimento') +
+      kpi('Melhor dia', fmtMoeda(r2(maior)), itens[iMaior].rotLongo || itens[iMaior].rot) +
+    '</div>' +
+    '<div class="dg-topo"><span class="dg-legenda">Passe o mouse sobre um dia para ver o valor</span>' +
+      '<div class="dg-modos">' + btn('barras','Barras') + btn('curva','Curva') + '</div></div>' +
+    '<div class="dg-tela">' + svg + '<div class="dg-dica"></div></div>';
 }
+
+/* Um ouvinte só para o seletor de modo, pelo mesmo motivo das roscas: os botões são
+   recriados a cada troca e ouvinte presos a eles se perderiam. */
+document.addEventListener('click', function(ev){
+  const alvo = ev.target && ev.target.closest ? ev.target.closest('[data-diario]') : null;
+  if(!alvo) return;
+  const id = alvo.getAttribute('data-diario');
+  const g = DIARIOS[id], bloco = document.getElementById(id);
+  if(!g || !bloco) return;
+  g.modo = alvo.getAttribute('data-modo') === 'curva' ? 'curva' : 'barras';
+  bloco.innerHTML = desenhoDiario(id);
+});
+
+/* A dica que segue o mouse. Posicionada em pixels a partir do retângulo do bloco, e não
+   em coordenadas do SVG, porque o SVG se estica com o cartão e as duas medidas não são
+   a mesma coisa. */
+document.addEventListener('mouseover', function(ev){
+  const alvo = ev.target && ev.target.closest ? ev.target.closest('[data-dg-hit]') : null;
+  if(!alvo) return;
+  const bloco = alvo.closest('.diario-bloco');
+  const g = bloco && DIARIOS[bloco.id];
+  if(!g) return;
+  const d = g.itens[parseInt(alvo.getAttribute('data-dg-hit'), 10)];
+  const tela = bloco.querySelector('.dg-tela');
+  const dica = bloco.querySelector('.dg-dica');
+  const svg = bloco.querySelector('svg');
+  if(!d || !tela || !dica || !svg) return;
+
+  dica.innerHTML = '<b>' + escHtml(d.rotLongo || d.rot) + '</b>' +
+                   '<span>' + escHtml(fmtMoeda(r2(d.valor))) + '</span>';
+  dica.style.display = 'block';
+
+  /* A referência é `.dg-tela` — é ela que tem `position:relative`, e portanto é dela
+     que o `left`/`top` da dica são contados. Medir a partir do bloco inteiro jogava a
+     dica uns cem pixels abaixo, na altura dos KPIs que ficam em cima do desenho. */
+  const rt = tela.getBoundingClientRect(), rs = svg.getBoundingClientRect();
+  const hit = alvo.querySelector('.dg-hit');
+  const escala = rs.width / LARGURA_GRAFICO;
+  const alvoX = rs.left - rt.left +
+                (parseFloat(hit.getAttribute('x')) + parseFloat(hit.getAttribute('width'))/2) * escala;
+  const alvoY = rs.top - rt.top + parseFloat(alvo.getAttribute('data-dg-cy')) * escala;
+
+  const larg = dica.offsetWidth, alt = dica.offsetHeight;
+  dica.style.left = Math.max(2, Math.min(rt.width - larg - 2, alvoX - larg/2)) + 'px';
+  dica.style.top  = Math.max(2, alvoY - alt - 9) + 'px';
+});
+document.addEventListener('mouseout', function(ev){
+  const alvo = ev.target && ev.target.closest ? ev.target.closest('[data-dg-hit]') : null;
+  if(!alvo || alvo.contains(ev.relatedTarget)) return;
+  const bloco = alvo.closest('.diario-bloco');
+  const dica = bloco && bloco.querySelector('.dg-dica');
+  if(dica) dica.style.display = 'none';
+});
 
 /* --------- barras horizontais (rankings) --------- */
 function svgBarrasH(dados, cor){
@@ -13470,6 +14096,7 @@ function renderInicio(){
      iria só acumulando. Zerar aqui também devolve os gráficos completos a cada volta
      ao Início — quem desligou uma fatia não vai encontrá-la desligada amanhã. */
   Object.keys(ROSCAS).forEach(k=> delete ROSCAS[k]);
+  Object.keys(DIARIOS).forEach(k=> delete DIARIOS[k]);
   garantirBaseRecebimentos();
   const mes = state.mesAtual;
   document.getElementById('iniMes').textContent = mesLabel(mes);
@@ -13526,7 +14153,13 @@ function renderInicio(){
   /* Só as formas que são dinheiro entrando: Juros/Haver não passou pelo caixa e
      inflaria o gráfico do que foi recebido. */
   const gCaixa = FORMAS_EM_CAIXA.map((f,i)=> ({rot:f.rotulo, valor:porForma[f.chave], cor:CORES_GRAFICO[i]}));
-  const gDias = totaisCaixa.map(t=> ({rot: t.iso.slice(8,10)+'/'+t.iso.slice(5,7), valor: t.entrou}));
+  /* `rotLongo` é o que a dica do gráfico mostra: no eixo cabe só "28/08", mas na dica
+     vale a data por extenso — é ela que responde "que dia foi esse pico?". */
+  const gDias = totaisCaixa.map(t=> ({
+    rot: t.iso.slice(8,10)+'/'+t.iso.slice(5,7),
+    rotLongo: diaPorExtenso(t.iso),
+    valor: t.entrou
+  }));
   const gEntradaSaida = [
     {rot:'Entrou', valor: caixaEntrou, cor: CORES_GRAFICO[0]},
     {rot:'Saiu',   valor: caixaSaiu,   cor: CORES_GRAFICO[4]}
@@ -13541,8 +14174,9 @@ function renderInicio(){
         'O total dos vencimentos de ' + mesLabel(mes) + ': o que o colaborador leva para casa e o que fica retido em desconto.',
         svgRosca(gFolha, 'Vencimentos')) +
       cardGrafico('Entradas do caixa dia a dia',
-        'Quanto entrou em cada dia de ' + mesLabel(mesCaixa) + '. O valor em destaque é o melhor dia.',
-        svgLinha(gDias, {cor: CORES_GRAFICO[0]})) +
+        'Quanto entrou em cada dia de ' + mesLabel(mesCaixa) + ', com o resumo do mês em cima. ' +
+        'Escolha barras ou curva, e passe o mouse num dia para ver a data e o valor.',
+        svgDiario(gDias, {cor: CORES_GRAFICO[0], modo: 'barras'})) +
       cardGrafico('Evolução da folha de pagamento',
         'Líquido pago em cada mês. A barra escura é a competência aberta.',
         svgBarras(evolucaoFolha, {curto:true})) +
