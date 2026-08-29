@@ -8741,9 +8741,14 @@ const FORMAS_RECEBIMENTO = [
      pequena — o cliente leva a diferença de volta em dinheiro ou pix. */
   {chave:'cheque',      rotulo:'Cheque',      comTroco:true,
    icone:'<rect x="2" y="5" width="20" height="14" rx="2"/><line x1="6" y1="9.5" x2="13" y2="9.5"/><path d="M6 15c1.6-2.2 3.2 1.6 4.8-.6"/>'},
-  /* naoEntraNoCaixa: abate a conta do cliente mas NÃO é dinheiro entrando. É o caso do
-     mercado que devia ao cliente e usou esse crédito como parte do pagamento — a conta
-     fica quitada, e nada disso aparece no fechamento do caixa nem na gaveta. */
+  /* naoEntraNoCaixa: abate a conta do cliente mas NÃO é dinheiro entrando. É o crédito
+     que o MERCADO DEVE ao cliente sendo usado para pagar — a conta fica quitada, e nada
+     disso aparece no fechamento do caixa nem na gaveta.
+
+     E o crédito costuma ser maior que a conta: o cliente quita os 50 que devia e ainda
+     tem 150 a receber. Esses 150 saem como troco, igual a qualquer outro — em dinheiro,
+     e aí a gaveta perde 150 sem ter ganhado nada antes; ou em notinha branca, e aí quem
+     paga é o caixa da frente e a nossa gaveta não é tocada. */
   {chave:'haver',       rotulo:'Juros/Haver', naoEntraNoCaixa:true,
    icone:'<line x1="19" y1="5" x2="5" y2="19"/><circle cx="7.5" cy="7.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/>'}
 ];
@@ -9880,26 +9885,42 @@ function atualizarSomatorioRec(){
       '<div class="rs-nota">sai do ' + nomeTrocoForma + ' do caixa</div></div>');
   }
   if(notinha > 0){
+    /* Pagamento só em Juros/Haver não põe nada na gaveta: o vale sai do crédito que o
+       mercado devia, não de uma nota entregue. Dizer "fica na gaveta" ali seria falso. */
+    const soHaverAqui = r2(formas.haver) > 0 && r2(bruto - formas.haver) <= 0.004;
     partes.push('<div class="rs-bloco rs-notinha"><div class="rs-rot">Notinha branca</div>' +
       '<div class="rs-val">'+fmtMoeda(notinha)+'</div>' +
-      '<div class="rs-nota">fica na gaveta; o cliente retira na frente</div></div>');
+      '<div class="rs-nota">' + (soHaverAqui
+        ? 'crédito do cliente; ele retira na frente'
+        : 'fica na gaveta; o cliente retira na frente') + '</div></div>');
   }
 
   document.getElementById('recSomatorio').innerHTML = partes.join('');
-  atualizarCaixaTrocoRec(bruto, troco, notinha, total, sugerido);
+  atualizarCaixaTrocoRec(bruto, troco, notinha, total, sugerido, r2(formas.haver));
 }
 
 /* A linha embaixo do quadro do troco: diz, em português, o que vai acontecer com aquele
    dinheiro. É a frase que impede a confusão entre os dois casos, porque o número é o
    mesmo nos dois e só o destino muda. */
-function atualizarCaixaTrocoRec(bruto, troco, notinha, total, sugerido){
+function atualizarCaixaTrocoRec(bruto, troco, notinha, total, sugerido, haver){
   const txt = document.getElementById('recTrocoTxt');
   const btn = document.getElementById('btnRecTrocoAuto');
   if(!txt || !btn) return;
   const valor = r2(troco + notinha);
   const ehNotinha = document.getElementById('recTrocoNotinha').checked;
+  /* Quando o pagamento é só Juros/Haver, nada entrou na gaveta: o cliente não trouxe
+     nota nenhuma, usou o crédito que o mercado devia a ele. Dizer "entra tal valor na
+     gaveta" nesse caso seria mentira, e é justamente o caso em que a pessoa mais precisa
+     entender para onde o dinheiro está indo. */
+  const soHaver = r2(haver) > 0 && r2(bruto - haver) <= 0.004;
 
-  if(valor > 0 && ehNotinha){
+  if(valor > 0 && soHaver){
+    txt.innerHTML = 'O mercado devia <b>' + fmtMoeda(haver) + '</b> ao cliente: <b>' +
+      fmtMoeda(r2(bruto - valor)) + '</b> quitam a conta e os ' + fmtMoeda(valor) + ' restantes ' +
+      (ehNotinha
+        ? 'saem em notinha branca — quem paga é o caixa da frente e <b>a nossa gaveta não é tocada.</b>'
+        : 'saem em dinheiro — <b>a gaveta perde ' + fmtMoeda(valor) + '</b> sem ter recebido nada antes.');
+  }else if(valor > 0 && ehNotinha){
     txt.innerHTML = 'Entra <b>' + fmtMoeda(bruto) + '</b> inteiro na gaveta, mas só <b>' +
       fmtMoeda(r2(bruto - valor)) + '</b> quitam a conta — os ' + fmtMoeda(valor) +
       ' do papel o cliente retira nos caixas da frente. <b>Nada sai daqui.</b>';
@@ -10191,15 +10212,14 @@ function salvarRecebimento(){
     document.getElementById('recTrocoValor').focus();
     return;
   }
-  /* Notinha só faz sentido contra dinheiro que passou pela gaveta: não dá para emitir
-     vale de troco em cima de Juros/Haver, que nem entrou no caixa. */
-  const brutoEmCaixa = r2(FORMAS_EM_CAIXA.reduce((s,f)=> s + formas[f.chave], 0));
-  if(notinha > 0 && r2(troco + notinha) > brutoEmCaixa){
-    aviso.textContent = 'A notinha branca de ' + fmtMoeda(notinha) + ' passa do que entrou no caixa neste ' +
-      'pagamento (' + fmtMoeda(brutoEmCaixa) + ') — o vale sai da nota que o cliente entregou.';
-    document.getElementById('recTrocoValor').focus();
-    return;
-  }
+  /* Aqui existia uma trava exigindo que a notinha coubesse dentro do dinheiro que passou
+     pela gaveta, o que impedia emitir vale contra Juros/Haver. A premissa estava errada:
+     o Juros/Haver é dívida do mercado com o cliente, e quando ele paga uma conta menor
+     do que o crédito que tem, a diferença volta para ele — em dinheiro (aí sai da
+     gaveta) ou em notinha branca (aí quem paga é o caixa da frente, e a nossa gaveta não
+     é tocada). Nos dois casos o vale é legítimo sem um centavo ter entrado aqui.
+     O que continua valendo é a regra logo acima: não se devolve mais do que o cliente
+     trouxe, seja em nota ou em crédito. */
 
   /* Sem a abertura do dia o fechamento não fecha. Em vez de recusar o lançamento, abre
      o pedido do valor inicial e, assim que ele for informado, grava o recebimento. */
