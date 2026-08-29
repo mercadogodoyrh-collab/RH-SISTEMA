@@ -1014,7 +1014,7 @@
   .conta-box .cb-esq .rec-mods{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;}
   .conta-box .cb-esq .rec-mod{padding:8px 10px 7px;}
   .conta-box .cb-esq .rec-mod .rm-topo{font-size:10px;gap:5px;}
-  .conta-box .cb-esq .rec-mod .rm-topo svg{width:12px;height:12px;}
+  .conta-box .cb-esq .rec-mod .rm-topo svg{width:23px;height:23px;padding:3px;border-radius:7px;}
   .conta-box .cb-esq .rec-mod input{font-size:15.5px;padding:4px 0 2px;}
   .conta-box .cb-esq .rec-mod .rm-valor{font-size:13.5px;}
   .conta-box .cb-esq .rec-mod .rm-nota{font-size:9px;}
@@ -1032,13 +1032,34 @@
   .rec-mod .rm-topo{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;text-transform:uppercase;
     letter-spacing:.03em;color:var(--texto-fraco);}
   .rec-mod.preenchida .rm-topo{color:var(--marca-esc);}
-  .rec-mod .rm-topo svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none;}
+  /* O ícone da modalidade ganhou corpo e um selo atrás. Numa fileira de quadros iguais
+     é o desenho — a cédula, o cartão, o losango do Pix — que a pessoa acha antes de ler
+     o rótulo; a 14px ele era um risco cinza que não chegava a cumprir esse papel.
+     O selo é o que impede o ícone maior de virar mancha solta: ele encaixa o desenho
+     num bloco do tamanho da linha do rótulo, e o quadro continua sendo um quadro.
+     A cor se inverte quando a modalidade é preenchida — selo branco sobre o verde do
+     quadro cheio, verde claro sobre o branco do quadro vazio. */
+  .rec-mod .rm-topo svg{width:26px;height:26px;padding:4px;box-sizing:border-box;flex:none;
+    background:var(--marca-cl);border-radius:8px;color:var(--marca);
+    stroke:currentColor;fill:none;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;}
+  .rec-mod.preenchida .rm-topo svg{background:#fff;color:var(--marca-esc);}
   .rec-mod input{width:100%;border:none;border-bottom:1px solid var(--cinza-borda);background:none;font-size:17px;
     font-weight:700;padding:5px 0 3px;font-family:inherit;color:var(--texto);}
   .rec-mod input:focus{outline:none;border-bottom-color:var(--marca);}
-  .rec-mod .rm-resto{background:none;border:none;padding:2px 0 0;font-family:inherit;font-size:10.5px;
-    color:var(--marca);cursor:pointer;text-decoration:underline;visibility:hidden;}
-  .rec-mod .rm-resto.mostra{visibility:visible;}
+  .rec-mod .rm-resto,.rec-mod .rm-somar{background:none;border:none;padding:2px 0 0;font-family:inherit;
+    font-size:10.5px;color:var(--marca);cursor:pointer;text-decoration:underline;visibility:hidden;}
+  .rec-mod .rm-resto.mostra,.rec-mod .rm-somar.mostra{visibility:visible;}
+  /* Os dois atalhos do recebimento dividem a MESMA linha: ambos ocupam a célula 1/1 da
+     grade, então o quadro reserva a altura de um só e não cresce nem encolhe quando um
+     troca de lugar com o outro. (Na Loja o "lançar o restante" está sozinho e fica
+     solto dentro do quadro, sem esta caixa.) */
+  .rec-mod .rm-acoes{display:grid;}
+  .rec-mod .rm-acoes>button{grid-area:1/1;text-align:left;}
+  /* O atalho tem a mesma voz do "lançar o restante" — os dois nunca aparecem juntos,
+     então dar destaque a um deles só faria o quadro piscar de peso ao trocar. Do valor,
+     um seminegrito de leve: o suficiente para o olho achar o número sem que a linha
+     compita com o campo da modalidade logo acima. */
+  .rec-mod .rm-somar b{font-weight:600;}
   /* Modalidade com várias entradas (o cliente que paga em três cartões): as linhas
      empilham dentro do mesmo quadro. O quadro cresce para baixo, a largura não muda —
      é o que mantém a grade das modalidades inteira por mais cartões que entrem. */
@@ -1061,6 +1082,34 @@
   .rec-mod.preenchida .rm-nota{color:var(--marca-esc);opacity:.75;}
   .rec-mod .rm-soma{font-size:10.5px;color:var(--texto-fraco);padding-top:3px;}
   .rec-mod.preenchida .rm-soma{color:var(--marca-esc);}
+  /* --- o bastão do destaque ---
+     Um passo de cada vez fica aceso. Enquanto o nome do cliente é o que falta, é o
+     campo dele que carrega o verde da casa e o quadro do total espera em cinza; quando
+     o nome sai do campo, o verde volta para o total, que é onde ele sempre esteve.
+     O destaque do cliente é o próprio campo tingido, e não um quadro em volta dele:
+     um bloco com moldura e recheio ali empurraria o campo da data ao lado, e a linha
+     inteira dançaria a cada troca de foco. Do jeito que está, nada muda de tamanho —
+     só de cor. */
+  .rec-form.passo-cliente .rec-busca-wrap > label{color:var(--marca-esc);}
+  .rec-form.passo-cliente #recCliente{border-color:var(--marca);background:var(--marca-cl);
+    font-weight:700;color:var(--marca-esc);box-shadow:var(--foco);}
+  .rec-form.passo-cliente #recCliente::placeholder{color:var(--marca);opacity:.55;font-weight:400;}
+  .rec-form.passo-cliente .conta-box .cb-campo{background:var(--superficie);
+    border-color:var(--cinza-borda);
+    box-shadow:inset 0 1px 0 #fff, 0 2px 0 #e4eaed, 0 3px 7px rgba(20,45,32,.08);}
+  .rec-form.passo-cliente .conta-box .cb-campo label{color:var(--texto-fraco);}
+  .rec-form.passo-cliente .conta-box .cb-campo input{border-color:var(--cinza-borda);color:var(--texto);}
+
+  /* --- trava do lançamento: nada antes do nome do cliente --- */
+  .rec-trava{display:flex;align-items:center;gap:9px;background:var(--superficie);
+    border:1px dashed var(--cinza-borda);border-radius:9px;padding:9px 13px;
+    font-size:12.5px;color:var(--texto-fraco);margin-bottom:14px;}
+  .rec-trava b{color:var(--texto);font-weight:700;}
+  .rec-trava svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;
+    stroke-linecap:round;stroke-linejoin:round;flex:none;}
+  /* Apagado e sem clique. Os campos também levam `disabled` no JS — só o cinza não
+     impediria de chegar neles pelo Tab, e é por teclado que o balcão trabalha. */
+  .rec-form .travado{opacity:.5;filter:saturate(.3);pointer-events:none;}
   .rec-somatorio{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;
     background:var(--marca-cl);border:1px solid var(--marca);border-radius:10px;padding:13px 17px;margin:16px 0 0;}
   .rec-somatorio .rs-bloco .rs-rot{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--marca-esc);opacity:.8;}
@@ -1378,7 +1427,7 @@
   .barra-dia,.rec-ficha,.aviso-retro,.rec-editando,.troco-calc{border-radius:12px;}
 
   /* --- botões e quadros clicáveis: resposta ao toque --- */
-  .btn-icon,.btn-olho,.btn-dia,.chip-nuvem,.rec-sg,.cal-dia,.btn-voltar-hoje,.rm-add,.rm-resto,.rm-botao{
+  .btn-icon,.btn-olho,.btn-dia,.chip-nuvem,.rec-sg,.cal-dia,.btn-voltar-hoje,.rm-add,.rm-resto,.rm-somar,.rm-botao{
     transition:background var(--t-rapido) var(--suave), border-color var(--t-rapido) var(--suave),
                color var(--t-rapido) var(--suave), box-shadow var(--t-rapido) var(--suave),
                transform var(--t-rapido) var(--suave);}
@@ -1394,6 +1443,19 @@
   .btn-forma.ativa{box-shadow:var(--sombra-1);}
   .rec-mod{transition:border-color var(--t-medio) var(--suave), background var(--t-medio) var(--suave),
                       box-shadow var(--t-medio) var(--suave);}
+  /* O bastão passa de um campo para o outro na mesma cadência do resto da tela: se o
+     verde saltasse de lugar, a troca de passo pareceria um erro de desenho. */
+  #recCliente,.rec-busca-wrap > label,.conta-box .cb-campo,.conta-box .cb-campo label,
+  .conta-box .cb-campo input{
+    transition:border-color var(--t-medio) var(--suave), background var(--t-medio) var(--suave),
+               box-shadow var(--t-medio) var(--suave), color var(--t-medio) var(--suave);}
+  /* A trava abre desbotando, não piscando: o nome entra letra a letra e a tela
+     inteira acendendo de uma vez no primeiro caractere assustaria. */
+  #recContaBox,#recTrocoBox{transition:opacity var(--t-medio) var(--suave),
+                                       filter var(--t-medio) var(--suave);}
+  /* O selo do ícone vira junto com o quadro: se ele trocasse de cor de uma vez, a
+     modalidade preenchida piscaria em duas etapas. */
+  .rec-mod .rm-topo svg{transition:background var(--t-medio) var(--suave), color var(--t-medio) var(--suave);}
   /* --- relevo dos quadros de dentro do lançamento ---
      Mesma gramática das teclas da calculadora, em escala menor: uma aresta sólida
      embaixo é a espessura do quadro, e a sombra difusa depois dela é a distância até o
@@ -1908,7 +1970,7 @@
       <button class="btn btn-outline btn-sm" id="btnRecCancelarEdicao">Cancelar edição</button>
     </div>
 
-    <div class="rec-form">
+    <div class="rec-form" id="recForm">
       <div class="rec-linha" style="grid-template-columns:2fr 1fr;">
         <div class="campo rec-busca-wrap">
           <label for="recCliente">Cliente</label>
@@ -1924,12 +1986,21 @@
 
       <div class="rec-ficha" id="recFicha" style="display:none;"></div>
 
+      <!-- A trava do lançamento. Sem o nome do cliente não há onde gravar a soma, e
+           somar primeiro para lembrar de quem era depois é como uma conta inteira ia
+           parar no cliente errado. O aviso some assim que o nome entra: é um passo do
+           caminho, não um erro. -->
+      <div class="rec-trava" id="recTravaAviso">
+        <svg viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        <span>Comece pelo <b>nome do cliente</b> — a soma das notinhas e as formas de pagamento abrem em seguida.</span>
+      </div>
+
       <!-- A tela em duas colunas: à esquerda o caminho do lançamento (o total e depois
            as formas de pagamento), à direita a calculadora, parada no mesmo lugar do
            começo ao fim. O total ganhou corpo grande porque é o número que o resto da
            tela persegue — as modalidades, o troco e a notinha só fazem sentido contra
            ele, e um campo do tamanho dos outros não avisava nada. -->
-      <div class="conta-box">
+      <div class="conta-box" id="recContaBox">
         <div class="cb-esq">
           <div class="secao-title">Total da conta</div>
           <div class="cb-campo">
@@ -9621,7 +9692,12 @@ function montarModsRec(){
             '<div class="rm-soma" data-soma="'+f.chave+'"></div>' +
             '<input type="hidden" id="recPg_'+f.chave+'" data-forma="'+f.chave+'" value="">'
           : '<input type="text" inputmode="decimal" id="recPg_'+f.chave+'" data-forma="'+f.chave+'" placeholder="0,00">')) +
-      '<button type="button" class="rm-resto" data-resto="'+f.chave+'">lançar o restante</button>' +
+      /* A linha de atalho do quadro. Ver o CSS de .rm-acoes: os dois botões dividem
+         a mesma linha e só um aparece de cada vez. */
+      '<div class="rm-acoes">' +
+        '<button type="button" class="rm-somar" data-somar="'+f.chave+'">adicionar valor</button>' +
+        '<button type="button" class="rm-resto" data-resto="'+f.chave+'">lançar o restante</button>' +
+      '</div>' +
     '</div>'
   ).join('');
   FORMAS_RECEBIMENTO.filter(f=> f.multiplo).forEach(f=> montarLinhasMod(f.chave, ['']));
@@ -9651,27 +9727,42 @@ function montarModsRec(){
       atualizarSomatorioRec();
       return;
     }
+    const bSomar = e.target.closest('button[data-somar]');
+    if(bSomar){ escreverNaMod(bSomar.dataset.somar, valorCalculadoRec()); return; }
     const btn = e.target.closest('button[data-resto]');
     if(!btn) return;
     const chave = btn.dataset.resto;
     const outras = FORMAS_RECEBIMENTO.reduce((s,f)=> s + (f.chave===chave ? 0 : valorDaMod(f.chave)), 0);
-    const resto = r2(toNum(document.getElementById('recTotal').value) - outras);
-    const texto = resto > 0 ? resto.toFixed(2).replace('.',',') : '';
-    const f = FORMAS_RECEBIMENTO.find(x=> x.chave===chave);
-    let alvo;
-    if(f.multiplo){
-      /* Numa modalidade de várias linhas o restante vai para a primeira que estiver
-         vazia — ou para a última, se todas já tiverem valor. */
-      const campos = camposDaMod(chave);
-      alvo = campos.find(c=> !toNum(c.value)) || campos[campos.length-1];
-    }else{
-      alvo = document.getElementById('recPg_'+chave);
-    }
-    alvo.value = texto;
-    atualizarSomatorioRec();
-    alvo.focus();
+    escreverNaMod(chave, r2(toNum(document.getElementById('recTotal').value) - outras));
   });
   recModsMontadas = true;
+}
+
+/* O valor que a tela tem para oferecer aos atalhos: a soma das notinhas, quando a
+   calculadora somou alguma, e senão o total digitado à mão. Nos dois casos é o mesmo
+   número que está no campo do total — a somadora escreve nele — mas ler a lista
+   primeiro deixa dito de onde ele veio. */
+function valorCalculadoRec(){
+  const soma = somaNotasCompra();
+  return soma > 0 ? soma : r2(toNum(document.getElementById('recTotal').value));
+}
+
+/* Escrever um valor dentro de uma modalidade é o que os dois atalhos do quadro fazem;
+   muda só o número que cada um traz. */
+function escreverNaMod(chave, valor){
+  const f = FORMAS_RECEBIMENTO.find(x=> x.chave===chave);
+  let alvo;
+  if(f.multiplo){
+    /* Numa modalidade de várias linhas o valor vai para a primeira que estiver vazia —
+       ou para a última, se todas já tiverem valor. */
+    const campos = camposDaMod(chave);
+    alvo = campos.find(c=> !toNum(c.value)) || campos[campos.length-1];
+  }else{
+    alvo = document.getElementById('recPg_'+chave);
+  }
+  alvo.value = valor > 0 ? valor.toFixed(2).replace('.',',') : '';
+  atualizarSomatorioRec();
+  alvo.focus();
 }
 
 /* --- modalidades de várias entradas (cartão) --- */
@@ -9843,11 +9934,23 @@ function atualizarSomatorioRec(){
   const pago = r2(bruto - troco - notinha);
   const dif = r2(total - pago);
 
+  /* "Adicionar valor" é o atalho do caso mais comum do balcão: o cliente paga a conta
+     inteira numa modalidade só, e o número já está somado na calculadora ao lado. Ele
+     aparece enquanto NENHUMA modalidade tem valor — dali em diante quem manda é
+     "lançar o restante", que desconta o que já foi lançado e por isso nunca faz o
+     cliente pagar duas vezes o mesmo pedaço da conta. */
+  const aOferecer = valorCalculadoRec();
+  const podeSomar = aOferecer > 0.004 && bruto <= 0.004;
+
   FORMAS_RECEBIMENTO.forEach(f=>{
     const cx = document.querySelector('.rec-mod[data-mod="'+f.chave+'"]');
     cx.classList.toggle('preenchida', formas[f.chave] > 0);
     const resto = r2(total - (pago - formas[f.chave]));
-    cx.querySelector('.rm-resto').classList.toggle('mostra', total > 0 && resto > 0.004 && formas[f.chave] !== resto);
+    const bSomar = cx.querySelector('.rm-somar');
+    bSomar.innerHTML = 'adicionar valor <b>' + fmtMoeda(aOferecer) + '</b>';
+    bSomar.classList.toggle('mostra', podeSomar);
+    cx.querySelector('.rm-resto').classList.toggle('mostra',
+      !podeSomar && total > 0 && resto > 0.004 && formas[f.chave] !== resto);
     if(f.multiplo){
       const preenchidas = lerLinhasMod(f.chave).filter(v=> toNum(v) > 0).length;
       cx.querySelector('.rm-soma[data-soma="'+f.chave+'"]').textContent =
@@ -9946,8 +10049,45 @@ function atualizarCaixaTrocoRec(bruto, troco, notinha, total, sugerido, haver){
   }
 }
 
+/* ===================== A TRAVA DO LANÇAMENTO =====================
+   Nome do cliente primeiro; só depois a soma e as formas de pagamento. O caminho do
+   balcão é esse mesmo — se alguém pergunta "quanto deu?" antes de "de quem é?", a soma
+   já está feita e não tem onde ser gravada.
+
+   A trava aceita nome DIGITADO, não cliente escolhido na base: cliente novo é cadastrado
+   na hora do registro, e exigir o cadastro antes travaria o atendimento — que é o que
+   esta área inteira evita desde o começo. */
+/* O campo do cliente está com o foco? Guardado à mão porque dentro do próprio evento
+   de blur o `document.activeElement` já mudou de dono, e é exatamente nesse instante
+   que o bastão precisa mudar de lugar. */
+let recClienteFocado = false;
+
+/* Passa o bastão do destaque. O campo do cliente fica aceso enquanto ele é o passo —
+   está vazio, ou está com o foco — e o verde volta para o quadro do total assim que o
+   operador sai dali com um nome escrito. */
+function atualizarPassoRec(){
+  const inp = document.getElementById('recCliente');
+  const noCliente = recClienteFocado || inp.value.trim() === '';
+  document.getElementById('recForm').classList.toggle('passo-cliente', noCliente);
+}
+
+function atualizarTravaRec(){
+  atualizarPassoRec();
+  const liberado = document.getElementById('recCliente').value.trim() !== '';
+  ['recContaBox','recTrocoBox'].forEach(id=>{
+    const cx = document.getElementById(id);
+    if(!cx) return;
+    cx.classList.toggle('travado', !liberado);
+    /* `disabled` além do cinza: o Tab passa por dentro de um bloco só apagado, e no
+       balcão se anda pela tela no teclado. */
+    cx.querySelectorAll('input,button').forEach(el=> el.disabled = !liberado);
+  });
+  document.getElementById('recTravaAviso').style.display = liberado ? 'none' : '';
+}
+
 function atualizarFichaRec(){
   const ficha = document.getElementById('recFicha');
+  atualizarTravaRec();
   if(!recClienteSel){ ficha.style.display = 'none'; atualizarSomatorioRec(); return; }
   const c = clientePorId(recClienteSel);
   const res = resumoCliente(recClienteSel);
@@ -10051,10 +10191,16 @@ function ligarBuscaCliente(){
     abrirSugRec();
     atualizarFichaRec();
   });
-  inp.addEventListener('focus', abrirSugRec);
+  inp.addEventListener('focus', ()=>{
+    recClienteFocado = true;
+    atualizarPassoRec();
+    abrirSugRec();
+  });
   /* Ao sair do campo o nome digitado já aparece arrumado, para o operador ver como vai
      ficar gravado. Cliente escolhido na lista não é mexido: ali o nome é o da base. */
   inp.addEventListener('blur', ()=>{
+    recClienteFocado = false;
+    atualizarPassoRec();
     if(recClienteSel) return;
     const arrumado = arrumarNome(inp.value);
     if(arrumado !== inp.value) inp.value = arrumado;
@@ -10562,8 +10708,11 @@ document.getElementById('recTotal').addEventListener('keydown', (e)=>{
 });
 ligarBuscaCliente();
 /* Monta os campos das modalidades já na carga: excluir um lançamento pelo histórico
-   mexe no somatório da tela de lançamento mesmo que ela ainda não tenha sido aberta. */
+   mexe no somatório da tela de lançamento mesmo que ela ainda não tenha sido aberta.
+   E deixa a trava aplicada desde a carga, sem esperar a tela ser aberta: o HTML nasce
+   com o aviso à mostra e os campos soltos, e é aqui que os dois se acertam. */
 montarModsRec();
+atualizarTravaRec();
 
 /* --------------------------------------------------------------- retiradas do caixa
    O caixa administrativo não é só entrada: sai dinheiro para pagar fornecedor, cobrir
@@ -11651,9 +11800,12 @@ function renderHistorico(){
           const cls = (f.chave===formaSel) ? ' class="col-destaque"' : '';
           if(!toNum(r[f.chave])) return '<td'+cls+'>—</td>';
           const p = parcelasDe(r, f.chave);
-          const ehTroco = toNum(r.troco) > 0 && r.trocoForma === f.chave;
+          /* A modalidade mostra só o que ela recebeu. O troco que saiu daqui não ganha
+             observação: ele já foi descontado do valor da célula, e a linha "troco
+             devolvido" repetia embaixo do número uma coisa que o número já dizia.
+             A notinha branca continua anotada — mas na coluna dela, porque aquele
+             dinheiro não saiu de modalidade nenhuma: ficou na gaveta como papel. */
           return '<td'+cls+'>'+fmtMoeda(toNum(r[f.chave])) +
-            (ehTroco ? '<div class="rec-mini">troco devolvido</div>' : '') +
             (p.length > 1 ? '<div class="rec-mini">'+p.map(v=> fmtMoeda(v)).join(' + ')+'</div>' : '') + '</td>';
         }).join('') +
         '<td>'+(notinhaDe(r) ? fmtMoeda(notinhaDe(r)) : '—')+'</td>' +
