@@ -2301,8 +2301,25 @@
     <select id="hisFiltro">
       <option value="todos">Todas as situações</option>
       <option value="parciais">Somente pagamentos parciais</option>
+      <option value="quitados">Somente contas quitadas</option>
+      <option value="notinha">Somente com notinha branca</option>
+      <option value="troco">Somente com troco devolvido</option>
       <option value="sg-pendente">Somente pendentes de baixa no SG</option>
       <option value="sg-baixado">Somente já baixados no SG</option>
+    </select>
+    <!-- A ordem é da conferência, não do lançamento: alfabética para bater a tabela com
+         uma lista de nomes na mão, por valor pago para achar de uma vez as contas
+         grandes do dia. A ordem de chegada continua sendo a primeira da lista, porque é
+         ela que espelha o caderno. -->
+    <select id="hisOrdem">
+      <option value="recentes">Lançamento mais recente</option>
+      <option value="antigos">Lançamento mais antigo</option>
+      <option value="alfabetica">Cliente (A a Z)</option>
+      <option value="alfabetica-desc">Cliente (Z a A)</option>
+      <option value="maior-pago">Maior valor pago</option>
+      <option value="menor-pago">Menor valor pago</option>
+      <option value="maior-conta">Maior total da conta</option>
+      <option value="maior-falta">Maior valor em aberto</option>
     </select>
     <div class="spacer"></div>
     <button class="btn btn-outline" id="btnExportarRecebimentos">Exportar movimento do caixa</button>
@@ -11609,6 +11626,7 @@ function renderHistorico(){
   const mes = state.caixaDia || hojeISO();          /* aqui "mes" é o DIA de trabalho */
   const busca = norm(document.getElementById('hisBusca').value);
   const filtro = document.getElementById('hisFiltro').value;
+  const ordem = document.getElementById('hisOrdem').value;
   document.getElementById('hisDia').innerHTML = htmlSeletorDia();
 
   /* O relatório é do dia: quanto entrou, por qual forma, quanto saiu e quanto tem que
@@ -11753,18 +11771,55 @@ function renderHistorico(){
         ? fmtMoeda(r2(pendentesSg.reduce((s,r)=> s + pagoDoRecebimento(r), 0))) + ' ainda para lançar no SG'
         : 'tudo baixado no SG') +'</div></div>';
 
+  /* O que a conta ainda deve. Positivo é pagamento parcial; negativo é o cliente que
+     pagou a mais e ficou com crédito. */
+  const emAberto = (r)=> r2(toNum(r.total) - pagoDoRecebimento(r));
+
+  /* Ordem de chegada — a do caderno, e o padrão da tela. Serve de desempate para todas
+     as outras: dois clientes de mesmo nome, ou duas contas de mesmo valor, continuam
+     saindo na ordem em que foram lançados. */
+  const porChegada = (a,b)=> String(b.data||'').localeCompare(String(a.data||'')) ||
+                             String(b.criadoEm||'').localeCompare(String(a.criadoEm||''));
+  const porNome = (a,b)=> nomeCliente(a.clienteId)
+                            .localeCompare(nomeCliente(b.clienteId), 'pt-BR', {sensitivity:'base'});
+  const ORDENS = {
+    recentes:          porChegada,
+    antigos:           (a,b)=> -porChegada(a,b),
+    alfabetica:        (a,b)=> porNome(a,b)  || porChegada(a,b),
+    'alfabetica-desc': (a,b)=> -porNome(a,b) || porChegada(a,b),
+    'maior-pago':      (a,b)=> pagoDoRecebimento(b) - pagoDoRecebimento(a) || porNome(a,b),
+    'menor-pago':      (a,b)=> pagoDoRecebimento(a) - pagoDoRecebimento(b) || porNome(a,b),
+    'maior-conta':     (a,b)=> toNum(b.total) - toNum(a.total) || porNome(a,b),
+    'maior-falta':     (a,b)=> emAberto(b) - emAberto(a) || porNome(a,b)
+  };
+
   let lista = doMes.filter(r=>{
     if(busca && norm(nomeCliente(r.clienteId)).indexOf(busca) < 0) return false;
     if(formaSel !== 'todas' && !(toNum(r[formaSel]) > 0)) return false;
-    if(filtro==='parciais') return r2(toNum(r.total) - pagoDoRecebimento(r)) > 0.004;
+    if(filtro==='parciais') return emAberto(r) > 0.004;
+    if(filtro==='quitados') return Math.abs(emAberto(r)) <= 0.004;
+    if(filtro==='notinha')  return notinhaDe(r) > 0.004;
+    if(filtro==='troco')    return toNum(r.troco) > 0.004;
     if(filtro==='sg-pendente') return !baixaSgFeita(r);
     if(filtro==='sg-baixado') return baixaSgFeita(r);
     return true;
-  }).sort((a,b)=> String(b.data||'').localeCompare(String(a.data||'')) ||
-                  String(b.criadoEm||'').localeCompare(String(a.criadoEm||'')));
+  }).sort(ORDENS[ordem] || porChegada);
+
+  /* Fora da ordem de chegada, a coluna da hora deixa de explicar a sequência da tabela
+     — então a sequência passa a ser dita aqui, com todas as letras. */
+  const rotOrdem = {
+    antigos:           'do lançamento mais antigo para o mais recente',
+    alfabetica:        'em ordem alfabética de cliente',
+    'alfabetica-desc': 'em ordem alfabética invertida',
+    'maior-pago':      'do maior para o menor valor pago',
+    'menor-pago':      'do menor para o maior valor pago',
+    'maior-conta':     'da maior para a menor conta',
+    'maior-falta':     'do maior para o menor valor em aberto'
+  }[ordem] || '';
 
   document.getElementById('hisInfo').textContent =
     lista.length + ' de ' + doMes.length + ' recebimento(s) de conta em ' + dataBR(mes) + ' na tela.' +
+    (rotOrdem ? ' Ordenados ' + rotOrdem + '.' : '') +
     (t.ven.length || t.sup.length
       ? ' As vendas da loja e as entradas avulsas do dia estão nos blocos abaixo da tabela.' : '');
 
@@ -11827,6 +11882,7 @@ function renderHistorico(){
 
 buscaComEspera('hisBusca', renderHistorico);
 document.getElementById('hisFiltro').addEventListener('change', renderHistorico);
+document.getElementById('hisOrdem').addEventListener('change', renderHistorico);
 document.getElementById('hisFormas').addEventListener('click', (e)=>{
   const btn = e.target.closest('button[data-forma-btn]');
   if(!btn) return;
