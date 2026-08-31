@@ -496,6 +496,15 @@
   .bl-grupo.aberto .bl-seta{transform:rotate(180deg);}
   .bl-cabeca .bl-sino-grupo{margin-left:auto;}
   .bl-cabeca .bl-sino-grupo + .bl-seta{margin-left:7px;}
+  /* Cadeado da área trancada: aparece só enquanto o RH não foi liberado na sessão, e
+     empurra a seta para a direita como o sino faz. Fica escondido por padrão para que a
+     barra nasça sem ele — quem já digitou a senha não precisa ver a marca. */
+  .bl-cadeado{display:none;margin-left:auto;width:14px !important;height:14px !important;opacity:.8;flex:none;}
+  body.rh-travado .bl-cadeado{display:block;}
+  /* Com o sino de avisos à mostra, quem empurra para a direita é ele: o cadeado encosta
+     ao lado, senão os dois `margin-left:auto` dividiriam o vão e o sino ficaria solto. */
+  .bl-cabeca .bl-sino-grupo + .bl-cadeado{margin-left:7px;}
+  body.rh-travado .bl-cabeca[data-grupo-btn="rh"] .bl-cadeado + .bl-seta{margin-left:7px;}
   .bl-cabeca.tem-ativa{background:rgba(255,255,255,.10);color:#fff;}
   /* ---------- DROPDOWN DO MENU ----------
      Era `display:none` / `display:flex`: as telas da área apareciam de uma vez, com o
@@ -527,6 +536,7 @@
   .bl-grupo.aberto .bl-sub-int > .bl-item:nth-child(5){animation-delay:.12s;}
   .bl-grupo.aberto .bl-sub-int > .bl-item:nth-child(6){animation-delay:.145s;}
   .bl-grupo.aberto .bl-sub-int > .bl-item:nth-child(7){animation-delay:.17s;}
+  .bl-grupo.aberto .bl-sub-int > .bl-item:nth-child(8){animation-delay:.195s;}
   @keyframes bl-item-entra{from{opacity:0;transform:translateX(-9px);}to{opacity:1;transform:none;}}
   /* Houve aqui uma tentativa de segurar esta entrada enquanto a barra abria, para não
      criar sete animações no quadro mais caro. Saiu, porque estava errada: suspender uma
@@ -1394,6 +1404,14 @@
     font-weight:700;color:#6b4fa8;cursor:pointer;text-decoration:underline;text-underline-offset:2px;}
   .troco-calc .tc-usar:hover{color:#4d3780;}
   .troco-calc .tc-linha{flex-basis:100%;font-size:11.5px;line-height:1.45;}
+  /* Troco que não cabe no que o cliente entregou — ver "O TROCO NÃO CABE NO QUE FOI
+     ENTREGUE", no script. O quadro inteiro fica vermelho porque o número errado está
+     ali dentro, e é ali que a correção acontece: não adianta pintar só o somatório
+     lá embaixo, que é onde o engano aparecia disfarçado de dívida do cliente. */
+  .troco-box.troco-furado{border-color:var(--vermelho);background:#fdf1f0;}
+  .troco-box.troco-furado .tb-rot{color:var(--vermelho);}
+  .troco-box.troco-furado > input[type="text"]{color:var(--vermelho);border-color:#e8b4b0;}
+  .rec-somatorio .rs-bloco.rs-erro .rs-val{color:var(--vermelho);}
   @media(max-width:820px){
     .rec-linha{grid-template-columns:1fr;}
     .ven-linha{grid-template-columns:1fr;}
@@ -1513,7 +1531,9 @@
   .bl-nav::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.36);background-clip:content-box;}
 </style>
 </head>
-<body class="sem-animacao">
+<!-- `rh-travado` já no HTML: a barra nasce com o cadeado e com a área do RH recolhida,
+     em vez de mostrá-la aberta por um instante e fechar depois que o login resolve. -->
+<body class="sem-animacao rh-travado">
 
 <div class="overlay show" id="overlayLogin" style="z-index:200;">
   <div class="modal" style="max-width:360px;margin-top:12vh;">
@@ -1539,6 +1559,28 @@
   </div>
 </div>
 
+<!-- Trava do Recursos Humanos. Ver "A TRAVA DO RH", no script: entrar no sistema abre o
+     Caixa e a Loja, que é o trabalho do dia inteiro; o RH pede a senha outra vez, porque
+     salário, ponto e férias não são assunto de quem passa pelo computador do balcão. -->
+<div class="overlay" id="overlayTravaRh" style="z-index:190;">
+  <div class="modal" style="max-width:390px;">
+    <button class="modal-close" id="fecharTravaRh">✕</button>
+    <h2>Recursos Humanos</h2>
+    <div class="sub">Área restrita. Confirme a sua senha para abrir — a mesma com que você entrou no sistema.</div>
+    <form id="formTravaRh">
+      <div class="campo" style="margin-bottom:16px;">
+        <label for="travaRhSenha">Senha de <span id="travaRhQuem"></span></label>
+        <input type="password" id="travaRhSenha" required autocomplete="current-password">
+      </div>
+      <div id="travaRhErro" style="display:none;color:var(--vermelho);font-size:13px;margin-bottom:12px;"></div>
+      <div class="acoes-modal">
+        <button type="button" class="btn btn-outline" id="btnCancelarTravaRh">Cancelar</button>
+        <button type="submit" class="btn btn-primary" id="btnTravaRh">Abrir o RH</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <div id="appConteudo" style="display:none;">
 
 <aside class="barra-lateral" id="barraLateral">
@@ -1553,11 +1595,14 @@
     </button>
     <div class="bl-secao bl-rotulo">Áreas do sistema</div>
 
-    <div class="bl-grupo aberto" data-grupo="rh">
-      <button class="bl-item bl-cabeca" data-grupo-btn="rh" title="Recursos Humanos" aria-expanded="true">
+    <div class="bl-grupo" data-grupo="rh">
+      <button class="bl-item bl-cabeca" data-grupo-btn="rh" title="Recursos Humanos" aria-expanded="false">
         <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         <span class="bl-rotulo">Recursos Humanos</span>
         <span class="bl-sino bl-sino-grupo" id="sinoGrupoRh" style="display:none;">0</span>
+        <!-- O cadeado carrega `bl-rotulo` de propósito: na faixa de ícones ele some junto
+             com os nomes, como a seta do dropdown. -->
+        <svg class="bl-cadeado bl-rotulo" viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
         <svg class="bl-seta bl-rotulo" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
       <div class="bl-sub"><div class="bl-sub-int">
@@ -1641,6 +1686,10 @@
         <button class="bl-item bl-filho" data-aba="recSuprimento" title="Suprimento de Caixa">
           <svg viewBox="0 0 24 24"><path d="M12 21V7"/><polyline points="6 12.5 12 6.5 18 12.5"/><line x1="4" y1="3" x2="20" y2="3"/></svg>
           <span class="bl-rotulo">Suprimento de Caixa</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="recNotinhas" title="Notinhas Brancas">
+          <svg viewBox="0 0 24 24"><path d="M5 3h14v18l-3.5-2-3.5 2-3.5-2L5 21z"/><line x1="9" y1="8.5" x2="15" y2="8.5"/><line x1="9" y1="12.5" x2="13" y2="12.5"/></svg>
+          <span class="bl-rotulo">Notinhas Brancas</span>
         </button>
         <button class="bl-item bl-filho" data-aba="recLancamentos" title="Lançamentos">
           <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3.5" y1="6" x2="3.51" y2="6"/><line x1="3.5" y1="12" x2="3.51" y2="12"/><line x1="3.5" y1="18" x2="3.51" y2="18"/></svg>
@@ -2217,6 +2266,70 @@
     </div>
 
     <div class="rec-bloco" id="supUltimos"></div>
+  </main>
+</div>
+
+<!-- ===================== CAIXA ADMINISTRATIVO: notinhas brancas avulsas =====================
+     A notinha branca que NÃO é troco de nada: o escritório emite o papel para pegar
+     dinheiro nos caixas da frente — troca de moedas, uma compra, a troca de um produto.
+     Não entra em conta nenhuma do caixa daqui; é uma lista de conferência, para quando
+     alguém for bater os PDVs e encontrar os papéis lá na frente. -->
+<div id="viewRecNotinhas" style="display:none;">
+  <main>
+    <div class="dash-topo">
+      <div>
+        <h2>Notinhas brancas avulsas</h2>
+        <div class="dash-sub">O papel que o escritório emite <b>sem ser troco</b> de um recebimento ou de uma venda —
+          troca de moedas, uma compra, a troca de um produto. O dinheiro sai no caixa da frente, não da nossa gaveta:
+          <b>estes lançamentos não mudam nenhum valor do caixa</b>. Servem para conferir os PDVs e saber de onde veio
+          cada papel.</div>
+      </div>
+    </div>
+
+    <div id="ntaDia"></div>
+
+    <div class="aviso-retro" id="ntaAvisoData">
+      <span id="ntaAvisoDataTxt"></span>
+      <div class="spacer" style="flex:1;"></div>
+      <button type="button" class="btn-voltar-hoje" data-dia-hoje="1">Voltar para hoje</button>
+    </div>
+
+    <div class="rec-editando" id="ntaEditandoAviso">
+      <span id="ntaEditandoTxt"></span>
+      <div class="spacer" style="flex:1;"></div>
+      <button class="btn btn-outline btn-sm" id="btnNtaCancelarEdicao">Cancelar edição</button>
+    </div>
+
+    <div class="rec-form">
+      <div class="rec-linha">
+        <div class="campo">
+          <label for="ntaMotivo">Motivo da notinha</label>
+          <input type="text" id="ntaMotivo" autocomplete="off" placeholder="Ex.: troca de moedas para o caixa 3">
+          <div class="campo-nota">Escreva de um jeito que se entenda daqui a seis meses, na hora de conferir o PDV.</div>
+        </div>
+        <div class="campo">
+          <label for="ntaData">Data</label>
+          <input type="date" id="ntaData">
+        </div>
+        <div class="campo">
+          <label for="ntaValor">Valor da notinha</label>
+          <input type="text" inputmode="decimal" id="ntaValor" placeholder="0,00">
+        </div>
+      </div>
+
+      <div class="campo">
+        <label for="ntaObs">Observação (opcional)</label>
+        <input type="text" id="ntaObs" placeholder="Ex.: retirada pela Bruna no caixa 3">
+      </div>
+
+      <div class="rec-acoes">
+        <span class="rec-aviso" id="ntaAviso"></span>
+        <button class="btn btn-outline btn-alto" id="btnNtaLimpar">Limpar</button>
+        <button class="btn btn-primary btn-alto" id="btnNtaSalvar">Registrar notinha</button>
+      </div>
+    </div>
+
+    <div class="rec-bloco" id="ntaUltimas"></div>
   </main>
 </div>
 
@@ -3043,7 +3156,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '24/08/2026a · Sessão separada do Estoque';
+const VERSAO_SISTEMA = '31/08/2026b · Notinhas avulsas, troco do crédito e trava do RH';
 
 const SUPABASE_URL  = 'https://vieafcgghboxwhultile.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_HaMcgvr_2xmWYotvzetmVA_yscPz2eT';
@@ -3070,10 +3183,17 @@ const NOMES_USUARIO = {
   'igor.andrade@rh.local': 'Igor Andrade',
 };
 
+/* O e-mail de quem está dentro. Guardado porque a trava do RH confere a senha contra a
+   PRÓPRIA conta logada — não contra uma senha do sistema, que envelheceria escrita aqui
+   e valeria para todo mundo. Ver "A TRAVA DO RH". */
+let emailLogado = '';
+
 function mostrarApp(session){
   document.getElementById('overlayLogin').classList.remove('show');
   document.getElementById('appConteudo').style.display = '';
   const email = session && session.user && session.user.email;
+  emailLogado = email || '';
+  travarRh();   /* entrar no sistema não abre o RH: ele pede a senha de novo */
   document.getElementById('usuarioLogado').textContent = NOMES_USUARIO[email] || email || '';
   liberarAnimacoes();
   conectarBanco();
@@ -3183,7 +3303,103 @@ document.getElementById('formLogin').addEventListener('submit', async (e)=>{
 
 document.getElementById('btnLogout').addEventListener('click', async ()=>{
   if(db) await db.auth.signOut();
+  travarRh();
   mostrarLogin();
+});
+
+/* ===================== A TRAVA DO RH =====================
+   Entrar no sistema abre o Caixa e a Loja — é o trabalho do dia inteiro, feito num
+   computador que fica no balcão e raramente está sozinho. O Recursos Humanos é outra
+   coisa: salário, ponto, férias e o financeiro da folha. Por isso ele pede a senha
+   OUTRA VEZ, na primeira vez que alguém entra na área.
+
+   Três decisões que valem a pena estar escritas:
+
+   • quem confere a senha é o BANCO, contra a conta que está logada — `signInWithPassword`
+     com o e-mail da sessão. Não existe senha do RH guardada aqui dentro: uma senha
+     escrita no arquivo vale para todo mundo, não muda quando alguém sai da empresa, e
+     está publicada no GitHub Pages junto com o resto;
+
+   • a liberação dura a SESSÃO e mora só na memória. Recarregou a página, trocou de
+     usuário ou saiu, tranca de novo. Nada disso vai para o cache nem para o banco —
+     permissão gravada é permissão que sobrevive a quem não devia;
+
+   • sem internet a senha não tem como ser conferida, e aí a área NÃO abre. É o contrário
+     do que `permissaoRH()` faz na entrada do sistema, e de propósito: lá tratar a rede
+     fora como falta de permissão poria a equipe inteira para fora do próprio sistema;
+     aqui, deixar entrar sem conferir é o mesmo que não ter trava.
+
+   O que a trava NÃO cobre, e é bom saber: a tela de Início continua mostrando os números
+   da folha do mês para a diretoria. Ela não é uma tela do RH — se um dia esses blocos
+   também tiverem que ficar atrás da senha, é lá que se mexe. */
+let rhLiberado = false;          /* liberado nesta sessão? só na memória, de propósito */
+let rhDepoisDaSenha = null;      /* o que fazer assim que a senha for aceita */
+
+function travarRh(){
+  rhLiberado = false;
+  document.body.classList.add('rh-travado');
+  /* A área volta recolhida: um dropdown aberto embaixo de um cadeado é um convite a
+     clicar em cada item para descobrir que nenhum abre. */
+  const grupo = document.querySelector('.bl-grupo[data-grupo="rh"]');
+  if(grupo) grupo.classList.remove('aberto');
+  if(typeof marcarGrupos === 'function') marcarGrupos();
+}
+
+function pedirSenhaRh(depois){
+  rhDepoisDaSenha = (typeof depois === 'function') ? depois : null;
+  document.getElementById('travaRhQuem').textContent =
+    document.getElementById('usuarioLogado').textContent || 'você';
+  document.getElementById('travaRhSenha').value = '';
+  const erro = document.getElementById('travaRhErro');
+  erro.textContent = ''; erro.style.display = 'none';
+  document.getElementById('overlayTravaRh').classList.add('show');
+  setTimeout(()=> document.getElementById('travaRhSenha').focus(), 60);
+}
+
+function fecharTravaRh(){
+  document.getElementById('overlayTravaRh').classList.remove('show');
+  /* A senha digitada não fica no campo esperando a próxima pessoa. */
+  document.getElementById('travaRhSenha').value = '';
+  rhDepoisDaSenha = null;
+}
+
+document.getElementById('formTravaRh').addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const senha = document.getElementById('travaRhSenha').value;
+  const erro = document.getElementById('travaRhErro');
+  const btn  = document.getElementById('btnTravaRh');
+  erro.style.display = 'none';
+  if(!db || !emailLogado){
+    erro.textContent = 'Sem conexão com o banco — a senha não tem como ser conferida agora.';
+    erro.style.display = 'block';
+    return;
+  }
+  btn.disabled = true; btn.textContent = 'Conferindo…';
+  try{
+    const { error } = await db.auth.signInWithPassword({ email: emailLogado, password: senha });
+    if(error) throw error;
+    rhLiberado = true;
+    document.body.classList.remove('rh-travado');
+    /* O destino é guardado ANTES de fechar, porque fechar limpa o recado. */
+    const depois = rhDepoisDaSenha;
+    fecharTravaRh();
+    if(depois) depois();
+  }catch(err){
+    erro.textContent = 'Senha incorreta.';
+    erro.style.display = 'block';
+    document.getElementById('travaRhSenha').value = '';
+    document.getElementById('travaRhSenha').focus();
+  }finally{
+    btn.disabled = false; btn.textContent = 'Abrir o RH';
+  }
+});
+document.getElementById('fecharTravaRh').addEventListener('click', fecharTravaRh);
+document.getElementById('btnCancelarTravaRh').addEventListener('click', fecharTravaRh);
+/* Clicar fora fecha, como nos outros modais — mas passando por `fecharTravaRh`, que é
+   quem limpa o campo da senha. O `fecharAoClicarFora` genérico só tira a janela da tela
+   e deixaria a senha digitada esperando a próxima pessoa que abrisse a área. */
+document.getElementById('overlayTravaRh').addEventListener('click', (e)=>{
+  if(e.target.id === 'overlayTravaRh') fecharTravaRh();
 });
 
 let state = carregarCache();
@@ -3289,6 +3505,7 @@ function estadoParaNuvem(){
   delete copia.produtos;
   delete copia.vendas;
   delete copia.suprimentos;
+  delete copia.notinhasAvulsas;
   /* Ajuste de tela não é dado do sistema e não pode viajar entre os computadores: o dia
      que estou olhando e o filtro de modalidade são meus, desta sessão. Já travaram o
      Relatório uma vez — o filtro ficou em "Cheque", foi salvo, chegou nas três máquinas
@@ -7710,6 +7927,7 @@ const ABAS = {
   recLancar:    {view:'viewRecLancar',    titulo:'Lançar Recebimento',         grupo:'rec'},
   recRetirada:  {view:'viewRecRetirada',  titulo:'Retirada de Caixa',          grupo:'rec'},
   recSuprimento:{view:'viewRecSuprimento',titulo:'Suprimento de Caixa',        grupo:'rec'},
+  recNotinhas:  {view:'viewRecNotinhas',  titulo:'Notinhas Brancas Avulsas',   grupo:'rec'},
   recLancamentos:{view:'viewRecLancamentos', titulo:'Lançamentos',             grupo:'rec'},
   recBalanco:   {view:'viewRecBalanco',   titulo:'Balanço Mensal do Caixa',    grupo:'rec'},
   recClientes:  {view:'viewRecClientes',  titulo:'Clientes',                   grupo:'rec'},
@@ -7741,7 +7959,14 @@ function marcarGrupos(){
 }
 
 function trocarAba(aba){
-  if(!ABAS[aba]) aba = 'dashboard';
+  /* Tela desconhecida caía no Painel, que é do RH. Com a trava ligada isso viraria um
+     pedido de senha vindo do nada — o pouso seguro passa a ser o Início. */
+  if(!ABAS[aba]) aba = rhLiberado ? 'dashboard' : 'inicio';
+  /* Ver "A TRAVA DO RH". O porteiro fica AQUI, e não só no clique do menu: todo caminho
+     para uma tela do RH passa por esta função — o botão da barra, o "abrir" dos avisos
+     do Início, e o `trocarAba('ponto')` que a importação do cartão ponto dispara sozinha
+     no fim da leitura da planilha. Barrar só o clique deixaria três portas abertas. */
+  if(ABAS[aba].grupo === 'rh' && !rhLiberado){ pedirSenhaRh(()=> trocarAba(aba)); return; }
   state.abaAtual = aba;
   Object.keys(ABAS).forEach(k=>{
     document.getElementById(ABAS[k].view).style.display = (k===aba) ? '' : 'none';
@@ -7764,6 +7989,7 @@ function trocarAba(aba){
   if(aba==='recLancar') renderRecLancar(true);
   if(aba==='recRetirada') renderRetiradas(true);
   if(aba==='recSuprimento') renderSuprimentos(true);
+  if(aba==='recNotinhas') renderNotinhasAvulsas(true);
   if(aba==='recLancamentos') renderLancamentos();
   if(aba==='recBalanco') renderBalancoCaixa();
   if(aba==='recClientes') renderClientes();
@@ -7797,16 +8023,26 @@ document.querySelectorAll('.bl-item[data-aba]').forEach(t=> t.addEventListener('
    Na faixa de ícones as telas de dentro estão escondidas, então clicar no ícone da área
    não pode "abrir e não mostrar nada". Ele fixa a barra e já deixa aquela área aberta —
    e ela FICA onde a pessoa a colocou, em vez de se fechar sozinha um segundo depois. */
+function alternarPelaCabeca(cab){
+  const grupo = cab.parentElement;
+  if(window.innerWidth > 900 && !document.body.classList.contains('menu-fixo')){
+    fixarMenu(true);
+    abrirGrupo(grupo.dataset.grupo);
+    return;
+  }
+  if(grupo.classList.contains('aberto')){ grupo.classList.remove('aberto'); marcarGrupos(); }
+  else abrirGrupo(grupo.dataset.grupo);
+}
 document.querySelectorAll('.bl-cabeca').forEach(cab=>{
   cab.addEventListener('click', ()=>{
-    const grupo = cab.parentElement;
-    if(window.innerWidth > 900 && !document.body.classList.contains('menu-fixo')){
-      fixarMenu(true);
-      abrirGrupo(grupo.dataset.grupo);
+    /* Ver "A TRAVA DO RH". Clicar no nome da área é o gesto que o escritório usa para
+       entrar nela — a senha é pedida aqui, antes de a lista de telas aparecer, e não
+       depois, quando a pessoa já escolheu para onde ia. */
+    if(cab.parentElement.dataset.grupo === 'rh' && !rhLiberado){
+      pedirSenhaRh(()=> alternarPelaCabeca(cab));
       return;
     }
-    if(grupo.classList.contains('aberto')){ grupo.classList.remove('aberto'); marcarGrupos(); }
-    else abrirGrupo(grupo.dataset.grupo);
+    alternarPelaCabeca(cab);
   });
 });
 
@@ -8838,6 +9074,11 @@ const FORMAS_RECEBIMENTO = [
      e aí a gaveta perde 150 sem ter ganhado nada antes; ou em notinha branca, e aí quem
      paga é o caixa da frente e a nossa gaveta não é tocada. */
   {chave:'haver',       rotulo:'Juros/Haver', naoEntraNoCaixa:true,
+   /* A instrução está aqui porque foi a falta dela que quebrou um lançamento real em
+      31/08/2026: o crédito era de 900,00, a conta de 565,62, e a operadora lançou aqui
+      só os 565,62 que quitavam a conta — o resto ela tentou pôr no troco, e o sistema
+      respondeu que a cliente ficara devendo. Neste campo entra o crédito CHEIO. */
+   nota:'lance o crédito CHEIO do cliente — o que passar da conta volta como troco',
    icone:'<line x1="19" y1="5" x2="5" y2="19"/><circle cx="7.5" cy="7.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/>'}
 ];
 
@@ -8866,6 +9107,8 @@ function garantirBaseRecebimentos(){
   if(!Array.isArray(state.produtos)) state.produtos = [];
   if(!Array.isArray(state.vendas)) state.vendas = [];
   if(!Array.isArray(state.suprimentos)) state.suprimentos = [];
+  /* Notinhas brancas avulsas: lista de conferência dos PDVs, sem efeito em valor nenhum. */
+  if(!Array.isArray(state.notinhasAvulsas)) state.notinhasAvulsas = [];
   if(!state.caixaDia) state.caixaDia = hojeISO();
   if(!state.recHisForma) state.recHisForma = 'todas';
 }
@@ -8911,7 +9154,12 @@ const CAIXA_TABELAS = {
      dois computadores vendendo ao mesmo tempo não se apagarem. */
   produtos:     {tabela:'caixa_produtos',     linha:(o)=> ({id:o.id, nome:o.nome||'', categoria:o.categoria||'', dados:o})},
   vendas:       {tabela:'caixa_vendas',       linha:(o)=> ({id:o.id, data:o.data||null, dados:o})},
-  suprimentos:  {tabela:'caixa_suprimentos',  linha:(o)=> ({id:o.id, data:o.data||null, dados:o})}
+  suprimentos:  {tabela:'caixa_suprimentos',  linha:(o)=> ({id:o.id, data:o.data||null, dados:o})},
+  /* As notinhas brancas avulsas entram aqui como qualquer outro registro do caixa —
+     linha própria, realtime, fila offline —, mesmo não mexendo em valor nenhum. O que
+     as diferencia é o que NÃO fazem: nenhum total do caixa as soma. Ver "NOTINHAS
+     BRANCAS AVULSAS". */
+  notinhasAvulsas: {tabela:'caixa_notinhas', linha:(o)=> ({id:o.id, data:o.data||null, dados:o})}
 };
 /* Passando deste valor devido — mais de R$ 500, não exatamente R$ 500 — o cliente sai
    com a linha inteira vermelha na aba Clientes e a marca ANALISAR DÉBITOS DO CLIENTE:
@@ -8996,7 +9244,7 @@ async function apagarDoCaixa(tipo, id){
 
 function assinaturaCaixa(){
   return JSON.stringify([state.clientes, state.recebimentos, state.retiradas, state.aberturas,
-                         state.produtos, state.vendas, state.suprimentos]);
+                         state.produtos, state.vendas, state.suprimentos, state.notinhasAvulsas]);
 }
 
 function renderCaixaAtual(){
@@ -9013,6 +9261,7 @@ function renderCaixaAtual(){
   }
   if(state.abaAtual === 'recRetirada')  renderRetiradas();
   if(state.abaAtual === 'recSuprimento') renderSuprimentos();
+  if(state.abaAtual === 'recNotinhas')   renderNotinhasAvulsas();
   if(state.abaAtual === 'recLancamentos') renderLancamentos();
   if(state.abaAtual === 'recBalanco')     renderBalancoCaixa();
   if(state.abaAtual === 'recClientes')  renderClientes();
@@ -9404,6 +9653,9 @@ function recebimentosDoDia(iso){ return (state.recebimentos||[]).filter(r=> Stri
 function retiradasDoDia(iso){ return (state.retiradas||[]).filter(r=> String(r.data||'') === iso); }
 function vendasDoDia(iso){ return (state.vendas||[]).filter(v=> String(v.data||'') === iso); }
 function suprimentosDoDia(iso){ return (state.suprimentos||[]).filter(s=> String(s.data||'') === iso); }
+/* As notinhas avulsas ficam propositalmente FORA de `totaisDoDia`: nenhum total do caixa
+   as soma, e quem precisa delas as busca aqui. Ver "NOTINHAS BRANCAS AVULSAS". */
+function notinhasAvulsasDoDia(iso){ return (state.notinhasAvulsas||[]).filter(n=> String(n.data||'') === iso); }
 function aberturaDoDia(iso){ return (state.aberturas||[]).find(a=> a.id === iso) || null; }
 
 /* Fechamento do dia com TRÊS origens de entrada, e uma só gaveta:
@@ -9580,10 +9832,12 @@ function atualizarAvisosData(){
   const ret = document.getElementById('retData');
   const sup = document.getElementById('supData');
   const ven = document.getElementById('venData');
+  const nta = document.getElementById('ntaData');
   if(rec) pintarAvisoData('recAvisoData', 'recAvisoDataTxt', rec.value, !!recEditandoId);
   if(ret) pintarAvisoData('retAvisoData', 'retAvisoDataTxt', ret.value, !!retEditandoId);
   if(sup) pintarAvisoData('supAvisoData', 'supAvisoDataTxt', sup.value, !!supEditandoId);
   if(ven) pintarAvisoData('venAvisoData', 'venAvisoDataTxt', ven.value, !!venEditandoId);
+  if(nta) pintarAvisoData('ntaAvisoData', 'ntaAvisoDataTxt', nta.value, !!ntaEditandoId);
 }
 document.addEventListener('change', (e)=>{
   if(e.target && e.target.classList && e.target.classList.contains('caixa-dia')) trocarDiaCaixa(e.target.value);
@@ -9708,7 +9962,10 @@ function montarModsRec(){
               '<span class="rm-valor" data-valor="'+f.chave+'">0,00</span></button>' +
             '<div class="rm-soma" data-soma="'+f.chave+'"></div>' +
             '<input type="hidden" id="recPg_'+f.chave+'" data-forma="'+f.chave+'" value="">'
-          : '<input type="text" inputmode="decimal" id="recPg_'+f.chave+'" data-forma="'+f.chave+'" placeholder="0,00">')) +
+          : '<input type="text" inputmode="decimal" id="recPg_'+f.chave+'" data-forma="'+f.chave+'" placeholder="0,00">' +
+            /* A linha de resumo existe em todas as modalidades, e não só nas de várias
+               entradas: é onde o Juros/Haver mostra a subtração que devolve o troco. */
+            '<div class="rm-soma" data-soma="'+f.chave+'"></div>')) +
       /* A linha de atalho do quadro. Ver o CSS de .rm-acoes: os dois botões dividem
          a mesma linha e só um aparece de cada vez. */
       '<div class="rm-acoes">' +
@@ -9903,6 +10160,30 @@ document.getElementById('btnCancelarTroco').addEventListener('click', fecharModa
    quando o valor da notinha era digitado à parte e podia não bater com nada. */
 let trocoManualRec = false;   /* a pessoa digitou por cima do calculado? */
 
+/* ============ O TROCO NÃO CABE NO QUE FOI ENTREGUE ============
+   O troco é o que SOBRA: entregue menos conta. Um troco maior que essa sobra não é um
+   caso de balcão — é sempre um lançamento pela metade. Até 31/08/2026 o sistema aceitava
+   calado e transformava a diferença em dívida do cliente, que é a pior forma possível de
+   errar: o número saía errado com cara de número certo.
+
+   Foi o que aconteceu com a conta da LEONI MOURA: crédito de 900,00, conta de 565,62,
+   334,38 para levar em notinha branca. A operadora lançou em Juros/Haver só os 565,62
+   que quitavam a conta e pôs os 334,38 no troco — e o sistema respondeu "ficou devendo
+   231,24" numa conta que estava quitada. O lançamento acabou indo com o troco escrito na
+   observação, porque não havia como dizer aquilo ao sistema.
+
+   O erro não estava na conta: estava na pergunta. Em Juros/Haver entra o crédito CHEIO
+   que o mercado deve ao cliente, e é o sistema quem abate a conta e devolve o resto —
+   com 900,00 ali, os 334,38 de troco saem sozinhos. Esta função é a mesma para a tela e
+   para a gravação, para as duas nunca discordarem sobre o que é lançamento válido.
+
+   Devolve quanto FALTA no que o cliente entregou. Zero (ou negativo) é lançamento bom —
+   negativo é o cliente pedindo só parte do troco, que sempre foi permitido. */
+function excessoDeTroco(bruto, total, troco, notinha){
+  if(bruto <= 0.004 || total <= 0.004) return 0;   /* sem conta digitada não há o que conferir */
+  return r2(troco + notinha - Math.max(0, r2(bruto - total)));
+}
+
 function sincronizarTrocoRec(){
   const valor = Math.max(0, r2(toNum(document.getElementById('recTrocoValor').value)));
   const ehNotinha = document.getElementById('recTrocoNotinha').checked;
@@ -9950,6 +10231,13 @@ function atualizarSomatorioRec(){
   const notinha = r2(toNum(document.getElementById('recNotinha').value));
   const pago = r2(bruto - troco - notinha);
   const dif = r2(total - pago);
+  /* Ver "O TROCO NÃO CABE NO QUE FOI ENTREGUE". Quando sobra excesso, o que está errado
+     é o lançamento, não a dívida do cliente — e o quadro do troco fica vermelho. */
+  const excedeu = excessoDeTroco(bruto, total, troco, notinha);
+  /* O conserto do caso do Juros/Haver é sempre o mesmo: lançar o crédito cheio. Este é
+     o número que a pessoa precisa ver pronto, sem ter que somar de cabeça. */
+  const haverCheio = r2(formas.haver + excedeu);
+  document.getElementById('recTrocoBox').classList.toggle('troco-furado', excedeu > 0.004);
 
   /* "Adicionar valor" é o atalho do caso mais comum do balcão: o cliente paga a conta
      inteira numa modalidade só, e o número já está somado na calculadora ao lado. Ele
@@ -9973,6 +10261,19 @@ function atualizarSomatorioRec(){
       cx.querySelector('.rm-soma[data-soma="'+f.chave+'"]').textContent =
         preenchidas > 1 ? preenchidas + ' ' + f.plural + ' · ' + fmtMoeda(formas[f.chave]) : '';
     }
+    /* A subtração do crédito, escrita por extenso dentro do próprio quadro: é ali que a
+       pessoa está olhando quando digita o valor, e é ali que a dúvida "lanço o crédito
+       cheio ou só o que quita a conta?" aparece. Só sai quando o pagamento é SÓ crédito
+       — com dinheiro ou cartão junto, a subtração seria outra e a frase mentiria. */
+    if(f.naoEntraNoCaixa){
+      const soCredito = formas[f.chave] > 0.004 && r2(bruto - formas[f.chave]) <= 0.004;
+      cx.querySelector('.rm-soma[data-soma="'+f.chave+'"]').textContent =
+        (!soCredito || total <= 0.004) ? ''
+        : (formas[f.chave] > total + 0.004
+            ? fmtMoeda(formas[f.chave]) + ' − ' + fmtMoeda(total) + ' da conta = ' +
+              fmtMoeda(r2(formas[f.chave] - total)) + ' de troco'
+            : 'abate ' + fmtMoeda(formas[f.chave]) + ' da conta');
+    }
     if(f.comTroco){
       cx.querySelector('.rm-valor[data-valor="'+f.chave+'"]').textContent = fmtMoeda(formas[f.chave]);
       const nomeF = (FORMAS_RECEBIMENTO.find(x=> x.chave===trocoForma)||{rotulo:''}).rotulo.toLowerCase();
@@ -9983,7 +10284,13 @@ function atualizarSomatorioRec(){
   });
 
   let blocoDif;
-  if(dif > 0.004) blocoDif = {cls:'rs-falta', rot:'Ficou devendo', val:fmtMoeda(dif), nota:'a conta não foi paga por inteiro'};
+  /* O excesso vem ANTES de "ficou devendo": era exatamente aqui que o troco que não cabia
+     virava dívida do cliente. Agora o bloco diz que falta valor no que ele ENTREGOU. */
+  if(excedeu > 0.004) blocoDif = {cls:'rs-erro', rot:'Troco não confere', val:fmtMoeda(excedeu),
+    nota: formas.haver > 0.004
+      ? 'falta isto no que o cliente entregou — lance ' + fmtMoeda(haverCheio) + ' em Juros/Haver'
+      : 'falta este valor no que o cliente entregou'};
+  else if(dif > 0.004) blocoDif = {cls:'rs-falta', rot:'Ficou devendo', val:fmtMoeda(dif), nota:'a conta não foi paga por inteiro'};
   else if(dif < -0.004) blocoDif = {cls:'rs-troco', rot:'Pagou a mais', val:fmtMoeda(-dif), nota:'troco, ou pagamento de conta antiga'};
   else blocoDif = {cls:'rs-quitado', rot:'Diferença', val:fmtMoeda(0), nota:'conta quitada por inteiro'};
 
@@ -10033,8 +10340,21 @@ function atualizarCaixaTrocoRec(bruto, troco, notinha, total, sugerido, haver){
      gaveta" nesse caso seria mentira, e é justamente o caso em que a pessoa mais precisa
      entender para onde o dinheiro está indo. */
   const soHaver = r2(haver) > 0 && r2(bruto - haver) <= 0.004;
+  /* Ver "O TROCO NÃO CABE NO QUE FOI ENTREGUE". Esta frase vem antes de todas as outras
+     porque, quando o troco não cabe, nenhuma das outras é verdade — e é aqui, coladinho
+     no campo que está errado, que a pessoa precisa ler o número que resolve. */
+  const sobra = Math.max(0, r2(bruto - total));
+  const excedeu = excessoDeTroco(bruto, total, troco, notinha);
 
-  if(valor > 0 && soHaver){
+  if(excedeu > 0.004){
+    txt.innerHTML = '<b style="color:var(--vermelho);">Este troco não cabe.</b> O cliente entregou <b>' +
+      fmtMoeda(bruto) + '</b> numa conta de <b>' + fmtMoeda(total) + '</b>: sobram ' + fmtMoeda(sobra) +
+      ', e não ' + fmtMoeda(valor) + '. ' +
+      (r2(haver) > 0
+        ? 'Em Juros/Haver entra o crédito <b>cheio</b> que o mercado deve a ele — lance <b>' +
+          fmtMoeda(r2(haver + excedeu)) + '</b> ali e estes ' + fmtMoeda(valor) + ' saem sozinhos como troco.'
+        : 'Confira o que ele entregou nas modalidades, ou baixe o troco para ' + fmtMoeda(sobra) + '.');
+  }else if(valor > 0 && soHaver){
     txt.innerHTML = 'O mercado devia <b>' + fmtMoeda(haver) + '</b> ao cliente: <b>' +
       fmtMoeda(r2(bruto - valor)) + '</b> quitam a conta e os ' + fmtMoeda(valor) + ' restantes ' +
       (ehNotinha
@@ -10357,7 +10677,9 @@ function salvarRecebimento(){
 
   if(!nome){ aviso.textContent = 'Informe o nome do cliente.'; document.getElementById('recCliente').focus(); return; }
   if(total <= 0 && pago <= 0){ aviso.textContent = 'Informe o total da conta e a quantia paga.'; return; }
-  if(troco > 0 && troco >= bruto){
+  /* Devolver tudo o que o cliente entregou não é pagamento — vale para o troco e para a
+     notinha branca do mesmo jeito, que é o que a regra antiga só cobrava da notinha. */
+  if(r2(troco + notinha) > 0.004 && r2(troco + notinha) >= bruto){
     aviso.textContent = 'O troco não pode ser igual nem maior que o valor entregue pelo cliente.';
     document.getElementById('recTrocoValor').focus();
     return;
@@ -10367,11 +10689,21 @@ function salvarRecebimento(){
     document.getElementById('recTrocoValor').focus();
     return;
   }
-  /* A notinha é troco: ela sai do que o cliente entregou. Se não sobra nada para a
-     conta, o que foi digitado não descreve o que aconteceu no balcão. */
-  if(notinha > 0 && r2(troco + notinha) >= bruto){
-    aviso.textContent = 'A notinha branca não pode consumir tudo o que o cliente entregou — ' +
-      'o troco sai da nota, e a nota tem que cobrir a conta também.';
+  /* Ver "O TROCO NÃO CABE NO QUE FOI ENTREGUE". Antes daqui o lançamento passava e a
+     diferença virava dívida do cliente — um número errado com cara de número certo, que
+     só era descoberto quando alguém cobrava uma conta já quitada. O aviso traz o valor
+     que falta e, quando houve crédito, o número exato que resolve: sem isso a recusa
+     seria só uma porta fechada. */
+  const excedeu = excessoDeTroco(bruto, total, troco, notinha);
+  if(excedeu > 0.004){
+    aviso.textContent = 'O troco de ' + fmtMoeda(r2(troco + notinha)) + ' não cabe: o cliente entregou ' +
+      fmtMoeda(bruto) + ' numa conta de ' + fmtMoeda(total) + ', então sobram ' +
+      fmtMoeda(Math.max(0, r2(bruto - total))) + '. ' +
+      (formas.haver > 0.004
+        ? 'Em Juros/Haver lance o crédito cheio do cliente (' + fmtMoeda(r2(formas.haver + excedeu)) +
+          ') — o sistema abate a conta e devolve o resto como troco.'
+        : 'Confira o valor entregue nas modalidades, ou baixe o troco para ' +
+          fmtMoeda(Math.max(0, r2(bruto - total))) + '.');
     document.getElementById('recTrocoValor').focus();
     return;
   }
@@ -10548,6 +10880,10 @@ document.addEventListener('click', (e)=>{
   if(bRE){ editarRetirada(bRE.dataset.editarRet); return; }
   const bRX = e.target.closest('button[data-excluir-ret]');
   if(bRX){ excluirRetirada(bRX.dataset.excluirRet); return; }
+  const bNE = e.target.closest('button[data-editar-nta]');
+  if(bNE){ editarNotinhaAvulsa(bNE.dataset.editarNta); return; }
+  const bNX = e.target.closest('button[data-excluir-nta]');
+  if(bNX){ excluirNotinhaAvulsa(bNX.dataset.excluirNta); return; }
   const bSE = e.target.closest('button[data-editar-sup]');
   if(bSE){ editarSuprimento(bSE.dataset.editarSup); return; }
   const bSX = e.target.closest('button[data-excluir-sup]');
@@ -11078,6 +11414,181 @@ document.getElementById('supData').addEventListener('change', (e)=>{
 });
 document.getElementById('supOrigem').addEventListener('keydown', (e)=>{
   if(e.key==='Enter'){ e.preventDefault(); document.getElementById('supValor').focus(); }
+});
+
+/* ===================== NOTINHAS BRANCAS AVULSAS =====================
+   A notinha branca do recebimento e da venda é TROCO: o cliente entregou mais do que
+   devia e leva a diferença nos caixas da frente. Ver "NOTINHA BRANCA".
+
+   Esta aqui é outra coisa. É o papel que o próprio escritório emite sem haver troco
+   nenhum por trás — para pegar moedas nos caixas da frente, para comprar alguma coisa,
+   para acertar a troca de um produto. Não nasce de um lançamento: nasce de uma
+   necessidade, e o dinheiro sai lá na frente.
+
+   Por isso ela NÃO ENTRA EM CONTA NENHUMA daqui, e isso é a regra, não um esquecimento:
+     • não está em `totaisDoDia` — nem em `entrou`, nem em `porForma`, nem no
+       `dinheiroFinal` que diz o que tem que estar na gaveta;
+     • não se mistura com `t.notinha`, que é o troco dos recebimentos e das vendas e tem
+       o dinheiro correspondente guardado na nossa gaveta. Estas não têm: não recebemos
+       nada por elas.
+   Somar as duas coisas seria dizer que a gaveta tem um dinheiro que nunca chegou nela.
+
+   O que elas são: a lista de conferência dos PDVs. Quem for bater os caixas da frente
+   encontra os papéis lá e precisa saber de onde vieram — motivo, valor, dia e quem
+   lançou. É só isso, e é o bastante. */
+let ntaEditandoId = null;
+
+function somaNotinhasAvulsas(lista){
+  return r2((lista||[]).reduce((s,x)=> s + toNum(x.valor), 0));
+}
+
+function limparFormNta(){
+  ntaEditandoId = null;
+  document.getElementById('ntaEditandoAviso').classList.remove('show');
+  document.getElementById('btnNtaSalvar').textContent = 'Registrar notinha';
+  document.getElementById('ntaMotivo').value = '';
+  document.getElementById('ntaValor').value = '';
+  document.getElementById('ntaObs').value = '';
+  document.getElementById('ntaData').value = state.caixaDia || hojeISO();
+  document.getElementById('ntaAviso').textContent = '';
+  atualizarAvisosData();
+}
+
+/* `entrando` é true quando a tela é aberta pelo menu — ver "O DIA DE TRABALHO É HOJE". */
+function renderNotinhasAvulsas(entrando){
+  garantirBaseRecebimentos();
+  if(entrando && !ntaEditandoId) diaDeLancamento();
+  if(!ntaEditandoId) document.getElementById('ntaData').value = state.caixaDia || hojeISO();
+  document.getElementById('ntaDia').innerHTML = htmlSeletorDia();
+  atualizarAvisosData();
+  renderUltimasNta();
+}
+
+function renderUltimasNta(){
+  const caixa = document.getElementById('ntaUltimas');
+  const dia = state.caixaDia || hojeISO();
+  const lista = notinhasAvulsasDoDia(dia).slice()
+    .sort((a,b)=> String(b.criadoEm||'').localeCompare(String(a.criadoEm||'')));
+
+  if(!lista.length){
+    caixa.innerHTML = '<h3>Notinhas avulsas de ' + dataBR(dia) + '</h3>' +
+      '<div class="rec-vazio">Nenhuma notinha branca avulsa registrada neste dia.</div>';
+    return;
+  }
+  caixa.innerHTML = '<h3>Notinhas avulsas de ' + dataBR(dia) + '</h3>' +
+    '<div class="rec-mini" style="margin:-6px 0 10px;">' + lista.length + ' notinha(s) somando ' +
+      fmtMoeda(somaNotinhasAvulsas(lista)) + ' para conferir nos caixas da frente. ' +
+      '<b>Nenhum valor do caixa muda por causa delas.</b></div>' +
+    '<table class="tabela-ponto"><thead><tr>' +
+    '<th class="esq">Data / hora</th><th class="esq">Motivo</th><th>Valor</th>' +
+    '<th class="esq">Registrada por</th><th></th></tr></thead><tbody>' +
+    lista.map(x=>
+      '<tr>' +
+      celulaDataHora(x.data, x.criadoEm) +
+      '<td class="esq"><span class="rec-cli-nome">'+escHtml(x.motivo)+'</span>' +
+        (x.obs ? '<div class="rec-mini">'+escHtml(x.obs)+'</div>' : '') + '</td>' +
+      '<td>'+fmtMoeda(toNum(x.valor))+'</td>' +
+      '<td class="esq rec-mini">'+escHtml(x.usuario||'—')+'</td>' +
+      '<td><div class="rec-acoes-linha">' +
+        '<button class="btn btn-outline btn-sm" data-editar-nta="'+x.id+'">Editar</button>' +
+        '<button class="btn btn-vermelho btn-sm" data-excluir-nta="'+x.id+'">Excluir</button>' +
+      '</div></td></tr>'
+    ).join('') + '</tbody></table>';
+}
+
+function salvarNotinhaAvulsa(){
+  garantirBaseRecebimentos();
+  const aviso = document.getElementById('ntaAviso');
+  const motivo = document.getElementById('ntaMotivo').value.trim();
+  const valor = r2(toNum(document.getElementById('ntaValor').value));
+
+  if(!motivo){ aviso.textContent = 'Informe o motivo da notinha.'; document.getElementById('ntaMotivo').focus(); return; }
+  if(valor <= 0){ aviso.textContent = 'Informe o valor da notinha.'; document.getElementById('ntaValor').focus(); return; }
+  aviso.textContent = '';
+
+  /* Ao contrário do recebimento e da venda, aqui NÃO se exige a abertura do dia: a
+     notinha avulsa não entra no fechamento em espécie, então não há conta para fechar.
+     Exigir a abertura seria pedir um número que este lançamento não usa. */
+  const diaNta = document.getElementById('ntaData').value || hojeISO();
+  const ntaOriginal = ntaEditandoId ? (state.notinhasAvulsas||[]).find(r=> r.id===ntaEditandoId) : null;
+  if((!ntaOriginal || String(ntaOriginal.data||'') !== diaNta) &&
+     !confirmarDataForaDeHoje(diaNta, 'notinha branca avulsa')) return;
+
+  const dados = {
+    data: diaNta,
+    valor: valor,
+    motivo: motivo,
+    obs: document.getElementById('ntaObs').value.trim()
+  };
+
+  if(ntaEditandoId){
+    const x = (state.notinhasAvulsas||[]).find(r=> r.id===ntaEditandoId);
+    if(!x){ mostrarToast('A notinha não existe mais'); limparFormNta(); return; }
+    Object.assign(x, dados, { alteradoEm: new Date().toISOString() });
+    salvarNoCaixa('notinhasAvulsas', x);
+    mostrarToast('Notinha avulsa corrigida');
+  }else{
+    const nova = Object.assign({
+      id: novoIdRec('n_'),
+      criadoEm: new Date().toISOString(),
+      usuario: document.getElementById('usuarioLogado').textContent || ''
+    }, dados);
+    state.notinhasAvulsas.push(nova);
+    salvarNoCaixa('notinhasAvulsas', nova);
+    mostrarToast('Notinha branca de ' + fmtMoeda(valor) + ' registrada');
+  }
+
+  limparFormNta();
+  renderUltimasNta();
+  if(state.abaAtual === 'recHistorico') renderHistorico();
+  document.getElementById('ntaMotivo').focus();
+}
+
+function editarNotinhaAvulsa(id){
+  const x = (state.notinhasAvulsas||[]).find(r=> r.id===id);
+  if(!x) return;
+  ntaEditandoId = id;                 /* antes de abrir a tela — ver editarRecebimento */
+  trocarAba('recNotinhas');
+  document.getElementById('ntaMotivo').value = x.motivo || '';
+  document.getElementById('ntaData').value = x.data || hojeISO();
+  document.getElementById('ntaValor').value = toNum(x.valor) ? toNum(x.valor).toFixed(2).replace('.',',') : '';
+  document.getElementById('ntaObs').value = x.obs || '';
+  document.getElementById('ntaEditandoTxt').textContent =
+    'Corrigindo a notinha de ' + fmtMoeda(toNum(x.valor)) + ' de ' + dataBR(x.data) + '.';
+  document.getElementById('ntaEditandoAviso').classList.add('show');
+  document.getElementById('btnNtaSalvar').textContent = 'Salvar alteração';
+  window.scrollTo(0,0);
+}
+
+function excluirNotinhaAvulsa(id){
+  const x = (state.notinhasAvulsas||[]).find(r=> r.id===id);
+  if(!x) return;
+  if(!confirm('Excluir a notinha de ' + fmtMoeda(toNum(x.valor)) + ' de ' + dataBR(x.data) + '?\n\n' +
+    'Motivo: ' + x.motivo)) return;
+  state.notinhasAvulsas = (state.notinhasAvulsas||[]).filter(r=> r.id!==id);
+  if(ntaEditandoId === id) limparFormNta();
+  apagarDoCaixa('notinhasAvulsas', id);
+  renderUltimasNta();
+  if(state.abaAtual === 'recHistorico') renderHistorico();
+  mostrarToast('Notinha avulsa excluída');
+}
+
+document.getElementById('btnNtaSalvar').addEventListener('click', salvarNotinhaAvulsa);
+document.getElementById('btnNtaLimpar').addEventListener('click', ()=> limparFormNta());
+document.getElementById('btnNtaCancelarEdicao').addEventListener('click', ()=>{
+  limparFormNta();
+  mostrarToast('Edição cancelada');
+});
+document.getElementById('ntaData').addEventListener('change', (e)=>{
+  if(ntaEditandoId) return;
+  trocarDiaCaixa(e.target.value);
+  atualizarAvisosData();
+});
+document.getElementById('ntaMotivo').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter'){ e.preventDefault(); document.getElementById('ntaValor').focus(); }
+});
+document.getElementById('ntaValor').addEventListener('keydown', (e)=>{
+  if(e.key==='Enter'){ e.preventDefault(); salvarNotinhaAvulsa(); }
 });
 document.getElementById('supValor').addEventListener('keydown', (e)=>{
   if(e.key==='Enter'){ e.preventDefault(); salvarSuprimento(); }
@@ -11621,6 +12132,32 @@ function htmlSuprimentosDoDia(sup, dia){
     '</tbody></table></div>';
 }
 
+/* As notinhas brancas avulsas no relatório. Bloco à parte e com o aviso escrito na
+   primeira linha: elas NÃO entram em conta nenhuma do caixa — ver "NOTINHAS BRANCAS
+   AVULSAS". Está aqui porque é neste relatório que se confere o dia, e quem for bater os
+   PDVs precisa da lista dos papéis que o escritório emitiu. */
+function htmlNotinhasAvulsasDoDia(lista, dia){
+  if(!lista.length) return '';
+  const ordenadas = lista.slice().sort((a,b)=> String(a.criadoEm||'').localeCompare(String(b.criadoEm||'')));
+  return '<div class="rec-bloco"><h3>Notinhas brancas avulsas em ' + dataBR(dia) + '</h3>' +
+    '<div class="rec-mini" style="margin:-6px 0 10px;">Papéis emitidos pelo escritório sem serem troco de conta nem ' +
+      'de venda. O dinheiro sai nos caixas da frente: <b>nenhum valor deste relatório muda por causa deles</b> — ' +
+      'a lista serve para conferir os PDVs.</div>' +
+    '<table class="tabela-ponto"><thead><tr>' +
+    '<th class="esq">Data / hora</th><th class="esq">Motivo</th><th>Valor</th>' +
+    '<th class="esq">Registrada por</th></tr></thead><tbody>' +
+    ordenadas.map(x=>
+      '<tr>' + celulaDataHora(x.data, x.criadoEm) +
+      '<td class="esq"><span class="rec-cli-nome">'+escHtml(x.motivo)+'</span>' +
+        (x.obs ? '<div class="rec-mini">'+escHtml(x.obs)+'</div>' : '') + '</td>' +
+      '<td>'+fmtMoeda(toNum(x.valor))+'</td>' +
+      '<td class="esq rec-mini">'+escHtml(x.usuario||'—')+'</td></tr>'
+    ).join('') +
+    '<tr><td class="esq"><b>TOTAL EM NOTINHAS AVULSAS</b></td><td class="esq"></td>' +
+    '<td><b>'+fmtMoeda(somaNotinhasAvulsas(ordenadas))+'</b></td><td></td></tr>' +
+    '</tbody></table></div>';
+}
+
 function renderHistorico(){
   garantirBaseRecebimentos();
   const mes = state.caixaDia || hojeISO();          /* aqui "mes" é o DIA de trabalho */
@@ -11676,6 +12213,17 @@ function renderHistorico(){
           '(' + t.qtdNotinha + ' vale(s) — o dinheiro ficou na gaveta, o troco sai no caixa da frente)' +
           '</span></span><b>'+fmtMoeda(t.notinha)+'</b></div>'
         : '') +
+      /* As avulsas ficam numa linha SEPARADA da de cima, e nunca somadas com ela: aquelas
+         são troco e têm o dinheiro correspondente aqui na gaveta; estas não têm nada —
+         nada entrou por elas. Ver "NOTINHAS BRANCAS AVULSAS". */
+      (function(){
+        const avulsas = notinhasAvulsasDoDia(mes);
+        return avulsas.length
+          ? '<div class="fc-linha"><span>Notinhas brancas avulsas <span class="rec-mini">' +
+            '(' + avulsas.length + ' papel(is) — não são troco e não mudam nada nesta conta; ' +
+            'confira nos PDVs)</span></span><b>'+fmtMoeda(somaNotinhasAvulsas(avulsas))+'</b></div>'
+          : '';
+      })() +
       '<div class="rec-mini" style="margin-top:9px;">' +
         (t.abertura ? 'Cartão, pix e cheque não entram nesta conta — não são dinheiro em espécie.'
                     : 'Informe a abertura do caixa para esta conta fechar.') + '</div>' +
@@ -11821,14 +12369,20 @@ function renderHistorico(){
     lista.length + ' de ' + doMes.length + ' recebimento(s) de conta em ' + dataBR(mes) + ' na tela.' +
     (rotOrdem ? ' Ordenados ' + rotOrdem + '.' : '') +
     (t.ven.length || t.sup.length
-      ? ' As vendas da loja e as entradas avulsas do dia estão nos blocos abaixo da tabela.' : '');
+      ? ' As vendas da loja e as entradas avulsas do dia estão nos blocos abaixo da tabela.' : '') +
+    (notinhasAvulsasDoDia(mes).length
+      ? ' As notinhas brancas avulsas do dia também estão lá embaixo — elas não somam em nada.' : '');
 
   /* Escolhida uma modalidade, os blocos de baixo acompanham o filtro: o que sobra na
      tela é tudo o que entrou naquela forma, de qualquer origem. */
   const venFiltradas = t.ven.filter(v=> formaSel === 'todas' || toNum(v[formaSel]) > 0);
   const supFiltrados = t.sup.filter(s=> formaSel === 'todas' || formaDoSuprimento(s) === formaSel);
+  /* As notinhas avulsas não passam pelo filtro de modalidade: elas não entraram em forma
+     nenhuma, então filtrar por "cartão" ou "pix" as esconderia sem motivo. Aparecem
+     sempre, que é para o que existem — conferir os PDVs. */
   const blocosExtras = htmlVendasDoDia(venFiltradas, mes) +
                        htmlSuprimentosDoDia(supFiltrados, mes) +
+                       htmlNotinhasAvulsasDoDia(notinhasAvulsasDoDia(mes), mes) +
                        htmlRetiradasDoMes(retMes, mes);
 
   const corpo = document.getElementById('hisCorpo');
@@ -12131,6 +12685,20 @@ document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=
   linhasRet.push(['','TOTAL RETIRADO', t.saiu, '']);
   linhasRet.push([]);
 
+  /* As notinhas avulsas viajam na planilha porque é ela que se leva para conferir os
+     PDVs. Ficam numa seção própria e NÃO entram em nenhuma soma abaixo — ver "NOTINHAS
+     BRANCAS AVULSAS". O aviso vai escrito na própria folha para ninguém somar por
+     engano depois de imprimir. */
+  const avulsasDoDia = notinhasAvulsasDoDia(mes);
+  if(avulsasDoDia.length){
+    linhasRet.push(['NOTINHAS BRANCAS AVULSAS (não somam em nada — conferir nos PDVs)']);
+    linhasRet.push(['Hora','Motivo','Valor','Registrada por']);
+    avulsasDoDia.slice().sort((a,b)=> String(a.criadoEm||'').localeCompare(String(b.criadoEm||'')))
+      .forEach(x=> linhasRet.push([horaDe(x.criadoEm), x.motivo||'', r2(toNum(x.valor)), x.usuario||'']));
+    linhasRet.push(['','TOTAL EM NOTINHAS AVULSAS', somaNotinhasAvulsas(avulsasDoDia), '']);
+    linhasRet.push([]);
+  }
+
   linhasRet.push(['FECHAMENTO DO DIA']);
   linhasRet.push(['', 'Recebido de contas de clientes', t.entrouRec]);
   linhasRet.push(['', 'Vendido na loja do escritório', t.entrouVen]);
@@ -12153,6 +12721,12 @@ document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=
      subtração — tirá-la daqui faria a conferência acusar furo. */
   if(t.notinha) linhasRet.push(['', '   dentro deste total há ' + fmtMoeda(t.notinha) +
     ' de notinhas brancas — o troco será pago no caixa da frente', '']);
+  /* As avulsas ficam FORA da conferência da gaveta, e a folha diz isso: por elas não
+     entrou nem saiu um centavo daqui. Aparecem só como lembrete de quanto papel foi
+     emitido, para bater com o que se encontrar nos PDVs. */
+  if(avulsasDoDia.length) linhasRet.push(['', '   fora desta conta há ' +
+    fmtMoeda(somaNotinhasAvulsas(avulsasDoDia)) + ' em notinhas brancas avulsas — ' +
+    'não passaram por esta gaveta; confira nos caixas da frente', '']);
   const wsRet = XLSX.utils.aoa_to_sheet(linhasRet);
   wsRet['!cols'] = [{wch:8},{wch:46},{wch:16},{wch:22}];
   XLSX.utils.book_append_sheet(wb, wsRet, 'Fechamento');
