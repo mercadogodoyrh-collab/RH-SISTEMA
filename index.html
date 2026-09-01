@@ -1242,6 +1242,46 @@
     body.imprimindo .ini-card{break-inside:avoid;}
   }
 
+  /* ---------- FOLHA DAS NOTINHAS BRANCAS ----------
+     Documento de conferência: sai da tela de Notinhas Brancas e vai para o PDV na mão de
+     quem está batendo os papéis. Por isso ela não é a tela impressa — é uma folha
+     própria, com coluna de visto e linha de assinatura, coisas que na tela seriam ruído
+     e no papel são o trabalho inteiro.
+
+     Fica `display:none` fora da impressão: existe o tempo todo no HTML (montada junto
+     com os blocos da tela, para nunca divergir deles) e só aparece no papel. */
+  .folha-nta{display:none;}
+  .folha-nta .fn-topo{border-bottom:2px solid #000;padding-bottom:8px;margin-bottom:14px;}
+  .folha-nta .fn-marca{font-size:12px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;}
+  .folha-nta .fn-titulo{font-size:19px;font-weight:800;margin-top:3px;}
+  .folha-nta .fn-sub{font-size:11px;margin-top:3px;}
+  .folha-nta .fn-secao{margin-top:16px;}
+  .folha-nta .fn-secao h4{font-size:12.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
+    margin:0 0 2px;}
+  .folha-nta .fn-secao .fn-nota{font-size:10.5px;margin:0 0 6px;}
+  .folha-nta table{width:100%;border-collapse:collapse;font-size:11.5px;}
+  .folha-nta th,.folha-nta td{border:1px solid #999;padding:5px 7px;text-align:left;}
+  .folha-nta th{background:#eee;font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;}
+  .folha-nta td.fn-val,.folha-nta th.fn-val{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}
+  /* A coluna do visto é um quadrado vazio: é onde a caneta encosta no PDV. */
+  .folha-nta td.fn-visto,.folha-nta th.fn-visto{width:52px;text-align:center;}
+  .folha-nta .fn-quadro{display:inline-block;width:15px;height:15px;border:1.4px solid #333;}
+  .folha-nta tr.fn-soma td{font-weight:800;background:#f4f4f4;}
+  .folha-nta .fn-total{margin-top:16px;border:2px solid #000;padding:9px 12px;display:flex;
+    justify-content:space-between;font-size:14px;font-weight:800;}
+  .folha-nta .fn-assina{margin-top:26px;font-size:11px;display:flex;gap:28px;}
+  .folha-nta .fn-assina div{flex:1;border-top:1px solid #333;padding-top:4px;}
+  .folha-nta .fn-vazio{font-size:11.5px;font-style:italic;}
+  @media print{
+    body.imprimindo-nta *{visibility:hidden;}
+    body.imprimindo-nta #ntaImpressao, body.imprimindo-nta #ntaImpressao *{visibility:visible;}
+    body.imprimindo-nta #ntaImpressao{display:block;position:absolute;left:0;top:0;width:100%;
+      color:#000;background:#fff;}
+    /* Linha partida entre duas páginas é linha que se confere duas vezes ou nenhuma. */
+    body.imprimindo-nta #ntaImpressao tr{break-inside:avoid;}
+    body.imprimindo-nta #ntaImpressao .fn-total{break-inside:avoid;}
+  }
+
   /* Barra do dia: o caixa é diário, então toda tela de movimento começa dizendo em que
      dia se está trabalhando e se aquele dia já teve a abertura informada. */
   .barra-dia{display:flex;align-items:center;gap:9px;flex-wrap:wrap;background:var(--superficie);
@@ -2279,11 +2319,15 @@
     <div class="dash-topo">
       <div>
         <h2>Notinhas brancas avulsas</h2>
-        <div class="dash-sub">O papel que o escritório emite <b>sem ser troco</b> de um recebimento ou de uma venda —
-          troca de moedas, uma compra, a troca de um produto. O dinheiro sai no caixa da frente, não da nossa gaveta:
-          <b>estes lançamentos não mudam nenhum valor do caixa</b>. Servem para conferir os PDVs e saber de onde veio
-          cada papel.</div>
+        <div class="dash-sub">Todo papel branco que saiu do escritório no dia, para conferir nos PDVs — e são dois
+          tipos. As <b>avulsas</b> se lançam aqui embaixo: são as que o escritório emite <b>sem ser troco</b> de nada
+          (troca de moedas, uma compra, a troca de um produto) e <b>não mudam nenhum valor do caixa</b>. Os
+          <b>trocos</b> marcados como notinha branca nos recebimentos e nas vendas já estão lançados lá — aqui eles
+          só aparecem para conferência. O botão imprime a folha dos dois, com coluna de visto.</div>
       </div>
+      <!-- O relatório impresso é o motivo desta tela existir para a diretoria: sai daqui
+           com os dois tipos de papel do dia e vai para o PDV bater um a um. -->
+      <button class="btn btn-outline" id="btnImprimirNta">Imprimir relatório</button>
     </div>
 
     <div id="ntaDia"></div>
@@ -2330,6 +2374,16 @@
     </div>
 
     <div class="rec-bloco" id="ntaUltimas"></div>
+    <!-- Os trocos que viraram notinha branca nos lançamentos do dia. Ficam DEPOIS das
+         avulsas porque só se conferem, não se editam aqui: quem corrige um deles é o
+         recebimento ou a venda de onde ele saiu. -->
+    <div class="rec-bloco" id="ntaTrocos"></div>
+
+    <!-- A folha que a diretoria imprime e leva para o PDV. Fica escondida na tela e só
+         existe no papel — ver o @media print de `.folha-nta`. É montada com os mesmos
+         dados dos blocos acima, na mesma passagem, para nunca imprimir coisa diferente
+         do que está à vista. -->
+    <div class="folha-nta" id="ntaImpressao"></div>
   </main>
 </div>
 
@@ -3156,7 +3210,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '31/08/2026b · Notinhas avulsas, troco do crédito e trava do RH';
+const VERSAO_SISTEMA = '31/08/2026c · Folha de conferência das notinhas brancas';
 
 const SUPABASE_URL  = 'https://vieafcgghboxwhultile.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_HaMcgvr_2xmWYotvzetmVA_yscPz2eT';
@@ -9656,6 +9710,39 @@ function suprimentosDoDia(iso){ return (state.suprimentos||[]).filter(s=> String
 /* As notinhas avulsas ficam propositalmente FORA de `totaisDoDia`: nenhum total do caixa
    as soma, e quem precisa delas as busca aqui. Ver "NOTINHAS BRANCAS AVULSAS". */
 function notinhasAvulsasDoDia(iso){ return (state.notinhasAvulsas||[]).filter(n=> String(n.data||'') === iso); }
+
+/* As notinhas brancas que NASCERAM DE UM LANÇAMENTO: o troco que o operador marcou como
+   notinha branca num recebimento ou numa venda. Elas já estão gravadas dentro do próprio
+   lançamento (campo `notinha`) e nada aqui as recalcula — esta função só as junta numa
+   lista única, em ordem de hora, com o que a diretoria precisa para achar o papel no PDV:
+   de quem era, de quanto era e a que horas saiu.
+
+   Por que junto com as avulsas: no PDV o papel é o mesmo. Quem está conferindo não sabe
+   nem quer saber se aquela notinha nasceu de um troco de conta ou de uma troca de moedas
+   — precisa é da lista completa do dia. A separação em duas seções existe só para o
+   caminho de volta: troco se corrige no lançamento de origem, avulsa se corrige aqui. */
+function notinhasDeTrocoDoDia(iso){
+  const linhas = [];
+  recebimentosDoDia(iso).forEach(r=>{
+    const v = notinhaDe(r);
+    if(v > 0.004) linhas.push({
+      tipo:'rec', id:r.id, data:r.data, criadoEm:r.criadoEm, valor:v,
+      quem: nomeCliente(r.clienteId),
+      detalhe: 'conta de ' + fmtMoeda(toNum(r.total)),
+      usuario: r.usuario || ''
+    });
+  });
+  vendasDoDia(iso).forEach(x=>{
+    const v = notinhaDe(x);
+    if(v > 0.004) linhas.push({
+      tipo:'ven', id:x.id, data:x.data, criadoEm:x.criadoEm, valor:v,
+      quem: resumoItensVenda(x),
+      detalhe: 'venda de ' + fmtMoeda(toNum(x.total)),
+      usuario: x.usuario || ''
+    });
+  });
+  return linhas.sort((a,b)=> String(a.criadoEm||'').localeCompare(String(b.criadoEm||'')));
+}
 function aberturaDoDia(iso){ return (state.aberturas||[]).find(a=> a.id === iso) || null; }
 
 /* Fechamento do dia com TRÊS origens de entrada, e uma só gaveta:
@@ -11464,18 +11551,27 @@ function renderNotinhasAvulsas(entrando){
   renderUltimasNta();
 }
 
+/* Desenha as três coisas da tela de uma vez só — as avulsas, os trocos do dia e a folha
+   de impressão — porque as três leem exatamente os mesmos dados. Montar a folha aqui, e
+   não no clique do botão, é o que garante que o papel nunca saia diferente do que está
+   na tela: quem imprime está imprimindo o que acabou de ver. */
 function renderUltimasNta(){
-  const caixa = document.getElementById('ntaUltimas');
   const dia = state.caixaDia || hojeISO();
-  const lista = notinhasAvulsasDoDia(dia).slice()
+  const avulsas = notinhasAvulsasDoDia(dia).slice()
     .sort((a,b)=> String(b.criadoEm||'').localeCompare(String(a.criadoEm||'')));
+  const trocos = notinhasDeTrocoDoDia(dia);
 
+  document.getElementById('ntaUltimas').innerHTML = htmlBlocoAvulsasNta(avulsas, dia);
+  document.getElementById('ntaTrocos').innerHTML = htmlBlocoTrocosNta(trocos, dia);
+  document.getElementById('ntaImpressao').innerHTML = htmlFolhaNta(trocos, avulsas, dia);
+}
+
+function htmlBlocoAvulsasNta(lista, dia){
   if(!lista.length){
-    caixa.innerHTML = '<h3>Notinhas avulsas de ' + dataBR(dia) + '</h3>' +
+    return '<h3>Notinhas avulsas de ' + dataBR(dia) + '</h3>' +
       '<div class="rec-vazio">Nenhuma notinha branca avulsa registrada neste dia.</div>';
-    return;
   }
-  caixa.innerHTML = '<h3>Notinhas avulsas de ' + dataBR(dia) + '</h3>' +
+  return '<h3>Notinhas avulsas de ' + dataBR(dia) + '</h3>' +
     '<div class="rec-mini" style="margin:-6px 0 10px;">' + lista.length + ' notinha(s) somando ' +
       fmtMoeda(somaNotinhasAvulsas(lista)) + ' para conferir nos caixas da frente. ' +
       '<b>Nenhum valor do caixa muda por causa delas.</b></div>' +
@@ -11494,6 +11590,115 @@ function renderUltimasNta(){
         '<button class="btn btn-vermelho btn-sm" data-excluir-nta="'+x.id+'">Excluir</button>' +
       '</div></td></tr>'
     ).join('') + '</tbody></table>';
+}
+
+/* Os trocos que viraram notinha. Aqui NÃO há botão de excluir, e é de propósito: apagar
+   a notinha sem mexer no lançamento deixaria o recebimento dizendo que o cliente pagou um
+   valor que ele não pagou. O botão abre o lançamento de origem, que é onde a correção
+   tem sentido. */
+function htmlBlocoTrocosNta(lista, dia){
+  if(!lista.length){
+    return '<h3>Trocos em notinha branca de ' + dataBR(dia) + '</h3>' +
+      '<div class="rec-vazio">Nenhum lançamento deste dia devolveu troco em notinha branca.</div>';
+  }
+  const soma = r2(lista.reduce((s,x)=> s + x.valor, 0));
+  return '<h3>Trocos em notinha branca de ' + dataBR(dia) + '</h3>' +
+    '<div class="rec-mini" style="margin:-6px 0 10px;">' + lista.length + ' papel(is) somando ' +
+      fmtMoeda(soma) + ', vindos de recebimentos e vendas em que o troco foi marcado como notinha branca. ' +
+      'Estes o cliente já pagou — o dinheiro dele ficou na nossa gaveta e o troco sai no caixa da frente. ' +
+      '<b>Para corrigir um, abra o lançamento de origem.</b></div>' +
+    '<table class="tabela-ponto"><thead><tr>' +
+    '<th class="esq">Data / hora</th><th class="esq">De quem saiu</th><th class="esq">Origem</th>' +
+    '<th>Valor da notinha</th><th class="esq">Lançada por</th><th></th></tr></thead><tbody>' +
+    lista.map(x=>
+      '<tr>' +
+      celulaDataHora(x.data, x.criadoEm) +
+      '<td class="esq"><span class="rec-cli-nome' + (x.tipo === 'rec' ? ' nome-cli' : '') + '">' +
+        escHtml(x.quem) + '</span></td>' +
+      '<td class="esq rec-mini">' + (x.tipo === 'rec' ? 'Recebimento · ' : 'Venda da loja · ') +
+        escHtml(x.detalhe) + '</td>' +
+      '<td><b>'+fmtMoeda(x.valor)+'</b></td>' +
+      '<td class="esq rec-mini">'+escHtml(x.usuario||'—')+'</td>' +
+      '<td><div class="rec-acoes-linha">' +
+        '<button class="btn btn-outline btn-sm" data-' +
+          (x.tipo === 'rec' ? 'editar-rec' : 'editar-ven') + '="'+x.id+'">Abrir lançamento</button>' +
+      '</div></td></tr>'
+    ).join('') +
+    '<tr><td class="esq"><b>TOTAL EM TROCOS</b></td><td class="esq"></td><td class="esq"></td>' +
+    '<td><b>'+fmtMoeda(soma)+'</b></td><td></td><td></td></tr>' +
+    '</tbody></table>';
+}
+
+/* A folha do PDV. Tudo o que ela tem a mais do que a tela é a coluna do visto e a linha
+   de assinatura — o resto é o mesmo dado. Sai com data e hora de emissão e com quem
+   emitiu, porque duas conferências do mesmo dia precisam ser distinguíveis no papel. */
+function htmlFolhaNta(trocos, avulsas, dia){
+  const somaTrocos  = r2(trocos.reduce((s,x)=> s + x.valor, 0));
+  const somaAvulsas = somaNotinhasAvulsas(avulsas);
+  const agora = new Date();
+  const linhaVazia = (colunas, texto)=>
+    '<tr><td class="fn-vazio" colspan="'+colunas+'">'+texto+'</td></tr>';
+
+  /* Na folha as avulsas saem em ordem de hora, e não da mais recente para a mais antiga
+     como na tela: no papel se confere de cima para baixo, seguindo o dia. */
+  const avulsasEmOrdem = avulsas.slice()
+    .sort((a,b)=> String(a.criadoEm||'').localeCompare(String(b.criadoEm||'')));
+
+  return '<div class="fn-topo">' +
+      '<div class="fn-marca">Mercado e Açougue Godoy</div>' +
+      '<div class="fn-titulo">Notinhas brancas — ' + diaPorExtenso(dia) + '</div>' +
+      '<div class="fn-sub">Conferência dos PDVs · emitido em ' +
+        agora.toLocaleDateString('pt-BR') + ' às ' +
+        agora.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) +
+        (document.getElementById('usuarioLogado').textContent
+          ? ' por ' + escHtml(document.getElementById('usuarioLogado').textContent) : '') +
+      '</div></div>' +
+
+    '<div class="fn-secao">' +
+      '<h4>Trocos em notinha branca</h4>' +
+      '<div class="fn-nota">Saíram de recebimentos de conta e de vendas da loja. O cliente já pagou: ' +
+        'o dinheiro dele ficou na gaveta do escritório e o troco é pago no caixa da frente.</div>' +
+      '<table><thead><tr><th>Hora</th><th>De quem saiu</th><th>Origem</th>' +
+        '<th class="fn-val">Valor</th><th class="fn-visto">Conferido</th></tr></thead><tbody>' +
+      (trocos.length
+        ? trocos.map(x=>
+            '<tr><td>'+horaDe(x.criadoEm)+'</td>' +
+            '<td>'+escHtml(x.quem)+'</td>' +
+            '<td>'+(x.tipo === 'rec' ? 'Recebimento' : 'Venda da loja')+' · '+escHtml(x.detalhe)+'</td>' +
+            '<td class="fn-val">'+fmtMoeda(x.valor)+'</td>' +
+            '<td class="fn-visto"><span class="fn-quadro"></span></td></tr>'
+          ).join('') +
+          '<tr class="fn-soma"><td colspan="3">Subtotal — ' + trocos.length + ' papel(is)</td>' +
+          '<td class="fn-val">'+fmtMoeda(somaTrocos)+'</td><td class="fn-visto"></td></tr>'
+        : linhaVazia(5, 'Nenhum troco em notinha branca neste dia.')) +
+      '</tbody></table></div>' +
+
+    '<div class="fn-secao">' +
+      '<h4>Notinhas avulsas do escritório</h4>' +
+      '<div class="fn-nota">Emitidas sem serem troco de nada — troca de moedas, uma compra, a troca de um ' +
+        'produto. Nada entrou na gaveta do escritório por elas: o dinheiro sai no caixa da frente.</div>' +
+      '<table><thead><tr><th>Hora</th><th>Motivo</th><th>Lançada por</th>' +
+        '<th class="fn-val">Valor</th><th class="fn-visto">Conferido</th></tr></thead><tbody>' +
+      (avulsasEmOrdem.length
+        ? avulsasEmOrdem.map(x=>
+            '<tr><td>'+horaDe(x.criadoEm)+'</td>' +
+            '<td>'+escHtml(x.motivo||'') + (x.obs ? ' — ' + escHtml(x.obs) : '') + '</td>' +
+            '<td>'+escHtml(x.usuario||'—')+'</td>' +
+            '<td class="fn-val">'+fmtMoeda(toNum(x.valor))+'</td>' +
+            '<td class="fn-visto"><span class="fn-quadro"></span></td></tr>'
+          ).join('') +
+          '<tr class="fn-soma"><td colspan="3">Subtotal — ' + avulsasEmOrdem.length + ' papel(is)</td>' +
+          '<td class="fn-val">'+fmtMoeda(somaAvulsas)+'</td><td class="fn-visto"></td></tr>'
+        : linhaVazia(5, 'Nenhuma notinha avulsa neste dia.')) +
+      '</tbody></table></div>' +
+
+    '<div class="fn-total"><span>Total em notinhas brancas do dia — ' +
+      (trocos.length + avulsasEmOrdem.length) + ' papel(is)</span>' +
+      '<span>'+fmtMoeda(r2(somaTrocos + somaAvulsas))+'</span></div>' +
+
+    '<div class="fn-assina"><div>Conferido por (nome e assinatura)</div>' +
+      '<div>Data da conferência</div>' +
+      '<div>Diferenças encontradas</div></div>';
 }
 
 function salvarNotinhaAvulsa(){
@@ -11589,6 +11794,22 @@ document.getElementById('ntaMotivo').addEventListener('keydown', (e)=>{
 });
 document.getElementById('ntaValor').addEventListener('keydown', (e)=>{
   if(e.key==='Enter'){ e.preventDefault(); salvarNotinhaAvulsa(); }
+});
+document.getElementById('btnImprimirNta').addEventListener('click', ()=>{
+  /* Remonta antes de imprimir: a folha já está montada desde o último desenho da tela,
+     mas o dia pode ter mudado por realtime enquanto a tela estava aberta, e papel errado
+     não tem como ser corrigido depois que saiu da impressora. */
+  renderUltimasNta();
+  const dia = state.caixaDia || hojeISO();
+  if(!notinhasDeTrocoDoDia(dia).length && !notinhasAvulsasDoDia(dia).length){
+    mostrarToast('Não há notinha branca nenhuma em ' + dataBR(dia) + ' para imprimir');
+    return;
+  }
+  document.body.classList.add('imprimindo-nta');
+  window.print();
+  /* Mesma espera do Imprimir do Início: a caixa de diálogo da impressão é assíncrona e
+     tirar a classe antes dela abrir imprime a página em branco. */
+  setTimeout(()=> document.body.classList.remove('imprimindo-nta'), 800);
 });
 document.getElementById('supValor').addEventListener('keydown', (e)=>{
   if(e.key==='Enter'){ e.preventDefault(); salvarSuprimento(); }
