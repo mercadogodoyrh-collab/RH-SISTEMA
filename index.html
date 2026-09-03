@@ -726,6 +726,12 @@
 
   /* ============================= PONTO ============================= */
   .ponto-info{font-size:12.5px;color:var(--texto-fraco);margin:14px 2px 12px;line-height:1.6;}
+  /* Os nomes que a importação deixou de fora. Em faixa própria, e não solto na linha
+     de parâmetros, porque é a única informação dali que pede uma conferência de quem
+     lê — a diferença entre o que tem no arquivo e o que tem na tela. */
+  .ponto-info .ponto-fora{margin-top:8px;padding:8px 11px;border-radius:9px;
+    background:#fdfaf2;border:1px solid #f0dfb8;color:#8a6d1f;line-height:1.55;}
+  .ponto-info .ponto-fora b{color:#6b5416;}
   .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:18px;}
   .kpi{background:#fff;border:1px solid var(--cinza-borda);border-left:4px solid var(--cinza-borda);border-radius:9px;padding:10px 12px;}
   .kpi .kpi-rot{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;color:var(--texto-fraco);}
@@ -779,7 +785,15 @@
   .tabela-dias td.fraco{color:var(--texto-fraco);}
   .tabela-dias td.vazio{color:#c8d0d6;}
   .tabela-dias td.manual{color:#2471a3;font-weight:700;}
+  /* A hora extra é o número que a diretoria e o colaborador procuram primeiro na
+     tabela do espelho, e ele estava do mesmo tamanho e peso de todos os outros. Agora
+     tem corpo, negrito e fundo próprio — e quando é hora lançada pela empresa, vira
+     azul, que é a mesma cor com que o dia aparece destacado. */
   .tabela-dias td.pos{color:var(--verde);font-weight:700;}
+  .tabela-dias td.cel-extra{font-weight:800;font-size:12.5px;color:#14663d;background:#eefaf4;
+    box-shadow:inset 0 0 0 1px #cceadb;}
+  .tabela-dias td.cel-extra.lancada{color:#17537f;background:#dbeaf7;box-shadow:inset 0 0 0 1px #a9cbe6;}
+  .tabela-dias td.cel-extra .he-marca{font-size:11px;font-weight:800;}
   .tabela-dias td.neg{color:var(--vermelho);font-weight:700;}
   .tabela-dias tr.t-ok{background:#fff;}
   .tabela-dias tr.t-extra{background:#f2f8fd;}
@@ -813,6 +827,51 @@
   .tag-edicao{background:#eaf3fb;color:#2471a3;font-size:10px;padding:1px 6px;border-radius:10px;font-weight:700;}
   .motivo-aplicado{margin-top:5px;font-size:11px;color:#2471a3;font-weight:600;}
   .motivo-pendente{margin-top:5px;font-size:11px;color:#b9770e;}
+  /* ---- edição das marcações (ver "MARCAÇÕES AJUSTADAS À MÃO") ----
+     O campo ocupa a célula inteira e mantém a fonte tabular da tabela: corrigir um mês
+     é ler uma coluna de horários de cima a baixo, e número que dança de largura entre
+     uma linha e outra atrapalha justamente essa leitura. */
+  .mrc-inp{width:100%;min-width:52px;box-sizing:border-box;padding:3px 4px;text-align:center;
+    font-family:inherit;font-size:12px;font-variant-numeric:tabular-nums;
+    border:1px solid var(--cinza-borda);border-radius:5px;background:#fff;color:var(--texto);}
+  .mrc-inp:focus{outline:none;border-color:var(--marca);box-shadow:var(--foco);}
+  /* Dia que já foi ajustado fica marcado o tempo todo, também fora do modo de edição:
+     número corrigido com cara de número do relógio é pior do que número errado. */
+  .tabela-dias td.ajustada{background:#eaf3fb;color:#1c5f8b;font-weight:600;}
+  .mrc-desfazer{background:none;border:none;padding:0;margin-left:6px;font-family:inherit;
+    font-size:11px;font-weight:700;color:var(--vermelho);cursor:pointer;
+    text-decoration:underline;text-underline-offset:2px;}
+  /* ---- cortesia do dia (ver "CORTESIA DO DIA") ----
+     Fica com cara de decisão, não de aviso: caixa clicável, texto curto, e só muda de
+     cor quando está ligada — na tabela de 31 linhas, o que estiver aceso tem que ser
+     exatamente o que foi decidido. */
+  /* Retângulo arredondado, e não pílula: com o texto quebrando em duas linhas (o dia
+     marcado ganha "— 01:20 não descontadas"), o raio de pílula comia o canto e a caixa
+     de marcar escapava para fora da borda. */
+  .cortesia-lbl{display:inline-flex;align-items:flex-start;gap:7px;margin-top:6px;cursor:pointer;
+    font-size:11px;font-weight:600;color:var(--texto-fraco);line-height:1.35;
+    padding:5px 9px;border:1px solid var(--cinza-borda);border-radius:8px;background:#fff;
+    max-width:100%;transition:background .12s,border-color .12s,color .12s;}
+  .cortesia-lbl:hover{border-color:#7fb99a;color:var(--marca-esc);}
+  .cortesia-lbl input{width:14px;height:14px;flex:none;margin:1px 0 0;accent-color:var(--verde);cursor:pointer;}
+  .cortesia-lbl.ligada{background:#eaf7ef;border-color:#9ed4b5;color:#1c6b42;}
+  /* ---- lista da hora extra do dia (ver "HORA EXTRA LANÇADA NO DIA") ----
+     Rola dentro do modal: são vinte e poucos nomes e a janela não pode crescer até
+     empurrar os botões para fora da tela. */
+  .he-lista{max-height:38vh;overflow:auto;border:1px solid var(--cinza-borda);border-radius:9px;
+    background:#fff;padding:4px;}
+  .he-linha{display:grid;grid-template-columns:18px 1fr auto auto;align-items:center;gap:10px;
+    padding:6px 8px;border-radius:7px;cursor:pointer;font-size:12.5px;color:var(--texto);}
+  .he-linha:hover{background:var(--cinza-claro,#f4f6f8);}
+  .he-linha input{width:15px;height:15px;margin:0;accent-color:var(--verde);cursor:pointer;}
+  .he-linha .he-tipo{font-size:11px;color:var(--texto-fraco);}
+  .he-linha .he-ja{font-size:11px;font-weight:700;color:#2471a3;}
+  .he-linha.tem{background:#eaf3fb;}
+  /* O dia com hora extra lançada, na tabela do espelho: faixa azul e uma barra na
+     lateral, que é o que sobrevive quando a linha já está colorida por atraso ou
+     falta. Ver "HORA EXTRA LANÇADA NO DIA". */
+  .tabela-dias tr.he-lancada > td{background:#dbeaf7 !important;}
+  .tabela-dias tr.he-lancada > td:first-child{box-shadow:inset 3px 0 0 #2471a3;}
   .legenda{display:flex;gap:12px;flex-wrap:wrap;font-size:11px;color:var(--texto-fraco);margin:10px 2px 0;}
   .legenda span i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:middle;border:1px solid rgba(0,0,0,.1);}
   .card .ponto-card{font-size:12.5px;color:var(--texto-fraco);display:flex;justify-content:space-between;gap:8px;}
@@ -1821,6 +1880,9 @@
     <option value="maior-atraso">Mais atrasos</option>
   </select>
   <button class="btn btn-outline btn-valores btn-valores-geral" title="Mostrar ou ocultar o valor de todos os colaboradores"></button>
+  <!-- O maço do mês. Ver "HOLERITES DE TODOS": o mesmo desenho do holerite individual,
+       um colaborador por página, num PDF só. -->
+  <button class="btn btn-outline" id="btnHoleritesTodos">Holerites de todos (PDF)</button>
   <button class="btn btn-primary" id="btnNovo">+ Cadastrar Colaborador</button>
 </div>
 
@@ -1854,6 +1916,7 @@
     </div>
     <button class="btn btn-outline btn-valores btn-valores-geral" title="Mostrar ou ocultar o valor de todos os colaboradores"></button>
     <button class="btn btn-primary" id="btnImportarPonto">Importar cartão ponto</button>
+    <button class="btn btn-outline" id="btnHeDia">Hora extra do dia</button>
     <button class="btn btn-outline" id="btnRegras">Parâmetros de apuração</button>
     <button class="btn btn-outline" id="btnExportarPonto">Exportar relatório</button>
     <button class="btn btn-verde" id="btnAplicarTodos">Aplicar horas na folha</button>
@@ -2837,10 +2900,51 @@
     <div class="esp-tabela-wrap" id="espTabela"></div>
     <div id="espRodape"></div>
     <div class="acoes-modal">
+      <!-- Ver "MARCAÇÕES AJUSTADAS À MÃO": o ajuste é por pessoa e por dia, e mora aqui
+           dentro do espelho porque é olhando o mês inteiro que se enxerga o erro. -->
+      <button class="btn btn-outline" id="btnEditarMarcacoes">Editar marcações</button>
       <button class="btn btn-outline" id="btnEspelhoPDF">Emitir espelho em PDF</button>
       <button class="btn btn-outline" id="btnVincular" style="display:none;">Incluir na folha</button>
       <button class="btn btn-outline btn-excluir-modal" id="btnExcluirColaborador">Excluir colaborador do sistema</button>
       <button class="btn btn-verde" id="btnAplicarFolha">Aplicar horas na folha do mês</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal da hora extra do dia. Ver "HORA EXTRA LANÇADA NO DIA": lança de uma vez a
+     mesma hora extra para a equipe inteira num dia combinado. -->
+<div class="overlay" id="overlayHeDia">
+  <div class="modal" style="max-width:640px;">
+    <button class="modal-close" id="fecharHeDia">✕</button>
+    <h2>Hora extra do dia</h2>
+    <div class="sub">Lança a mesma hora extra para todo mundo num dia só — inventário, véspera de feriado,
+      reposição fora do horário. Entra na apuração do ponto e aparece no espelho, na ficha do holerite e no
+      total de horas extras da folha. <b>Soma</b> à hora extra que o relógio já apurou.</div>
+    <div class="campo-row">
+      <div class="campo"><label for="heDiaData">Dia</label><input type="date" id="heDiaData"></div>
+      <div class="campo">
+        <label for="heDiaHoras">Horas extras</label>
+        <input type="text" id="heDiaHoras" placeholder="2   ·   2,5   ·   1:30" autocomplete="off">
+        <div class="campo-nota">Aceita 2, 2,5 ou 1:30. Deixe <b>0</b> para apagar o lançamento do dia.</div>
+      </div>
+    </div>
+    <div class="campo" style="margin-bottom:12px;">
+      <label for="heDiaMotivo">Motivo (opcional)</label>
+      <input type="text" id="heDiaMotivo" placeholder="Ex.: inventário de fim de mês">
+    </div>
+    <div class="secao-title" style="display:flex;align-items:center;gap:12px;">
+      <span>Quem recebe</span>
+      <button type="button" class="btn btn-outline btn-sm" id="btnHeDiaTodos">Marcar todos</button>
+      <button type="button" class="btn btn-outline btn-sm" id="btnHeDiaNenhum">Desmarcar todos</button>
+    </div>
+    <div class="he-lista" id="heDiaLista"></div>
+    <div class="rec-mini" id="heDiaResumo" style="margin-top:10px;"></div>
+    <div class="acoes-modal">
+      <button type="button" class="btn btn-outline" id="btnCancelarHeDia">Cancelar</button>
+      <!-- Ver "FERIADO TRABALHADO": não usa o campo de horas — lança o DOBRO do que
+           cada um trabalhou no dia, lido do próprio cartão ponto. -->
+      <button type="button" class="btn btn-outline" id="btnFeriadoHeDia">Marcar feriado (paga o dobro)</button>
+      <button type="button" class="btn btn-primary" id="btnSalvarHeDia">Lançar hora extra</button>
     </div>
   </div>
 </div>
@@ -2944,6 +3048,22 @@
         </select>
       </div>
     </div>
+    <!-- Admissão e desligamento entram em conta de dinheiro (ver "SALÁRIO PROPORCIONAL"),
+         então precisam estar à vista e corrigíveis. A admissão já existia nos dados, vinda
+         da importação do ponto, mas não tinha onde ser conferida nem consertada. -->
+    <div class="campo-row">
+      <div class="campo">
+        <label>Admissão</label>
+        <input id="cAdmissao" placeholder="dd/mm/aaaa">
+        <div class="campo-nota">No mês da entrada o salário sai proporcional aos dias.</div>
+      </div>
+      <div class="campo">
+        <label>Desligamento</label>
+        <input id="cDesligamento" placeholder="dd/mm/aaaa — em branco enquanto trabalha aqui">
+        <div class="campo-nota">Preenchido, o mês da saída vira proporcional (÷30 × dias) e ele sai da folha
+          a partir do mês seguinte. Meses já fechados não mudam.</div>
+      </div>
+    </div>
     <div class="campo-row" id="linhaSalarioBase">
       <div class="campo">
         <label>Salário base (R$)</label>
@@ -2993,7 +3113,8 @@
 
     <div id="blocoMensalista">
       <div class="campo-row tres">
-        <div class="campo"><label>Salário</label><input id="lSalario" type="number" step="0.01" readonly></div>
+        <div class="campo"><label>Salário</label><input id="lSalario" type="number" step="0.01" readonly>
+          <div class="campo-nota" id="lSalarioNota" style="display:none;color:#8a6d1f;"></div></div>
         <div class="campo"><label>Folgas</label><input id="lFolgas" type="number" step="0.01" readonly></div>
         <div class="campo"><label>Sal. Família</label><input id="lSalFamilia" type="number" step="0.01" readonly></div>
       </div>
@@ -3210,7 +3331,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '31/08/2026c · Folha de conferência das notinhas brancas';
+const VERSAO_SISTEMA = '03/09/2026g · Saida batida duas vezes nao gera divida';
 
 const SUPABASE_URL  = 'https://vieafcgghboxwhultile.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_HaMcgvr_2xmWYotvzetmVA_yscPz2eT';
@@ -3934,6 +4055,115 @@ function valorHeManual(f, l){
   return toNum(l && l.heQtd) * valorHoraExtraDe(f);
 }
 
+/* ============================= SALÁRIO PROPORCIONAL =============================
+   Mensalista que não trabalhou o mês inteiro recebe por avos, e até 02/09/2026 o
+   sistema pagava sempre o salário cheio: `l.salario = f.salarioBase`, sem olhar
+   admissão nem saída.
+
+   O caso que mostrou o buraco foi a CRISTIANA FERREIRA MENDES em agosto/2026. Ela
+   bateu ponto de 01 a 10/08 e saiu. Do dia 11 em diante o cartão ponto veio inteiro
+   como "Folga" — porque o app do relógio não é atualizado quando alguém sai —, e dia
+   de folga não gera falta, falta é que gera desconto. Resultado: nenhum desconto e
+   R$ 1.700,00 cheios para dez dias de trabalho.
+
+   Repare que o ponto NÃO serve para descobrir isso. Folga, férias, licença e atestado
+   se parecem demais: quem tirasse férias até o fim do mês perderia salário sem dever
+   nada. Quem sabe que o contrato acabou é o cadastro, e por isso a data de saída é um
+   campo digitado — `desligamento` —, não uma dedução.
+
+   A conta é a da CLT: salário ÷ 30 × dias corridos de contrato no mês, domingos e
+   feriados incluídos. Trinta é fixo, não é o tamanho do mês — senão fevereiro pagaria
+   28/30 e agosto pagaria 31/30 a quem trabalhou o mês inteiro. Justamente por isso,
+   mês de contrato completo recebe o salário CHEIO, sem passar pelos avos.
+
+   Vale nos dois sentidos: quem entra no dia 20 recebe onze avos, e a admissão já
+   estava no cadastro (vem da importação do ponto) sem nunca ter sido usada em conta
+   nenhuma. Diarista fica de fora — ele já é pago por dia trabalhado. */
+const AVOS_SALARIO = 30;
+
+/* Lê data em "dd/mm/aaaa" (como o cadastro sempre guardou) ou "aaaa-mm-dd" (como o
+   <input type="date"> devolve). As duas formas convivem nos dados antigos. */
+function partesData(v){
+  const s = String(v||'').trim();
+  let m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(m) return {ano:+m[3], mes:+m[2], dia:+m[1]};
+  m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+  if(m) return {ano:+m[1], mes:+m[2], dia:+m[3]};
+  return null;
+}
+function mesDaData(v){
+  const p = partesData(v);
+  return p ? p.ano + '-' + String(p.mes).padStart(2,'0') : '';
+}
+function diasNoMes(mes){
+  const p = String(mes||'').split('-').map(Number);
+  return (p[0] && p[1]) ? new Date(p[0], p[1], 0).getDate() : 30;
+}
+/* Normaliza para dd/mm/aaaa o que a pessoa digitou. Devolve vazio quando não é data —
+   inclusive quando o dia ou o mês não existem no calendário (31/02). */
+function dataCadastral(v){
+  const p = partesData(v);
+  if(!p) return '';
+  if(p.mes < 1 || p.mes > 12 || p.dia < 1) return '';
+  if(p.dia > new Date(p.ano, p.mes, 0).getDate()) return '';
+  return String(p.dia).padStart(2,'0') + '/' + String(p.mes).padStart(2,'0') + '/' + p.ano;
+}
+
+/* Dias de contrato dentro do mês. Zero quando o mês inteiro está fora do período; o
+   mês todo quando o contrato o cobre de ponta a ponta. */
+function diasDeContratoNoMes(f, mes){
+  const total = diasNoMes(mes);
+  let ini = 1, fim = total;
+  const adm = partesData(f && f.admissao);
+  if(adm){
+    const km = mesDaData(f.admissao);
+    if(km > mes) return 0;                                   /* admitido depois deste mês */
+    if(km === mes) ini = Math.min(Math.max(1, adm.dia), total);
+  }
+  const des = partesData(f && f.desligamento);
+  if(des){
+    const km = mesDaData(f.desligamento);
+    if(km < mes) return 0;                                   /* já tinha saído antes deste mês */
+    if(km === mes) fim = Math.min(Math.max(1, des.dia), total);
+  }
+  return Math.max(0, fim - ini + 1);
+}
+
+/* O salário daquele mês para quem é pago por mês. */
+function salarioDoMes(f, mes){
+  const base = toNum(f && f.salarioBase);
+  if(!base || ehDiarista(f)) return base || 0;
+  const dias = diasDeContratoNoMes(f, mes);
+  if(dias <= 0) return 0;
+  if(dias >= diasNoMes(mes)) return base;                    /* mês inteiro = salário cheio */
+  return Math.min(base, Math.round((base / AVOS_SALARIO) * dias * 100) / 100);
+}
+
+/* Frase que explica o número quando ele não é o salário cheio. Vazia no caso normal —
+   um valor diferente do cadastro sem explicação ao lado é o tipo de coisa que faz a
+   pessoa desconfiar do sistema inteiro. */
+function notaSalarioProporcional(f, mes){
+  if(!f || ehDiarista(f)) return '';
+  const dias = diasDeContratoNoMes(f, mes);
+  const total = diasNoMes(mes);
+  if(dias >= total) return '';
+  if(dias <= 0) return 'Fora do contrato neste mês — sem salário a pagar.';
+  const motivo = [];
+  if(mesDaData(f.admissao) === mes) motivo.push('admitido em ' + f.admissao);
+  if(mesDaData(f.desligamento) === mes) motivo.push('desligado em ' + f.desligamento);
+  return 'Proporcional: ' + dias + '/' + AVOS_SALARIO + ' de ' + fmtMoeda(toNum(f.salarioBase)) +
+         (motivo.length ? ' — ' + motivo.join(' e ') : '') + '.';
+}
+
+/* Quem já tinha saído antes de o mês começar não aparece mais na folha. Só o
+   desligamento tira alguém da lista: é campo digitado de propósito. A admissão não
+   tira ninguém — ela vem da importação do ponto e não é confiável o bastante para
+   fazer gente sumir de mês fechado. */
+function foraDaFolhaNoMes(f, mes){
+  const km = mesDaData(f && f.desligamento);
+  return !!km && km < mes;
+}
+
 /* ============================= CÁLCULO DA FOLHA ============================= */
 function calcularTotais(l){
   const total = toNum(l.salario)+toNum(l.feriado)+toNum(l.domingo)+toNum(l.folgas)+toNum(l.horaExtra)+toNum(l.salFamilia);
@@ -4083,7 +4313,11 @@ function renderLista(){
   const info = document.getElementById('listaInfo');
   grid.innerHTML = '';
 
-  let lista = [...state.funcionarios];
+  /* Quem foi desligado some da lista a partir do mês seguinte ao da saída — a mesma
+     regra da folha, senão a tela mostraria gente que a apuração já não conta. Ver
+     "SALÁRIO PROPORCIONAL". Voltando o mês no seletor, ele reaparece no mês em que
+     ainda trabalhou. */
+  let lista = state.funcionarios.filter(f=> !foraDaFolhaNoMes(f, state.mesAtual));
   if(termo){
     lista = lista.filter(f => norm(f.nome).includes(termo) || norm(f.funcao).includes(termo) || norm(f.cpf).includes(termo));
   }
@@ -4092,7 +4326,14 @@ function renderLista(){
   const semPonto = mapaPonto ? lista.filter(f=>!mapaPonto[f.id]).length : 0;
   info.innerHTML = mesLabel(state.mesAtual) + ' · ' + lista.length + ' colaborador(es)' + (termo ? ' encontrado(s)' : ' cadastrado(s)') +
     (mapaPonto ? ' · ' + (lista.length - semPonto) + ' com cartão ponto' + (semPonto ? ' · ' + semPonto + ' sem registro de ponto' : '') : '') +
-    (valoresVisiveis ? '' : ' · <b>valores ocultos</b> — use o olho da linha ou o botão “Mostrar valores”');
+    (valoresVisiveis ? '' : ' · <b>valores ocultos</b> — use o olho da linha ou o botão “Mostrar valores”') +
+    /* O caminho de volta precisa estar escrito: sem isto, corrigir uma data de saída
+       digitada errada viraria caça ao colaborador que sumiu da tela. */
+    (function(){
+      const n = state.funcionarios.filter(f=> foraDaFolhaNoMes(f, state.mesAtual)).length;
+      return n ? '<br><span style="color:#8a6d1f;">' + n + ' colaborador(es) desligado(s) não aparecem em ' +
+        mesLabel(state.mesAtual) + ' — volte ao mês da saída no seletor do topo para abrir a ficha.</span>' : '';
+    })();
 
   if(lista.length===0){
     grid.innerHTML = '<div class="empty">Nenhum colaborador encontrado.<br>Use "Cadastrar Colaborador" ou importe as planilhas.</div>';
@@ -4185,6 +4426,8 @@ function abrirColaborador(id){
   document.getElementById('cNome').value = f.nome || '';
   document.getElementById('cFuncao').value = f.funcao || '';
   document.getElementById('cCpf').value = f.cpf || '';
+  document.getElementById('cAdmissao').value = f.admissao || '';
+  document.getElementById('cDesligamento').value = f.desligamento || '';
   document.getElementById('cSalarioBase').value = f.salarioBase || '';
   document.getElementById('cSalarioBase').readOnly = true;
   document.getElementById('cSalarioBaseNota').style.display = '';
@@ -4209,7 +4452,8 @@ function abrirNovoColaborador(){
   colabAtualId = null;
   document.getElementById('colabTitulo').textContent = 'Novo colaborador';
   document.getElementById('colabSub').textContent = 'Preencha os dados cadastrais';
-  ['cNome','cFuncao','cCpf','cSalarioBase','cChavePix'].forEach(id=>document.getElementById(id).value='');
+  ['cNome','cFuncao','cCpf','cAdmissao','cDesligamento','cSalarioBase','cChavePix']
+    .forEach(id=>document.getElementById(id).value='');
   duasModalidadesForm = false;
   document.getElementById('cModalidade1').value = 'pix';
   document.getElementById('cSalarioBase').readOnly = false;
@@ -4246,7 +4490,7 @@ function carregarLancamentoNoForm(funcId){
      acompanha o salário base cadastral, para não dessincronizar da folha. Meses já
      fechados/históricos não são tocados aqui (ver montarHistorico). */
   if(ehDiarista(f)) sincronizarLancamento(f, l);
-  else l.salario = f ? (f.salarioBase || 0) : l.salario;
+  else l.salario = f ? salarioDoMes(f, state.mesAtual) : l.salario;
   sincronizarPontoNoLancamento(f, l);
 
   diariaDatasForm = Array.isArray(l.diariaDatas) ? l.diariaDatas.slice() : [];
@@ -4260,6 +4504,12 @@ function carregarLancamentoNoForm(funcId){
   hePontoForm = toNum(l.horaExtraPonto);
   document.getElementById('mesLabelLanc').textContent = mesLabel(state.mesAtual);
   document.getElementById('lSalario').value = l.salario;
+  /* Ver "SALÁRIO PROPORCIONAL": quando o número não é o salário do cadastro, a razão
+     fica escrita embaixo dele. */
+  const notaSal = notaSalarioProporcional(f, state.mesAtual);
+  const boxNotaSal = document.getElementById('lSalarioNota');
+  boxNotaSal.textContent = notaSal;
+  boxNotaSal.style.display = notaSal ? '' : 'none';
   document.getElementById('lFeriado').value = l.feriado || 0;
   document.getElementById('lDomingo').value = l.domingo || 0;
   document.getElementById('lFolgas').value = l.folgas;
@@ -4774,6 +5024,13 @@ document.getElementById('btnSalvarColab').addEventListener('click', ()=>{
   f.nome = nome;
   f.funcao = document.getElementById('cFuncao').value.trim();
   f.cpf = document.getElementById('cCpf').value.trim();
+  /* As duas datas são gravadas normalizadas em dd/mm/aaaa, que é como o cadastro
+     sempre guardou e como o holerite imprime. Data que não dá para entender não é
+     gravada pela metade: fica em branco, e o mês continua saindo cheio — melhor um
+     salário cheio a corrigir do que um proporcional calculado sobre lixo. */
+  f.admissao = dataCadastral(document.getElementById('cAdmissao').value);
+  const desl = dataCadastral(document.getElementById('cDesligamento').value);
+  if(desl) f.desligamento = desl; else delete f.desligamento;
   f.modalidade = document.getElementById('cModalidade').value;
   /* Forma de pagamento e chave PIX são cadastro: preenche uma vez e vale para
      todos os meses do balanço. */
@@ -4813,7 +5070,9 @@ document.getElementById('btnSalvarColab').addEventListener('click', ()=>{
     diariaDatas: diariaDatasForm.slice(),
     diariaHorarios: JSON.parse(JSON.stringify(diariaHorariosForm))
   } : {
-    salario: f.salarioBase || 0,
+    /* Não é o salário base: é o do mês, que pode vir proporcional pela admissão ou
+       pelo desligamento. Ver "SALÁRIO PROPORCIONAL". */
+    salario: salarioDoMes(f, state.mesAtual),
     feriado: toNum(document.getElementById('lFeriado').value),
     domingo: toNum(document.getElementById('lDomingo').value),
     folgas: toNum(document.getElementById('lFolgas').value),
@@ -5265,177 +5524,518 @@ function lerFormLancamentoAtual(){
   };
 }
 
+/* O item do cartão ponto do colaborador para juntar ao recibo. Só do mês corrente: a
+   apuração do ponto vive em `state.mesAtual`, e emitir o holerite de julho com a ficha
+   de agosto seria pior do que emitir sem ficha nenhuma. Sem ponto — diarista, mês não
+   importado, colaborador sem vínculo — devolve null e o recibo sai sozinho na folha. */
+function pontoParaHolerite(f, mesChave){
+  if(!f || ehDiarista(f) || mesChave !== state.mesAtual) return null;
+  const mapa = (typeof mapaPontoPorFunc === 'function') ? mapaPontoPorFunc() : null;
+  return (mapa && mapa[f.id]) || null;
+}
+
 async function gerarHoleritePDF(f, l, mesChave){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({unit:'pt', format:'a4'});
-  desenharHolerite(doc, f, l, mesChave, await obterLogoDataURL());
+  desenharHolerite(doc, f, l, mesChave, await obterLogoDataURL(), pontoParaHolerite(f, mesChave));
   doc.save('Holerite_' + f.nome.replace(/\s+/g,'_') + '_' + mesChave + '.pdf');
 }
 
+/* Nome e CNPJ do empregador para os documentos. O nome é o do cadastro; o CNPJ não tem
+   campo próprio no sistema e vem do cartão ponto do mês, que é emitido pela empresa e
+   já o traz. Sem cartão ponto importado, o recibo sai sem a linha do CNPJ em vez de
+   sair com um número inventado. */
+function dadosEmpresaHolerite(mesChave){
+  const p = (state.ponto && state.ponto[mesChave]) || null;
+  return { nome: state.empresa || (p && p.empresa) || 'Empresa', cnpj: (p && p.cnpj) || '' };
+}
+
 /* Desenha um holerite na página atual do documento. Separado de gerarHoleritePDF
-   para que a emissão em lote possa empilhar um colaborador por página no mesmo PDF. */
-function desenharHolerite(doc, f, l, mesChave, logoDataURL){
+   para que a emissão em lote possa empilhar um colaborador por página no mesmo PDF.
+
+   ============================= O RECIBO EM UMA FOLHA =============================
+   Formato do holerite brasileiro de papel: moldura em volta, blocos separados por
+   traço e a área de verbas pautada com altura FIXA — doze linhas, preenchidas ou não.
+
+   A altura fixa é o detalhe que faz o documento parecer um documento: sem ela, quem
+   tem três verbas recebe um recibo curto e quem tem sete recebe um comprido, com o
+   líquido e as assinaturas dançando de lugar a cada mês. Com a pauta fixa, o bloco do
+   líquido cai sempre na mesma altura da folha, e conferir dois recibos lado a lado
+   passa a ser possível.
+
+   Tudo dimensionado para caber numa página A4 e só uma: o rodapé de assinaturas é
+   ancorado no pé da moldura, não no fim do conteúdo. */
+/* A ficha de ponto compacta que divide a folha com o holerite. Ver "O RECIBO EM UMA
+   FOLHA": ela ocupa a metade de baixo, e por isso é outro desenho — não uma versão
+   menor do espelho.
+
+   O que muda em relação ao espelho inteiro, e por quê:
+   • os dias saem em DUAS COLUNAS lado a lado (1 a 16 | 17 a 31). Trinta e uma linhas
+     empilhadas em meia folha dariam 9pt de altura cada, ilegíveis; em duas colunas
+     sobram 15 a 18pt por linha e o corpo do texto continua de pé;
+   • a coluna "Situação" fica de fora. Ela é a mais larga do espelho e a que menos cabe
+     aqui — o que interessa nesta folha é a marcação, o trabalhado e o atraso, que são
+     os números de que o recibo ao lado depende;
+   • os totais e as ocorrências do mês viram uma linha de resumo no alto do bloco.
+   Quem precisa do detalhe dia a dia continua emitindo o espelho completo, que é o
+   documento próprio para isso. */
+function desenharFichaPontoCompacta(doc, it, x0, x1, yIni, yLimite){
+  const a = it.a, c = it.c;
+  const W = x1 - x0;
+
+  /* ===== A FICHA NÃO GASTA TINTA =====
+     Ela é impressa uma vez por colaborador, todo mês, no mesmo maço do holerite. Faixas
+     preenchidas e linhas coloridas de fundo — que era como ela estava — custam cartucho
+     em cada uma dessas folhas e não dizem nada que o texto não diga.
+
+     Então: nada de fundo, nada de faixa. Sobraram DUAS cores, e cada uma marca uma
+     batida específica, não o dia inteiro:
+       • VERMELHO na marcação que gerou desconto — a entrada que chegou atrasada, a
+         saída que foi antecipada;
+       • AZUL na marcação que gerou hora extra — a entrada antes do horário de corte, a
+         saída depois dele.
+     Quem confere a ficha procura exatamente isso: qual batida custou e qual batida
+     rendeu. O resto é preto no branco. */
+  const VERMELHO = [192, 57, 43];
+  const AZUL     = [31, 97, 141];
+  const CINZA    = [130, 130, 130];
+  const tinta = (cor)=> doc.setTextColor(cor ? cor[0] : 0, cor ? cor[1] : 0, cor ? cor[2] : 0);
+
+  doc.setFont('helvetica','bold'); doc.setFontSize(8);
+  doc.text('FICHA DE PONTO — ' + mesLabel(state.mesAtual), x0, yIni + 9);
+  doc.setFontSize(6.4); doc.setFont('helvetica','normal');
+  doc.text('assinatura ao pé desta folha vale para o recibo e para a ficha', x1, yIni + 9, {align:'right'});
+  doc.setDrawColor(120); doc.setLineWidth(0.7);
+  doc.line(x0, yIni + 13, x1, yIni + 13);
+  let y = yIni + 14;
+
+  doc.setFontSize(6.8);
+  doc.text('Dias trabalhados ' + a.diasTrabalhados +
+           '   ·   Faltas ' + a.faltas +
+           '   ·   Registros ausentes ' + a.semBatidaQtd +
+           '   ·   Atrasos ' + a.atrasosQtd + ' (' + pHHMM(a.atrasoMin) + ')' +
+           '   ·   Saídas antecipadas ' + a.saidaAntQtd +
+           '   ·   Horas extras ' + pHHMM(a.extraMin) +
+           '   ·   Horas devidas ' + pHHMM(a.debitoMin) +
+           '   ·   Saldo ' + pHHMM(a.saldoMin), x0 + 9, y + 9);
+  y += 13;
+
+  /* Duas metades, com uma calha de 10pt entre elas. */
+  const CALHA = 10;
+  const larguraBloco = (W - CALHA) / 2;
+  /* A coluna "Extra" foi aberta apertando as marcações de 25 para 22pt: o colaborador
+     assina esta folha, e hora extra que ele recebe sem estar escrita ao lado do dia é
+     hora extra que ele não tem como conferir. Ver "HORA EXTRA LANÇADA NO DIA". */
+  /* A coluna Atr foi de 24 para 28pt: "-05:07" não cabia e saía cortado como "-05:...",
+     que é exatamente o número que alguém iria querer conferir. Os 4pt vieram da coluna
+     do dia, que sobrava — "01 SÁB" ocupa pouco mais de vinte. */
+  /* A coluna "Trab" saiu. O total trabalhado do mês já está na linha de resumo aqui em
+     cima, e no dia a dia ele é dedutível das próprias marcações — enquanto a hora extra
+     e o atraso são as duas colunas que o colaborador confere de verdade nesta folha.
+     Os 27pt que sobraram foram para as marcações e para a coluna Extra, que precisava
+     caber "05:12 ×2" do feriado sem cortar. */
+  const cols = [['Dia',40,'esq'], ['E1',26], ['S1',26], ['E2',26], ['S2',26], ['E3',26], ['S3',26], ['Extra',36], ['Atr',27]];
+  const larguraCols = cols.reduce((s,cl)=> s + cl[1], 0);
+  /* Sobra da divisão vai toda para a coluna do dia: é a única que carrega texto. */
+  cols[0][1] += Math.max(0, larguraBloco - 8 - larguraCols);
+
+  const dias = a.dias;
+  const porBloco = Math.ceil(dias.length / 2);
+  const blocos = [dias.slice(0, porBloco), dias.slice(porBloco)];
+
+  const yCab = y;
+  /* Cabeçalho sem faixa preenchida: negrito e um filete embaixo dão a mesma separação
+     por uma fração da tinta. */
+  const desenharCab = (bx)=>{
+    doc.setFont('helvetica','bold'); doc.setFontSize(6);
+    let x = bx + 4;
+    cols.forEach(cl=>{ doc.text(cl[0], x, yCab + 7.6); x += cl[1]; });
+    doc.setDrawColor(120); doc.setLineWidth(0.5);
+    doc.line(bx, yCab + 10, bx + larguraBloco, yCab + 10);
+    doc.setFont('helvetica','normal');
+  };
+  desenharCab(x0);
+  desenharCab(x0 + larguraBloco + CALHA);
+  y += 11;
+
+  /* A linha cresce até preencher o espaço reservado, com teto para não virar tabela
+     esparramada num mês curto. A legenda e a declaração da hora extra são descontadas
+     ANTES: elas são desenhadas depois das linhas, e sem reservar o espaço delas a
+     tabela avançaria por cima da assinatura. */
+  const RODAPE_FICHA = 14 + (a.extraDiaQtd ? 26 : 0);
+  const espaco = (yLimite - RODAPE_FICHA) - y;
+  const LINHA = Math.max(8, Math.min(20, Math.floor(espaco / Math.max(1, porBloco))));
+  const CORPO = LINHA >= 16 ? 7.4 : (LINHA >= 13 ? 6.8 : (LINHA >= 10 ? 6.2 : 5.6));
+
+  const marca = (d, i)=>{
+    const m = d.marc[i];
+    if(m.min !== null) return pHHMM(m.min) + (m.manual ? '*' : '') + (d.marcacaoEditada ? '†' : '');
+    return m.status ? (m.status.length > 4 ? m.status.slice(0,4) : m.status) : '—';
+  };
+
+  /* Qual marcação é a entrada e qual é a saída do dia. A entrada é a primeira batida
+     preenchida e a saída é a última — que é como `analisarDia` chega em entradaMin e
+     saidaMin. São essas duas que o atraso e a hora extra acusam, e são essas duas que
+     ganham cor: pintar a linha inteira diria "algo aconteceu neste dia" em vez de
+     "foi ESTA batida". */
+  const indicesBatidas = (d)=>{
+    let pri = -1, ult = -1;
+    for(let i = 0; i < 6; i++){ if(d.marc[i] && d.marc[i].min !== null){ if(pri < 0) pri = i; ult = i; } }
+    return {pri, ult};
+  };
+  /* O vermelho marca a batida que CUSTOU. No dia marcado como "pago o dia trabalhado"
+     nada custou — a casa decidiu pagar a jornada inteira —, então acusar a batida em
+     vermelho ali é dizer ao colaborador que ele deve uma coisa que já foi perdoada.
+     O azul continua valendo: hora extra não é acusação, é o que ele recebe.
+     Ver "CORTESIA DO DIA". */
+  const corDaBatida = (d, i, idx)=>{
+    const tem = (cod)=> (d.ocorrencias || []).some(o=> o.cod === cod);
+    const acusa = !d.cortesiaDia;
+    if(i === idx.pri){
+      if(acusa && d.atrasoMin > 0) return VERMELHO;   /* chegou depois da escala */
+      if(tem('HE-ENT')) return AZUL;                  /* entrou antes do corte de hora extra */
+    }
+    if(i === idx.ult){
+      if(acusa && d.saidaAntMin > 0) return VERMELHO; /* saiu antes da escala */
+      if(tem('HE-SAI')) return AZUL;                  /* saiu depois do corte de hora extra */
+    }
+    return null;
+  };
+
+  blocos.forEach((bloco, b)=>{
+    const bx = x0 + b * (larguraBloco + CALHA);
+    let yy = y;
+    bloco.forEach(d=>{
+      /* Sem preenchimento nenhum: só o filete que separa uma linha da outra. */
+      doc.setDrawColor(220); doc.setLineWidth(0.4);
+      doc.line(bx, yy + LINHA, bx + larguraBloco, yy + LINHA);
+
+      const idx = indicesBatidas(d);
+      const valores = [
+        {t: String(d.dia).padStart(2,'0') + ' ' + (PONTO_DOW_LABEL[d.dow] || ''), b:true},
+        {t: marca(d,0), c: corDaBatida(d,0,idx)},
+        {t: marca(d,1), c: corDaBatida(d,1,idx)},
+        {t: marca(d,2), c: corDaBatida(d,2,idx)},
+        {t: marca(d,3), c: corDaBatida(d,3,idx)},
+        {t: marca(d,4), c: corDaBatida(d,4,idx)},
+        {t: marca(d,5), c: corDaBatida(d,5,idx)},
+        /* O total de hora extra do dia acompanha a cor das batidas que o geraram. */
+        /* No feriado a célula mostra as HORAS REAIS do dia com o "×2" ao lado —
+           "05:12 ×2" —, e não o produto. Quem confere a ficha quer reconhecer ali a
+           jornada que a pessoa cumpriu; um "10:24" solto na coluna de extra parecia
+           que o sistema tinha inventado horas. O total do mês, na linha de baixo,
+           continua somando o dobro, e o pé da folha mostra a conta fechada. */
+        {t: d.feriadoDobra ? (pHHMM(d.trabalhadoMin) + ' ×2')
+              : (d.extraMin ? pHHMM(d.extraMin) + (d.extraDiaMin ? '‡' : '') : '—'),
+         c: d.extraMin ? AZUL : null, b: !!d.extraMin},
+        /* Dia pago por inteiro não mostra o número em vermelho: mostra que foi pago.
+           Some o valor, não a informação — e o pé da ficha continua declarando quantos
+           dias foram pagos assim. */
+        (function(){
+          const houve = d.atrasoMin > 0 || d.saidaAntMin > 0;
+          if(d.cortesiaDia && houve) return {t:'pago', c: CINZA, leve:true};
+          return {t: d.atrasoMin ? pHHMM(d.atrasoMin) : (d.saidaAntMin ? '-' + pHHMM(d.saidaAntMin) : '—'),
+                  c: houve ? VERMELHO : null};
+        })()
+      ];
+      let x = bx + 4;
+      valores.forEach((v, i)=>{
+        /* Negrito acompanha a cor — menos o cinza do "pago", que é informação de apoio
+           e não pode competir com os números que a pessoa está conferindo. */
+        doc.setFont('helvetica', (v.b || (v.c && !v.leve)) ? 'bold' : 'normal');
+        doc.setFontSize(CORPO);
+        tinta(v.c);
+        doc.text(relCortar(doc, String(v.t), cols[i][1] - 3), x, yy + LINHA - 3.4);
+        x += cols[i][1];
+      });
+      tinta(null);
+      yy += LINHA;
+    });
+  });
+  y += porBloco * LINHA;
+
+  /* Legenda dos símbolos, na largura inteira. */
+  const ajustados = a.dias.filter(d=> d.marcacaoEditada).length;
+  const cortesias = a.dias.filter(d=> d.cortesiaDia).length;
+  /* A legenda das cores vem escrita NA COR que explica: quem olha a ficha entende sem
+     ter que decorar convenção nenhuma. É a única tinta colorida fora da tabela. */
+  doc.setFontSize(6.2);
+  let xl = x0 + 4;
+  const legenda = (txt, cor, negrito)=>{
+    doc.setFont('helvetica', negrito ? 'bold' : 'normal');
+    tinta(cor);
+    doc.text(txt, xl, y + 9);
+    xl += doc.getTextWidth(txt) + 10;
+  };
+  legenda('marcação em vermelho = atraso ou saída antecipada', VERMELHO, true);
+  legenda('em azul = hora extra', AZUL, true);
+  tinta(null); doc.setFont('helvetica','normal'); doc.setTextColor(115);
+  doc.text('(*) batida lançada manualmente' +
+    (ajustados ? '   (†) marcação ajustada à mão — ' + ajustados + ' dia(s)' : '') +
+    (cortesias ? '   ' + cortesias + ' dia(s) pago o dia trabalhado' : ''), xl, y + 9);
+  y += 12;
+  /* A declaração da hora extra combinada vem em negrito e por extenso, também aqui:
+     esta é a folha que o colaborador assina para receber. */
+  if(a.extraDiaQtd){
+    doc.setFont('helvetica','bold'); tinta(AZUL);
+    const linhas = doc.splitTextToSize(textoExtraLancada(a), W - 8);
+    doc.text(linhas, x0 + 4, y + 8);
+    y += 8 + linhas.length * 8;
+    doc.setFont('helvetica','normal');
+  }
+  tinta(null);
+  return y + 4;
+}
+
+function desenharHolerite(doc, f, l, mesChave, logoDataURL, itPonto){
   const {total, descontos, liquido} = calcularTotais(l);
-  const margem = 40; let y = 50;
-  const largura = doc.internal.pageSize.getWidth();
+  const diarista = ehDiarista(f);
+  const emp = dadosEmpresaHolerite(mesChave);
+  /* Com ficha de ponto na mesma folha o recibo cede espaço: a pauta encolhe e a nota
+     explicativa do INSS sai (o número dela continua no quadro de bases). Sem ficha, o
+     recibo ocupa a folha inteira como antes. */
+  const comPonto = !!(itPonto && itPonto.a && itPonto.a.dias && itPonto.a.dias.length);
 
-  const logoTam = 40;
-  let xTexto = margem;
+  const L = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  /* Margem enxugada de 34 para 22pt. Os 24pt de largura que isso devolve foram todos
+     para a ficha de ponto da metade de baixo, que estava com as colunas de marcação
+     espremidas para caber a coluna de hora extra. Continua sendo margem de verdade —
+     e bem dentro da área imprimível de qualquer impressora comum. */
+  const M = 22;                       /* a margem em volta da moldura */
+  const x0 = M, x1 = L - M, W = x1 - x0;
+  const yTopo = M, yFim = H - M;
+
+  const traco = (yy)=>{ doc.setDrawColor(150); doc.setLineWidth(0.6); doc.line(x0, yy, x1, yy); };
+  /* Tracejado desenhado a mão, traço a traço, em vez de `setLineDashPattern`: nem toda
+     versão do jsPDF traz o método, e um recibo que sai sem a divisória é pior do que um
+     laço de dez linhas. */
+  const tracejado = (yy)=>{
+    doc.setDrawColor(140); doc.setLineWidth(0.7);
+    for(let xx = x0; xx < x1; xx += 6) doc.line(xx, yy, Math.min(xx + 3.4, x1), yy);
+  };
+  const vertical = (xx, ya, yb)=>{ doc.setDrawColor(150); doc.setLineWidth(0.6); doc.line(xx, ya, xx, yb); };
+  /* Rótulo miúdo e cinza por cima do valor: é o que separa "o que é o campo" de "o que
+     está escrito nele", como no recibo impresso. */
+  const rotulo = (t, x, yy)=>{
+    doc.setFont('helvetica','normal'); doc.setFontSize(6.2); doc.setTextColor(125);
+    doc.text(t, x, yy); doc.setTextColor(0);
+  };
+  const escrever = (t, x, yy, tam, negrito, alinha)=>{
+    doc.setFont('helvetica', negrito ? 'bold' : 'normal');
+    doc.setFontSize(tam || 9);
+    doc.text(String(t == null ? '' : t), x, yy, alinha ? {align: alinha} : undefined);
+  };
+  const pct = (v, casas)=> v.toLocaleString('pt-BR',
+    {minimumFractionDigits: casas || 2, maximumFractionDigits: casas || 2}) + '%';
+
+  let y = yTopo;
+
+  /* ---------------------------------------------------------------- cabeçalho */
+  const H_CAB = comPonto ? 46 : 52;
+  let xt = x0 + 9;
   if(logoDataURL){
-    try{ doc.addImage(logoDataURL, 'PNG', margem, y-26, logoTam, logoTam); xTexto = margem + logoTam + 12; }
-    catch(e){ xTexto = margem; }
+    try{ doc.addImage(logoDataURL, 'PNG', x0 + 9, y + 7, H_CAB - 16, H_CAB - 16); xt = x0 + H_CAB - 1; }
+    catch(e){ xt = x0 + 9; }
   }
+  escrever(emp.nome, xt, y + 19, comPonto ? 11 : 12, true);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.2); doc.setTextColor(110);
+  if(emp.cnpj) doc.text('CNPJ ' + emp.cnpj, xt, y + 30);
+  doc.text('Demonstrativo de pagamento', xt, y + (emp.cnpj ? 39 : 30));
+  doc.setTextColor(0);
+  escrever(diarista ? 'RECIBO DE PAGAMENTO DE DIÁRIAS' : 'RECIBO DE PAGAMENTO DE SALÁRIO',
+           x1 - 9, y + 19, 9.5, true, 'right');
+  escrever('Referência: ' + mesLabel(mesChave), x1 - 9, y + 32, 8.5, false, 'right');
+  y += H_CAB; traco(y);
 
-  doc.setFont('helvetica','bold'); doc.setFontSize(14);
-  doc.text(state.empresa || 'Empresa', xTexto, y);
-  doc.setFontSize(11); doc.setFont('helvetica','normal');
-  doc.text(ehDiarista(f) ? 'Recibo de Pagamento de Diárias' : 'Recibo de Pagamento de Salário', xTexto, y+16);
-  doc.text('Referência: ' + mesLabel(mesChave), largura-margem, y+16, {align:'right'});
-  y += 36;
-  doc.setDrawColor(200); doc.line(margem, y, largura-margem, y); y += 20;
+  /* ------------------------------------------------------------- colaborador */
+  const H_COL = 30;
+  const cx = [x0 + 9, x0 + 262, x0 + 368, x0 + 458];
+  rotulo('NOME DO COLABORADOR', cx[0], y + 10);
+  rotulo('FUNÇÃO', cx[1], y + 10);
+  rotulo('CPF', cx[2], y + 10);
+  rotulo('ADMISSÃO', cx[3], y + 10);
+  escrever(f.nome || '-', cx[0], y + 23, 9.5, true);
+  escrever(f.funcao || '-', cx[1], y + 23, 8);
+  escrever(f.cpf || '-', cx[2], y + 23, 8);
+  /* Desligado no mês: a data de saída vai colada na de entrada, porque é ela que
+     explica o salário proporcional logo abaixo. */
+  escrever((f.admissao || '-') + (f.desligamento ? '  a  ' + f.desligamento : ''), cx[3], y + 23, 8);
+  [cx[1] - 9, cx[2] - 9, cx[3] - 9].forEach(xx=> vertical(xx, y, y + H_COL));
+  y += H_COL; traco(y);
 
-  doc.setFont('helvetica','bold'); doc.setFontSize(11);
-  doc.text('Colaborador: ' + f.nome, margem, y); y += 16;
-  doc.setFont('helvetica','normal');
-  doc.text('Função: ' + (f.funcao||'-'), margem, y);
-  doc.text('CPF: ' + (f.cpf||'-'), largura-margem, y, {align:'right'});
-  y += 26;
+  /* ------------------------------------------------------------ verbas do mês */
+  const inssPago = toNum(l.inss);
+  const inssEfetivo = total > 0 ? (inssPago / total * 100) : 0;
+  const itens = [];
 
-  function linhaValor(label, valor, negrito){
-    doc.setFont('helvetica', negrito?'bold':'normal');
-    doc.text(label, margem+10, y);
-    doc.text(fmtMoeda(valor), largura-margem-10, y, {align:'right'});
-    y += 16;
-  }
-  /* Desenha o traço de separação SEMPRE no vão entre duas linhas (nunca em cima do texto que
-     acabou de ser escrito nem do texto que vem a seguir). */
-  function linhaSeparadora(){
-    y += 4;
-    doc.setDrawColor(220); doc.line(margem, y, largura-margem, y);
-    y += 12;
-  }
-
-  doc.setFont('helvetica','bold'); doc.setFontSize(10.5);
-  doc.text('VENCIMENTOS', margem+10, y); y += 16;
-  doc.setFontSize(10.5);
-  if(ehDiarista(f)){
-    const qtd = (l.diariaDatas||[]).length;
+  if(diarista){
     const ap = apurarDiarias(f, l);
-    linhaValor(qtd + ' diária(s) × ' + fmtMoeda(l.diariaValor), l.salario);
-    /* A hora extra do diarista pode vir do calendário, do total digitado, ou dos
-       dois — o recibo descreve o que compôs o valor, sem deixar verba sem linha. */
+    const qtd = (l.diariaDatas || []).length;
+    itens.push({d:'Diárias', r: qtd + ' x ' + fmtMoeda(toNum(l.diariaValor)), v: toNum(l.salario)});
     if(toNum(l.horaExtra)){
       const partes = [];
-      if(ap.extraMin) partes.push(pHHMM(ap.extraMin) + ' pelo horário');
-      if(toNum(l.heQtd)) partes.push(toNum(l.heQtd).toLocaleString('pt-BR',{maximumFractionDigits:2}) + ' h lançadas');
-      linhaValor('Hora extra' + (partes.length ? ' (' + partes.join(' + ') + ' x ' + fmtMoeda(ap.valorHora) + '/h)' : ''), l.horaExtra);
+      if(ap.extraMin) partes.push(pHHMM(ap.extraMin));
+      if(toNum(l.heQtd)) partes.push(toNum(l.heQtd).toLocaleString('pt-BR',{maximumFractionDigits:2}) + ' h');
+      itens.push({d:'Hora extra', r: partes.join(' + ') + ' x ' + fmtMoeda(ap.valorHora), v: toNum(l.horaExtra)});
     }
-    if(qtd){
-      doc.setFont('helvetica','normal'); doc.setFontSize(8);
-      /* Cada data sai com o horário do dia, para o recibo bater com a ficha assinada. */
-      const datas = l.diariaDatas.map(iso=>{
-        const h = horasDiaDiarista(f, l, iso);
-        return iso.slice(8,10)+'/'+iso.slice(5,7) + (h ? ' ('+h.entTxt+'–'+h.saiTxt+')' : '');
-      }).join('   ');
-      doc.text('Datas trabalhadas: ' + datas, margem+10, y, {maxWidth: largura-2*margem-20});
-      const linhasTexto = doc.splitTextToSize('Datas trabalhadas: ' + datas, largura-2*margem-20).length;
-      y += 10 * linhasTexto + 4;
-      doc.setFontSize(10.5);
-    }
-  } else {
-    linhaValor('Salário', l.salario);
-    linhaValor('Folgas', l.folgas);
-    /* Quando há horas lançadas na mão, o recibo mostra a conta feita. */
-    linhaValor(toNum(l.heQtd)
-      ? 'Hora extra (' + toNum(l.heQtd).toLocaleString('pt-BR',{maximumFractionDigits:2}) + ' h x ' + fmtMoeda(valorHoraExtraDe(f)) + ')'
-      : 'Hora extra', l.horaExtra);
-    linhaValor('Salário Família', l.salFamilia);
-    /* Feriado e domingo são pagamento por fora: só entram no holerite de quem
-       realmente recebe, para não poluir o documento com linhas zeradas. */
-    if(toNum(l.feriado)) linhaValor('Feriado trabalhado', l.feriado);
-    if(toNum(l.domingo)) linhaValor('Domingo trabalhado', l.domingo);
+  }else{
+    const diasCtr = diasDeContratoNoMes(f, mesChave);
+    const totalDias = diasNoMes(mesChave);
+    /* Ver "SALÁRIO PROPORCIONAL": os avos aparecem na coluna de referência, que é
+       exatamente para onde o olho vai perguntar por que o valor está menor. */
+    itens.push({d:'Salário', v: toNum(l.salario),
+      r: diasCtr < totalDias ? diasCtr + '/' + AVOS_SALARIO + ' avos' : AVOS_SALARIO + '/' + AVOS_SALARIO + ' avos'});
+    if(toNum(l.folgas))     itens.push({d:'Folgas', r:'', v: toNum(l.folgas)});
+    if(toNum(l.horaExtra))  itens.push({d:'Hora extra', v: toNum(l.horaExtra),
+      r: toNum(l.heQtd) ? toNum(l.heQtd).toLocaleString('pt-BR',{maximumFractionDigits:2}) +
+         ' h x ' + fmtMoeda(valorHoraExtraDe(f)) : 'apurada no ponto'});
+    if(toNum(l.salFamilia)) itens.push({d:'Salário família', r:'', v: toNum(l.salFamilia)});
+    if(toNum(l.feriado))    itens.push({d:'Feriado trabalhado', r:'', v: toNum(l.feriado)});
+    if(toNum(l.domingo))    itens.push({d:'Domingo trabalhado', r:'', v: toNum(l.domingo)});
   }
-  linhaSeparadora();
-  linhaValor('Total de vencimentos', total, true);
-  y += 8;
+  if(toNum(l.atrasos))      itens.push({d:'Atrasos e faltas', r:'', x: toNum(l.atrasos)});
+  if(inssPago)              itens.push({d:'INSS', r: pct(inssEfetivo) + ' efetivos', x: inssPago});
+  if(toNum(l.adiantamento)) itens.push({d:'Adiantamento', r:'', x: toNum(l.adiantamento)});
+  if(toNum(l.contaMercado)) itens.push({d:'Conta mercado', r:'', x: toNum(l.contaMercado)});
+  if(toNum(l.desconto))     itens.push({d:'Outros descontos', r:'', x: toNum(l.desconto)});
 
-  doc.setFont('helvetica','bold');
-  doc.text('DESCONTOS', margem+10, y); y += 16;
-  linhaValor('Atrasos / Falta', l.atrasos);
-  linhaValor('INSS', l.inss);
-  linhaValor('Adiantamento', l.adiantamento);
-  linhaValor('Conta Mercado', l.contaMercado);
-  linhaValor('Outros descontos', l.desconto);
-  linhaSeparadora();
-  linhaValor('Total de descontos', descontos, true);
-  y += 14;
+  /* Pauta de altura fixa: cheia ou vazia, ela mantém o líquido e as assinaturas sempre
+     na mesma altura da folha, recibo após recibo. */
+  const LINHAS_PAUTA = comPonto ? 8 : 12;
+  const H_LINHA = comPonto ? 13 : 15;
+  const nLinhas = Math.max(LINHAS_PAUTA, itens.length);
+  const colRef = x0 + 262, colVen = x0 + 372, colDes = x0 + 462;
 
-  doc.setFillColor(234,242,248);
-  doc.rect(margem, y-14, largura-2*margem, 28, 'F');
-  doc.setFont('helvetica','bold'); doc.setFontSize(12);
-  doc.text('LÍQUIDO A RECEBER', margem+10, y+4);
-  doc.text(fmtMoeda(liquido), largura-margem-10, y+4, {align:'right'});
-  y += 40;
+  doc.setFillColor(238, 242, 245);
+  doc.rect(x0, y, W, 14, 'F');
+  rotulo('DESCRIÇÃO', x0 + 9, y + 9.5);
+  rotulo('REFERÊNCIA', colRef, y + 9.5);
+  doc.setFont('helvetica','normal'); doc.setFontSize(6.2); doc.setTextColor(125);
+  doc.text('VENCIMENTOS', colDes - 9, y + 9.5, {align:'right'});
+  doc.text('DESCONTOS', x1 - 9, y + 9.5, {align:'right'});
+  doc.setTextColor(0);
+  const yPauta = y + 14;
 
-  /* Demonstrativo de bases e alíquotas (INSS/FGTS/IRRF), no mesmo padrão do recibo em papel. */
+  itens.forEach((it, i)=>{
+    const yy = yPauta + i * H_LINHA + H_LINHA - 4;
+    escrever(it.d, x0 + 9, yy, 8.5);
+    if(it.r) escrever(it.r, colRef, yy, 7.4);
+    if(it.v) escrever(fmtMoeda(it.v), colDes - 9, yy, 8.5, false, 'right');
+    if(it.x) escrever(fmtMoeda(it.x), x1 - 9, yy, 8.5, false, 'right');
+  });
+  y = yPauta + nLinhas * H_LINHA;
+  [colRef - 9, colVen, colDes].forEach(xx=> vertical(xx, yPauta - 14, y));
+  traco(y);
+
+  /* ----------------------------------------------------------------- totais */
+  const H_TOT = 18;
+  escrever('TOTAIS', x0 + 9, y + 13, 8, true);
+  escrever(fmtMoeda(total), colDes - 9, y + 13, 9.5, true, 'right');
+  escrever(fmtMoeda(descontos), x1 - 9, y + 13, 9.5, true, 'right');
+  [colRef - 9, colVen, colDes].forEach(xx=> vertical(xx, y, y + H_TOT));
+  y += H_TOT; traco(y);
+
+  /* --------------------------------------------------------------- líquido */
+  const H_LIQ = comPonto ? 24 : 28;
+  doc.setFillColor(234, 242, 248);
+  doc.rect(x0, y, W, H_LIQ, 'F');
+  escrever('LÍQUIDO A RECEBER', x0 + 9, y + H_LIQ - 8, comPonto ? 10 : 11, true);
+  escrever(fmtMoeda(liquido), x1 - 9, y + H_LIQ - 8, comPonto ? 12 : 13, true, 'right');
+  y += H_LIQ; traco(y);
+
+  /* ------------------------------------------------- bases e alíquotas */
+  const H_BASE = comPonto ? 28 : 32;
   const inssCalc = calcularINSS(total);
   const fgtsCalc = calcularFGTS(total);
-  const inssPago = toNum(l.inss);
-  /* Percentual que o desconto REALMENTE representa sobre os vencimentos. A alíquota
-     da faixa (9%, 12%…) incide só sobre a parcela que excede a faixa anterior, então
-     ela sempre é maior que o percentual efetivo — é o que gera a impressão de
-     desconto a mais quando alguém multiplica o salário pela alíquota da tabela. */
-  const inssEfetivo = total > 0 ? (inssPago/total*100) : 0;
-  const pct = (v, casas)=> v.toLocaleString('pt-BR',{minimumFractionDigits:casas||2, maximumFractionDigits:casas||2}) + '%';
   const baseIrrf = Math.max(0, total - inssPago);
+  const bases = [
+    ['BASE INSS',    fmtMoeda(inssCalc.base)],
+    ['INSS EFETIVO', inssPago ? pct(inssEfetivo) : '—'],
+    ['BASE FGTS',    fmtMoeda(fgtsCalc.base)],
+    ['F.G.T.S 8%',   fmtMoeda(fgtsCalc.valor)],
+    ['BASE IRRF',    fmtMoeda(baseIrrf)]
+  ];
+  const larguraBase = W / bases.length;
+  bases.forEach((b, i)=>{
+    const bx = x0 + i * larguraBase + 9;
+    rotulo(b[0], bx, y + 11);
+    escrever(b[1], bx, y + 23, 8.5, true);
+    if(i) vertical(x0 + i * larguraBase, y, y + H_BASE);
+  });
+  y += H_BASE; traco(y);
 
-  doc.setFont('helvetica','bold'); doc.setFontSize(10.5);
-  doc.text('DEMONSTRATIVO — BASES E ALÍQUOTAS', margem+10, y); y += 14;
-  doc.setFontSize(9);
-  const colLarg = (largura-2*margem-20)/5;
-  const cabecalhos = ['Base INSS','INSS efetivo','Base FGTS','F.G.T.S (8%)','Base IRRF'];
-  const valoresDemo = [fmtMoeda(inssCalc.base), inssPago ? pct(inssEfetivo) : '—',
-                       fmtMoeda(fgtsCalc.base), fmtMoeda(fgtsCalc.valor), fmtMoeda(baseIrrf)];
-  let xDemo = margem+10;
-  doc.setFont('helvetica','normal'); doc.setTextColor(120);
-  cabecalhos.forEach(h=>{ doc.text(h, xDemo, y); xDemo += colLarg; });
-  y += 12;
-  xDemo = margem+10;
-  doc.setFont('helvetica','bold'); doc.setTextColor(0);
-  valoresDemo.forEach(v=>{ doc.text(v, xDemo, y); xDemo += colLarg; });
-  y += 18;
-  doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(120);
-  const textoInss = inssPago
-    ? 'INSS pela tabela progressiva 2026. A alíquota de ' + pct(inssCalc.aliquota*100, 1) +
-      ' vale apenas para a parcela do salário que passa da faixa anterior, e não para o total. ' +
-      'Desconto de ' + fmtMoeda(inssPago) + ' sobre ' + fmtMoeda(total) + ' de vencimentos = ' +
-      pct(inssEfetivo) + ' efetivos.'
-    : 'Sem desconto de INSS neste recibo.';
-  doc.text(textoInss, margem+10, y, {maxWidth: largura-2*margem-20});
-  doc.setTextColor(0);
-  y += 30;
-
-  /* Observação do lançamento (ok / pix / rescisão / acordo…): é o que explica o
-     recibo quando ele foge do comum, então precisa estar no papel. */
   const obs = String(l.obs || '').trim();
-  if(obs){
-    doc.setFont('helvetica','bold'); doc.setFontSize(9.5);
-    doc.text('Observação:', margem, y);
-    doc.setFont('helvetica','normal');
-    const linhasObs = doc.splitTextToSize(obs, largura - 2*margem - 66);
-    doc.text(linhasObs, margem + 66, y);
-    y += Math.max(20, linhasObs.length * 12 + 8);
+
+  if(comPonto){
+    /* ------------------------------------------- a ficha de ponto, metade de baixo */
+    if(obs){
+      escrever('Observação', x0 + 9, y + 11, 7, true);
+      doc.setFont('helvetica','normal'); doc.setFontSize(7.4);
+      doc.text(relCortar(doc, obs, W - 80), x0 + 66, y + 11);
+      y += 15; traco(y);
+    }
+    /* O respiro tracejado entre os dois documentos. São dois papéis na mesma folha, e
+       sem essa faixa o olho lia a ficha de ponto como se fosse mais um quadro do
+       recibo. O vão em branco dos dois lados é o que faz a divisória funcionar — uma
+       linha colada nos blocos vizinhos vira só mais um traço de tabela. */
+    y += 9;
+    tracejado(y);
+    doc.setFont('helvetica','normal'); doc.setFontSize(6); doc.setTextColor(140);
+    doc.text('ficha de ponto do mês', (x0 + x1) / 2, y + 9, {align:'center'});
+    doc.setTextColor(0);
+    y += 15;
+    /* O bloco vai até logo acima das assinaturas, que ficam ancoradas no pé. */
+    desenharFichaPontoCompacta(doc, itPonto, x0, x1, y, yFim - 52);
+  }else{
+    /* ------------------------------------------- nota do INSS e observação */
+    doc.setFont('helvetica','normal'); doc.setFontSize(7.4); doc.setTextColor(115);
+    const notaInss = inssPago
+      ? 'INSS pela tabela progressiva 2026: a alíquota de ' + pct(inssCalc.aliquota * 100, 1) +
+        ' vale só para a parcela que passa da faixa anterior, e não para o total — ' +
+        fmtMoeda(inssPago) + ' sobre ' + fmtMoeda(total) + ' de vencimentos são ' +
+        pct(inssEfetivo) + ' efetivos.'
+      : 'Sem desconto de INSS neste recibo.';
+    const linhasNota = doc.splitTextToSize(notaInss, W - 18);
+    doc.text(linhasNota, x0 + 9, y + 12);
+    doc.setTextColor(0);
+    y += 12 + linhasNota.length * 9;
+
+    if(obs){
+      y += 6; traco(y);
+      escrever('Observação', x0 + 9, y + 12, 7.5, true);
+      doc.setFont('helvetica','normal'); doc.setFontSize(8);
+      const linhasObs = doc.splitTextToSize(obs, W - 90);
+      doc.text(linhasObs, x0 + 72, y + 12);
+    }
   }
 
-
-  y = Math.max(y, 680);
-  doc.setDrawColor(150);
-  doc.line(margem, y, margem+200, y);
-  doc.line(largura-margem-200, y, largura-margem, y);
-  doc.setFontSize(9.5); doc.setTextColor(90);
-  doc.text('Assinatura do empregador', margem, y+14);
-  doc.text('Assinatura do colaborador', largura-margem-200, y+14);
+  /* ------------------------------------------------ declaração e assinaturas
+     Ancoradas no PÉ da moldura, e não no fim do conteúdo: é isso que faz o recibo do
+     mês cheio e o do mês magro terminarem na mesma linha da folha. Com a ficha de
+     ponto junto, a mesma assinatura fecha os dois documentos — e a declaração diz
+     isso, senão o papel estaria pedindo assinatura para uma coisa e usando para duas. */
+  const yAssin = yFim - 42;
+  traco(yAssin - 12);
+  doc.setFont('helvetica','normal'); doc.setFontSize(7.2); doc.setTextColor(110);
+  doc.text(comPonto
+    ? 'Declaro ter recebido a importância líquida discriminada neste recibo e reconheço a exatidão das marcações da ficha de ponto acima, referentes ao período.'
+    : 'Declaro ter recebido a importância líquida discriminada neste recibo, referente ao período acima.',
+    x0 + 9, yAssin - 2);
   doc.setTextColor(0);
+  const larguraAssin = (W - 40) / 2;
+  doc.setDrawColor(120); doc.setLineWidth(0.6);
+  doc.line(x0 + 9, yAssin + 20, x0 + 9 + larguraAssin, yAssin + 20);
+  doc.line(x1 - 9 - larguraAssin, yAssin + 20, x1 - 9, yAssin + 20);
+  doc.setFontSize(7.6); doc.setTextColor(90);
+  doc.text('Assinatura do empregador', x0 + 9, yAssin + 30);
+  doc.text(f.nome || 'Assinatura do colaborador', x1 - 9 - larguraAssin, yAssin + 30);
+  doc.setTextColor(0);
+
+  /* A moldura por último, para o traço externo ficar por cima de qualquer preenchimento. */
+  doc.setDrawColor(90); doc.setLineWidth(1);
+  doc.rect(x0, yTopo, W, yFim - yTopo);
+  doc.setLineWidth(0.6);
 }
 
 /* ============================= PONTO: NÚCLEO (parser + análise) ============================= */
@@ -5728,6 +6328,32 @@ function analisarDia(dia, escala, cfg){
   let saidaFinal = null;
   if(!extras.length && seq.length && seq[seq.length-1].min >= corteSaida) saidaFinal = seq.pop();
 
+  /* ===== BATIDA REPETIDA NO FIM DO DIA =====
+     Quem esquece de bater a volta do almoço e depois bate DUAS vezes na saída deixava o
+     dia num estado absurdo: as duas marcações do fim viravam um "bloco de trabalho" de
+     onze minutos, e o resto da jornada sumia. Foi o caso real da MARLENE em 07/08/2026 —
+     07:37, 11:31, 19:11, 19:22 — que apurou 4:05 trabalhadas contra 9:30 previstas e
+     cobrou 5:25 de horas devidas dela. Ninguém almoça das 11:31 às 19:11.
+
+     O pior é que o dia não era acusado: com quatro batidas, número par, o emparelhamento
+     fechava e nada ficava formalmente faltando. Errado em silêncio.
+
+     A regra que faltava é simples: marcação que sobra DEPOIS do horário de corte não é
+     retorno de intervalo, é a saída batida de novo. Ela é descartada, e o dia volta a ser
+     o que de fato é — um registro ausente, que não desconta hora de ninguém. Havendo
+     batida depois do corte, a saída está registrada e o dia não gera dívida. */
+  const saidasRepetidas = [];
+  if(saidaFinal){
+    while(seq.length && seq[seq.length-1].min >= corteSaida) saidasRepetidas.push(seq.pop());
+  }
+  if(saidasRepetidas.length){
+    oc.push({sev:'alerta', cod:'SAIDA2X',
+      txt:'Saída batida mais de uma vez — ' +
+          saidasRepetidas.map(s=> pHHMM(s.min)).reverse().join(', ') +
+          ' desconsiderada(s); vale a marcação das ' + pHHMM(saidaFinal.min) +
+          ' como encerramento da jornada'});
+  }
+
   const blocos = [];
   for(let i=0; i+1 < seq.length; i += 2) blocos.push([seq[i], seq[i+1]]);
   const sobra = (seq.length % 2 === 1) ? seq[seq.length-1] : null;
@@ -5893,14 +6519,33 @@ function agregarDias(dias){
     extraMin:0, normalMin:0, domTrabalhados:0, feriadosQtd:0, feriadosMin:0,
     domingosQtd:0, domingosMin:0,
     debitoMin:0, foraEscalaMin:0, trabalhadoMin:0, previstoMin:0, saldoMin:0,
+    /* Quanto de desconto a casa deixou de cobrar — ver "CORTESIA DO DIA". Fica somado
+       à parte porque é decisão de gestão, e decisão de gestão se presta contas. */
+    cortesiaQtd:0, cortesiaMin:0,
+    /* Do total lançado, quanto veio de FERIADO TRABALHADO. Fica separado porque é a
+       parcela que a diretoria pergunta primeiro: hora extra de feriado é decisão de
+       calendário, não de excesso de jornada, e as duas não se administram igual. */
+    feriadoDobraQtd:0, feriadoDobraMin:0,
+    /* Hora extra combinada pela gestão — ver "HORA EXTRA LANÇADA NO DIA". Já está
+       dentro de extraMin; fica somada à parte para poder ser mostrada separada da que
+       o relógio apurou sozinho. */
+    extraDiaQtd:0, extraDiaMin:0,
     ocorrenciasQtd:0, nota:100
   };
+  /* Folga, licença, férias e falta saem do laço antes de somar `extraMin`. Se a hora
+     extra do dia caiu num deles — chamaram alguém na folga —, ela ainda tem que ser
+     paga, então é recolhida aqui fora e somada ao fim. */
+  let extraForaDoLaco = 0;
   dias.forEach(d=>{
+    if(d.extraDiaMin){
+      r.extraDiaQtd++; r.extraDiaMin += d.extraDiaMin;
+      if(d.feriadoDobra){ r.feriadoDobraQtd++; r.feriadoDobraMin += d.extraDiaMin; }
+    }
     r.ocorrenciasQtd += d.ocorrencias.filter(o=>o.sev!=='info').length;
-    if(d.tipo==='feriado' && !d.trabalhadoMin){ r.folgas++; return; }
-    if(d.tipo==='folga'){ r.folgas++; return; }
-    if(d.tipo==='licenca'||d.tipo==='ferias'){ r.licencas++; return; }
-    if(d.tipo==='falta'){ r.faltas++; r.previstoMin += d.previstoMin; r.debitoMin += d.debitoMin; return; }
+    if(d.tipo==='feriado' && !d.trabalhadoMin){ r.folgas++; extraForaDoLaco += (d.extraDiaMin||0); return; }
+    if(d.tipo==='folga'){ r.folgas++; extraForaDoLaco += (d.extraDiaMin||0); return; }
+    if(d.tipo==='licenca'||d.tipo==='ferias'){ r.licencas++; extraForaDoLaco += (d.extraDiaMin||0); return; }
+    if(d.tipo==='falta'){ r.faltas++; r.previstoMin += d.previstoMin; r.debitoMin += d.debitoMin; extraForaDoLaco += (d.extraDiaMin||0); return; }
     r.diasTrabalhados++;
     r.trabalhadoMin += d.trabalhadoMin;
     r.previstoMin += d.previstoMin;
@@ -5917,10 +6562,12 @@ function agregarDias(dias){
     if(d.tipo==='foraescala') r.foraEscalaMin += d.trabalhadoMin;
     if(d.atrasoMin>0) r.atrasosQtd++;
     if(d.saidaAntMin>0) r.saidaAntQtd++;
+    if(d.cortesiaDia){ r.cortesiaQtd++; r.cortesiaMin += (d.cortesiaMin||0); }
     if(d.batidasFaltantes>0){ r.semBatidaQtd += d.batidasFaltantes; r.semBatidaDias++; }
     if(d.ocorrencias.some(o=>o.cod==='INTERVALO')) r.intervaloQtd++;
     if(d.manual) r.manualQtd++;
   });
+  r.extraMin += extraForaDoLaco;
   r.saldoMin = r.extraMin - r.debitoMin;
 
   // Nota de assiduidade (0-100)
@@ -5990,10 +6637,285 @@ function aplicarPreenchimentoPadrao(diaOriginal, dOrig){
   return null;
 }
 
-/* Analisa um colaborador aplicando as correções de registro ausente salvas para o mês */
+/* ============================= MARCAÇÕES AJUSTADAS À MÃO =============================
+   O relógio erra, e erra para um lado só: batida perdida vira atraso, entrada
+   registrada no lugar errado vira jornada torta. Em agosto/2026 a apuração encheu de
+   atraso que não existiu, e não havia como consertar — a única correção do sistema era
+   o MOTIVO de um registro ausente, que justifica o dia sem mexer no horário.
+
+   Agora dá para digitar a marcação certa, dia a dia, pessoa a pessoa. Três decisões
+   que essa camada carrega:
+
+   • o arquivo importado NUNCA é alterado. O ajuste mora à parte, em
+     `state.pontoMarcacoes[mês][colaborador][dia]`, e é aplicado por cima na hora de
+     apurar. Reimportar a planilha do mês não apaga o trabalho de quem conferiu — e é
+     isso que faz reimportar deixar de ser assustador;
+
+   • fica gravado QUEM ajustou e QUANDO. Mexer em horário de ponto é mexer no salário
+     de alguém: sem assinatura, é a palavra de ninguém contra a de ninguém;
+
+   • o dia ajustado é marcado na tela, no espelho e no PDF. Um número corrigido que se
+     parece com um número do relógio é pior do que um número errado. */
+function marcacoesEditadas(mes, nomePonto, iso){
+  const porColab = state.pontoMarcacoes && state.pontoMarcacoes[mes] && state.pontoMarcacoes[mes][norm(nomePonto)];
+  const reg = porColab ? porColab[iso] : null;
+  return (reg && Array.isArray(reg.cels)) ? reg : null;
+}
+
+function salvarMarcacaoPonto(mes, nomePonto, iso, cels){
+  if(!state.pontoMarcacoes) state.pontoMarcacoes = {};
+  if(!state.pontoMarcacoes[mes]) state.pontoMarcacoes[mes] = {};
+  const chave = norm(nomePonto);
+  if(!state.pontoMarcacoes[mes][chave]) state.pontoMarcacoes[mes][chave] = {};
+  if(cels){
+    state.pontoMarcacoes[mes][chave][iso] = {
+      cels: cels.slice(0,6),
+      por: document.getElementById('usuarioLogado').textContent || '',
+      em: new Date().toISOString()
+    };
+  }else{
+    delete state.pontoMarcacoes[mes][chave][iso];   /* desfazer: volta a valer o relógio */
+  }
+  invalidarPonto();
+  salvarEstado();
+}
+
+/* Uma hora digitada de qualquer jeito ("730", "7:30", "07:30") vira "07:30". Devolve
+   null para campo vazio ou para o que não é hora — no balcão se digita rápido, e
+   recusar "730" seria recusar o jeito como a pessoa digita. */
+function pTextoHora(v){
+  const s = String(v||'').trim();
+  if(!s) return null;
+  let m = s.match(/^(\d{1,2}):?(\d{2})$/);
+  if(!m){
+    m = s.match(/^(\d{1,2})$/);
+    return m ? String(+m[1]).padStart(2,'0') + ':00' : null;
+  }
+  const h = +m[1], mi = +m[2];
+  if(h > 23 || mi > 59) return null;
+  return String(h).padStart(2,'0') + ':' + String(mi).padStart(2,'0');
+}
+
+/* ============================= CORTESIA DO DIA =============================
+   Saiu antes da hora e a casa resolveu pagar o dia cheio assim mesmo. Acontece — é
+   decisão de gestão, não erro de apuração —, e antes só dava para fazer isso por fora,
+   mexendo no desconto da folha à mão, onde ninguém depois lembrava o porquê.
+
+   O que a cortesia faz é UMA coisa só: zera as horas devidas daquele dia. O atraso e a
+   saída antecipada continuam apurados, contados nos totais e impressos no espelho —
+   perdoar o desconto não é fingir que a pessoa cumpriu o horário. É a diferença entre
+   "não vou cobrar" e "não aconteceu", e o cartão ponto tem que continuar dizendo o que
+   aconteceu.
+
+   É oferecida em dia com ATRASO, com SAÍDA ANTECIPADA ou com REGISTRO AUSENTE — os
+   casos em que o desconto pode ter sido combinado antes com o colaborador. Dia limpo
+   não tem o que perdoar e não recebe a caixa.
+
+   Uma observação para quem mexer aqui: no CÓDIGO isto se chama cortesia, mas na TELA e
+   no espelho impresso a marca se chama "Pago o dia trabalhado", sem a palavra cortesia
+   em lugar nenhum — pedido do escritório em 02/09/2026. A diferença é de propósito e
+   não é para ser "consertada": os nomes internos ficam como estão porque é por eles que
+   o dado já gravado é lido (`state.pontoCortesias`), e renomear chave gravada perde o
+   que o escritório já decidiu. */
+function cortesiaPonto(mes, nomePonto, iso){
+  const porColab = state.pontoCortesias && state.pontoCortesias[mes] && state.pontoCortesias[mes][norm(nomePonto)];
+  return porColab ? (porColab[iso] || null) : null;
+}
+
+function salvarCortesiaPonto(mes, nomePonto, iso, ligada){
+  if(!state.pontoCortesias) state.pontoCortesias = {};
+  if(!state.pontoCortesias[mes]) state.pontoCortesias[mes] = {};
+  const chave = norm(nomePonto);
+  if(!state.pontoCortesias[mes][chave]) state.pontoCortesias[mes][chave] = {};
+  if(ligada){
+    state.pontoCortesias[mes][chave][iso] = {
+      por: document.getElementById('usuarioLogado').textContent || '',
+      em: new Date().toISOString()
+    };
+  }else{
+    delete state.pontoCortesias[mes][chave][iso];
+  }
+  invalidarPonto();
+  salvarEstado();
+}
+
+/* ===================== HORA EXTRA LANÇADA NO DIA =====================
+   Dia de inventário, véspera de feriado, reposição depois do horário: a casa combina
+   com a equipe inteira e todo mundo faz a mesma hora extra no mesmo dia. Lançar isso
+   pessoa por pessoa, na folha de cada uma, é o caminho que existia — e ele perdia a
+   informação que mais importa: EM QUE DIA foi.
+
+   Por isso a hora extra do dia mora aqui, junto do ponto, e não na folha:
+   • ela tem data, e data só existe no ponto;
+   • entrando na apuração do dia, ela aparece sozinha no espelho, na ficha de ponto do
+     holerite e no total de horas extras — que é o número que a folha já lê. Lançada na
+     folha, seria um valor solto que nenhum documento do colaborador explicaria;
+   • some junto com o mês quando o cartão ponto é reimportado? Não: como as outras
+     camadas de correção, ela vive à parte do arquivo importado e sobrevive a ele.
+
+   A hora extra apurada pelo relógio (entrada antes das 07:30, saída depois das 18:30)
+   continua valendo e SOMA com esta — são coisas diferentes: uma é o que o relógio viu,
+   outra é o que a gestão combinou. */
+/* ---------- FERIADO TRABALHADO ----------
+   O dia marcado como feriado lança, como hora extra, o DOBRO das horas que a pessoa
+   trabalhou nele: quem cumpriu 5:12 recebe 10:24 de hora extra. Nos documentos a coluna
+   mostra as HORAS REAIS com o "×2" ao lado — "05:12 ×2" —, porque é a jornada cumprida
+   que a pessoa reconhece; o produto aparece na declaração ao pé. Daí o "×2" ao lado do
+   número nos documentos.
+
+   Por que dobrando as HORAS e não a taxa: o sistema paga hora extra por um valor-hora
+   só — R$ 8,50 no geral, ou o próprio do colaborador na engrenagem — e não tem taxa
+   especial por data. Dobrar as horas é o único jeito de o dobro chegar ao bolso sem
+   inventar uma segunda tabela de preço, que seria mais uma coisa para manter e para
+   sair errada. A conta fecha igual: 4:30 × R$ 8,50 × 2 = 9:00 × R$ 8,50 = R$ 76,50.
+
+   A quantidade NÃO é gravada: fica gravada só a marca de feriado, e as horas são lidas
+   do dia na hora de apurar. É o que faz a conta se corrigir sozinha — se alguém depois
+   ajustar uma marcação daquele dia, o feriado passa a pagar as horas novas, sem ninguém
+   ter que lembrar de refazer o lançamento. Quem trabalhou zero hora recebe zero.
+
+   Marcar feriado SUBSTITUI a hora extra que estivesse lançada à mão naquele dia: são
+   duas respostas para a mesma pergunta, e a última é a que vale. */
+function extraDiaPonto(mes, nomePonto, iso){
+  const porColab = state.pontoExtrasDia && state.pontoExtrasDia[mes] && state.pontoExtrasDia[mes][norm(nomePonto)];
+  const reg = porColab ? porColab[iso] : null;
+  if(!reg) return null;
+  return (reg.feriado || toNum(reg.min) > 0) ? reg : null;
+}
+
+function salvarExtraDiaPonto(mes, nomePonto, iso, min, motivo, feriado){
+  if(!state.pontoExtrasDia) state.pontoExtrasDia = {};
+  if(!state.pontoExtrasDia[mes]) state.pontoExtrasDia[mes] = {};
+  const chave = norm(nomePonto);
+  if(!state.pontoExtrasDia[mes][chave]) state.pontoExtrasDia[mes][chave] = {};
+  const base = {
+    motivo: String(motivo || '').trim(),
+    por: document.getElementById('usuarioLogado').textContent || '',
+    em: new Date().toISOString()
+  };
+  if(feriado){
+    state.pontoExtrasDia[mes][chave][iso] = Object.assign({feriado:true}, base);
+  }else if(toNum(min) > 0){
+    state.pontoExtrasDia[mes][chave][iso] = Object.assign({min: Math.round(toNum(min))}, base);
+  }else{
+    delete state.pontoExtrasDia[mes][chave][iso];
+  }
+}
+
+/* "2", "2,5" e "1:30" viram minutos. No balcão se digita das três formas. */
+function minutosDeHoras(v){
+  const s = String(v || '').trim().replace(',', '.');
+  if(!s) return 0;
+  const m = s.match(/^(\d{1,2}):(\d{2})$/);
+  if(m) return (+m[1]) * 60 + (+m[2]);
+  const n = parseFloat(s);
+  return (isFinite(n) && n > 0) ? Math.round(n * 60) : 0;
+}
+
+/* O dia como ele vale para a apuração: o do relógio, ou o digitado por cima. */
+function diaComMarcacoesEditadas(diaOriginal, mes, nome){
+  const ed = marcacoesEditadas(mes, nome, diaOriginal.iso);
+  if(!ed) return diaOriginal;
+  return Object.assign({}, diaOriginal, { cels: ed.cels.slice(0,6), edicaoMarc: ed });
+}
+
+/* Analisa um colaborador aplicando as marcações ajustadas à mão e, sobre o resultado,
+   as correções de registro ausente salvas para o mês. Nesta ordem: um dia cuja batida
+   faltante foi digitada não é mais um registro ausente, e não faz sentido pedir motivo
+   para ele. */
 function analisarColaboradorComCorrecoes(c, mes, cfg){
   cfg = Object.assign({}, PONTO_CFG_PADRAO, cfg||{});
-  const dias = c.dias.map(diaOriginal=>{
+  const dias = c.dias.map(diaBruto=>{
+    const diaOriginal = diaComMarcacoesEditadas(diaBruto, mes, c.nome);
+    const r = analisarDiaJustificado(diaOriginal, c, mes, cfg);
+    if(diaOriginal.edicaoMarc){
+      r.marcacaoEditada = true;
+      r.editadoPor = diaOriginal.edicaoMarc.por || '';
+      r.editadoEm  = diaOriginal.edicaoMarc.em || '';
+      r.ocorrencias = (r.ocorrencias || []).concat([{
+        sev:'info', cod:'EDITADO',
+        txt:'Marcações ajustadas à mão' + (r.editadoPor ? ' por ' + r.editadoPor : '') +
+            (r.editadoEm ? ' em ' + new Date(r.editadoEm).toLocaleDateString('pt-BR') : '')
+      }]);
+    }
+    /* A hora extra combinada com a equipe entra ANTES da cortesia, senão o saldo que a
+       cortesia recalcula sairia sem ela. Ver "HORA EXTRA LANÇADA NO DIA". */
+    const ext = extraDiaPonto(mes, c.nome, diaOriginal.iso);
+    if(ext){
+      /* No feriado a quantidade é lida do próprio dia e DOBRADA — ver "FERIADO
+         TRABALHADO". O sistema paga hora extra por uma taxa só (R$ 8,50, ou a do
+         colaborador), sem taxa especial por data; então "pagar o feriado em dobro" se
+         faz dobrando as HORAS, que é o único jeito de o dobro chegar ao bolso dentro
+         desta engrenagem. */
+      const trabMin = Math.round(toNum(r.trabalhadoMin));
+      const minLancado = ext.feriado ? trabMin * 2 : toNum(ext.min);
+      if(minLancado > 0){
+        r.extraDiaMin = minLancado;
+        r.feriadoDobra = !!ext.feriado;
+        /* O feriado SUBSTITUI a hora extra apurada no dia; a lançada à mão SOMA.
+           A diferença não é detalhe: no feriado, os minutos que o relógio apurou como
+           extra (entrar antes das 07:30, sair depois das 18:30) já estão dentro das
+           horas trabalhadas, e as horas trabalhadas já foram dobradas. Somar a apuração
+           por cima paga esses minutos três vezes — foi assim que um dia de 5:12 saiu
+           como 10:48 de hora extra em vez de 10:24. */
+        r.extraMin = ext.feriado ? minLancado : (toNum(r.extraMin) + minLancado);
+        r.saldoMin = r.extraMin - toNum(r.debitoMin);
+        r.ocorrencias = (r.ocorrencias || []).concat([{
+          sev:'info', cod:'HE-DIA',
+          txt: (ext.feriado
+                 ? 'Feriado trabalhado: ' + pHHMM(trabMin) + ' trabalhadas × 2 = ' +
+                   pHHMM(minLancado) + ' de hora extra (substitui a apurada no dia)'
+                 : 'Hora extra lançada no dia: ' + pHHMM(minLancado)) +
+               (ext.motivo ? ' — ' + ext.motivo : '') + (ext.por ? ' (por ' + ext.por + ')' : '')
+        }]);
+      }else if(ext.feriado){
+        /* Feriado marcado num dia sem jornada: nada a pagar, mas o dia fica dito — quem
+           conferir precisa saber que a marca existe e por que ela não rendeu nada. */
+        r.ocorrencias = (r.ocorrencias || []).concat([{
+          sev:'info', cod:'HE-DIA-ZERO',
+          txt:'Feriado marcado, sem horas trabalhadas no dia — nada a pagar em dobro'
+        }]);
+      }
+    }
+    /* A cortesia vem POR ÚLTIMO: ela perdoa o desconto que sobrou depois de tudo o
+       mais — marcação ajustada, registro justificado. Ver "CORTESIA DO DIA". */
+    /* Vale para os dois lados da jornada — saiu antes, ou chegou depois — e para o dia
+       de registro ausente. O atraso e o registro ausente entraram em 02/09/2026 pelo
+       mesmo motivo da saída antecipada: muita vez já foi combinado antes com o
+       colaborador, e aí descontar seria cobrar o que a casa já tinha liberado.
+
+       `registroAusenteOriginal` cobre o dia mesmo depois de justificado — inclusive o
+       que virou FALTA pelo motivo escolhido, que é justamente onde há dinheiro de
+       verdade para perdoar (a falta debita a jornada inteira). O dia de registro
+       ausente ainda sem justificativa não gera desconto nenhum, então ali a marca não
+       muda número: registra a decisão, e o texto diz isso com todas as letras em vez de
+       anunciar um perdão de 00:00. */
+    if(r.saidaAntMin > 0 || r.atrasoMin > 0 || r.batidasFaltantes > 0 || r.registroAusenteOriginal){
+      r.podeCortesia = true;
+      const cort = cortesiaPonto(mes, c.nome, diaOriginal.iso);
+      if(cort){
+        const perdoado = r.debitoMin;
+        r.cortesiaDia = true;
+        r.cortesiaPor = cort.por || '';
+        r.cortesiaMin = perdoado;
+        r.debitoMin = 0;
+        r.saldoMin = r.extraMin;
+        r.ocorrencias = (r.ocorrencias || []).concat([{
+          sev:'info', cod:'CORTESIA',
+          txt:'Pago o dia trabalhado — ' +
+              (perdoado > 0 ? pHHMM(perdoado) + ' de horas devidas não descontadas'
+                            : 'este dia não gerava desconto') +
+              (cort.por ? ' (autorizado por ' + cort.por + ')' : '')
+        }]);
+      }
+    }
+    return r;
+  });
+  return agregarDias(dias);
+}
+
+/* O miolo de antes: analisa o dia e aplica a justificativa de registro ausente. */
+function analisarDiaJustificado(diaOriginal, c, mes, cfg){
     const dOrig = analisarDia(diaOriginal, c.escala, cfg);
     if(dOrig.batidasFaltantes === 0) return dOrig;
 
@@ -6038,13 +6960,14 @@ function analisarColaboradorComCorrecoes(c, mes, cfg){
     return Object.assign({}, dOrig, info, {
       tipo: 'justificado', batidasFaltantes: 0, ocorrencias, justificado: true
     });
-  });
-  return agregarDias(dias);
 }
 
 /* ============================= PONTO: ESTADO ============================= */
 if(!state.ponto) state.ponto = {};
 if(!state.pontoCorrecoes) state.pontoCorrecoes = {};
+if(!state.pontoMarcacoes) state.pontoMarcacoes = {};   /* ver "MARCAÇÕES AJUSTADAS À MÃO" */
+if(!state.pontoCortesias) state.pontoCortesias = {};   /* ver "CORTESIA DO DIA" */
+if(!state.pontoExtrasDia) state.pontoExtrasDia = {};   /* ver "HORA EXTRA LANÇADA NO DIA" */
 if(!state.pontoConfig) state.pontoConfig = Object.assign({}, PONTO_CFG_PADRAO);
 if(state.pontoCfgVersao !== PONTO_CFG_VERSAO){
   state.pontoConfig = Object.assign({}, PONTO_CFG_PADRAO);
@@ -6247,6 +7170,45 @@ function acharFuncPorNomePonto(nome){
   return f || null;
 }
 
+/* ============ QUEM ENTRA NA APURAÇÃO DO PONTO ============
+   O relógio de ponto e a folha são dois cadastros diferentes, e o do relógio não é
+   limpo quando alguém sai da empresa: o nome continua lá, gerando um mês inteiro de
+   "Folga" que o arquivo traz junto todo mês. Em agosto/2026 eram quatro nomes assim
+   num arquivo de dezoito.
+
+   Antes, esses nomes entravam na apuração e ficavam pendurados no Ponto como "sem
+   vínculo com a folha", cada um pedindo uma decisão que nunca vinha. A importação
+   agora deixa DOIS tipos de nome de fora:
+
+     • quem não está cadastrado na folha — o cartão ponto é insumo de apuração, não
+       fonte de cadastro (a regra de sempre; só a consequência mudou);
+     • quem tem só folga no mês inteiro — nenhuma batida, nenhum dia de férias,
+       licença, atestado ou afastamento. Sem marcação nenhuma não há nada a apurar.
+
+   Cuidado que a segunda regra precisa ter: quem passou o mês afastado NÃO é excluído.
+   Férias, licença, atestado e afastamento são gente da casa com o mês a apurar — o que
+   não conta é folga (ou célula vazia), e só isso.
+
+   Nada disso apaga nada: quem fica de fora é listado em `ignorados`, aparece no
+   cabeçalho da tela de Ponto e é dito no aviso da importação. Um nome que sumiu sem
+   avisar é pior do que um nome a mais. */
+function temMarcacaoNoPonto(c){
+  return (c.dias||[]).some(d=> (d.cels||[]).some(v=>{
+    if(pMin(v) !== null) return true;              /* bateu o ponto */
+    const s = pStatusCel(v);
+    return !!s && s !== 'folga';                   /* férias, licença, atestado, afastamento */
+  }));
+}
+
+/* Devolve o motivo de o nome ficar de fora, ou null quando ele entra. A ordem importa:
+   "sem cadastro" é o motivo mais informativo dos dois, e quase sempre os dois valem
+   para a mesma pessoa — quem saiu da empresa foi tirado da folha e ficou de folga. */
+function motivoForaDoPonto(c){
+  if(!acharFuncDoPonto(c)) return 'não está cadastrado na folha';
+  if(!temMarcacaoNoPonto(c)) return 'só folga no mês inteiro';
+  return null;
+}
+
 /* Mapa: id do colaborador na folha -> item analisado do ponto do mês atual */
 function mapaPontoPorFunc(){
   const d = analisePonto();
@@ -6381,13 +7343,13 @@ function apurarFinanceiro(mes){
   const mapaPonto = (typeof mapaPontoPorFunc === 'function') ? mapaPontoPorFunc() : null;
   const noMes = mes === state.mesAtual;
 
-  const linhas = state.funcionarios.map(f=>{
+  const linhas = state.funcionarios.filter(f=> !foraDaFolhaNoMes(f, mes)).map(f=>{
     const l = getLancamento(mes, f.id);
     /* Só o mês corrente é ressincronizado com cadastro e ponto; meses fechados
        são lidos como foram lançados. */
     if(noMes){
       if(ehDiarista(f)) sincronizarLancamento(f, l);
-      else l.salario = f.salarioBase || 0;
+      else l.salario = salarioDoMes(f, mes);
       sincronizarPontoNoLancamento(f, l, mapaPonto);
       const venc = toNum(l.salario)+toNum(l.feriado)+toNum(l.domingo)+toNum(l.folgas)+toNum(l.horaExtra)+toNum(l.salFamilia);
       l.inss = calcularInssColaborador(f, venc).valor;
@@ -6878,6 +7840,15 @@ function dashApurarPonto(){
     faltas:0, faltasMin:0, semBatDias:0, semBatQtd:0, semJustificativa:0,
     atrasoQtd:0, atrasoMin:0, saidaQtd:0, saidaMin:0, intervQtd:0, manualQtd:0,
     extraMin:0, debitoMin:0, foraEscalaMin:0, feriados:0, domingos:0,
+    /* Parcela da hora extra que veio de feriado trabalhado — ver "FERIADO TRABALHADO".
+       O valor é somado colaborador a colaborador, com a taxa de cada um: quem tem
+       valor-hora próprio na engrenagem não pode ser calculado pelo geral de R$ 8,50.
+
+       Aqui existem DUAS contagens, e confundi-las já deu erro no painel: somar o
+       `feriadoDobraQtd` de cada pessoa dá dias-colaborador, não dias. Treze pessoas num
+       feriado viravam "13 dias". Então `feriadoDobraDatas` guarda as DATAS distintas e
+       `feriadoDobraColabs` conta quem recebeu. */
+    feriadoDobraMin:0, feriadoDobraValor:0, feriadoDobraColabs:0, feriadoDobraDatas:[],
     licencas:0, folgas:0, notaSoma:0};
   dados.itens.forEach(it=>{
     const a = it.a;
@@ -6890,6 +7861,14 @@ function dashApurarPonto(){
     t.saidaQtd += a.saidaAntQtd;     t.saidaMin += a.saidaAntMin;
     t.intervQtd += a.intervaloQtd;   t.manualQtd += a.manualQtd;
     t.extraMin += a.extraMin;        t.debitoMin += a.debitoMin;
+    t.feriadoDobraMin += (a.feriadoDobraMin||0);
+    if(a.feriadoDobraMin){
+      t.feriadoDobraColabs++;
+      t.feriadoDobraValor += pHoras(a.feriadoDobraMin) * valorHoraExtraDe(it.vinculo);
+      a.dias.forEach(d=>{
+        if(d.feriadoDobra && d.iso && t.feriadoDobraDatas.indexOf(d.iso) < 0) t.feriadoDobraDatas.push(d.iso);
+      });
+    }
     t.foraEscalaMin += a.foraEscalaMin;
     t.feriados += (a.feriadosQtd||0); t.domingos += (a.domingosQtd||0);
     t.licencas += a.licencas;        t.folgas += a.folgas;
@@ -6900,6 +7879,7 @@ function dashApurarPonto(){
     });
   });
   t.notaMedia = t.colab ? Math.round(t.notaSoma / t.colab) : 0;
+  t.feriadoDobraValor = Math.round(t.feriadoDobraValor * 100) / 100;
   /* Absenteísmo = tempo de escala não cumprido (faltas + atrasos + saídas antecipadas)
      sobre o tempo total previsto no mês. */
   t.absenteismo = t.previstoMin ? (t.faltasMin + t.atrasoMin + t.saidaMin) / t.previstoMin : 0;
@@ -7029,6 +8009,16 @@ function renderDashboard(){
       ['Horas trabalhadas', pHHMM(p.trabalhadoMin), 'kpi-info', p.diasTrab + ' dia(s) com registro'],
       ['Horas extras', pHHMM(extraMinTotal), extraMinTotal?'kpi-info':'kpi-ok',
         fmtMoeda(g.horaExtra) + ' pagos' + (dia.extraMin ? ' · inclui ' + pHHMM(dia.extraMin) + ' de diaristas' : '')],
+      /* Indicador próprio, e não uma linha miúda dentro do de hora extra. Hora extra de
+         feriado é decisão de calendário — a loja abriu no feriado —, e não excesso de
+         jornada: no mesmo número, uma esconde a outra e a diretoria acaba cobrando da
+         equipe horas que a própria empresa mandou fazer. Aparece só quando existe, para
+         não virar mais um zero fixo no painel. Ver "FERIADO TRABALHADO". */
+      ['Horas de feriado', pHHMM(p.feriadoDobraMin), 'kpi-info',
+        fmtMoeda(p.feriadoDobraValor) + ' · ' +
+        p.feriadoDobraDatas.length + ' feriado(s) · ' +
+        p.feriadoDobraColabs + ' colaborador(es) · ' +
+        dashPct(p.feriadoDobraMin, extraMinTotal) + ' das horas extras', p.feriadoDobraMin],
       ['Horas devidas', pHHMM(p.debitoMin), p.debitoMin?'kpi-alerta':'kpi-ok', fmtMoeda(g.atrasos) + ' descontados'],
       ['Saldo de horas', pHHMM(p.extraMin - p.debitoMin), (p.extraMin - p.debitoMin) >= 0 ? 'kpi-ok':'kpi-alerta', 'extras − devidas'],
       ['Absenteísmo', (p.absenteismo*100).toLocaleString('pt-BR',{maximumFractionDigits:1}) + '%',
@@ -7036,7 +8026,8 @@ function renderDashboard(){
         'tempo de escala não cumprido'],
       ['Assiduidade média', p.notaMedia, p.notaMedia >= 90 ? 'kpi-ok' : (p.notaMedia >= 75 ? 'kpi-alerta':'kpi-critico'),
         'nota geral da equipe (0 a 100)']
-    ].map(k=>'<div class="kpi '+k[2]+'"><div class="kpi-rot">'+k[0]+'</div><div class="kpi-val">'+k[1]+'</div><div class="kpi-sub">'+k[3]+'</div></div>').join('') + '</div>';
+    ].filter(k=> k.length < 5 || k[4])
+     .map(k=>'<div class="kpi '+k[2]+'"><div class="kpi-rot">'+k[0]+'</div><div class="kpi-val">'+k[1]+'</div><div class="kpi-sub">'+k[3]+'</div></div>').join('') + '</div>';
   }else{
     html += '<div class="painel"><div class="empty" style="padding:26px 10px;">Nenhum cartão ponto importado para ' + mesLabel(mes) +
       '.<br>As horas do mês aparecem aqui assim que o arquivo do relógio for importado em <b>Controle de Ponto</b>.</div></div>';
@@ -8179,7 +9170,7 @@ document.getElementById('filePonto').addEventListener('change', function(e){
   reader.onload = function(ev){
     try{
       const wb = XLSX.read(new Uint8Array(ev.target.result), {type:'array'});
-      let importados = 0, mesesImportados = [];
+      let importados = 0, ignorados = 0, mesesImportados = [];
       wb.SheetNames.forEach(nomeAba=>{
         const rows = XLSX.utils.sheet_to_json(wb.Sheets[nomeAba], {header:1, defval:null, raw:true, blankrows:true});
         const p = parsePontoRows(rows);
@@ -8198,16 +9189,37 @@ document.getElementById('filePonto').addEventListener('change', function(e){
           });
         });
         Object.keys(porMes).forEach(mk=>{
+          /* A peneira é por MÊS, e não pelo arquivo inteiro: um arquivo pode trazer
+             dois meses, e quem só tem folga em agosto pode ter trabalhado em julho.
+             Ver "QUEM ENTRA NA APURAÇÃO DO PONTO". */
+          const dentro = [], fora = [];
+          porMes[mk].forEach(c=>{
+            const motivo = motivoForaDoPonto(c);
+            if(motivo) fora.push({nome: c.nome || '', cpf: c.cpf || '', motivo: motivo});
+            else dentro.push(c);
+          });
+          /* Mês em que ninguém passou pela peneira não vira importação: gravar um mês
+             com zero colaboradores apagaria o que já estava apurado ali. */
+          if(!dentro.length){ ignorados += fora.length; return; }
           state.ponto[mk] = {
             empresa: p.empresa, cnpj: p.cnpj, periodo: p.periodo,
             arquivo: file.name, importadoEm: new Date().toISOString(),
-            colaboradores: porMes[mk]
+            colaboradores: dentro,
+            ignorados: fora
           };
-          importados += porMes[mk].length;
+          importados += dentro.length;
+          ignorados += fora.length;
           mesesImportados.push(mk);
         });
       });
-      if(!importados){ mostrarToast('Não foi identificado um cartão ponto neste arquivo'); return; }
+      /* Arquivo lido mas ninguém aproveitado é diferente de arquivo não reconhecido, e
+         confundir os dois manda a pessoa procurar defeito no arquivo errado. */
+      if(!importados){
+        mostrarToast(ignorados
+          ? 'Nenhum colaborador do arquivo entrou: ' + ignorados + ' nome(s) sem cadastro na folha ou só com folga'
+          : 'Não foi identificado um cartão ponto neste arquivo');
+        return;
+      }
       if(mesesImportados.length) state.mesAtual = mesesImportados.sort()[mesesImportados.length-1];
       invalidarPonto();
       salvarEstado();
@@ -8215,10 +9227,12 @@ document.getElementById('filePonto').addEventListener('change', function(e){
       renderLista();
       renderPonto();
       trocarAba('ponto');
-      const semVinculo = (analisePonto()||{itens:[]}).itens.filter(it=>!it.vinculo).length;
+      /* "Sem vínculo" era o aviso de antes, quando o nome de fora entrava assim mesmo.
+         Agora ele não entra — o que precisa ser dito é quantos ficaram de fora e que
+         a lista deles está no cabeçalho da tela, ao alcance de quem quiser conferir. */
       mostrarToast('Cartão ponto de ' + mesesImportados.map(mesLabel).join(', ') + ' importado · ' +
         importados + ' colaborador(es) apurado(s)' +
-        (semVinculo ? ' · ' + semVinculo + ' sem vínculo com a folha' : ''));
+        (ignorados ? ' · ' + ignorados + ' nome(s) do arquivo ficaram de fora (veja no topo da tela)' : ''));
     }catch(err){
       console.error(err);
       mostrarToast('Falha na leitura da planilha de ponto');
@@ -8261,7 +9275,16 @@ function renderPonto(){
     (dados.info.periodo && dados.info.periodo.de ? ' · Período ' + dados.info.periodo.de + ' a ' + dados.info.periodo.ate : '') +
     ' · ' + t.colab + ' colaborador(es)' +
     '<br>Parâmetros: tolerância de atraso ' + cfg.tolAtraso + ' min · hora extra antes das ' + pHHMM(cfg.heEntradaAntes) + ' e após as ' + pHHMM(cfg.heSaidaApos) + ' a ' + fmtMoeda(cfg.valorHoraExtra) + '/h' +
-    ' · feriado e domingo pagos por fora, valor individual · registro a partir das ' + pHHMM(cfg.saidaFinalApos) + ' encerra a jornada (domingos ' + pHHMM(cfg.saidaFinalDomApos) + ', 3º sábado ' + pHHMM(cfg.saidaFinalSab3Apos) + ')';
+    ' · feriado e domingo pagos por fora, valor individual · registro a partir das ' + pHHMM(cfg.saidaFinalApos) + ' encerra a jornada (domingos ' + pHHMM(cfg.saidaFinalDomApos) + ', 3º sábado ' + pHHMM(cfg.saidaFinalSab3Apos) + ')' +
+    /* Quem ficou de fora fica dito aqui, com nome e motivo. É a contrapartida de filtrar
+       na importação: o arquivo tinha 18 nomes e a tela mostra 14 — a diferença não pode
+       depender de alguém lembrar da regra. Ver "QUEM ENTRA NA APURAÇÃO DO PONTO". */
+    (Array.isArray(dados.info.ignorados) && dados.info.ignorados.length
+      ? '<div class="ponto-fora">' + dados.info.ignorados.length +
+        ' nome(s) do arquivo não entraram na apuração: ' +
+        dados.info.ignorados.map(x=> '<b>' + escHtml(x.nome || '(sem nome)') + '</b> — ' + escHtml(x.motivo)).join(' · ') +
+        '</div>'
+      : '');
 
   kpis.innerHTML = [
     ['Faltas',            t.faltas,            t.faltas?'kpi-critico':'kpi-ok',  'dias de escala sem registro'],
@@ -8502,6 +9525,7 @@ function renderValoresEspelho(it){
 let espelhoIdx = null;
 
 let espelhoModoEdicao = false;
+let espelhoModoMarcacoes = false;   /* ver "MARCAÇÕES AJUSTADAS À MÃO" */
 /* O espelho é o documento do colaborador: mostra as horas e os atrasos do dia,
    na mesma leitura do resumo do topo. Intervalo irregular fica fora — continua
    apurado internamente (KPI e assiduidade na aba Controle de Ponto), mas não
@@ -8538,7 +9562,50 @@ function situacaoEspelho(d){
 
   if(!partes.length && d.debitoMin > 0) partes.push('Horas devidas');
   if(!partes.length) partes.push(rotuloUnico === 'Hora extra' ? 'Normal' : rotuloUnico);
+  /* Sem isto o espelho impresso mostraria "Saída antecipada" com a coluna de horas
+     devidas zerada, e a folha pareceria estar errada para quem confere o papel. Ver
+     "CORTESIA DO DIA". */
+  if(d.cortesiaDia) partes.push('pago o dia trabalhado');
+  /* A hora extra combinada com a equipe é a única linha do espelho que o relógio não
+     explica — o colaborador está assinando por horas que não estão nas marcações dele.
+     Tem que estar escrito no dia, e com o valor. Ver "HORA EXTRA LANÇADA NO DIA". */
+  if(d.extraDiaMin) partes.push(d.feriadoDobra
+    ? 'feriado: ' + pHHMM(d.trabalhadoMin) + ' × 2'
+    : 'hora extra lançada ' + pHHMM(d.extraDiaMin));
   return partes.join(', ');
+}
+
+/* A frase da hora extra lançada, para o espelho e para a ficha do holerite. Sai com a
+   data de cada dia, o valor de cada um e o motivo — é a declaração de horas que as
+   marcações do relógio não mostram, e o colaborador está assinando por elas.
+   Ver "HORA EXTRA LANÇADA NO DIA". */
+function textoExtraLancada(a){
+  const dias = (a.dias || []).filter(d=> d.extraDiaMin);
+  if(!dias.length) return '';
+  const motivos = [];
+  dias.forEach(d=>{
+    const oc = (d.ocorrencias || []).find(o=> o.cod === 'HE-DIA');
+    const partes = oc ? String(oc.txt).split(' — ') : [];
+    /* No feriado a primeira parte já é a explicação da regra; o motivo digitado, quando
+       existe, vem depois dela. */
+    const mt = partes.length > (d.feriadoDobra ? 2 : 1)
+      ? partes[partes.length - 1].replace(/\s*\(por .*\)\s*$/, '').trim() : '';
+    if(mt && motivos.indexOf(mt) < 0) motivos.push(mt);
+  });
+  /* No feriado a lista mostra a CONTA, não só o resultado: "06/08 (05:12 × 2 = 10:24)".
+     Foi um total sem a conta ao lado que escondeu um erro de cálculo por dois dias. */
+  const lista = dias.map(d=>{
+    const rot = String(d.dia).padStart(2,'0') + '/' + String(d.iso || '').slice(5,7);
+    return rot + (d.feriadoDobra
+      ? ' (feriado: ' + pHHMM(d.trabalhadoMin) + ' × 2 = ' + pHHMM(d.extraDiaMin) + ')'
+      : ' (' + pHHMM(d.extraDiaMin) + ')');
+  }).join(', ');
+  const temFeriado = dias.some(d=> d.feriadoDobra);
+  return '(‡) Hora extra combinada e lançada pela empresa — ' + pHHMM(a.extraDiaMin) +
+    ' em ' + dias.length + ' dia(s): ' + lista +
+    (temFeriado ? '.  Nos dias de feriado a coluna traz as horas cumpridas com o ×2 ao lado; a hora extra paga é o dobro delas, e ' +
+      'substitui a apurada pelo relógio naquela data' : '') +
+    (motivos.length ? '.  Motivo: ' + motivos.join('; ') : '') + '.';
 }
 
 /* Declaração de exatidão que fecha o cartão ponto, nos moldes do documento
@@ -8550,20 +9617,22 @@ function textoDeclaracaoEspelho(periodo){
     'inclusive a Ficha de Horário de Trabalho.';
 }
 
-function abrirEspelho(idx, modoEdicao){
+function abrirEspelho(idx, modoEdicao, modoMarcacoes){
   const dados = analisePonto();
   if(!dados) return;
   const it = dados.itens.find(x=>x.idx===idx);
   if(!it) return;
   espelhoIdx = idx;
   espelhoModoEdicao = !!modoEdicao;
+  espelhoModoMarcacoes = !!modoMarcacoes;
   const c = it.c, a = it.a;
 
   document.getElementById('espTitulo').textContent = c.nome;
   document.getElementById('espSub').innerHTML = (c.funcao||'—') + (c.cpf?' · CPF '+c.cpf:'') + (c.folha?' · Folha nº '+c.folha:'') +
     (c.admissao?' · Admissão '+c.admissao:'') + ' · ' + mesLabel(state.mesAtual) +
     (it.vinculo ? ' · <span class="tag-ok">folha: ' + it.vinculo.nome + '</span>' : ' · <span class="tag-sv">sem vínculo na folha</span>') +
-    (espelhoModoEdicao ? ' · <span class="tag-edicao">editando registros ausentes</span>' : '');
+    (espelhoModoEdicao ? ' · <span class="tag-edicao">editando registros ausentes</span>' : '') +
+    (espelhoModoMarcacoes ? ' · <span class="tag-edicao">editando marcações</span>' : '');
 
   const esc = Object.keys(PONTO_DOW_LABEL).map(d=>{
     const e = c.escala[d];
@@ -8581,13 +9650,20 @@ function abrirEspelho(idx, modoEdicao){
     ['Atrasos', a.atrasosQtd+' · '+pHHMM(a.atrasoMin), a.atrasoMin?'kpi-alerta':''],
     ['Saídas antecipadas', a.saidaAntQtd+' · '+pHHMM(a.saidaAntMin), a.saidaAntMin?'kpi-alerta':''],
     ['Horas extras', pHHMM(a.extraMin), 'kpi-info'],
+    /* Separada da apurada pelo relógio: uma é o que a máquina viu, a outra é o que a
+       gestão combinou — e é a segunda que alguém vai querer conferir. */
+    ['Hora extra lançada', a.extraDiaQtd+' dia(s) · '+pHHMM(a.extraDiaMin), a.extraDiaQtd?'kpi-info':'', a.extraDiaQtd],
     ['Feriados trabalhados', a.feriadosQtd, a.feriadosQtd?'kpi-info':''],
     ['Domingos trabalhados', a.domingosQtd, a.domingosQtd?'kpi-info':''],
     ['Horas devidas', pHHMM(a.debitoMin), a.debitoMin?'kpi-alerta':''],
+    /* A cortesia só aparece quando existe: um zero fixo aqui viraria só mais um número
+       para o olho pular. Ver "CORTESIA DO DIA". */
+    ['Pago o dia trabalhado', a.cortesiaQtd+' dia(s) · '+pHHMM(a.cortesiaMin), a.cortesiaQtd?'kpi-info':'', a.cortesiaQtd],
     ['Saldo', pHHMM(a.saldoMin), a.saldoMin<0?'kpi-critico':'kpi-ok'],
     ['Assiduidade', a.nota, ''],
     ['Relógio de ponto: atraso / extras', pHHMM(c.totalRelogio.atraso)+' / '+pHHMM(c.totalRelogio.extras), '']
-  ].map(k=>'<div class="kpi mini '+k[2]+'"><div class="kpi-rot">'+k[0]+'</div><div class="kpi-val">'+k[1]+'</div></div>').join('');
+  ].filter(k=> k.length < 4 || k[3])
+   .map(k=>'<div class="kpi mini '+k[2]+'"><div class="kpi-rot">'+k[0]+'</div><div class="kpi-val">'+k[1]+'</div></div>').join('');
 
   /* Os valores do colaborador vivem aqui, no espelho individual: a lista da aba
      Controle de Ponto mostra só horas, e o dinheiro aparece quando se abre a
@@ -8600,8 +9676,15 @@ function abrirEspelho(idx, modoEdicao){
     '<th class="esq">Situação e ocorrências</th></tr></thead><tbody>';
 
   a.dias.forEach(d=>{
-    const cel = d.marc.map(m=>{
-      if(m.min!==null) return '<td class="mono'+(m.manual?' manual':'')+'">'+pHHMM(m.min)+(m.manual?'*':'')+'</td>';
+    const cel = d.marc.map((m, i)=>{
+      /* No modo de edição a célula vira campo. O valor mostrado é o que VALE hoje —
+         relógio ou ajuste —, que é o que a pessoa quer ver para corrigir. */
+      if(espelhoModoMarcacoes){
+        return '<td class="mono"><input class="mrc-inp" data-iso="'+d.iso+'" data-i="'+i+'" ' +
+          'value="'+(m.min!==null ? pHHMM(m.min) : '')+'" placeholder="--:--" maxlength="5" ' +
+          'inputmode="numeric" autocomplete="off"></td>';
+      }
+      if(m.min!==null) return '<td class="mono'+(m.manual?' manual':'')+(d.marcacaoEditada?' ajustada':'')+'">'+pHHMM(m.min)+(m.manual?'*':'')+(d.marcacaoEditada?'†':'')+'</td>';
       if(m.status) return '<td class="mono fraco">'+(m.status==='folga'?'folga':m.status)+'</td>';
       return '<td class="mono vazio">—</td>';
     }).join('');
@@ -8625,10 +9708,32 @@ function abrirEspelho(idx, modoEdicao){
         motivoHtml = '<div class="motivo-pendente">Sem motivo definido — use ⋮ · Editar registros</div>';
       }
     }
-    html += '<tr class="'+tipo.cls+'">' +
+    /* A cortesia é uma decisão, não uma correção: fica visível sempre, sem depender de
+       nenhum modo de edição, no dia em que ela cabe. Ver "CORTESIA DO DIA". */
+    if(d.podeCortesia){
+      motivoHtml += '<label class="cortesia-lbl' + (d.cortesiaDia ? ' ligada' : '') + '">' +
+        '<input type="checkbox" class="cortesia-chk" data-iso="'+d.iso+'"' + (d.cortesiaDia ? ' checked' : '') + '>' +
+        '<span>Pago o dia trabalhado' +
+          (d.cortesiaDia && d.cortesiaMin ? ' — ' + pHHMM(d.cortesiaMin) + ' não descontadas' : '') +
+        '</span></label>';
+    }
+    /* O caminho de volta ao relógio fica na própria linha ajustada: quem errou a
+       digitação não precisa lembrar qual era o horário original. */
+    if(d.marcacaoEditada){
+      motivoHtml += '<div class="motivo-aplicado">Marcações ajustadas à mão' +
+        (d.editadoPor ? ' por ' + escHtml(d.editadoPor) : '') +
+        ' <button type="button" class="mrc-desfazer" data-iso="'+d.iso+'">voltar ao relógio</button></div>';
+    }
+    /* Na tela o dia com hora extra lançada também salta — a conferência começa aqui,
+       antes de o papel sair. Ver "HORA EXTRA LANÇADA NO DIA". */
+    html += '<tr class="'+tipo.cls+(d.extraDiaMin ? ' he-lancada' : '')+'">' +
       '<td class="esq nowrap">'+d.rotulo+'</td>' + cel +
       '<td class="mono">'+(d.trabalhadoMin?pHHMM(d.trabalhadoMin):'—')+'</td>' +
-      '<td class="mono '+(d.extraMin?'pos':'')+'">'+(d.extraMin?pHHMM(d.extraMin):'—')+'</td>' +
+      '<td class="mono '+(d.extraMin?'cel-extra'+(d.extraDiaMin?' lancada':''):'')+'">' +
+        (d.feriadoDobra
+          ? pHHMM(d.trabalhadoMin) + '<span class="he-marca"> ×2</span>'
+          : (d.extraMin ? pHHMM(d.extraMin) +
+              (d.extraDiaMin ? '<span class="he-marca"> ‡</span>' : '') : '—')) + '</td>' +
       '<td class="mono '+(d.atrasoMin?'neg':'')+'">'+(d.atrasoMin?pHHMM(d.atrasoMin):'—')+'</td>' +
       '<td class="mono '+(d.debitoMin?'neg':'')+'">'+(d.debitoMin?pHHMM(d.debitoMin):'—')+'</td>' +
       '<td class="mono '+(d.saldoMin<0?'neg':(d.saldoMin>0?'pos':''))+'">'+(d.saldoMin?pHHMM(d.saldoMin):'—')+'</td>' +
@@ -8647,8 +9752,22 @@ function abrirEspelho(idx, modoEdicao){
     '<td></td></tr></tfoot></table>';
   document.getElementById('espTabela').innerHTML = html;
 
+  /* O botão diz o que vai acontecer, não o modo em que se está. E some quando não há
+     dia nenhum para editar. */
+  const btnMarc = document.getElementById('btnEditarMarcacoes');
+  btnMarc.textContent = espelhoModoMarcacoes ? 'Concluir edição das marcações' : 'Editar marcações';
+  btnMarc.classList.toggle('btn-verde', espelhoModoMarcacoes);
+  btnMarc.style.display = a.dias.length ? '' : 'none';
+
+  const qtdAjustados = a.dias.filter(d=> d.marcacaoEditada).length;
   document.getElementById('espRodape').innerHTML =
-    '<div class="esp-legenda">(*) Batida lançada manualmente</div>' +
+    '<div class="esp-legenda">(*) Batida lançada manualmente' +
+      (qtdAjustados ? '   (†) Marcação ajustada à mão no sistema — ' + qtdAjustados + ' dia(s)' : '') +
+      (a.extraDiaQtd ? '<div style="margin-top:5px;font-weight:700;color:#2471a3;">' +
+        escHtml(textoExtraLancada(a)) + '</div>' : '') +
+      (espelhoModoMarcacoes ? '<br>Digite a hora e saia do campo para gravar. Aceita 730, 7:30 ou 07:30; ' +
+        'campo vazio apaga a marcação. Cada dia ajustado ganha um botão para voltar ao relógio.' : '') +
+    '</div>' +
     '<div class="esp-declaracao">' + textoDeclaracaoEspelho(dados.info.periodo) + '</div>' +
     '<div class="esp-assinaturas">' +
       '<div><span class="linha-assin"></span>' + c.nome + '</div>' +
@@ -8671,7 +9790,198 @@ document.getElementById('espTabela').addEventListener('change', (e)=>{
   if(!it) return;
   salvarCorrecaoPonto(state.mesAtual, it.c.nome, sel.dataset.iso, sel.value || null);
   renderLista(); renderPonto();
-  abrirEspelho(espelhoIdx);
+  abrirEspelho(espelhoIdx, espelhoModoEdicao, espelhoModoMarcacoes);
+});
+
+/* ---------- edição das marcações ----------
+   Grava a LINHA inteira do dia, e não a célula que mudou: as seis marcações são um
+   conjunto — apurar entrada sem saída não quer dizer nada — e gravar de uma vez evita
+   um estado meio salvo se a pessoa fechar a janela no meio. */
+document.getElementById('espTabela').addEventListener('change', (e)=>{
+  const inp = e.target.closest('.mrc-inp');
+  if(!inp) return;
+  const dados = analisePonto();
+  const it = dados && dados.itens.find(x=>x.idx===espelhoIdx);
+  if(!it) return;
+  const iso = inp.dataset.iso;
+  const linha = document.getElementById('espTabela').querySelectorAll('.mrc-inp[data-iso="'+iso+'"]');
+  const cels = Array.from(linha).map(x=> pTextoHora(x.value));
+
+  /* Digitou de volta exatamente o que o relógio tinha? Então não há ajuste nenhum a
+     guardar — o registro é apagado e o dia volta a ser um dia comum. */
+  const orig = (it.c.dias || []).find(d=> d.iso === iso);
+  const igualAoRelogio = orig && cels.every((v, i)=>{
+    const o = pMin(orig.cels[i]);
+    return (v === null && o === null) || (v !== null && o !== null && pMin(v) === o);
+  });
+
+  salvarMarcacaoPonto(state.mesAtual, it.c.nome, iso, igualAoRelogio ? null : cels);
+  renderLista(); renderPonto();
+  abrirEspelho(espelhoIdx, espelhoModoEdicao, true);
+  /* Devolve o foco para a mesma célula: quem está corrigindo um mês inteiro anda pelo
+     Tab, e voltar para o topo da tabela a cada tecla tornaria o trabalho impossível. */
+  const volta = document.getElementById('espTabela')
+    .querySelector('.mrc-inp[data-iso="'+iso+'"][data-i="'+inp.dataset.i+'"]');
+  if(volta){ volta.focus(); volta.select(); }
+});
+
+document.getElementById('espTabela').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.mrc-desfazer');
+  if(!btn) return;
+  const dados = analisePonto();
+  const it = dados && dados.itens.find(x=>x.idx===espelhoIdx);
+  if(!it) return;
+  salvarMarcacaoPonto(state.mesAtual, it.c.nome, btn.dataset.iso, null);
+  renderLista(); renderPonto();
+  abrirEspelho(espelhoIdx, espelhoModoEdicao, espelhoModoMarcacoes);
+  mostrarToast('Dia voltou às marcações do relógio');
+});
+
+/* ---------- hora extra do dia (ver "HORA EXTRA LANÇADA NO DIA") ---------- */
+function abrirHeDia(){
+  const dados = analisePonto();
+  if(!dados){ mostrarToast('Importe o cartão ponto do mês antes de lançar hora extra'); return; }
+  const campoData = document.getElementById('heDiaData');
+  /* Abre no primeiro dia do mês em apuração, e não em hoje: quem está fechando agosto
+     em setembro lançaria no mês errado sem perceber. */
+  if(!campoData.value || campoData.value.slice(0,7) !== state.mesAtual) campoData.value = state.mesAtual + '-01';
+  document.getElementById('heDiaMotivo').value = '';
+  renderHeDiaLista();
+  document.getElementById('overlayHeDia').classList.add('show');
+}
+
+/* A lista é montada a partir de quem está no cartão ponto do mês. Cada linha diz o que
+   aquele dia foi para a pessoa — trabalhou, folgou, faltou —, porque "todos" quase
+   nunca é todos: quem estava de folga costuma ficar de fora, e quem decide isso é
+   quem está olhando. */
+function renderHeDiaLista(){
+  const dados = analisePonto();
+  const caixa = document.getElementById('heDiaLista');
+  if(!dados){ caixa.innerHTML = ''; return; }
+  const iso = document.getElementById('heDiaData').value || '';
+  const marcados = {};
+  caixa.querySelectorAll('.he-chk').forEach(c=>{ marcados[c.dataset.nome] = c.checked; });
+  const primeiraVez = !caixa.querySelector('.he-chk');
+
+  const itens = dados.itens.slice().sort((a,b)=> a.c.nome.localeCompare(b.c.nome,'pt-BR'));
+  caixa.innerHTML = itens.map(it=>{
+    const d = (it.a.dias || []).find(x=> x.iso === iso);
+    const tipo = d ? (PONTO_TIPO[tipoEspelho(d)] || {}).rot || '' : 'sem registro no dia';
+    const jaTem = d && d.extraDiaMin
+      ? pHHMM(d.extraDiaMin) + (d.feriadoDobra ? ' — feriado (dobro)' : '')
+      : '';
+    /* Trabalhou vem marcado; folga, licença e falta vêm desmarcados. É o palpite que
+       acerta na maioria e que a pessoa corrige com um clique quando não acerta. */
+    const trabalhou = !!d && ['folga','licenca','ferias','falta'].indexOf(d.tipo) < 0;
+    const marcado = primeiraVez ? (jaTem ? true : trabalhou) : !!marcados[it.c.nome];
+    return '<label class="he-linha' + (jaTem ? ' tem' : '') + '">' +
+      '<input type="checkbox" class="he-chk" data-nome="'+escHtml(it.c.nome)+'"' + (marcado ? ' checked' : '') + '>' +
+      '<span class="he-nome">'+escHtml(it.c.nome)+'</span>' +
+      '<span class="he-tipo">'+escHtml(tipo)+'</span>' +
+      '<span class="he-ja">'+(jaTem ? 'já tem ' + jaTem : '')+'</span>' +
+      '</label>';
+  }).join('') || '<div class="rec-vazio">Nenhum colaborador no cartão ponto deste mês.</div>';
+  atualizarResumoHeDia();
+}
+
+function atualizarResumoHeDia(){
+  const n = document.querySelectorAll('#heDiaLista .he-chk:checked').length;
+  const min = minutosDeHoras(document.getElementById('heDiaHoras').value);
+  const iso = document.getElementById('heDiaData').value || '';
+  const box = document.getElementById('heDiaResumo');
+  if(!iso){ box.textContent = 'Escolha o dia.'; return; }
+  box.innerHTML = min > 0
+    ? '<b>' + pHHMM(min) + '</b> de hora extra em <b>' + dataBR(iso) + '</b> para <b>' + n + '</b> colaborador(es).'
+    : 'Com <b>0</b> horas, o lançamento deste dia é <b>apagado</b> para os ' + n + ' marcado(s).';
+}
+
+['heDiaHoras','heDiaData'].forEach(id=>{
+  document.getElementById(id).addEventListener('input', ()=>{
+    if(id === 'heDiaData') renderHeDiaLista(); else atualizarResumoHeDia();
+  });
+});
+document.getElementById('heDiaLista').addEventListener('change', atualizarResumoHeDia);
+document.getElementById('btnHeDiaTodos').addEventListener('click', ()=>{
+  document.querySelectorAll('#heDiaLista .he-chk').forEach(c=> c.checked = true);
+  atualizarResumoHeDia();
+});
+document.getElementById('btnHeDiaNenhum').addEventListener('click', ()=>{
+  document.querySelectorAll('#heDiaLista .he-chk').forEach(c=> c.checked = false);
+  atualizarResumoHeDia();
+});
+document.getElementById('btnHeDia').addEventListener('click', abrirHeDia);
+document.getElementById('fecharHeDia').addEventListener('click', ()=> document.getElementById('overlayHeDia').classList.remove('show'));
+document.getElementById('btnCancelarHeDia').addEventListener('click', ()=> document.getElementById('overlayHeDia').classList.remove('show'));
+fecharAoClicarFora('overlayHeDia');
+
+document.getElementById('btnSalvarHeDia').addEventListener('click', ()=>{
+  const iso = document.getElementById('heDiaData').value || '';
+  const min = minutosDeHoras(document.getElementById('heDiaHoras').value);
+  const motivo = document.getElementById('heDiaMotivo').value.trim();
+  const marcados = Array.from(document.querySelectorAll('#heDiaLista .he-chk:checked')).map(c=> c.dataset.nome);
+  if(!iso){ mostrarToast('Escolha o dia da hora extra'); return; }
+  /* O dia tem que ser do mês em apuração: gravado fora dele, o lançamento existiria no
+     estado e não apareceria em lugar nenhum. */
+  if(iso.slice(0,7) !== state.mesAtual){
+    mostrarToast('O dia precisa ser de ' + mesLabel(state.mesAtual) + ', que é o mês em apuração');
+    return;
+  }
+  if(!marcados.length){ mostrarToast('Marque pelo menos um colaborador'); return; }
+  if(min > 0 && !confirm('Lançar ' + pHHMM(min) + ' de hora extra em ' + dataBR(iso) + ' para ' +
+      marcados.length + ' colaborador(es)?\n\nEla soma à hora extra que o relógio já apurou no dia.')) return;
+  if(min <= 0 && !confirm('Apagar a hora extra lançada em ' + dataBR(iso) + ' para ' +
+      marcados.length + ' colaborador(es)?')) return;
+
+  marcados.forEach(nome=> salvarExtraDiaPonto(state.mesAtual, nome, iso, min, motivo, false));
+  invalidarPonto();
+  salvarEstado();
+  renderLista(); renderPonto();
+  document.getElementById('overlayHeDia').classList.remove('show');
+  mostrarToast(min > 0
+    ? pHHMM(min) + ' de hora extra lançada em ' + dataBR(iso) + ' para ' + marcados.length + ' colaborador(es)'
+    : 'Hora extra de ' + dataBR(iso) + ' apagada para ' + marcados.length + ' colaborador(es)');
+});
+
+/* Feriado: não lê o campo de horas. A quantidade é o dobro do que cada um trabalhou, e
+   quem a calcula é a apuração, na hora de ler — ver "FERIADO TRABALHADO". */
+document.getElementById('btnFeriadoHeDia').addEventListener('click', ()=>{
+  const iso = document.getElementById('heDiaData').value || '';
+  const motivo = document.getElementById('heDiaMotivo').value.trim();
+  const marcados = Array.from(document.querySelectorAll('#heDiaLista .he-chk:checked')).map(c=> c.dataset.nome);
+  if(!iso){ mostrarToast('Escolha o dia do feriado'); return; }
+  if(iso.slice(0,7) !== state.mesAtual){
+    mostrarToast('O dia precisa ser de ' + mesLabel(state.mesAtual) + ', que é o mês em apuração');
+    return;
+  }
+  if(!marcados.length){ mostrarToast('Marque pelo menos um colaborador'); return; }
+  if(!confirm('Marcar ' + dataBR(iso) + ' como FERIADO TRABALHADO para ' + marcados.length +
+      ' colaborador(es)?\n\nCada um recebe, como hora extra, o DOBRO das horas que trabalhou no ' +
+      'dia — quem cumpriu 4:30 recebe 9:00 de hora extra.\n\n' +
+      'Isto SUBSTITUI qualquer hora extra lançada à mão neste dia.')) return;
+
+  marcados.forEach(nome=> salvarExtraDiaPonto(state.mesAtual, nome, iso, 0, motivo, true));
+  invalidarPonto();
+  salvarEstado();
+  renderLista(); renderPonto();
+  document.getElementById('overlayHeDia').classList.remove('show');
+  mostrarToast(dataBR(iso) + ' marcado como feriado — paga o dobro das horas, para ' + marcados.length + ' colaborador(es)');
+});
+
+document.getElementById('btnEditarMarcacoes').addEventListener('click', ()=>{
+  abrirEspelho(espelhoIdx, espelhoModoEdicao, !espelhoModoMarcacoes);
+});
+
+/* ---------- cortesia do dia ---------- */
+document.getElementById('espTabela').addEventListener('change', (e)=>{
+  const chk = e.target.closest('.cortesia-chk');
+  if(!chk) return;
+  const dados = analisePonto();
+  const it = dados && dados.itens.find(x=>x.idx===espelhoIdx);
+  if(!it) return;
+  salvarCortesiaPonto(state.mesAtual, it.c.nome, chk.dataset.iso, chk.checked);
+  renderLista(); renderPonto();
+  abrirEspelho(espelhoIdx, espelhoModoEdicao, espelhoModoMarcacoes);
+  mostrarToast(chk.checked ? 'Pago o dia trabalhado' : 'Marca removida — o dia volta a descontar');
 });
 
 document.getElementById('fecharEspelho').addEventListener('click', ()=> document.getElementById('overlayEspelho').classList.remove('show'));
@@ -8883,11 +10193,27 @@ function desenharEspelho(doc, it, dados, logoDataURL){
   /* A folha A4 sobrava mais de 240pt na vertical com a tabela apertada, então as
      linhas ganharam altura e corpo maior. A margem menor abriu espaço para o 3º
      par de batidas, que antes ficava de fora do PDF. */
-  const c = it.c, a = it.a, m = 26;
+  /* Margem enxugada de 26 para 22pt: os 8pt que sobram foram para a coluna da situação,
+     que é a que corta texto. Continua bem dentro da área imprimível de qualquer
+     impressora comum. */
+  const c = it.c, a = it.a, m = 22;
   const larg = doc.internal.pageSize.getWidth();
   const alt = doc.internal.pageSize.getHeight();
-  const LINHA = 17;   // altura da linha de cada dia
-  let y = 42;
+  /* ===== UMA FOLHA, SEMPRE =====
+     A altura da linha deixou de ser fixa. Antes eram 17pt cravados, e o mês de 31 dias
+     terminava raspando o pé da folha — bastava um nome comprido ou uma declaração que
+     quebrasse numa linha a mais para o rodapé escorregar para a página 2, e o espelho
+     de um mês virava dois papéis para assinar.
+     Agora a linha é calculada a partir do espaço que sobra de fato: o que a tabela tem
+     entre o cabeçalho e o rodapé, dividido pelos dias do mês mais a linha de totais. O
+     teto de 16pt evita esticar a tabela num mês curto; o piso de 10pt existe só como
+     rede, e nunca é alcançado num mês de calendário. */
+  /* A faixa do pé cresce quando há hora extra lançada: a declaração dela lista dia a
+     dia e pode ocupar duas ou três linhas. Reservar espaço antes é o que impede a
+     tabela de empurrar o rodapé para fora da folha. */
+  const RODAPE = 132 + (it.a.extraDiaQtd ? 26 : 0);
+  let LINHA = 16;              /* recalculada assim que se sabe onde a tabela começa */
+  let y = 38;
 
   let xCab = m;
   if(logoDataURL){
@@ -8902,13 +10228,13 @@ function desenharEspelho(doc, it, dados, logoDataURL){
   doc.text(c.nome, larg-m, y+15, {align:'right'});
   doc.setFont('helvetica','normal'); doc.setFontSize(8.5);
   doc.text((c.funcao||'') + (c.cpf?'  ·  CPF '+c.cpf:'') + (c.folha?'  ·  Folha '+c.folha:''), larg-m, y+28, {align:'right'});
-  y += 46;
-  doc.setDrawColor(200); doc.line(m, y, larg-m, y); y += 16;
+  y += 42;
+  doc.setDrawColor(200); doc.line(m, y, larg-m, y); y += 14;
 
-  doc.setFontSize(8.5);
+  doc.setFontSize(8);
   const resumoTxt = 'Dias trabalhados: '+a.diasTrabalhados+'   |   Faltas: '+a.faltas+'   |   Registros ausentes: '+a.semBatidaQtd+
     '   |   Atrasos: '+a.atrasosQtd+' ('+pHHMM(a.atrasoMin)+')   |   Horas extras: '+pHHMM(a.extraMin)+'   |   Horas devidas: '+pHHMM(a.debitoMin)+'   |   Saldo: '+pHHMM(a.saldoMin);
-  doc.text(resumoTxt, m, y); y += 20;
+  doc.text(resumoTxt, m, y); y += 16;
 
   /* Larguras medidas com o próprio jsPDF sobre o pior caso de cada coluna:
      "05/07/26 - dom" (58,3pt) na data, "07:41*" (24,4pt) nas marcações e
@@ -8917,8 +10243,8 @@ function desenharEspelho(doc, it, dados, logoDataURL){
      invade a linha do dia seguinte. */
   const cols = [
     ['Dia', 65, 'esq'], ['Ent.1', 30], ['Saí.1', 30], ['Ent.2', 30], ['Saí.2', 30], ['Ent.3', 30], ['Saí.3', 30],
-    ['Trab.', 27], ['H. extra', 35], ['Atraso', 31], ['Devidas', 36], ['Saldo', 30],
-    ['Situação', 139, 'esq']
+    ['Trab.', 27], ['H. extra', 38], ['Atraso', 31], ['Devidas', 36], ['Saldo', 30],
+    ['Situação', 140, 'esq']
   ];
   const desenharCabecalho = ()=>{
     doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setFillColor(1,109,60); doc.setTextColor(255);
@@ -8929,19 +10255,33 @@ function desenharEspelho(doc, it, dados, logoDataURL){
   };
   desenharCabecalho();
 
+  /* Agora sim: a tabela começa aqui, e daqui até o rodapé é todo o espaço que existe. */
+  LINHA = Math.max(10, Math.min(16, Math.floor((alt - RODAPE - y) / Math.max(1, a.dias.length + 1))));
+  /* O corpo do texto acompanha a linha — 8,5pt numa linha de 11pt encostaria uma coisa
+     na outra e a tabela deixaria de ser legível justamente no mês mais cheio. */
+  const CORPO = LINHA >= 15 ? 8.5 : (LINHA >= 13 ? 8 : 7.4);
+  doc.setFontSize(CORPO);
+
   /* A coluna de marcação é dimensionada para "07:41*". Status escritos por extenso
      ("licenca") não cabem, então saem abreviados — o dia inteiro já é identificado
      na coluna Situação. */
   const statusCurto = (s)=> s.length > 5 ? s.slice(0,5) + '.' : s;
+  /* O † marca a marcação ajustada à mão no sistema. O espelho é o documento que o
+     colaborador assina: horário corrigido tem que estar declarado no papel, não só na
+     tela de quem corrigiu. Ver "MARCAÇÕES AJUSTADAS À MÃO". */
   const marcaTxt = (i)=> d => d.marc[i].min!==null
-    ? pHHMM(d.marc[i].min) + (d.marc[i].manual ? '*' : '')
+    ? pHHMM(d.marc[i].min) + (d.marc[i].manual ? '*' : '') + (d.marcacaoEditada ? '†' : '')
     : (d.marc[i].status ? statusCurto(d.marc[i].status) : '—');
 
   a.dias.forEach(d=>{
-    if(y > alt - 60){ doc.addPage(); y = 56; desenharCabecalho(); }
     const tipoDia = tipoEspelho(d);
     const tipo = situacaoEspelho(d);
-    if(tipoDia==='falta' || tipoDia==='sembatida') doc.setFillColor(253,236,234);
+    /* O dia com hora extra lançada ganha a faixa azul e vem ANTES de todas as outras
+       cores: é o dia que o colaborador precisa achar de relance na folha que está
+       assinando, porque é por ele que ele está recebendo horas que as marcações não
+       mostram. Ver "HORA EXTRA LANÇADA NO DIA". */
+    if(d.extraDiaMin) doc.setFillColor(219,234,247);
+    else if(tipoDia==='falta' || tipoDia==='sembatida') doc.setFillColor(253,236,234);
     else if(tipoDia==='atraso' || tipoDia==='saidaant' || tipoDia==='debito') doc.setFillColor(255,247,224);
     else if(tipoDia==='folga' || tipoDia==='licenca' || tipoDia==='ferias') doc.setFillColor(245,247,249);
     else doc.setFillColor(255,255,255);
@@ -8953,7 +10293,10 @@ function desenharEspelho(doc, it, dados, logoDataURL){
       d.rotulo,
       marcaTxt(0)(d), marcaTxt(1)(d), marcaTxt(2)(d), marcaTxt(3)(d), marcaTxt(4)(d), marcaTxt(5)(d),
       d.trabalhadoMin?pHHMM(d.trabalhadoMin):'—',
-      d.extraMin?pHHMM(d.extraMin):'—',
+      /* O ‡ separa, dentro da mesma célula, a hora que o relógio apurou da que foi
+         combinada — o total é um só, mas a origem não. */
+      d.feriadoDobra ? (pHHMM(d.trabalhadoMin) + ' ×2')
+        : (d.extraMin ? pHHMM(d.extraMin) + (d.extraDiaMin ? '‡' : '') : '—'),
       d.atrasoMin?pHHMM(d.atrasoMin):'—',
       d.debitoMin?pHHMM(d.debitoMin):'—',
       d.saldoMin?pHHMM(d.saldoMin):'—',
@@ -8964,18 +10307,20 @@ function desenharEspelho(doc, it, dados, logoDataURL){
       /* Dia e situação em negrito destacam o começo e o fim de cada linha. A
          situação usa corpo menor porque descreve entrada e saída na mesma célula.
          Nada aqui usa maxWidth: o texto é cortado, nunca quebrado em duas linhas. */
-      doc.setFont('helvetica', (i===0 || i===12) ? 'bold' : 'normal');
-      doc.setFontSize(i===12 ? 7.4 : 8.5);
+      /* Coluna 8 é a hora extra: sai em negrito sempre que houver valor, como na tela.
+         É o número que se procura primeiro no espelho. */
+      const ehExtra = (i === 8 && d.extraMin > 0);
+      doc.setFont('helvetica', (i===0 || i===12 || ehExtra) ? 'bold' : 'normal');
+      doc.setFontSize(i===12 ? Math.max(6.4, CORPO - 1.1) : (ehExtra ? CORPO + 0.6 : CORPO));
       doc.text(relCortar(doc, String(txt), cols[i][1]-5), x, y);
       x += cols[i][1];
     });
     doc.setFont('helvetica','normal');
-    doc.setFontSize(8.5);
+    doc.setFontSize(CORPO);
     y += LINHA;
   });
 
   /* Linha de totais, fechando a tabela como no cartão ponto oficial. */
-  if(y > alt - 60){ doc.addPage(); y = 56; desenharCabecalho(); }
   doc.setFillColor(229,243,234); doc.rect(m, y-11, larg-2*m, LINHA, 'F');
   doc.setDrawColor(1,109,60); doc.setLineWidth(1); doc.line(m, y-11, larg-m, y-11); doc.setLineWidth(0.5);
   doc.setFont('helvetica','bold');
@@ -8983,22 +10328,51 @@ function desenharEspelho(doc, it, dados, logoDataURL){
   let xt = m + 4;
   tot.forEach((txt, i)=>{ doc.text(relCortar(doc, String(txt), cols[i][1]-5), xt, y); xt += cols[i][1]; });
   doc.setFont('helvetica','normal');
-  y += LINHA + 16;
 
-  /* Legenda e declaração de exatidão assinada pelo colaborador. */
-  if(y > alt - 120){ doc.addPage(); y = 60; }
+  /* ===== RODAPÉ ANCORADO NO PÉ DA FOLHA =====
+     Legenda, declaração e assinaturas partem de `alt - RODAPE`, e não de onde a tabela
+     terminou. É isso que faz o espelho de fevereiro e o de março acabarem na mesma
+     altura do papel — e é o que garante que a linha de assinatura nunca escorregue
+     para uma segunda página. */
+  let yr = alt - RODAPE;
+  doc.setFontSize(7.6);
+  const ajustados = a.dias.filter(d=> d.marcacaoEditada);
+  const cortesias = a.dias.filter(d=> d.cortesiaDia);
+  doc.text('(*) Batida lançada manualmente' +
+    (ajustados.length
+      ? '     (†) Marcação ajustada à mão no sistema — ' + ajustados.length + ' dia(s)' +
+        (ajustados[0].editadoPor ? ', por ' + ajustados[0].editadoPor : '')
+      : ''), m, yr);
+  yr += 11;
+  /* A hora extra lançada é declarada por extenso, com dia, valor e motivo. O
+     colaborador está assinando por horas que não aparecem nas marcações dele: ou o
+     papel diz de onde vieram, ou a assinatura não vale grande coisa. Ver "HORA EXTRA
+     LANÇADA NO DIA". */
+  const comExtraDia = a.dias.filter(d=> d.extraDiaMin);
+  if(comExtraDia.length){
+    const texto = textoExtraLancada(a);
+    const linhasExtra = doc.splitTextToSize(texto, larg - 2*m);
+    doc.setFont('helvetica','bold');
+    doc.text(linhasExtra, m, yr);
+    doc.setFont('helvetica','normal');
+    yr += linhasExtra.length * 10;
+  }
+  if(cortesias.length){
+    doc.text(cortesias.length + ' dia(s) com horas devidas não descontadas — pago o dia trabalhado.', m, yr);
+    yr += 11;
+  }
+  yr += 3;
   doc.setFontSize(8);
-  doc.text('(*) Batida lançada manualmente', m, y); y += 18;
-  doc.setFontSize(8.5);
   const decl = doc.splitTextToSize(textoDeclaracaoEspelho(dados.info.periodo), larg - 2*m);
-  doc.text(decl, m, y, {lineHeightFactor: 1.5}); y += decl.length * 13 + 40;
-
-  if(y > alt - 40){ doc.addPage(); y = 60; }
-  doc.setFontSize(8.5);
-  doc.text('_______________________________________', m, y);
-  doc.text('_______________________________________', larg/2 + 10, y);
-  doc.text(c.nome, m, y+12);
-  doc.text('Responsável', larg/2 + 10, y+12);
+  doc.text(decl, m, yr, {lineHeightFactor: 1.35});
+  /* As assinaturas ficam coladas no pé, sempre na mesma altura. */
+  const yAssin = alt - 34;
+  doc.setDrawColor(120); doc.setLineWidth(0.6);
+  doc.line(m, yAssin, m + (larg/2 - m - 16), yAssin);
+  doc.line(larg/2 + 10, yAssin, larg - m, yAssin);
+  doc.setFontSize(8);
+  doc.text(c.nome, m, yAssin + 11);
+  doc.text('Responsável', larg/2 + 10, yAssin + 11);
 }
 
 /* ============================= EMISSÃO EM LOTE =============================
@@ -9038,7 +10412,7 @@ var DOCUMENTOS = {
 
   holerites: {
     titulo: 'Holerites — todos',
-    desc: 'Recibo de pagamento de cada colaborador da folha, um por página, com vencimentos, descontos, líquido e o demonstrativo de bases e alíquotas.',
+    desc: 'Uma folha por colaborador: o recibo de pagamento em cima — vencimentos, descontos, líquido e bases — e a ficha de ponto do mês na metade de baixo, com uma assinatura só para os dois.',
     classe: 'rel-doc',
     arquivo: 'Holerites',
     /* Colaborador sem nenhum valor no mês não gera papel. */
@@ -9058,9 +10432,12 @@ var DOCUMENTOS = {
       const { jsPDF } = window.jspdf;
       const logo = await obterLogoDataURL();
       const doc = new jsPDF({unit:'pt', format:'a4'});
+      /* Uma folha por colaborador, com a ficha de ponto dele na metade de baixo — o
+         departamento pessoal imprime o maço e sai colhendo uma assinatura só por
+         pessoa, em vez de duas. */
       this.lista(ctx).forEach((r, i)=>{
         if(i) doc.addPage();
-        desenharHolerite(doc, r.f, r.l, ctx.mes, logo);
+        desenharHolerite(doc, r.f, r.l, ctx.mes, logo, pontoParaHolerite(r.f, ctx.mes));
       });
       return doc;
     }
@@ -9068,6 +10445,13 @@ var DOCUMENTOS = {
 };
 
 var DOC_ORDEM = ['espelhos','holerites'];
+
+/* ===================== HOLERITES DE TODOS =====================
+   O mesmo maço que os Relatórios já emitiam, agora com botão na Folha de Pagamento —
+   que é onde a pessoa está quando decide imprimir. Chama exatamente a mesma geração
+   (`DOCUMENTOS.holerites`), e não uma cópia dela: dois caminhos que desenham o mesmo
+   documento acabam divergindo no primeiro ajuste que só um dos dois receber. */
+document.getElementById('btnHoleritesTodos').addEventListener('click', ()=> emitirDocumento('holerites', 'baixar'));
 
 async function emitirDocumento(chave, modo){
   const def = DOCUMENTOS[chave];
@@ -9222,7 +10606,6 @@ const LIMITE_DEBITO_ALERTA = 500;
 
 const LS_FILA_CAIXA = 'rh_caixa_fila';
 let caixaFila = [];            /* gravações que ainda não chegaram ao banco */
-let caixaEscoando = false;
 let caixaLendo = false;
 /* Só depois da primeira leitura das tabelas caixa_* o sistema sabe de verdade o que já
    foi lançado no dia. Antes disso `state.aberturas` está vazio — não porque o dia esteja
@@ -9242,19 +10625,64 @@ function gravarFilaCaixa(){
 function enfileirarCaixa(acao, tipo, id, obj){
   caixaFila = caixaFila.filter(p=> !(p.tipo === tipo && p.id === id));
   caixaFila.push({acao, tipo, id, obj: obj || null});
+  caixaGravacoes++;          /* ver "A LEITURA NÃO PODE PASSAR NA FRENTE DA GRAVAÇÃO" */
   gravarFilaCaixa();
 }
 
+/* ======== A LEITURA NÃO PODE PASSAR NA FRENTE DA GRAVAÇÃO ========
+   Bug real de 01/09/2026: o operador lançava o recebimento e, seis ou oito segundos
+   depois, clicava em "dar baixa no SG" — e o lançamento voltava para a lista de
+   pendentes sozinho, como se a baixa não tivesse acontecido. No banco ela estava lá:
+   quem voltava atrás era só a tela.
+
+   Eram duas frestas, e as duas na mesma corrida. O lançamento acabava de disparar uma
+   gravação; o realtime avisava os computadores e agendava a releitura; a baixa entrava
+   no meio disso.
+
+   1. `escoarFilaCaixa` respondia `true` — "subiu tudo" — quando já havia um envio em
+      andamento, sem ter enviado nada. A releitura, que espera por essa resposta antes
+      de ler, saía na frente da gravação da baixa. Agora ela ESPERA pelo envio que está
+      correndo, e volta a drenar se entrou coisa nova na fila enquanto esperava.
+
+   2. Mesmo esperando, uma gravação pedida DURANTE a leitura chegaria depois: as linhas
+      já estavam viajando do banco sem ela, e ao serem instaladas apagavam da memória a
+      baixa recém-feita. Por isso o contador `caixaGravacoes`: a releitura anota o valor
+      antes de ler e confere depois. Se mudou, o que chegou já nasceu velho e é
+      DESCARTADO — o que está na tela continua valendo e a leitura é reagendada.
+
+   O princípio nos dois casos é o mesmo: entre o que este navegador acabou de gravar e o
+   que o banco respondeu, quem manda é a gravação. */
+let caixaGravacoes = 0;          /* muda a cada gravação pedida por este navegador */
+let caixaEscoandoPromessa = null; /* o envio em andamento, para ser esperado de verdade */
+
 async function escoarFilaCaixa(){
-  if(!db || !caixaFila.length) return true;
-  /* Dois lançamentos seguidos (o cliente novo e o recebimento dele) chamariam o escoamento
-     ao mesmo tempo e mandariam a mesma linha duas vezes — uma vez basta. */
-  if(caixaEscoando) return true;
-  caixaEscoando = true;
-  try{
-    return await escoarFilaCaixaAgora();
-  }finally{
-    caixaEscoando = false;
+  if(!db) return true;
+  while(true){
+    /* Dois lançamentos seguidos (o cliente novo e o recebimento dele) chamariam o
+       escoamento ao mesmo tempo e mandariam a mesma linha duas vezes — uma vez basta.
+       Quem chega depois espera o envio que já está correndo, em vez de fingir sucesso. */
+    if(caixaEscoandoPromessa){
+      const ok = await caixaEscoandoPromessa;
+      if(!ok) return false;
+      if(!caixaFila.length) return true;
+      continue;   /* entrou gravação nova enquanto se esperava: drena de novo */
+    }
+    if(!caixaFila.length) return true;
+    /* A promessa é criada e só então guardada, e quem a guardou é quem a apaga depois de
+       esperar por ela. Apagá-la de dentro do próprio envio invertia a ordem quando o
+       envio terminava sem nenhuma espera: o `null` acontecia ANTES da atribuição, a
+       promessa ficava pendurada para sempre e a próxima drenagem girava em falso. */
+    const envio = escoarFilaCaixaAgora();
+    caixaEscoandoPromessa = envio;
+    let ok;
+    try{
+      ok = await envio;
+    }finally{
+      if(caixaEscoandoPromessa === envio) caixaEscoandoPromessa = null;
+    }
+    if(!ok) return false;
+    if(!caixaFila.length) return true;
+    /* Sobrou fila: entrou gravação nova durante o envio. Drena de novo. */
   }
 }
 
@@ -9379,18 +10807,44 @@ async function lerTabelaInteira(tabela){
   return linhas;
 }
 
+/* O que ainda não subiu continua valendo na tela. Se a internet caiu, a fila fica cheia e
+   o banco segue com a versão anterior — instalar a leitura crua faria o lançamento (ou a
+   baixa no SG) sumir da vista até a conexão voltar, embora ele estivesse guardado e a
+   caminho. Aqui a fila é reaplicada por cima do que o banco devolveu.
+
+   Sempre nesta ordem: banco primeiro, fila depois. A fila é o que este navegador sabe e
+   o banco ainda não — ver "A LEITURA NÃO PODE PASSAR NA FRENTE DA GRAVAÇÃO". */
+function aplicarFilaSobreCaixa(){
+  caixaFila.forEach(p=>{
+    const lista = state[p.tipo];
+    if(!Array.isArray(lista)) return;
+    const i = lista.findIndex(x=> x && x.id === p.id);
+    if(p.acao === 'apagar'){ if(i >= 0) lista.splice(i, 1); return; }
+    if(!p.obj) return;
+    if(i >= 0) lista[i] = p.obj; else lista.push(p.obj);
+  });
+}
+
 async function carregarCaixa(avisar){
   if(!db || caixaLendo) return;
   caixaLendo = true;
   try{
     await escoarFilaCaixa();   /* o que este navegador deve ao banco vai antes de reler */
+    /* A marca é tirada DEPOIS do escoamento: o que já subiu não conta, o que for gravado
+       daqui em diante conta. Ver "A LEITURA NÃO PODE PASSAR NA FRENTE DA GRAVAÇÃO". */
+    const marca = caixaGravacoes;
     const tipos = Object.keys(CAIXA_TABELAS);
     const respostas = await Promise.all(tipos.map(t=> lerTabelaInteira(CAIXA_TABELAS[t].tabela)));
+    /* Gravaram alguma coisa enquanto estas linhas viajavam: elas já chegaram velhas e
+       instalá-las apagaria da memória o que acabou de ser feito — era assim que a baixa
+       no SG voltava atrás sozinha. Descarta e relê, que o que está na tela é o certo. */
+    if(marca !== caixaGravacoes){ agendarLeituraCaixa(); return; }
     garantirBaseRecebimentos();
     const antes = assinaturaCaixa();
     tipos.forEach((t, i)=>{
       state[t] = respostas[i].map(x=> x.dados).filter(Boolean);
     });
+    aplicarFilaSobreCaixa();
     unificarCartoesAntigos();
     gravarCache();
     const primeira = !caixaCarregado;
