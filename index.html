@@ -138,7 +138,7 @@
   .tabela-header span:nth-child(4){text-align:right;}
   .grid{display:flex;flex-direction:column;gap:8px;}
   .card{background:#fff;border:1px solid var(--cinza-borda);border-radius:12px;padding:12px 16px;cursor:pointer;
-    display:grid;grid-template-columns:2fr 1.6fr 1fr 110px;gap:16px;align-items:center;box-shadow:var(--sombra-1);
+    display:grid;grid-template-columns:2fr 1.6fr 1fr 110px 34px;gap:16px;align-items:center;box-shadow:var(--sombra-1);
     transition:border-color var(--t-rapido) var(--suave), box-shadow var(--t-medio) var(--suave),
                transform var(--t-medio) var(--mola);}
   /* O cartão sobe um fio de milímetro sob o mouse. É pouco de propósito: com a lista
@@ -173,6 +173,15 @@
   .btn-olho:hover svg{stroke:var(--marca);}
   .btn-olho.aberto{border-color:var(--marca);background:var(--marca-cl);}
   .btn-olho.aberto svg{stroke:var(--marca);}
+  /* Impressora da linha: mesma caixa do olho, para a coluna de ações da direita ficar
+     alinhada. Discreta em repouso — é atalho, não a ação principal do cartão. */
+  .btn-imprimir-linha{background:none;border:1px solid var(--cinza-borda);border-radius:7px;
+    width:30px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;
+    padding:0;flex:none;transition:background var(--t-rapido),border-color var(--t-rapido);}
+  .btn-imprimir-linha svg{width:16px;height:16px;stroke:var(--texto-fraco);fill:none;stroke-width:2;
+    stroke-linecap:round;stroke-linejoin:round;}
+  .btn-imprimir-linha:hover{background:var(--marca-cl);border-color:var(--marca);}
+  .btn-imprimir-linha:hover svg{stroke:var(--marca);}
   .btn-valores{display:inline-flex;align-items:center;gap:8px;}
   .btn-valores svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
   .aviso-sigilo{font-size:11.5px;color:var(--texto-fraco);display:flex;align-items:center;gap:7px;margin:0 2px 10px;}
@@ -855,6 +864,16 @@
   .cortesia-lbl:hover{border-color:#7fb99a;color:var(--marca-esc);}
   .cortesia-lbl input{width:14px;height:14px;flex:none;margin:1px 0 0;accent-color:var(--verde);cursor:pointer;}
   .cortesia-lbl.ligada{background:#eaf7ef;border-color:#9ed4b5;color:#1c6b42;}
+  /* Folga que era falta: mesma caixa da cortesia, no vermelho — ligada, ela custa uma
+     diária ao colaborador, e a cor tem que dizer isso. Ver "FOLGA QUE ERA FALTA". */
+  .falta-lbl{display:inline-flex;align-items:flex-start;gap:7px;margin-top:6px;cursor:pointer;
+    font-size:11px;font-weight:600;color:var(--texto-fraco);line-height:1.35;
+    padding:5px 9px;border:1px solid var(--cinza-borda);border-radius:8px;background:#fff;
+    max-width:100%;transition:background .12s,border-color .12s,color .12s;}
+  .falta-lbl:hover{border-color:#e0a49c;color:var(--vermelho);}
+  .falta-lbl input{width:14px;height:14px;flex:none;margin:1px 0 0;accent-color:var(--vermelho);cursor:pointer;}
+  .falta-lbl.ligada{background:#fdf1f0;border-color:#e8b4b0;color:#a03227;}
+  .tabela-dias td.cel-falta{color:var(--vermelho);font-weight:800;letter-spacing:.03em;}
   /* ---- lista da hora extra do dia (ver "HORA EXTRA LANÇADA NO DIA") ----
      Rola dentro do modal: são vinte e poucos nomes e a janela não pode crescer até
      empurrar os botões para fora da tela. */
@@ -1000,6 +1019,20 @@
                              border:2px solid var(--marca);border-radius:9px;padding:9px 13px;width:100%;}
   .conta-box .cb-campo input:focus{outline:none;border-color:var(--marca-esc);
                                    box-shadow:0 0 0 3px rgba(0,0,0,.06);}
+  /* O total é mostrador, não campo: fundo preto, dígito claro e passo largo, como o
+     visor da calculadora de mesa que ele veio substituir. O quadro verde em volta segue
+     igual — o destaque na tela é dele —, o que muda é que o número agora se lê como
+     resultado de máquina e ninguém tenta digitar lá dentro. */
+  .conta-box .cb-campo input[readonly]{
+    background:#0a100c;border-color:#0a100c;color:#eafff2;cursor:default;text-align:right;
+    font-family:'Consolas','DejaVu Sans Mono','Courier New',ui-monospace,monospace;
+    font-size:29px;font-weight:700;letter-spacing:.08em;
+    text-shadow:0 0 12px rgba(110,240,170,.30);
+    box-shadow:inset 0 2px 8px rgba(0,0,0,.7), inset 0 0 0 1px rgba(255,255,255,.05);}
+  .conta-box .cb-campo input[readonly]::placeholder{color:#eafff2;opacity:.22;font-weight:700;}
+  .conta-box .cb-campo input[readonly]:focus{outline:none;border-color:#0a100c;
+    box-shadow:inset 0 2px 8px rgba(0,0,0,.7), inset 0 0 0 1px rgba(255,255,255,.05),
+               0 0 0 3px rgba(1,74,41,.18);}
   .conta-box .cb-nota{font-size:11px;color:var(--texto-fraco);line-height:1.45;}
   /* Calculadora nas cores da casa — branca com o verde da marca. É compacta de
      propósito: quanto mais estreita ela for, mais sobra para as cinco formas de
@@ -1168,6 +1201,11 @@
     box-shadow:inset 0 1px 0 #fff, 0 2px 0 #e4eaed, 0 3px 7px rgba(20,45,32,.08);}
   .rec-form.passo-cliente .conta-box .cb-campo label{color:var(--texto-fraco);}
   .rec-form.passo-cliente .conta-box .cb-campo input{border-color:var(--cinza-borda);color:var(--texto);}
+  /* Antes do nome do cliente o mostrador continua escuro, só apagado — aparelho ligado
+     em espera. Sem esta linha ele herdaria a cor de texto escura da regra acima e o
+     número ficaria preto no preto. */
+  .rec-form.passo-cliente .conta-box .cb-campo input[readonly]{
+    background:#20272a;border-color:#20272a;color:#c7d2cc;text-shadow:none;}
 
   /* --- trava do lançamento: nada antes do nome do cliente --- */
   .rec-trava{display:flex;align-items:center;gap:9px;background:var(--superficie);
@@ -2157,8 +2195,14 @@
           <div class="secao-title">Total da conta</div>
           <div class="cb-campo">
             <label for="recTotal">Soma das notinhas de compra</label>
-            <input type="text" inputmode="decimal" id="recTotal" placeholder="0,00">
-            <div class="cb-nota">O total que o cliente devia nesta conta — a soma de tudo que ele levou fiado.</div>
+            <!-- Visor, e não campo: quem escreve aqui é a calculadora ao lado. Enquanto
+                 dava para digitar por cima da soma, o total gravado e o maço de notinhas
+                 podiam contar duas histórias diferentes, e a conferência do dia seguinte
+                 não tinha como saber qual das duas era a certa. -->
+            <input type="text" id="recTotal" placeholder="0,00" readonly tabindex="-1"
+                   aria-readonly="true" title="A soma vem da calculadora ao lado — este visor não se digita.">
+            <div class="cb-nota">O total que o cliente devia nesta conta — a soma de tudo que ele levou fiado.
+              Quem escreve neste visor é a calculadora ao lado.</div>
 
             <!-- As notinhas somadas ficam aqui, logo abaixo do visor do total e não
                  dentro da calculadora: na coluna estreita elas quebravam de duas em
@@ -3236,7 +3280,10 @@
 
     <div class="acoes-modal">
       <button class="btn btn-vermelho btn-sm" id="btnExcluir" style="display:none;">Excluir colaborador</button>
-      <button class="btn btn-outline" id="btnHolerite">Emitir holerite (PDF)</button>
+      <!-- Dois caminhos para o mesmo papel: baixar o arquivo, ou mandar direto para a
+           impressora sem passar pela pasta de downloads. Ver "IMPRIMIR DIRETO". -->
+      <button class="btn btn-outline" id="btnHolerite">Baixar holerite (PDF)</button>
+      <button class="btn btn-outline" id="btnHoleriteImprimir">Imprimir holerite</button>
       <button class="btn btn-verde" id="btnSalvarColab">Salvar</button>
     </div>
   </div>
@@ -3331,7 +3378,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '03/09/2026g · Saida batida duas vezes nao gera divida';
+const VERSAO_SISTEMA = '03/09/2026l · Falta escrita na linha inteira do dia';
 
 const SUPABASE_URL  = 'https://vieafcgghboxwhultile.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_HaMcgvr_2xmWYotvzetmVA_yscPz2eT';
@@ -4402,12 +4449,27 @@ function renderLista(){
         </div>
       </div>
       <div class="badge ${lancado?'ok':'pendente'}">${lancado?'Lançado':'Pendente'}</div>
+      <button type="button" class="btn-imprimir-linha" data-imprimir="${f.id}"
+        title="Imprimir o holerite de ${f.nome} — vai direto para a impressora"
+        aria-label="Imprimir holerite">
+        <svg viewBox="0 0 24 24"><path d="M6 9V3h12v6"/><rect x="4" y="9" width="16" height="7" rx="1.5"/><path d="M7 16h10v5H7z"/></svg>
+      </button>
     `;
     card.addEventListener('click', ()=> abrirColaborador(f.id));
     /* O olho é ação da própria linha: não pode abrir o cadastro junto. */
     card.querySelector('.btn-olho').addEventListener('click', (e)=>{
       e.stopPropagation();
       alternarValor(f.id);
+    });
+    /* Imprimir da própria linha, sem abrir a ficha. Usa o lançamento GRAVADO do mês —
+       o do formulário só existe com a ficha aberta. Ver "IMPRIMIR DIRETO". */
+    card.querySelector('.btn-imprimir-linha').addEventListener('click', async (e)=>{
+      e.stopPropagation();
+      const lancGravado = getLancamento(state.mesAtual, f.id);
+      if(ehDiarista(f)) sincronizarLancamento(f, lancGravado);
+      else lancGravado.salario = salarioDoMes(f, state.mesAtual);
+      sincronizarPontoNoLancamento(f, lancGravado);
+      await gerarHoleritePDF(f, lancGravado, state.mesAtual, 'imprimir');
     });
     grid.appendChild(card);
   });
@@ -5323,12 +5385,15 @@ document.getElementById('btnFolha').addEventListener('click', ()=>{
 });
 
 /* ============================= DOWNLOAD: HOLERITE (PDF) ============================= */
-document.getElementById('btnHolerite').addEventListener('click', async ()=>{
+/* Os dois botões chamam a mesma geração; muda só o destino do documento pronto. */
+async function emitirHoleriteDoModal(modo){
   if(!colabAtualId){ mostrarToast('Salve o colaborador antes de gerar o holerite'); return; }
   const f = state.funcionarios.find(x=>x.id===colabAtualId);
   const l = lerFormLancamentoAtual();
-  await gerarHoleritePDF(f, l, state.mesAtual);
-});
+  await gerarHoleritePDF(f, l, state.mesAtual, modo);
+}
+document.getElementById('btnHolerite').addEventListener('click', ()=> emitirHoleriteDoModal('baixar'));
+document.getElementById('btnHoleriteImprimir').addEventListener('click', ()=> emitirHoleriteDoModal('imprimir'));
 
 /* Converte a logo já carregada no cabeçalho da página (assets/logo.jpg) em dataURL, para poder
    embuti-la no PDF. Se a imagem não existir/carregar, resolve null e o PDF segue sem logo. */
@@ -5534,11 +5599,19 @@ function pontoParaHolerite(f, mesChave){
   return (mapa && mapa[f.id]) || null;
 }
 
-async function gerarHoleritePDF(f, l, mesChave){
+/* ===================== IMPRIMIR DIRETO =====================
+   O caminho de sempre era baixar o PDF, achar o arquivo, abrir e mandar imprimir —
+   quatro passos para um papel que quase sempre só vai para a impressora e para a mão do
+   colaborador. `modo:'imprimir'` monta o mesmo documento, abre numa aba e já dispara a
+   caixa de impressão do navegador (`autoPrint`), sem passar pela pasta de downloads.
+
+   O navegador pode barrar essa aba como pop-up: nesse caso o próprio `relSaida` avisa
+   para liberar os pop-ups do site, em vez de o clique não fazer nada. */
+async function gerarHoleritePDF(f, l, mesChave, modo){
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF({unit:'pt', format:'a4'});
   desenharHolerite(doc, f, l, mesChave, await obterLogoDataURL(), pontoParaHolerite(f, mesChave));
-  doc.save('Holerite_' + f.nome.replace(/\s+/g,'_') + '_' + mesChave + '.pdf');
+  relSaida(doc, 'Holerite_' + f.nome.replace(/\s+/g,'_') + '_' + mesChave + '.pdf', modo);
 }
 
 /* Nome e CNPJ do empregador para os documentos. O nome é o do cadastro; o CNPJ não tem
@@ -5598,7 +5671,6 @@ function desenharFichaPontoCompacta(doc, it, x0, x1, yIni, yLimite){
      rendeu. O resto é preto no branco. */
   const VERMELHO = [192, 57, 43];
   const AZUL     = [31, 97, 141];
-  const CINZA    = [130, 130, 130];
   const tinta = (cor)=> doc.setTextColor(cor ? cor[0] : 0, cor ? cor[1] : 0, cor ? cor[2] : 0);
 
   doc.setFont('helvetica','bold'); doc.setFontSize(8);
@@ -5667,11 +5739,21 @@ function desenharFichaPontoCompacta(doc, it, x0, x1, yIni, yLimite){
   const LINHA = Math.max(8, Math.min(20, Math.floor(espaco / Math.max(1, porBloco))));
   const CORPO = LINHA >= 16 ? 7.4 : (LINHA >= 13 ? 6.8 : (LINHA >= 10 ? 6.2 : 5.6));
 
+  /* Dia de falta escreve FALTA na linha inteira. A célula guardava o que o relógio
+     registrou — "folg" —, e o dia mais caro da folha aparecia disfarçado de folga, com
+     a palavra FALTA só na última coluna. Quem confere lê a linha, não a ponta dela.
+     Onde HÁ batida o horário continua, sempre: numa falta justificada a partir de um
+     registro ausente, apagar a marcação que existe seria esconder prova. */
   const marca = (d, i)=>{
     const m = d.marc[i];
     if(m.min !== null) return pHHMM(m.min) + (m.manual ? '*' : '') + (d.marcacaoEditada ? '†' : '');
+    if(d.tipo === 'falta') return 'FALTA';
     return m.status ? (m.status.length > 4 ? m.status.slice(0,4) : m.status) : '—';
   };
+  const celMarc = (d, i, idx)=>
+    (d.tipo === 'falta' && d.marc[i].min === null)
+      ? {t:'FALTA', c: VERMELHO}
+      : {t: marca(d, i), c: corDaBatida(d, i, idx)};
 
   /* Qual marcação é a entrada e qual é a saída do dia. A entrada é a primeira batida
      preenchida e a saída é a última — que é como `analisarDia` chega em entradaMin e
@@ -5713,12 +5795,8 @@ function desenharFichaPontoCompacta(doc, it, x0, x1, yIni, yLimite){
       const idx = indicesBatidas(d);
       const valores = [
         {t: String(d.dia).padStart(2,'0') + ' ' + (PONTO_DOW_LABEL[d.dow] || ''), b:true},
-        {t: marca(d,0), c: corDaBatida(d,0,idx)},
-        {t: marca(d,1), c: corDaBatida(d,1,idx)},
-        {t: marca(d,2), c: corDaBatida(d,2,idx)},
-        {t: marca(d,3), c: corDaBatida(d,3,idx)},
-        {t: marca(d,4), c: corDaBatida(d,4,idx)},
-        {t: marca(d,5), c: corDaBatida(d,5,idx)},
+        celMarc(d,0,idx), celMarc(d,1,idx), celMarc(d,2,idx),
+        celMarc(d,3,idx), celMarc(d,4,idx), celMarc(d,5,idx),
         /* O total de hora extra do dia acompanha a cor das batidas que o geraram. */
         /* No feriado a célula mostra as HORAS REAIS do dia com o "×2" ao lado —
            "05:12 ×2" —, e não o produto. Quem confere a ficha quer reconhecer ali a
@@ -5728,21 +5806,25 @@ function desenharFichaPontoCompacta(doc, it, x0, x1, yIni, yLimite){
         {t: d.feriadoDobra ? (pHHMM(d.trabalhadoMin) + ' ×2')
               : (d.extraMin ? pHHMM(d.extraMin) + (d.extraDiaMin ? '‡' : '') : '—'),
          c: d.extraMin ? AZUL : null, b: !!d.extraMin},
-        /* Dia pago por inteiro não mostra o número em vermelho: mostra que foi pago.
-           Some o valor, não a informação — e o pé da ficha continua declarando quantos
-           dias foram pagos assim. */
-        (function(){
-          const houve = d.atrasoMin > 0 || d.saidaAntMin > 0;
-          if(d.cortesiaDia && houve) return {t:'pago', c: CINZA, leve:true};
-          return {t: d.atrasoMin ? pHHMM(d.atrasoMin) : (d.saidaAntMin ? '-' + pHHMM(d.saidaAntMin) : '—'),
-                  c: houve ? VERMELHO : null};
-        })()
+        /* A coluna simplesmente não tem o que mostrar no dia pago: o atraso já foi
+           zerado na apuração, então aqui sai "—" como em qualquer dia limpo, e a soma da
+           coluna fecha com o total do cabeçalho. Ver a nota da cortesia na apuração.
+
+           A falta é a exceção: as células do dia dizem "folg" (é o que o relógio
+           registrou) e sem esta palavra a ficha impressa esconderia justamente o dia que
+           mais pesa na folha. Ver "FOLGA QUE ERA FALTA". */
+        /* Com FALTA escrito na linha inteira, esta coluna não repete a palavra: mostra
+           o que o dia custou, que é a informação que ainda faltava. */
+        (d.tipo === 'falta'
+          ? {t:'-' + pHHMM(d.debitoMin), c: VERMELHO}
+          : {t: d.atrasoMin ? pHHMM(d.atrasoMin) : (d.saidaAntMin ? '-' + pHHMM(d.saidaAntMin) : '—'),
+             c: (d.atrasoMin || d.saidaAntMin) ? VERMELHO : null})
       ];
       let x = bx + 4;
       valores.forEach((v, i)=>{
         /* Negrito acompanha a cor — menos o cinza do "pago", que é informação de apoio
            e não pode competir com os números que a pessoa está conferindo. */
-        doc.setFont('helvetica', (v.b || (v.c && !v.leve)) ? 'bold' : 'normal');
+        doc.setFont('helvetica', (v.b || v.c) ? 'bold' : 'normal');
         doc.setFontSize(CORPO);
         tinta(v.c);
         doc.text(relCortar(doc, String(v.t), cols[i][1] - 3), x, yy + LINHA - 3.4);
@@ -5772,7 +5854,10 @@ function desenharFichaPontoCompacta(doc, it, x0, x1, yIni, yLimite){
   tinta(null); doc.setFont('helvetica','normal'); doc.setTextColor(115);
   doc.text('(*) batida lançada manualmente' +
     (ajustados ? '   (†) marcação ajustada à mão — ' + ajustados + ' dia(s)' : '') +
-    (cortesias ? '   ' + cortesias + ' dia(s) pago o dia trabalhado' : ''), xl, y + 9);
+    /* Os dias pagos saem "limpos" na tabela; sem esta linha, o papel não contaria que
+       houve uma decisão da diretoria por trás. */
+    (cortesias ? '   ' + cortesias + ' dia(s) pago(s) integralmente por decisão da empresa, ' +
+      'sem desconto de atraso' : ''), xl, y + 9);
   y += 12;
   /* A declaração da hora extra combinada vem em negrito e por extenso, também aqui:
      esta é a folha que o colaborador assina para receber. */
@@ -6530,6 +6615,8 @@ function agregarDias(dias){
        dentro de extraMin; fica somada à parte para poder ser mostrada separada da que
        o relógio apurou sozinho. */
     extraDiaQtd:0, extraDiaMin:0,
+    /* Parcela das horas devidas que veio de FALTA — cobrada pela diária, não pela hora. */
+    faltasDebitoMin:0,
     ocorrenciasQtd:0, nota:100
   };
   /* Folga, licença, férias e falta saem do laço antes de somar `extraMin`. Se a hora
@@ -6545,7 +6632,11 @@ function agregarDias(dias){
     if(d.tipo==='feriado' && !d.trabalhadoMin){ r.folgas++; extraForaDoLaco += (d.extraDiaMin||0); return; }
     if(d.tipo==='folga'){ r.folgas++; extraForaDoLaco += (d.extraDiaMin||0); return; }
     if(d.tipo==='licenca'||d.tipo==='ferias'){ r.licencas++; extraForaDoLaco += (d.extraDiaMin||0); return; }
-    if(d.tipo==='falta'){ r.faltas++; r.previstoMin += d.previstoMin; r.debitoMin += d.debitoMin; extraForaDoLaco += (d.extraDiaMin||0); return; }
+    /* `faltasDebitoMin` sai separado do resto das horas devidas porque o dinheiro dos
+       dois é calculado por preços diferentes: falta custa a DIÁRIA, atraso custa o
+       valor-hora. Ver `valoresColaborador`. */
+    if(d.tipo==='falta'){ r.faltas++; r.previstoMin += d.previstoMin; r.debitoMin += d.debitoMin;
+      r.faltasDebitoMin += d.debitoMin; extraForaDoLaco += (d.extraDiaMin||0); return; }
     r.diasTrabalhados++;
     r.trabalhadoMin += d.trabalhadoMin;
     r.previstoMin += d.previstoMin;
@@ -6756,6 +6847,37 @@ function salvarCortesiaPonto(mes, nomePonto, iso, ligada){
    A hora extra apurada pelo relógio (entrada antes das 07:30, saída depois das 18:30)
    continua valendo e SOMA com esta — são coisas diferentes: uma é o que o relógio viu,
    outra é o que a gestão combinou. */
+/* ===================== FOLGA QUE ERA FALTA =====================
+   O relógio de ponto não sabe a diferença entre quem estava de folga e quem não veio:
+   os dois saem como "Folga" na planilha. Quando é falta de verdade, alguém do escritório
+   sabe — e até agora não tinha onde dizer, porque o menu de motivos só aparece em dia
+   com registro ausente, e o dia de folga não tem registro nenhum para faltar.
+
+   Marcado aqui, o dia vira falta: debita a jornada prevista na escala e entra na
+   contagem de faltas do mês. Desmarcar devolve o dia à folga — o arquivo importado
+   nunca é tocado, como nas outras camadas de correção. */
+function faltaMarcada(mes, nomePonto, iso){
+  const porColab = state.pontoFaltas && state.pontoFaltas[mes] && state.pontoFaltas[mes][norm(nomePonto)];
+  return porColab ? (porColab[iso] || null) : null;
+}
+
+function salvarFaltaPonto(mes, nomePonto, iso, marcada){
+  if(!state.pontoFaltas) state.pontoFaltas = {};
+  if(!state.pontoFaltas[mes]) state.pontoFaltas[mes] = {};
+  const chave = norm(nomePonto);
+  if(!state.pontoFaltas[mes][chave]) state.pontoFaltas[mes][chave] = {};
+  if(marcada){
+    state.pontoFaltas[mes][chave][iso] = {
+      por: document.getElementById('usuarioLogado').textContent || '',
+      em: new Date().toISOString()
+    };
+  }else{
+    delete state.pontoFaltas[mes][chave][iso];
+  }
+  invalidarPonto();
+  salvarEstado();
+}
+
 /* ---------- FERIADO TRABALHADO ----------
    O dia marcado como feriado lança, como hora extra, o DOBRO das horas que a pessoa
    trabalhou nele: quem cumpriu 5:12 recebe 10:24 de hora extra. Nos documentos a coluna
@@ -6838,6 +6960,25 @@ function analisarColaboradorComCorrecoes(c, mes, cfg){
             (r.editadoEm ? ' em ' + new Date(r.editadoEm).toLocaleDateString('pt-BR') : '')
       }]);
     }
+    /* Folga que na verdade foi falta. Vem antes de tudo porque muda a natureza do dia:
+       o que era um dia sem obrigação passa a dever a jornada inteira da escala.
+       Ver "FOLGA QUE ERA FALTA". */
+    if(r.tipo === 'folga' && toNum(r.previstoMin) > 0){
+      r.podeFalta = true;
+      const fal = faltaMarcada(mes, c.nome, diaOriginal.iso);
+      if(fal){
+        r.faltaMarcada = true;
+        r.faltaPor = fal.por || '';
+        r.tipo = 'falta';
+        r.debitoMin = toNum(r.previstoMin);
+        r.saldoMin = -r.debitoMin;
+        r.ocorrencias = (r.ocorrencias || []).concat([{
+          sev:'critico', cod:'FALTA',
+          txt:'Falta — dia lançado como folga no relógio e marcado como falta no sistema (' +
+              pHHMM(r.debitoMin) + ' previstas)' + (fal.por ? ' por ' + fal.por : '')
+        }]);
+      }
+    }
     /* A hora extra combinada com a equipe entra ANTES da cortesia, senão o saldo que a
        cortesia recalcula sairia sem ela. Ver "HORA EXTRA LANÇADA NO DIA". */
     const ext = extraDiaPonto(mes, c.nome, diaOriginal.iso);
@@ -6895,16 +7036,37 @@ function analisarColaboradorComCorrecoes(c, mes, cfg){
       const cort = cortesiaPonto(mes, c.nome, diaOriginal.iso);
       if(cort){
         const perdoado = r.debitoMin;
+        const atrasoPerdoado = toNum(r.atrasoMin), saidaPerdoada = toNum(r.saidaAntMin);
         r.cortesiaDia = true;
         r.cortesiaPor = cort.por || '';
         r.cortesiaMin = perdoado;
         r.debitoMin = 0;
         r.saldoMin = r.extraMin;
+        /* O dia pago sai da apuração de atraso POR INTEIRO — coluna, total do mês,
+           contagem de ocorrências e nota de assiduidade. Antes o desconto era perdoado
+           mas o atraso continuava somando no cabeçalho, e a ficha ficava sem fechar: a
+           UILMA aparecia com "Atrasos 06:26" e a coluna não tinha de onde tirar aquilo,
+           porque 4:35 estavam num dia pago (05/08, meio período, pago integralmente por
+           decisão da diretoria).
+           Quando a casa decide pagar o dia, o atraso deixa de existir para todo efeito
+           de apuração. O que fica é o registro: a ocorrência do dia diz quanto foi
+           perdoado e quem autorizou, e o pé da ficha conta quantos dias foram assim. */
+        r.atrasoPerdoadoMin = atrasoPerdoado;
+        r.saidaAntPerdoadaMin = saidaPerdoada;
+        r.atrasoMin = 0;
+        r.saidaAntMin = 0;
+        if(r.tipo === 'atraso' || r.tipo === 'saidaant' || r.tipo === 'debito'){
+          r.tipo = r.extraMin > 0 ? 'extra' : 'ok';
+        }
+        const detalhe = [];
+        if(atrasoPerdoado > 0) detalhe.push(pHHMM(atrasoPerdoado) + ' de atraso');
+        if(saidaPerdoada > 0)  detalhe.push(pHHMM(saidaPerdoada) + ' de saída antecipada');
         r.ocorrencias = (r.ocorrencias || []).concat([{
           sev:'info', cod:'CORTESIA',
           txt:'Pago o dia trabalhado — ' +
-              (perdoado > 0 ? pHHMM(perdoado) + ' de horas devidas não descontadas'
-                            : 'este dia não gerava desconto') +
+              (detalhe.length ? detalhe.join(' e ') + ' sem desconto'
+                              : (perdoado > 0 ? pHHMM(perdoado) + ' de horas devidas não descontadas'
+                                              : 'este dia não gerava desconto')) +
               (cort.por ? ' (autorizado por ' + cort.por + ')' : '')
         }]);
       }
@@ -6968,6 +7130,7 @@ if(!state.pontoCorrecoes) state.pontoCorrecoes = {};
 if(!state.pontoMarcacoes) state.pontoMarcacoes = {};   /* ver "MARCAÇÕES AJUSTADAS À MÃO" */
 if(!state.pontoCortesias) state.pontoCortesias = {};   /* ver "CORTESIA DO DIA" */
 if(!state.pontoExtrasDia) state.pontoExtrasDia = {};   /* ver "HORA EXTRA LANÇADA NO DIA" */
+if(!state.pontoFaltas) state.pontoFaltas = {};         /* ver "FOLGA QUE ERA FALTA" */
 if(!state.pontoConfig) state.pontoConfig = Object.assign({}, PONTO_CFG_PADRAO);
 if(state.pontoCfgVersao !== PONTO_CFG_VERSAO){
   state.pontoConfig = Object.assign({}, PONTO_CFG_PADRAO);
@@ -7070,18 +7233,43 @@ function cfgColaborador(f, cfg){
   return p;
 }
 
+/* ===== FALTA CUSTA A DIÁRIA, ATRASO CUSTA A HORA =====
+   Até 03/09/2026 tudo o que era hora devida — falta, atraso, saída antecipada — saía
+   descontado pelo valor da hora extra (R$ 8,50). Para o atraso isso faz sentido; para a
+   falta, não: faltar um dia custa o dia de salário, e não a jornada multiplicada por um
+   preço de hora que existe para outra coisa.
+
+   A diferença é dinheiro de verdade. Quem ganha R$ 1.946,16 tem diária de R$ 64,87
+   (salário ÷ 30, a mesma conta do salário proporcional). Pelo modelo antigo, uma falta
+   de 9:30 descontava 9,5 × 8,50 = R$ 80,75 — quase 16 reais a mais do que o dia vale.
+
+   Então o desconto passa a ter dois preços: as faltas pela diária, e o que sobra de
+   horas devidas pelo valor-hora. Sem salário base cadastrado (diarista, por exemplo)
+   não há diária a calcular, e a conta antiga continua valendo para não deixar o
+   desconto sumir. */
 function valoresColaborador(a, salarioBase, cfg, f){
   cfg = cfgColaborador(f, cfg || pontoCfg());
   const hExtra = pHoras(a.extraMin), hDev = pHoras(a.debitoMin);
   const vExtra = hExtra * (cfg.valorHoraExtra||0);
   const vFeriados = (a.feriadosQtd||0) * (cfg.valorFeriado||0);
   const vDomingos = (a.domingosQtd||0) * (cfg.valorDomingo||0);
-  const vDesc = hDev * (cfg.valorHoraExtra||0);
+
+  const diaria = (salarioBase||0) / AVOS_SALARIO;
+  const faltas = a.faltas||0;
+  const cobrarFaltasPelaDiaria = diaria > 0 && faltas > 0;
+  /* Horas devidas que NÃO são falta: atrasos, saídas antecipadas, intervalo estourado. */
+  const hDevSemFalta = cobrarFaltasPelaDiaria
+    ? pHoras(Math.max(0, toNum(a.debitoMin) - toNum(a.faltasDebitoMin)))
+    : hDev;
+  const vFaltas = cobrarFaltasPelaDiaria ? faltas * diaria : 0;
+  const vDesc = hDevSemFalta * (cfg.valorHoraExtra||0) + vFaltas;
+
   return {
-    hExtra, hDev,
+    hExtra, hDev, hDevSemFalta,
     feriadosQtd: a.feriadosQtd||0, domingosQtd: a.domingosQtd||0,
     valorHoraExtra: cfg.valorHoraExtra||0, valorFeriado: cfg.valorFeriado||0,
     valorDomingo: cfg.valorDomingo||0,
+    faltas, diaria, vFaltas,
     vExtra, vFeriados, vDomingos, vDesc,
     bruto: (salarioBase||0) + vExtra + vFeriados + vDomingos,
     liquidoHoras: (salarioBase||0) + vExtra + vFeriados + vDomingos - vDesc
@@ -8519,10 +8707,10 @@ function relSaida(doc, arquivo, modo){
     const url = doc.output('bloburl');
     const janela = window.open(url, '_blank');
     if(!janela){ mostrarToast('Libere os pop-ups deste site para imprimir direto'); return; }
-    mostrarToast('Relatório enviado para impressão');
+    mostrarToast('Enviado para impressão');
   }else{
     doc.save(arquivo);
-    mostrarToast('Relatório baixado');
+    mostrarToast('Documento baixado');
   }
 }
 
@@ -9516,8 +9704,17 @@ function renderValoresEspelho(it){
       ? linha('Domingos trabalhados', v.domingosQtd + ' dia(s) × ' + (v.valorDomingo ? fmtMoeda(v.valorDomingo) : 'sem pagamento por fora'),
               v.vDomingos ? fmtMoeda(v.vDomingos) : '—', v.vDomingos?'cel-info':'')
       : '') +
-    linha('Horas devidas', pHHMM(it.a.debitoMin) + ' × ' + fmtMoeda(v.valorHoraExtra) + '/h',
-          v.vDesc ? '−' + fmtMoeda(v.vDesc) : '—', v.vDesc?'cel-critico':'') +
+    /* Falta e atraso saem em linhas separadas porque têm preços diferentes — ver
+       "FALTA CUSTA A DIÁRIA, ATRASO CUSTA A HORA". Numa linha só, o "× R$ 8,50/h" ao
+       lado do total estaria descrevendo uma conta que não foi a feita. */
+    (v.vFaltas
+      ? linha('Faltas', v.faltas + ' dia(s) × ' + fmtMoeda(v.diaria) + ' de diária (salário ÷ ' + AVOS_SALARIO + ')',
+              '−' + fmtMoeda(v.vFaltas), 'cel-critico')
+      : '') +
+    linha(v.vFaltas ? 'Atrasos e saídas antecipadas' : 'Horas devidas',
+          pHHMM(v.hDevSemFalta * 60) + ' × ' + fmtMoeda(v.valorHoraExtra) + '/h',
+          (v.vDesc - v.vFaltas) ? '−' + fmtMoeda(v.vDesc - v.vFaltas) : '—',
+          (v.vDesc - v.vFaltas) ? 'cel-critico' : '') +
     '</tbody><tfoot><tr><td>Total com salário</td><td class="fraco">antes de INSS, adiantamento e demais descontos</td>' +
     '<td><b>' + fmtMoeda(v.liquidoHoras) + '</b></td></tr></tfoot></table>';
 }
@@ -9561,11 +9758,11 @@ function situacaoEspelho(d){
   else if(tem('HE-SAI')) partes.push('Hora extra saída');
 
   if(!partes.length && d.debitoMin > 0) partes.push('Horas devidas');
+  /* O dia pago pela empresa se descreve por isso, e não por "Normal": o atraso já foi
+     zerado na apuração, então sem esta linha o papel não contaria que houve uma decisão
+     da diretoria por trás daquele dia. Ver "CORTESIA DO DIA". */
+  if(d.cortesiaDia) partes.push('Pago o dia trabalhado');
   if(!partes.length) partes.push(rotuloUnico === 'Hora extra' ? 'Normal' : rotuloUnico);
-  /* Sem isto o espelho impresso mostraria "Saída antecipada" com a coluna de horas
-     devidas zerada, e a folha pareceria estar errada para quem confere o papel. Ver
-     "CORTESIA DO DIA". */
-  if(d.cortesiaDia) partes.push('pago o dia trabalhado');
   /* A hora extra combinada com a equipe é a única linha do espelho que o relógio não
      explica — o colaborador está assinando por horas que não estão nas marcações dele.
      Tem que estar escrito no dia, e com o valor. Ver "HORA EXTRA LANÇADA NO DIA". */
@@ -9685,6 +9882,9 @@ function abrirEspelho(idx, modoEdicao, modoMarcacoes){
           'inputmode="numeric" autocomplete="off"></td>';
       }
       if(m.min!==null) return '<td class="mono'+(m.manual?' manual':'')+(d.marcacaoEditada?' ajustada':'')+'">'+pHHMM(m.min)+(m.manual?'*':'')+(d.marcacaoEditada?'†':'')+'</td>';
+      /* Mesma regra dos documentos impressos: no dia de falta a linha inteira diz
+         FALTA, e não o "folga" que o relógio registrou. */
+      if(d.tipo === 'falta') return '<td class="mono cel-falta">FALTA</td>';
       if(m.status) return '<td class="mono fraco">'+(m.status==='folga'?'folga':m.status)+'</td>';
       return '<td class="mono vazio">—</td>';
     }).join('');
@@ -9707,6 +9907,15 @@ function abrirEspelho(idx, modoEdicao, modoMarcacoes){
       } else {
         motivoHtml = '<div class="motivo-pendente">Sem motivo definido — use ⋮ · Editar registros</div>';
       }
+    }
+    /* Folga que era falta: mesma lógica da cortesia — decisão, não correção, e por isso
+       visível sempre no dia em que cabe. Ver "FOLGA QUE ERA FALTA". */
+    if(d.podeFalta || d.faltaMarcada){
+      motivoHtml += '<label class="falta-lbl' + (d.faltaMarcada ? ' ligada' : '') + '">' +
+        '<input type="checkbox" class="falta-chk" data-iso="'+d.iso+'"' + (d.faltaMarcada ? ' checked' : '') + '>' +
+        '<span>Foi falta, não folga' +
+          (d.faltaMarcada ? ' — desconta ' + pHHMM(d.debitoMin) + ' (uma diária)' : '') +
+        '</span></label>';
     }
     /* A cortesia é uma decisão, não uma correção: fica visível sempre, sem depender de
        nenhum modo de edição, no dia em que ela cabe. Ver "CORTESIA DO DIA". */
@@ -9969,6 +10178,26 @@ document.getElementById('btnFeriadoHeDia').addEventListener('click', ()=>{
 
 document.getElementById('btnEditarMarcacoes').addEventListener('click', ()=>{
   abrirEspelho(espelhoIdx, espelhoModoEdicao, !espelhoModoMarcacoes);
+});
+
+/* ---------- folga que era falta ---------- */
+document.getElementById('espTabela').addEventListener('change', (e)=>{
+  const chk = e.target.closest('.falta-chk');
+  if(!chk) return;
+  const dados = analisePonto();
+  const it = dados && dados.itens.find(x=>x.idx===espelhoIdx);
+  if(!it) return;
+  if(chk.checked && !confirm('Marcar ' + dataBR(chk.dataset.iso) + ' como FALTA?\n\n' +
+      'O dia deixa de ser folga, passa a dever a jornada da escala e desconta uma diária ' +
+      '(salário ÷ 30) na folha do mês.')){
+    chk.checked = false;
+    return;
+  }
+  salvarFaltaPonto(state.mesAtual, it.c.nome, chk.dataset.iso, chk.checked);
+  renderLista(); renderPonto();
+  abrirEspelho(espelhoIdx, espelhoModoEdicao, espelhoModoMarcacoes);
+  mostrarToast(chk.checked ? 'Dia marcado como falta — desconta uma diária'
+                           : 'Dia voltou a ser folga');
 });
 
 /* ---------- cortesia do dia ---------- */
@@ -10271,7 +10500,10 @@ function desenharEspelho(doc, it, dados, logoDataURL){
      tela de quem corrigiu. Ver "MARCAÇÕES AJUSTADAS À MÃO". */
   const marcaTxt = (i)=> d => d.marc[i].min!==null
     ? pHHMM(d.marc[i].min) + (d.marc[i].manual ? '*' : '') + (d.marcacaoEditada ? '†' : '')
-    : (d.marc[i].status ? statusCurto(d.marc[i].status) : '—');
+    /* Ver a nota do `marca()` na ficha compacta: no dia de falta a linha inteira diz
+       FALTA, em vez de repetir o "folga" que o relógio registrou. */
+    : (d.tipo === 'falta' ? 'FALTA'
+        : (d.marc[i].status ? statusCurto(d.marc[i].status) : '—'));
 
   a.dias.forEach(d=>{
     const tipoDia = tipoEspelho(d);
@@ -12058,7 +12290,9 @@ function escolherSugRec(i){
   }
   fecharSugRec();
   atualizarFichaRec();
-  document.getElementById('recTotal').focus();
+  /* O passo seguinte é somar as notinhas, e a soma se bate na calculadora — o visor do
+     total não recebe digitação. */
+  document.getElementById('recSomaVal').focus();
 }
 
 function ligarBuscaCliente(){
@@ -12365,6 +12599,11 @@ function editarRecebimento(id){
   /* Traz de volta as notinhas de compra do lançamento, para a correção poder mexer em
      uma delas em vez de refazer a soma inteira. */
   recNotasCompra = notasCompraDe(r);
+  /* Lançamento antigo — ou total que foi digitado à mão quando isso ainda era possível —
+     não tem lista de notinhas. Sem semear o total como uma parcela, a correção ficaria
+     sem saída: o visor não se digita e a calculadora começaria do zero. Parcela sozinha
+     não vira lista na gravação, então nada de novo é inventado no registro. */
+  if(!recNotasCompra.length && toNum(r.total) > 0) recNotasCompra = [r2(toNum(r.total))];
   document.getElementById('recSomaVal').value = '';
   renderSomadoraRec(false);
   document.getElementById('recObs').value = r.obs || '';
@@ -12455,8 +12694,9 @@ document.getElementById('recData').addEventListener('change', (e)=>{
    lista fica guardada no lançamento (`notasCompra`), então a conferência de amanhã
    consegue repetir a soma de hoje.
 
-   Regra de convivência com a digitação à mão: quem digita o total direto DESLIGA a
-   somadora e a lista é descartada — duas fontes para o mesmo número é como se erra. */
+   O visor do total não se digita: ele só mostra o que sai daqui. Já foi possível
+   escrever nele à mão, e era assim que o total gravado deixava de bater com o maço de
+   notinhas — duas fontes para o mesmo número é como se erra. */
 let recNotasCompra = [];
 
 function somaNotasCompra(){ return r2(recNotasCompra.reduce((s,v)=> s + v, 0)); }
@@ -12492,8 +12732,8 @@ function renderSomadoraRec(escreverTotal){
   dica.innerHTML = 'Digite o valor da notinha e aperte <b>+</b>. Ele soma e já limpa o visor para a próxima.';
   dica.classList.remove('cb-alerta');
 
-  /* Só escreve no campo quando a soma é quem manda. Ao desligar a somadora o total
-     digitado à mão fica onde está. */
+  /* Só escreve no visor quando a soma é quem manda. Na correção de um lançamento antigo
+     quem vale é o total gravado, e a lista apenas volta para a tela. */
   if(escreverTotal !== false){
     document.getElementById('recTotal').value = soma > 0 ? soma.toFixed(2).replace('.',',') : '';
     atualizarSomatorioRec();
@@ -12552,6 +12792,14 @@ document.getElementById('recSomaVal').addEventListener('input', (e)=>{
 document.getElementById('recSomaVal').addEventListener('keydown', (e)=>{
   /* "+" fecha a parcela — é a tecla que a pessoa já usa na calculadora de mesa.
      Enter e "=" fazem o mesmo para quem tem outro costume. */
+  /* Visor vazio com notinha já somada: o Enter não é "somar nada", é "acabei" — e leva
+     para a primeira modalidade, que era o atalho que existia no campo do total antes
+     dele virar mostrador. */
+  if(e.key === 'Enter' && e.target.value.trim() === '' && recNotasCompra.length){
+    e.preventDefault();
+    document.getElementById('recPg_dinheiro').focus();
+    return;
+  }
   if(e.key === '+' || e.key === 'Enter' || e.key === '='){ e.preventDefault(); addNotaCompra(); return; }
   if(e.key === 'Escape'){ e.preventDefault(); e.target.value = ''; return; }
 });
@@ -12566,17 +12814,13 @@ document.getElementById('recSomaChips').addEventListener('click', (e)=>{
   renderSomadoraRec();
 });
 
-document.getElementById('recTotal').addEventListener('input', ()=>{
-  /* Digitou por cima da soma: a lista deixa de valer e some, para o lançamento nunca
-     guardar parcelas que não batem com o total gravado. */
-  if(recNotasCompra.length &&
-     r2(toNum(document.getElementById('recTotal').value)) !== somaNotasCompra()){
-    recNotasCompra = [];
-    renderSomadoraRec(false);
-    document.getElementById('recSomaDica').textContent =
-      'Total digitado à mão — a lista de notinhas foi descartada.';
-  }
-  atualizarSomatorioRec();
+/* O visor do total é de leitura, então não há digitação para ouvir ali. O clique nele
+   manda o foco para a calculadora: é lá que o número se forma, e quem vai ao total é
+   porque quer mexer na soma. */
+document.getElementById('recTotal').addEventListener('mousedown', (e)=>{
+  e.preventDefault();
+  const c = document.getElementById('recSomaVal');
+  if(!c.disabled) c.focus();
 });
 /* Digitar por cima do calculado é permitido — há caso de balcão em que o cliente pede
    só parte do troco — mas passa a mandar, e o botão de voltar ao calculado aparece. */
@@ -12596,10 +12840,6 @@ document.getElementById('btnRecTrocoAuto').addEventListener('click', (e)=>{
   document.getElementById('recTrocoValor').focus();
 });
 fecharAoClicarFora('overlayTroco');
-/* Enter no total pula direto para a primeira modalidade — o fluxo é sempre esse. */
-document.getElementById('recTotal').addEventListener('keydown', (e)=>{
-  if(e.key==='Enter'){ e.preventDefault(); document.getElementById('recPg_dinheiro').focus(); }
-});
 ligarBuscaCliente();
 /* Monta os campos das modalidades já na carga: excluir um lançamento pelo histórico
    mexe no somatório da tela de lançamento mesmo que ela ainda não tenha sido aberta.
