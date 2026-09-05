@@ -1127,6 +1127,44 @@
     .conta-box{grid-template-columns:1fr;}
   }
 
+  /* ---------- CONTA MERCADO: a somadora dentro da folha ----------
+     A janela reaproveita o quadro da tela de recebimento inteiro — mesmo mostrador
+     preto, mesmas teclas, mesmas fichas de notinha —, então aqui só entra o que é
+     próprio dela: o botão ao lado do campo, as duas opções de quanto descontar e o
+     resumo do que cada uma faz. */
+  .cm-linha{display:flex;gap:7px;align-items:stretch;}
+  .cm-linha input{flex:1;min-width:0;}
+  .cm-linha .btn{white-space:nowrap;}
+  #overlayContaMercado .conta-box{margin-bottom:18px;}
+  .cm-opcoes{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+  .cm-op{display:flex;flex-direction:column;gap:2px;align-items:flex-start;text-align:left;
+    background:#fff;border:1px solid var(--cinza-borda);border-radius:10px;padding:10px 12px;
+    cursor:pointer;font-family:inherit;color:var(--texto);
+    transition:border-color .12s,background .12s,box-shadow .12s;}
+  .cm-op b{font-size:14px;}
+  .cm-op i{font-style:normal;font-size:11px;color:var(--texto-fraco);line-height:1.35;}
+  .cm-op:hover{border-color:var(--marca);}
+  .cm-op.ativa{border-color:var(--marca);background:var(--marca-cl);box-shadow:var(--foco);}
+  .cm-op.ativa i{color:var(--marca-esc);}
+  .cm-resumo{margin-top:14px;border:1px solid var(--cinza-borda);border-radius:10px;
+    padding:11px 13px;background:var(--cinza);font-size:12.5px;line-height:1.5;}
+  .cm-resumo .cmr-linha{display:flex;justify-content:space-between;align-items:baseline;gap:12px;}
+  .cm-resumo .cmr-linha + .cmr-linha{margin-top:5px;}
+  .cm-resumo b{font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .cm-resumo .cmr-folha{font-weight:700;}
+  .cm-resumo .cmr-folha b{color:var(--marca-esc);font-size:15px;}
+  .cm-resumo .cmr-debito b{color:#a8712a;}
+  .cm-resumo .cmr-nota{margin-top:7px;padding-top:7px;border-top:1px solid var(--cinza-borda);
+    font-size:11px;color:var(--texto-fraco);line-height:1.45;}
+  /* O recado de que não há nada a confirmar: a conta já está gravada. */
+  .cm-grava{margin-top:10px;font-size:11.5px;line-height:1.45;color:var(--marca-esc);
+    background:var(--marca-cl);border:1px solid #bfe0cc;border-radius:9px;padding:8px 11px;}
+  .cm-grava.cm-grava-espera{color:#7a5d15;background:#fdf6e6;border-color:#e8d8a8;}
+  /* O que a conta era antes de virar um número só, escrito embaixo do campo — e o
+     restante, que é o valor da notinha a fazer. */
+  #lContaMercadoNota .cmn-debito{color:#a8712a;font-weight:700;}
+  #lContaMercadoNota .cmn-parcial{color:var(--marca-esc);font-weight:700;}
+
   .rec-mods{display:grid;grid-template-columns:repeat(auto-fit,minmax(158px,1fr));gap:10px;margin-bottom:6px;}
   .rec-mod{border:1px solid var(--cinza-borda);border-radius:9px;padding:9px 12px 8px;background:#fff;
     transition:border-color .12s,background .12s;}
@@ -3243,7 +3281,18 @@
         <div class="inss-sugestao" id="inssSugestao"></div>
       </div>
       <div class="campo"><label>Adiantamento (vale)</label><input id="lAdiantamento" type="number" step="0.01"></div>
-      <div class="campo"><label>Conta Mercado</label><input id="lContaMercado" type="number" step="0.01"></div>
+      <!-- A conta do colaborador é um maço de notinhas, igual à do cliente no caixa. O
+           botão abre a mesma somadora de lá, sem as modalidades: aqui não entra dinheiro
+           nenhum: o valor é descontado da folha. -->
+      <div class="campo">
+        <label for="lContaMercado">Conta Mercado</label>
+        <div class="cm-linha">
+          <input id="lContaMercado" type="number" step="0.01">
+          <button type="button" class="btn btn-outline btn-sm" id="btnContaMercado"
+                  title="Somar as notinhas do mês e escolher quanto sai na folha">Somar notinhas</button>
+        </div>
+        <div class="campo-nota" id="lContaMercadoNota"></div>
+      </div>
     </div>
     <div class="campo-row">
       <div class="campo"><label>Desconto (a descontar)</label><input id="lDesconto" type="number" step="0.01"></div>
@@ -3309,6 +3358,89 @@
       <button class="btn btn-outline" id="btnDiaSemHorario" title="Conta a diária do dia sem registrar horário">Só marcar o dia</button>
       <button class="btn btn-outline" id="btnCancelarDia">Cancelar</button>
       <button class="btn btn-verde" id="btnConfirmarDia">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== CONTA MERCADO: somadora das notinhas =====================
+     É a somadora da tela de recebimento, sem as modalidades: aqui não se recebe nada,
+     a conta é descontada em folha. O que existe a mais é o percentual — tem colaborador
+     que não paga a conta inteira no mês, e o combinado é descontar 70%. O que sobra fica
+     escrito como débito para o escritório fazer a notinha do restante: é ela que entra
+     no maço do mês seguinte, e é assim que a dívida anda — no papel, não no sistema. -->
+<div class="overlay" id="overlayContaMercado" style="z-index:60;">
+  <div class="modal" style="max-width:720px;">
+    <button class="modal-close" id="fecharContaMercado">✕</button>
+    <h2>Conta mercado</h2>
+    <div class="sub" id="cmSub">Some as notinhas do mês e escolha quanto sai na folha.</div>
+
+    <div class="conta-box" id="cmContaBox">
+      <div class="cb-esq">
+        <div class="cb-campo">
+          <label for="cmTotal">Total da conta</label>
+          <input type="text" id="cmTotal" placeholder="0,00" readonly tabindex="-1" aria-readonly="true"
+                 title="A soma vem da calculadora ao lado — este visor não se digita.">
+          <div class="cb-nota">Tudo que o colaborador levou no mês. Quem escreve neste visor é a calculadora ao lado.</div>
+          <div class="notas-area" id="cmSomaArea" style="display:none;">
+            <div class="na-topo">
+              <span class="na-rot">Notinhas somadas</span>
+              <span class="na-resumo" id="cmSomaTxt"></span>
+            </div>
+            <div class="cb-chips" id="cmSomaChips"></div>
+          </div>
+        </div>
+
+        <div class="secao-title" style="margin-top:16px;">Quanto desconta em folha</div>
+        <div class="cm-opcoes" id="cmOpcoes">
+          <button type="button" class="cm-op ativa" data-perc="100">
+            <b>Tudo</b><i>a conta inteira sai na folha deste mês</i>
+          </button>
+          <button type="button" class="cm-op" data-perc="70">
+            <b>Só 70%</b><i>o restante fica em débito para o mês que vem</i>
+          </button>
+        </div>
+
+        <div class="cm-resumo" id="cmResumo"></div>
+        <div class="cm-grava" id="cmAvisoGrava"></div>
+      </div>
+
+      <div class="cb-soma">
+        <div class="calc-topo">
+          <span class="calc-rot">Calculadora de notinhas</span>
+          <button type="button" class="calc-limpar" id="btnCmSomaLimpar" style="display:none;">limpar tudo</button>
+        </div>
+        <div class="calc-visor">
+          <div class="calc-acum" id="cmSomaAcum">nenhuma notinha somada</div>
+          <input type="text" inputmode="decimal" id="cmSomaVal" placeholder="0,00"
+                 autocomplete="off" spellcheck="false" aria-label="Valor da notinha">
+        </div>
+        <div class="calc-teclas" id="cmSomaTeclas">
+          <button type="button" class="ct-func" data-k="C" title="limpa o visor e a lista inteira">C</button>
+          <button type="button" class="ct-func" data-k="CE" title="limpa só o visor (Esc)">CE</button>
+          <button type="button" class="ct-func" data-k="BS" title="apaga o último dígito">&#9003;</button>
+          <button type="button" data-k="7">7</button>
+          <button type="button" data-k="8">8</button>
+          <button type="button" data-k="9">9</button>
+          <button type="button" data-k="4">4</button>
+          <button type="button" data-k="5">5</button>
+          <button type="button" data-k="6">6</button>
+          <button type="button" data-k="1">1</button>
+          <button type="button" data-k="2">2</button>
+          <button type="button" data-k="3">3</button>
+          <button type="button" data-k="0">0</button>
+          <button type="button" data-k=",">,</button>
+          <button type="button" class="ct-mais" data-k="+" title="soma esta notinha (tecla + ou Enter)">+</button>
+        </div>
+        <div class="cb-soma-txt" id="cmSomaDica">Digite o valor da notinha e aperte <b>+</b>. Ele soma e já limpa o visor para a próxima.</div>
+      </div>
+    </div>
+
+    <!-- Não há mais "Cancelar": cada notinha já entrou no campo e no arquivo assim que
+         foi somada, então não existe nada pendente para desfazer. Quem errou a conta
+         inteira usa Zerar; quem errou uma notinha tira ela no × da ficha. -->
+    <div class="acoes-modal">
+      <button type="button" class="btn btn-outline btn-excluir-modal" id="btnCmZerar">Zerar a conta</button>
+      <button type="button" class="btn btn-primary" id="btnCmUsar">Pronto</button>
     </div>
   </div>
 </div>
@@ -4537,6 +4669,9 @@ function limparFormLancamento(){
   ['lSalario','lFeriado','lDomingo','lFolgas','lHoraExtra','lHeQtd','lSalFamilia','lAtrasos','lInss','lAdiantamento','lContaMercado','lDesconto'].forEach(id=>document.getElementById(id).value = 0);
   document.getElementById('lObs').value = '';
   document.getElementById('lValorDinheiro').value = '';
+  /* Colaborador novo: não há conta somada para trazer. */
+  cmDetalhe = null;
+  atualizarNotaContaMercado();
   document.getElementById('lDiariaValor').value = '';
   diariaDatasForm = [];
   diariaHorariosForm = {};
@@ -4581,6 +4716,7 @@ function carregarLancamentoNoForm(funcId){
   document.getElementById('lAtrasos').value = l.atrasos;
   document.getElementById('lAdiantamento').value = l.adiantamento;
   document.getElementById('lContaMercado').value = l.contaMercado;
+  carregarContaMercado(l);
   document.getElementById('lDesconto').value = l.desconto;
   document.getElementById('lObs').value = l.obs || '';
   document.getElementById('lValorDinheiro').value = toNum(l.valorDinheiro) || '';
@@ -5047,6 +5183,288 @@ function atualizarHoraExtraNoForm(f){
 ['lAdiantamento','lContaMercado','lDesconto'].forEach(id=>{
   document.getElementById(id).addEventListener('input', atualizarResumo);
 });
+
+/* ===================== CONTA MERCADO: somadora e desconto parcial =====================
+   A conta do colaborador chega aqui como um maço de notinhas, do mesmo jeito que a do
+   cliente chega ao caixa. Antes ela era somada numa calculadora de mesa e só o resultado
+   entrava no campo: soma errada não tinha como ser refeita, e o colaborador que pedia
+   para conferir ouvia o total sem a lista que o formou.
+
+   A janela é a mesma somadora da tela de recebimento, sem as modalidades — aqui não
+   entra dinheiro nenhum, o valor é descontado da folha.
+
+   O QUE É PRÓPRIO DAQUI é o percentual. Tem colaborador que não paga a conta inteira no
+   mês, e o combinado da casa é descontar 70%. O que sobra fica em débito, e o débito
+   não é controlado pelo sistema de propósito: o escritório escreve uma notinha do
+   restante e ela entra no maço do mês seguinte, somada aqui como qualquer outra. Por
+   isso o saldo aparece escrito — para a notinha ser feita — e não vira saldo devedor
+   correndo por trás.
+
+   As três grandezas, todas derivadas das notinhas (nenhuma é digitada, então nenhuma
+   pode divergir do papel):
+     total    = as notinhas somadas no mês
+     desconta = a fatia que sai na folha (tudo, ou os 70%) — é o campo
+     saldo    = o resto, que vira notinha para o mês que vem                             */
+const CM_PERC_PARCIAL = 70;
+
+let cmDetalhe = null;   /* a conta do lançamento aberto, ou null quando digitada à mão */
+let cmNotas = [];       /* as notinhas dentro da janela, enquanto ela está aberta */
+let cmPerc = 100;
+
+/* A conta gravada num lançamento, normalizada. Lançamento antigo — e mês em que o valor
+   foi digitado à mão — não tem detalhe nenhum, e isso é normal. */
+function detalheContaMercado(l){
+  if(!l || !Array.isArray(l.contaMercadoNotas)) return null;
+  const notas = l.contaMercadoNotas.map(v=> r2(toNum(v))).filter(v=> v > 0);
+  if(!notas.length) return null;
+  return { notas, perc: toNum(l.contaMercadoPerc) || 100 };
+}
+
+function contasDaContaMercado(d){
+  const total    = r2((d.notas||[]).reduce((s,v)=> s + v, 0));
+  const desconta = r2(total * (toNum(d.perc) || 100) / 100);
+  return {total, desconta, saldo: r2(total - desconta)};
+}
+
+/* Carrega no lançamento que vai ser gravado o detalhe da conta. Sem detalhe (valor
+   digitado à mão) nada é escrito, e como o formulário remonta o lançamento do zero isso
+   apaga o detalhe antigo — que é o certo: quem digitou por cima desfez a soma. */
+function aplicarDetalheContaMercado(l){
+  if(!cmDetalhe) return l;
+  const c = contasDaContaMercado(cmDetalhe);
+  l.contaMercadoNotas = cmDetalhe.notas.slice();
+  l.contaMercadoPerc = cmDetalhe.perc;
+  l.contaMercadoTotal = c.total;
+  l.contaMercadoSaldo = c.saldo;
+  return l;
+}
+
+/* A linha embaixo do campo: o que a conta era antes de virar um número só, e o restante
+   que precisa virar notinha. */
+function atualizarNotaContaMercado(){
+  const nota = document.getElementById('lContaMercadoNota');
+  if(!nota) return;
+  if(!cmDetalhe){
+    nota.innerHTML = 'Some as notinhas na calculadora para poder conferir a conta depois.';
+    return;
+  }
+  const c = contasDaContaMercado(cmDetalhe);
+  const partes = ['<b>' + fmtMoeda(c.total) + '</b> em ' + cmDetalhe.notas.length + ' notinha(s)'];
+  partes.push(cmDetalhe.perc < 100
+    ? '<span class="cmn-parcial">' + cmDetalhe.perc + '% em folha</span>'
+    : 'tudo em folha');
+  if(c.saldo > 0.004)
+    partes.push('<span class="cmn-debito">' + fmtMoeda(c.saldo) + ' fica em débito</span>');
+  nota.innerHTML = partes.join(' · ');
+}
+
+/* Chamado ao abrir o lançamento de um colaborador: a conta gravada volta para a tela. */
+function carregarContaMercado(l){
+  cmDetalhe = detalheContaMercado(l);
+  atualizarNotaContaMercado();
+}
+
+/* ---------------------------------------------------- a conta não espera o Salvar
+   A somadora grava sozinha, notinha a notinha. Antes ela só existia dentro do
+   formulário: quem fechava o cadastro do colaborador sem salvar — e fechar cadastro sem
+   salvar é gesto de todo dia, porque a maior parte das visitas ali é só para olhar —
+   perdia o maço inteiro e tinha que somar tudo de novo, com o papel já guardado. Uma
+   soma de dez notinhas não pode depender de lembrar de um botão.
+
+   Grava só as chaves da conta mercado; o resto do lançamento continua sendo do
+   formulário e do botão Salvar. Colaborador que ainda não existe no cadastro não tem
+   onde gravar: aí a conta espera o Salvar dele, e a janela avisa isso na cara. */
+function contaMercadoPodeGravar(){
+  return !!colabAtualId && (state.funcionarios||[]).some(f=> f.id === colabAtualId);
+}
+
+function gravarContaMercadoNoEstado(){
+  if(!contaMercadoPodeGravar()) return false;
+  const l = getLancamento(state.mesAtual, colabAtualId);
+  l.contaMercado = toNum(document.getElementById('lContaMercado').value);
+  /* A conta sai por inteiro antes de ser reescrita: sem isto, zerar a lista deixaria as
+     notinhas antigas presas no lançamento junto de um valor que já não é delas. */
+  delete l.contaMercadoNotas; delete l.contaMercadoPerc;
+  delete l.contaMercadoTotal;  delete l.contaMercadoSaldo;
+  aplicarDetalheContaMercado(l);
+  salvarEstado();
+  return true;
+}
+
+/* O ponto único por onde a conta muda: escreve no campo, refaz o resumo da folha atrás
+   da janela e grava. Toda tecla que mexe na conta passa por aqui. */
+function mudouContaMercado(){
+  const d = contaDaJanelaCm();
+  const c = contasDaContaMercado(d);
+  cmDetalhe = c.total > 0 ? d : null;
+  document.getElementById('lContaMercado').value = c.desconta ? c.desconta.toFixed(2) : 0;
+  atualizarNotaContaMercado();
+  atualizarResumo();
+  gravarContaMercadoNoEstado();
+}
+
+/* Desenha a janela e grava o que ela passou a valer. */
+function atualizarContaMercado(){
+  renderCmSomadora();
+  mudouContaMercado();
+}
+
+/* ---------------------------------------------------------------- a janela da somadora */
+function renderCmSomadora(){
+  const soma = r2(cmNotas.reduce((s,v)=> s + v, 0));
+  document.getElementById('cmSomaChips').innerHTML = cmNotas.map((v,i)=>
+    '<span class="cb-chip"><span class="cb-num">' + (i+1) + '</span>' + fmtMoeda(v) +
+    '<button type="button" data-i="' + i + '" title="tirar esta notinha">&times;</button></span>').join('');
+  document.getElementById('cmSomaArea').style.display = cmNotas.length ? '' : 'none';
+  document.getElementById('btnCmSomaLimpar').style.display = cmNotas.length ? '' : 'none';
+  document.getElementById('cmSomaAcum').textContent = cmNotas.length
+    ? cmNotas.length + ' notinha(s)  ·  soma ' + fmtMoeda(soma)
+    : 'nenhuma notinha somada';
+  document.getElementById('cmSomaTxt').innerHTML = cmNotas.length
+    ? '<b>' + cmNotas.length + ' notinha(s)</b> somando <b>' + fmtMoeda(soma) +
+      '</b>. Clique no × para tirar uma que entrou errada.' : '';
+  document.getElementById('cmTotal').value = soma > 0 ? soma.toFixed(2).replace('.',',') : '';
+  const dica = document.getElementById('cmSomaDica');
+  dica.innerHTML = 'Digite o valor da notinha e aperte <b>+</b>. Ele soma e já limpa o visor para a próxima.';
+  dica.classList.remove('cb-alerta');
+  renderCmResumo();
+}
+
+function contaDaJanelaCm(){ return {notas: cmNotas.slice(), perc: cmPerc}; }
+
+function renderCmResumo(){
+  const c = contasDaContaMercado(contaDaJanelaCm());
+  const linhas = [];
+  linhas.push('<div class="cmr-linha"><span>Conta do mês</span><b>' + fmtMoeda(c.total) + '</b></div>');
+  linhas.push('<div class="cmr-linha cmr-folha"><span>Desconta na folha' +
+              (cmPerc < 100 ? ' (' + cmPerc + '%)' : '') + '</span><b>' + fmtMoeda(c.desconta) + '</b></div>');
+  if(c.saldo > 0.004){
+    linhas.push('<div class="cmr-linha cmr-debito"><span>Fica em débito</span><b>' + fmtMoeda(c.saldo) + '</b></div>');
+    linhas.push('<div class="cmr-nota">Faça a notinha destes ' + fmtMoeda(c.saldo) +
+                ' e ponha no maço do mês que vem — é lá que ela é somada.</div>');
+  }
+  document.getElementById('cmResumo').innerHTML = linhas.join('');
+}
+
+function abrirContaMercado(){
+  const d = cmDetalhe || {notas:[], perc:100};
+  cmNotas = (d.notas || []).slice();
+  cmPerc = toNum(d.perc) || 100;
+
+  const nome = document.getElementById('cNome').value.trim();
+  document.getElementById('cmSub').innerHTML =
+    (nome ? '<b>' + escHtml(nome) + '</b> — ' : '') + mesLabel(state.mesAtual) +
+    '. Some as notinhas e escolha quanto sai na folha.';
+
+  const aviso = document.getElementById('cmAvisoGrava');
+  const podeGravar = contaMercadoPodeGravar();
+  aviso.classList.toggle('cm-grava-espera', !podeGravar);
+  aviso.innerHTML = podeGravar
+    ? 'Cada notinha é gravada assim que entra na soma — dá para fechar esta janela, e o cadastro do colaborador, sem perder a conta.'
+    : 'Colaborador ainda não cadastrado: a conta fica na tela e é gravada junto com ele, no <b>Salvar</b>.';
+
+  document.querySelectorAll('#cmOpcoes .cm-op').forEach(b=>
+    b.classList.toggle('ativa', Number(b.dataset.perc) === cmPerc));
+  document.getElementById('cmSomaVal').value = '';
+  renderCmSomadora();
+  document.getElementById('overlayContaMercado').classList.add('show');
+  document.getElementById('cmSomaVal').focus();
+}
+
+function addNotaCm(){
+  const campo = document.getElementById('cmSomaVal');
+  const v = r2(toNum(campo.value));
+  const dica = document.getElementById('cmSomaDica');
+  if(!(v > 0)){
+    dica.textContent = 'Digite o valor da notinha antes de somar.';
+    dica.classList.add('cb-alerta');
+    campo.focus();
+    return;
+  }
+  cmNotas.push(v);
+  campo.value = '';
+  atualizarContaMercado();
+  campo.focus();
+}
+
+function teclaCm(k){
+  const campo = document.getElementById('cmSomaVal');
+  if(k === '+'){ addNotaCm(); return; }
+  if(k === 'C'){ cmNotas = []; campo.value = ''; atualizarContaMercado(); campo.focus(); return; }
+  if(k === 'CE'){ campo.value = ''; campo.focus(); return; }
+  if(k === 'BS'){ campo.value = campo.value.slice(0, -1); campo.focus(); return; }
+  campo.value = textoDoVisor(campo.value + k);
+  campo.focus();
+}
+
+document.getElementById('btnContaMercado').addEventListener('click', abrirContaMercado);
+document.getElementById('cmSomaTeclas').addEventListener('click', (e)=>{
+  const b = e.target.closest('button[data-k]');
+  if(b) teclaCm(b.dataset.k);
+});
+document.getElementById('cmSomaVal').addEventListener('input', (e)=>{
+  e.target.value = textoDoVisor(e.target.value);
+});
+document.getElementById('cmSomaVal').addEventListener('keydown', (e)=>{
+  if(e.key === '+' || e.key === 'Enter' || e.key === '='){ e.preventDefault(); addNotaCm(); return; }
+  if(e.key === 'Escape'){ e.preventDefault(); e.target.value = ''; return; }
+});
+document.getElementById('btnCmSomaLimpar').addEventListener('click', ()=>{
+  cmNotas = [];
+  document.getElementById('cmSomaVal').value = '';
+  atualizarContaMercado();
+  document.getElementById('cmSomaVal').focus();
+});
+document.getElementById('cmSomaChips').addEventListener('click', (e)=>{
+  const btn = e.target.closest('button[data-i]');
+  if(!btn) return;
+  cmNotas.splice(Number(btn.dataset.i), 1);
+  atualizarContaMercado();
+});
+document.getElementById('cmOpcoes').addEventListener('click', (e)=>{
+  const b = e.target.closest('.cm-op');
+  if(!b) return;
+  cmPerc = Number(b.dataset.perc) || 100;
+  document.querySelectorAll('#cmOpcoes .cm-op').forEach(x=> x.classList.toggle('ativa', x === b));
+  renderCmResumo();
+  mudouContaMercado();
+});
+
+/* "Pronto" só fecha a janela: o valor já está no campo e no arquivo desde a primeira
+   notinha somada. */
+document.getElementById('btnCmUsar').addEventListener('click', ()=>{
+  const c = contasDaContaMercado(contaDaJanelaCm());
+  document.getElementById('overlayContaMercado').classList.remove('show');
+  if(c.total > 0)
+    mostrarToast('Conta mercado: ' + fmtMoeda(c.desconta) + ' na folha' +
+      (c.saldo > 0.004 ? ' · ' + fmtMoeda(c.saldo) + ' em débito' : ''));
+});
+document.getElementById('btnCmZerar').addEventListener('click', ()=>{
+  if(!confirm('Zerar a conta mercado deste mês?\n\nAs notinhas somadas são descartadas e o campo volta a zero.')) return;
+  cmNotas = []; cmPerc = 100;
+  document.getElementById('cmSomaVal').value = '';
+  atualizarContaMercado();
+  document.getElementById('overlayContaMercado').classList.remove('show');
+  mostrarToast('Conta mercado zerada');
+});
+document.getElementById('fecharContaMercado').addEventListener('click', ()=>
+  document.getElementById('overlayContaMercado').classList.remove('show'));
+fecharAoClicarFora('overlayContaMercado');
+
+/* Digitar no campo continua valendo — é o jeito de lançar um acerto que não se compõe
+   somando notinha. Mas o número passa a ser só ele: a lista deixa de valer e some, para
+   o lançamento nunca guardar parcelas que não batem com o que foi descontado. */
+document.getElementById('lContaMercado').addEventListener('input', ()=>{
+  if(!cmDetalhe) return;
+  if(r2(toNum(document.getElementById('lContaMercado').value)) === contasDaContaMercado(cmDetalhe).desconta) return;
+  cmDetalhe = null;
+  document.getElementById('lContaMercadoNota').textContent =
+    'Valor digitado à mão — a lista de notinhas foi descartada.';
+});
+/* Sair do campo grava, como a janela grava a cada notinha: se só a soma se salvasse
+   sozinha, digitar por cima e fechar o cadastro traria o número velho de volta. */
+document.getElementById('lContaMercado').addEventListener('change', gravarContaMercadoNoEstado);
+
 document.getElementById('lHeQtd').addEventListener('input', ()=>{
   atualizarResumo();
   /* No diarista, digitar o total muda a leitura do calendário: os dias sem horário
@@ -5158,6 +5576,10 @@ document.getElementById('btnSalvarColab').addEventListener('click', ()=>{
     ? toNum(document.getElementById('lValorDinheiro').value) : 0;
   lForm.pagoPix      = !!lAnterior.pagoPix;
   lForm.pagoDinheiro = !!lAnterior.pagoDinheiro;
+  /* As notinhas da conta mercado, o percentual e o que ficou em débito. Sem esta linha o
+     lançamento remontado guardaria só o valor descontado, e a conferência perderia a
+     lista que formou o número. */
+  aplicarDetalheContaMercado(lForm);
 
   if(!state.folha[state.mesAtual]) state.folha[state.mesAtual] = {};
   state.folha[state.mesAtual][colabAtualId] = lForm;
@@ -5555,7 +5977,7 @@ function lerFormLancamentoAtual(){
   if(document.getElementById('cModalidade').value === 'diarista'){
     const valor = toNum(document.getElementById('lDiariaValor').value);
     const ap = apurarDiariasDoForm();
-    return {
+    return aplicarDetalheContaMercado({
       salario: ap.totalDiarias,
       feriado:0, domingo:0, folgas:0, salFamilia:0, atrasos:0,
       horaExtra: toNum(document.getElementById('lHoraExtra').value),
@@ -5569,9 +5991,9 @@ function lerFormLancamentoAtual(){
       diariaValor: valor,
       diariaDatas: diariaDatasForm.slice(),
       diariaHorarios: JSON.parse(JSON.stringify(diariaHorariosForm))
-    };
+    });
   }
-  return {
+  return aplicarDetalheContaMercado({
     salario: toNum(document.getElementById('lSalario').value),
     feriado: toNum(document.getElementById('lFeriado').value),
     domingo: toNum(document.getElementById('lDomingo').value),
@@ -5586,7 +6008,7 @@ function lerFormLancamentoAtual(){
     contaMercado: toNum(document.getElementById('lContaMercado').value),
     desconto: toNum(document.getElementById('lDesconto').value),
     obs: document.getElementById('lObs').value
-  };
+  });
 }
 
 /* O item do cartão ponto do colaborador para juntar ao recibo. Só do mês corrente: a
@@ -5982,7 +6404,18 @@ function desenharHolerite(doc, f, l, mesChave, logoDataURL, itPonto){
   if(toNum(l.atrasos))      itens.push({d:'Atrasos e faltas', r:'', x: toNum(l.atrasos)});
   if(inssPago)              itens.push({d:'INSS', r: pct(inssEfetivo) + ' efetivos', x: inssPago});
   if(toNum(l.adiantamento)) itens.push({d:'Adiantamento', r:'', x: toNum(l.adiantamento)});
-  if(toNum(l.contaMercado)) itens.push({d:'Conta mercado', r:'', x: toNum(l.contaMercado)});
+  /* Quando só uma fatia da conta é descontada, a referência diz de quanto ela saiu:
+     sem isso o colaborador vê um número que não bate com o maço de notinhas dele. O
+     saldo entra como linha sem valor em coluna nenhuma — é recado, não desconto, e não
+     pode mexer no total do recibo. */
+  if(toNum(l.contaMercado)){
+    const cmPercH = toNum(l.contaMercadoPerc);
+    const cmBaseH = r2(toNum(l.contaMercadoTotal));
+    itens.push({d:'Conta mercado', x: toNum(l.contaMercado),
+      r: (cmPercH && cmPercH < 100 && cmBaseH) ? cmPercH + '% de ' + fmtMoeda(cmBaseH) : ''});
+  }
+  if(r2(toNum(l.contaMercadoSaldo)) > 0.004)
+    itens.push({d:'Conta mercado — ficou em débito', r: fmtMoeda(r2(toNum(l.contaMercadoSaldo)))});
   if(toNum(l.desconto))     itens.push({d:'Outros descontos', r:'', x: toNum(l.desconto)});
 
   /* Pauta de altura fixa: cheia ou vazia, ela mantém o líquido e as assinaturas sempre
