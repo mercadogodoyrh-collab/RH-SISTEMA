@@ -3510,7 +3510,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '03/09/2026l · Falta escrita na linha inteira do dia';
+const VERSAO_SISTEMA = '05/09/2026a · Folha relê o que os outros PCs lançam';
 
 const SUPABASE_URL  = 'https://vieafcgghboxwhultile.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_HaMcgvr_2xmWYotvzetmVA_yscPz2eT';
@@ -3955,6 +3955,98 @@ async function conectarBanco(){
     if(typeof pedirAberturaDoDia === 'function') pedirAberturaDoDia(state.caixaDia || hojeISO());
   }
 }
+
+
+/* --------- RELEITURA DO ESTADO DO RH ---------
+   O caixa administrativo tem tabela por registro e se atualiza sozinho: realtime, uma
+   releitura a cada 30 segundos e outra quando a janela volta ao foco. O RH nunca teve
+   nada disso. O estado dele — funcionários, folha, ponto, férias — é um bloco só, lido
+   UMA vez na abertura da página e reenviado inteiro a cada gravação.
+
+   Duas coisas quebravam nisso, e as duas apareciam como "o outro computador não está
+   vendo":
+
+   1. Quem já estava com a página aberta não relia nunca. O ✓ do balanço marcado numa
+      máquina só aparecia nas outras depois de um F5 — e ninguém aperta F5 num sistema
+      que está aberto o dia inteiro.
+
+   2. Pior, e silencioso: a máquina com a cópia velha reenviava essa cópia por cima na
+      gravação seguinte. Como `rh_salvar_estado` apaga do banco toda linha que não veio
+      no envio, a marcação feita na outra máquina sumia sem deixar rastro. É o mesmo
+      problema que as tabelas do caixa resolveram lá atrás; aqui ele continuava de pé.
+
+   A releitura fecha as duas: quando a janela volta ao foco e quando se troca de tela, o
+   estado do banco é buscado e adotado. Não é sincronismo de verdade — dois lançamentos
+   ao mesmo tempo na mesma folha continuam sendo o último que gravou —, mas a janela de
+   risco cai de "o dia inteiro" para "os segundos entre olhar e mexer".
+
+   O que NÃO vem do banco nessa releitura:
+   • as chaves do caixa, que moram em tabelas próprias e já se atualizam sozinhas — vir
+     o valor do rh_config aqui apagaria o caixa que acabou de ser lido;
+   • a tela em que a pessoa está (aba, mês, dia em foco). Isso é desta máquina; adotar o
+     que veio de fora arrancaria o operador da tela dele no meio do trabalho. */
+const RH_TELA_LOCAL  = ['abaAtual','mesAtual','pontoAba','balcMes','balLojaMes',
+                        'recHisMes','recLancMes','caixaDia','recHisForma'];
+const RH_CAIXA_LOCAL = ['clientes','recebimentos','retiradas','aberturas','produtos',
+                        'vendas','suprimentos','notinhasAvulsas'];
+const RH_ESPERA_LEITURA = 25000;   /* nunca duas leituras seguidas dentro disto */
+
+let rhRelendo = false;
+let rhUltimaLeitura = 0;
+
+/* Só o que é DADO entra na comparação: se a tela e o caixa entrassem, a assinatura
+   mudaria a cada clique e a tela se redesenharia à toa. */
+function assinaturaRh(o){
+  const dados = {};
+  Object.keys(o||{}).sort().forEach(k=>{
+    if(RH_TELA_LOCAL.indexOf(k) >= 0 || RH_CAIXA_LOCAL.indexOf(k) >= 0) return;
+    dados[k] = o[k];
+  });
+  return JSON.stringify(dados);
+}
+
+function rhPodeReler(){
+  if(!db || !bancoPronto || rhRelendo) return false;
+  /* Tem coisa minha para subir: a minha é a mais nova, e reler agora a jogaria fora. */
+  if(nuvemEnviando || nuvemTimer) return false;
+  /* Janela aberta é alguém no meio de um lançamento. Trocar o estado por baixo de um
+     formulário aberto é perder o que a pessoa está digitando. */
+  if(document.querySelector('.overlay.show')) return false;
+  return Date.now() - rhUltimaLeitura >= RH_ESPERA_LEITURA;
+}
+
+async function relerEstadoRh(){
+  if(!rhPodeReler()) return;
+  rhRelendo = true;
+  try{
+    const { data, error } = await db.rpc('rh_carregar_estado');
+    if(error) throw error;
+    if(!data || !Array.isArray(data.funcionarios) || !data.funcionarios.length) return;
+    rhUltimaLeitura = Date.now();
+    if(assinaturaRh(data) === assinaturaRh(state)) return;   /* ninguém mexeu lá fora */
+    /* A guarda é refeita aqui: a busca leva alguns segundos e nesse meio-tempo a pessoa
+       pode ter aberto um lançamento ou mexido em alguma coisa. */
+    if(nuvemEnviando || nuvemTimer || document.querySelector('.overlay.show')) return;
+    RH_TELA_LOCAL.forEach(k=>{ if(state[k] === undefined) delete data[k]; else data[k] = state[k]; });
+    RH_CAIXA_LOCAL.forEach(k=>{ if(state[k] !== undefined) data[k] = state[k]; });
+    state = data;
+    gravarCache();
+    reconstruirTela();
+    nuvemUltima = new Date();
+    statusNuvem('ok');
+    mostrarToast('Atualizado com o que foi lançado nos outros computadores');
+  }catch(e){
+    /* Silencioso de propósito: sem conexão o sistema segue com a cópia local, e um aviso
+       a cada troca de tela viraria ruído. O chip da nuvem já mostra a situação. */
+  }finally{
+    rhRelendo = false;
+  }
+}
+
+/* Voltar para a janela e trocar de tela são os dois momentos em que a pessoa vai OLHAR
+   alguma coisa — é aí que o dado precisa estar novo. */
+window.addEventListener('focus', relerEstadoRh);
+document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) relerEstadoRh(); });
 
 /* Avisa se o usuário fechar a página com algo ainda não enviado. */
 window.addEventListener('beforeunload', (e)=>{
@@ -9667,6 +9759,9 @@ function trocarAba(aba){
   atualizarSinoPonto();
   document.body.classList.remove('menu-aberto');   /* escolhida a tela, o menu se fecha */
   window.scrollTo(0, 0);
+  /* Abrir uma tela é ir olhar alguma coisa. A releitura tem espera própria, então clicar
+     em cinco telas seguidas não vira cinco buscas — ver RELEITURA DO ESTADO DO RH. */
+  if(typeof relerEstadoRh === 'function') relerEstadoRh();
   /* ---------- POR QUE AQUI NÃO É `salvarEstado()` ----------
      Era, e era o lugar mais caro do sistema. Trocar de tela não altera dado nenhum: o
      que mudava era `state.abaAtual` e, nas telas de lançamento, o dia em foco. Mas
