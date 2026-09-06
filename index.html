@@ -954,12 +954,77 @@
   .bal-sit.nada{background:#f5f7f9;color:var(--texto-fraco);}
   /* Confirmação do pagamento: a única coisa clicável do balanço. */
   .bal-valor{display:inline-flex;align-items:center;gap:7px;}
-  .bal-conf{width:19px;height:19px;padding:0;border-radius:50%;border:1.5px solid var(--cinza-borda);
-            background:#fff;color:#c3ccd2;font-size:11px;font-weight:700;line-height:1;cursor:pointer;
-            font-family:inherit;display:inline-flex;align-items:center;justify-content:center;flex:none;}
-  .bal-conf:hover{border-color:var(--verde);color:var(--verde);}
-  .bal-conf.ok{background:var(--verde);border-color:var(--verde);color:#fff;}
-  .bal-conf.ok:hover{filter:brightness(1.08);}
+  /* ---------- PAGAR: o botão da linha e a janela ----------
+     O ✓ de antes era pequeno de propósito, porque era só uma marca. Pagar é um ato com
+     consequência no caixa, e por isso tem corpo de botão. */
+  .bal-pagar{font-family:inherit;font-size:12px;font-weight:700;padding:6px 14px;border-radius:20px;
+    border:1px solid var(--marca);background:var(--marca);color:#fff;cursor:pointer;white-space:nowrap;
+    transition:filter .12s,background .12s,border-color .12s;}
+  .bal-pagar:hover{filter:brightness(1.08);}
+  .bal-pagar.pago{background:#e3f7ea;border-color:#a8ddbc;color:#1e8449;}
+  .bal-pagar.pago:hover{background:#d5f0e1;}
+  .bal-pagar.nada{background:#f5f7f9;border-color:var(--cinza-borda);color:var(--texto-fraco);cursor:default;}
+  .bal-pagar.nada:hover{filter:none;}
+  .bal-pg-nota{font-size:10px;color:var(--texto-fraco);line-height:1.35;margin-top:4px;
+    white-space:normal;}
+  /* A coluna do pagamento é a última de dez: sem um teto ela empurra a tabela para fora
+     da tela nos monitores do escritório. */
+  .bal-tabela td:last-child, .bal-tabela th:last-child{max-width:132px;}
+  .bal-pg-nota.alerta{color:var(--vermelho);font-weight:700;}
+  .bal-ir-caixa{color:var(--marca);font-weight:700;cursor:pointer;
+    text-decoration:underline dotted;text-underline-offset:2px;}
+  .bal-ir-caixa:hover{color:var(--marca-esc);text-decoration-style:solid;}
+  .pag-liquido{display:flex;align-items:baseline;justify-content:space-between;gap:12px;
+    background:var(--marca-cl);border:1px solid var(--marca);border-radius:11px;
+    padding:12px 15px;margin:4px 0 16px;}
+  .pag-liquido .pl-rot{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+    color:var(--marca-esc);}
+  .pag-liquido b{font-size:23px;font-weight:800;color:var(--marca-esc);font-variant-numeric:tabular-nums;}
+  .pag-mods{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  @media(max-width:640px){ .pag-mods{grid-template-columns:1fr;} }
+  .pag-mod{border:1px solid var(--cinza-borda);border-radius:10px;padding:11px 13px;background:#fff;
+    display:flex;flex-direction:column;gap:7px;transition:border-color .12s,background .12s;}
+  .pag-mod.ativa{border-color:var(--marca);background:var(--marca-cl);}
+  .pag-check{display:flex;align-items:center;gap:8px;cursor:pointer;font-size:12.5px;font-weight:700;
+    text-transform:uppercase;letter-spacing:.03em;color:var(--texto-fraco);}
+  .pag-mod.ativa .pag-check{color:var(--marca-esc);}
+  .pag-check input[type="checkbox"]{width:16px;height:16px;flex:none;margin:0;accent-color:var(--marca);}
+  .pag-mod > input[type="text"]{font-size:17px;font-weight:800;text-align:right;padding:7px 10px;width:100%;
+    border:1px solid var(--cinza-borda);border-radius:7px;font-family:inherit;color:var(--texto);
+    font-variant-numeric:tabular-nums;background:#fff;}
+  .pag-mod.ativa > input[type="text"]{border-color:var(--marca);color:var(--marca-esc);}
+  .pag-mod > input[type="text"]:disabled{background:#f2f5f6;color:#9aa5ad;}
+  .pag-nota{font-size:10px;color:var(--texto-fraco);line-height:1.4;}
+  /* Roxo, o mesmo da notinha branca no resto do sistema: ela não é dinheiro daqui, e a
+     cor é o que impede de ler a linha como saída da gaveta. */
+  .pag-mod-nota.ativa{border-color:#b9a9dd;background:#f3eefb;}
+  .pag-mod-nota.ativa .pag-check{color:#5b4b7d;}
+  .pag-mod-nota .pag-check input[type="checkbox"]{accent-color:#6b4fa8;}
+  .pag-mod-nota.ativa > input[type="text"]{border-color:#cbbde8;color:#5b4b7d;}
+  .pag-resumo .pgr-nota{margin-top:8px;padding-top:8px;border-top:1px solid var(--cinza-borda);
+    font-size:11.5px;color:#5b4b7d;line-height:1.45;}
+  /* Quanto a gaveta tem no dia escolhido. Verde enquanto o dinheiro cabe; vermelho, com
+     a saída oferecida ao lado, quando não cabe. */
+  .pag-resumo .pgr-gaveta{margin-top:8px;padding-top:8px;border-top:1px solid var(--cinza-borda);
+    font-size:11.5px;color:var(--marca-esc);line-height:1.5;}
+  .pag-resumo .pgr-gaveta.pgr-semab{color:#b9770e;}
+  .pag-resumo .pgr-gaveta.pgr-furo{color:var(--vermelho);background:#fdf1f0;border:1px solid #e8b4b0;
+    border-radius:8px;padding:9px 11px;margin-top:9px;}
+  .pag-resumo .pgr-gaveta.pgr-furo b{color:var(--vermelho);}
+  .pag-resumo .pg-jogar{display:block;margin-top:7px;background:#fff;border:1px solid #e8b4b0;
+    border-radius:20px;padding:5px 13px;font-family:inherit;font-size:11.5px;font-weight:700;
+    color:var(--vermelho);cursor:pointer;transition:background .12s,border-color .12s;}
+  .pag-resumo .pg-jogar:hover{background:#f3eefb;border-color:#c3b2e6;color:#5b4b7d;}
+  .pag-resumo{margin-top:14px;border:1px solid var(--cinza-borda);border-radius:10px;padding:11px 13px;
+    background:var(--cinza);font-size:12.5px;line-height:1.5;}
+  .pag-resumo .pgr-linha{display:flex;justify-content:space-between;align-items:baseline;gap:12px;}
+  .pag-resumo .pgr-linha + .pgr-linha{margin-top:5px;}
+  .pag-resumo b{font-variant-numeric:tabular-nums;white-space:nowrap;}
+  .pag-resumo .pgr-falta b{color:#b9770e;}
+  .pag-resumo .pgr-passou b{color:var(--vermelho);}
+  .pag-resumo .pgr-caixa{margin-top:8px;padding-top:8px;border-top:1px solid var(--cinza-borda);
+    font-size:11.5px;color:var(--marca-esc);line-height:1.45;}
+  .pag-resumo .pgr-caixa.pgr-aviso{color:#b9770e;}
   .bal-vazio{background:#fff;border:1px solid var(--cinza-borda);border-radius:10px;padding:26px;text-align:center;color:var(--texto-fraco);font-size:13px;}
   .regras-dica{font-size:11.5px;color:var(--texto-fraco);line-height:1.6;background:#f7f9fa;border-radius:8px;padding:10px 12px;margin-top:10px;}
   /* ============================= RECEBIMENTO DE CONTAS =============================
@@ -1452,6 +1517,14 @@
   .fechamento .fc-linha{display:flex;justify-content:space-between;align-items:baseline;gap:14px;
     font-size:13px;padding:5px 0;border-bottom:1px dashed var(--cinza-borda);}
   .fechamento .fc-linha:last-child{border-bottom:none;}
+  /* A linha filha do fechamento: o que dentro das retiradas do dia veio da folha. */
+  .fechamento .fc-sub{padding-left:16px;border-bottom:none;padding-top:2px;
+    font-size:11.5px;color:var(--texto-fraco);}
+  .fechamento .fc-sub b{font-weight:700;color:var(--texto-fraco);}
+  /* Selo de origem: este lançamento do caixa nasceu na folha. */
+  .tag-folha{background:var(--marca-cl);color:var(--marca-esc);font-size:9.5px;padding:1px 7px;
+    border-radius:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+    white-space:nowrap;border:1px solid #bfe0cc;}
   .fechamento .fc-linha b{font-weight:700;color:var(--texto);}
   .fechamento .fc-total{background:var(--marca-cl);border-radius:8px;padding:10px 13px;margin-top:10px;
     display:flex;justify-content:space-between;align-items:center;gap:14px;}
@@ -2151,7 +2224,7 @@
       <option value="dinheiro">Somente dinheiro</option>
     </select>
     <div class="spacer"></div>
-    <button class="btn btn-outline" id="btnBalancoMarcar">Confirmar todos os pagamentos</button>
+    <button class="btn btn-outline" id="btnBalancoMarcar">Pagar todos os pendentes</button>
     <button class="btn btn-outline" id="btnExportarBalanco">Exportar balanço</button>
   </div>
   <main>
@@ -2634,6 +2707,8 @@
       <option value="maior-falta">Maior valor em aberto</option>
     </select>
     <div class="spacer"></div>
+    <button class="btn btn-primary" id="btnCaixaPdf">Relatório em PDF</button>
+    <button class="btn btn-outline" id="btnCaixaImprimir">Imprimir</button>
     <button class="btn btn-outline" id="btnExportarRecebimentos">Exportar movimento do caixa</button>
   </div>
   <main>
@@ -3362,6 +3437,78 @@
   </div>
 </div>
 
+<!-- ===================== BALANÇO: PAGAR O COLABORADOR =====================
+     O balanço tinha dois ✓, um por modalidade, e eles só diziam "saiu". Não diziam
+     quando, nem por onde, e o dinheiro que saía da gaveta para pagar a folha não
+     aparecia em canto nenhum do caixa: o fechamento do dia dava sobra que ninguém
+     explicava, porque a folha tinha levado o dinheiro sem deixar registro.
+
+     Agora o pagamento é um ato: escolhe-se o dia, as modalidades e os valores. O que
+     sai em PIX não toca a gaveta. O que sai em DINHEIRO vira uma retirada de caixa no
+     dia escolhido — a mesma retirada que o balcão lança à mão —, e por isso desconta
+     no caixa diário e no relatório como qualquer outra saída.
+
+     Desfazer o pagamento apaga a retirada junto. As duas coisas nascem e morrem
+     juntas, senão o caixa fica com uma saída que a folha já esqueceu. -->
+<div class="overlay" id="overlayPagar" style="z-index:60;">
+  <div class="modal" style="max-width:640px;">
+    <button class="modal-close" id="fecharPagar">✕</button>
+    <h2 id="pagTitulo">Pagar colaborador</h2>
+    <div class="sub" id="pagSub"></div>
+
+    <div class="pag-liquido">
+      <span class="pl-rot">Líquido a pagar</span>
+      <b id="pagLiquido">R$ 0,00</b>
+    </div>
+
+    <div class="campo" style="margin-bottom:14px;">
+      <label for="pagData">Dia do pagamento</label>
+      <input type="date" id="pagData">
+      <div class="campo-nota">É o dia do caixa em que a saída em dinheiro — ou a notinha branca — vai ser lançada.</div>
+    </div>
+
+    <div class="secao-title" style="margin-top:0;padding-top:0;border-top:none;">Modalidades do pagamento</div>
+    <div class="pag-mods">
+      <div class="pag-mod" id="pagModPix">
+        <label class="pag-check" for="pagUsaPix">
+          <input type="checkbox" id="pagUsaPix">
+          <span>PIX</span>
+        </label>
+        <input type="text" inputmode="decimal" id="pagValPix" placeholder="0,00" aria-label="Valor em PIX">
+        <div class="pag-nota" id="pagNotaPix">Transferência — não passa pela gaveta.</div>
+      </div>
+      <div class="pag-mod" id="pagModDin">
+        <label class="pag-check" for="pagUsaDin">
+          <input type="checkbox" id="pagUsaDin">
+          <span>Dinheiro</span>
+        </label>
+        <input type="text" inputmode="decimal" id="pagValDin" placeholder="0,00" aria-label="Valor em dinheiro">
+        <div class="pag-nota">Sai da gaveta: vira uma <b>retirada</b> no caixa do dia.</div>
+      </div>
+      <!-- Acabou o dinheiro da gaveta: emite-se a notinha e o colaborador retira nos
+           caixas da frente. O dinheiro sai lá, não aqui — por isso ela NÃO é retirada e
+           não entra em conta nenhuma do caixa daqui. Vira notinha avulsa, que é a lista
+           de conferência dos PDVs. -->
+      <div class="pag-mod pag-mod-nota" id="pagModNta">
+        <label class="pag-check" for="pagUsaNta">
+          <input type="checkbox" id="pagUsaNta">
+          <span>Notinha branca</span>
+        </label>
+        <input type="text" inputmode="decimal" id="pagValNta" placeholder="0,00" aria-label="Valor em notinha branca">
+        <div class="pag-nota">Retira nos <b>caixas da frente</b>: a gaveta daqui não é tocada.</div>
+      </div>
+    </div>
+
+    <div class="pag-resumo" id="pagResumo"></div>
+
+    <div class="acoes-modal">
+      <button type="button" class="btn btn-outline btn-excluir-modal" id="btnPagDesfazer" style="display:none;">Desfazer pagamento</button>
+      <button type="button" class="btn btn-outline" id="btnPagCancelar">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="btnPagConfirmar">Confirmar pagamento</button>
+    </div>
+  </div>
+</div>
+
 <!-- ===================== CONTA MERCADO: somadora das notinhas =====================
      É a somadora da tela de recebimento, sem as modalidades: aqui não se recebe nada,
      a conta é descontada em folha. O que existe a mais é o percentual — tem colaborador
@@ -3510,7 +3657,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '05/09/2026a · Folha relê o que os outros PCs lançam';
+const VERSAO_SISTEMA = '06/09/2026b · Conta do mercado no balanço';
 
 const SUPABASE_URL  = 'https://vieafcgghboxwhultile.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_HaMcgvr_2xmWYotvzetmVA_yscPz2eT';
@@ -4449,7 +4596,7 @@ function lancamentoVazio(salarioBase){
            salFamilia:0, atrasos:0, inss:0, adiantamento:0, contaMercado:0, desconto:0, obs:'',
            /* Balanço mensal: quanto do líquido saiu em dinheiro (só para quem recebe
               misto) e a baixa de cada forma de pagamento. */
-           valorDinheiro:0, pagoPix:false, pagoDinheiro:false };
+           valorDinheiro:0, pagoPix:false, pagoDinheiro:false, pagamento:null };
 }
 function getLancamento(mesChave, funcId){
   if(!state.folha[mesChave]) state.folha[mesChave] = {};
@@ -5668,6 +5815,10 @@ document.getElementById('btnSalvarColab').addEventListener('click', ()=>{
     ? toNum(document.getElementById('lValorDinheiro').value) : 0;
   lForm.pagoPix      = !!lAnterior.pagoPix;
   lForm.pagoDinheiro = !!lAnterior.pagoDinheiro;
+  /* O pagamento do balanço — dia, modalidades e o id da retirada que ele gerou no
+     caixa. Sem recuperar aqui, salvar a ficha do colaborador deixaria a retirada no
+     caixa sem ninguém do lado da folha para desfazê-la. */
+  if(lAnterior.pagamento) lForm.pagamento = lAnterior.pagamento;
   /* As notinhas da conta mercado, o percentual e o que ficou em débito. Sem esta linha o
      lançamento remontado guardaria só o valor descontado, e a conferência perderia a
      lista que formou o número. */
@@ -8265,20 +8416,32 @@ function apurarBalanco(mes){
       }else{
         pix = total;
       }
-      /* A situação não é digitada: ela é o resultado das confirmações. Só contam
-         as modalidades em que a pessoa realmente recebeu — quem só tem PIX fica
-         PAGO confirmando um botão só, e não parcial para sempre. */
-      const confPix = !!r.l.pagoPix, confDin = !!r.l.pagoDinheiro;
-      const usa = (pix ? 1 : 0) + (dinheiro ? 1 : 0);
-      const ok  = (pix && confPix ? 1 : 0) + (dinheiro && confDin ? 1 : 0);
-      const situacao = !usa ? 'nada' : (ok === usa) ? 'pago' : ok ? 'parcial' : 'apagar';
-      /* Confirmado em dinheiro é dinheiro que já saiu do caixa; o resto ainda vai
-         sair. Por isso o "já pago" soma parcela por parcela, e não a pessoa
-         inteira — senão quem recebeu metade contaria como zero ou como tudo. */
-      const valorPago = (pix && confPix ? pix : 0) + (dinheiro && confDin ? dinheiro : 0);
+      /* A situação não é digitada: ela é o resultado do pagamento registrado. As
+         colunas PIX e Dinheiro continuam sendo o PLANEJADO — a divisão lançada na
+         folha —, e o pagamento é o REALIZADO. Os dois quase sempre batem, e quando não
+         batem é porque o dia mandou pagar diferente; quem manda no balanço é o que
+         saiu de verdade.
+
+         Lançamento antigo não tem pagamento: foi confirmado com os dois ✓ que
+         existiam antes desta tela. Ele continua sendo lido pelas marcas velhas, senão
+         os meses já fechados apareceriam todos como "a pagar". */
+      const pg = pagamentoDe(r.l);
+      const pagoPix = pg ? pg.pix      : (r.l.pagoPix      ? pix      : 0);
+      const pagoDin = pg ? pg.dinheiro : (r.l.pagoDinheiro ? dinheiro : 0);
+      /* A notinha branca não é planejada na folha: ela é a saída de quando a gaveta não
+         tem o dinheiro, decidida na hora de pagar. Por isso só existe no realizado. */
+      const pagoNta = pg ? pg.notinha : 0;
+      /* Somado parcela por parcela, e não a pessoa inteira: quem recebeu metade não
+         pode contar como zero nem como tudo. */
+      const valorPago = r2(pagoPix + pagoDin + pagoNta);
+      const confPix = pagoPix > 0.004, confDin = pagoDin > 0.004;
+      const situacao = total <= 0.004 ? 'nada'
+                     : valorPago >= total - 0.004 ? 'pago'
+                     : valorPago > 0.004 ? 'parcial' : 'apagar';
       return {
         f: r.f, l: r.l, forma, total, pix, dinheiro,
         confPix, confDin, situacao, valorPago,
+        pagamento: pg, pagoPixVal: pagoPix, pagoDinVal: pagoDin, pagoNtaVal: pagoNta,
         pago: situacao === 'pago',
         /* São três coisas diferentes e o balanço não pode misturá-las:
            · CONTAS DESCONTADAS — notinhas do mercado e vales. Dinheiro que a
@@ -8297,7 +8460,7 @@ function apurarBalanco(mes){
     });
 
   const tot = {pagamento:0, inss:0, contas:0, atrasos:0, bruto:0,
-               pago:0, aPagar:0, pix:0, dinheiro:0,
+               pago:0, aPagar:0, pix:0, dinheiro:0, notinha:0,
                qtdPagas:0, qtdParciais:0, qtdAbertas:0, pessoas: linhas.length};
   linhas.forEach(li=>{
     tot.pagamento += li.total;
@@ -8308,6 +8471,7 @@ function apurarBalanco(mes){
     tot.pix       += li.pix;
     tot.dinheiro  += li.dinheiro;
     tot.pago      += li.valorPago;
+    tot.notinha   += li.pagoNtaVal;
     tot.aPagar    += r2(li.total - li.valorPago);
     if(li.situacao === 'pago')         tot.qtdPagas++;
     else if(li.situacao === 'parcial') tot.qtdParciais++;
@@ -8353,7 +8517,13 @@ function renderBalanco(){
       t.qtdAbertas + ' sem confirmação' + (t.qtdParciais ? ' + parciais em aberto' : '')],
     ['PIX', fmtMoeda(t.pix), 'kpi-info', 'transferências do mês'],
     ['Dinheiro', fmtMoeda(t.dinheiro), 'kpi-info', 'retirada de caixa']
-  ].map(k=>'<div class="kpi '+k[2]+'"><div class="kpi-rot">'+k[0]+'</div><div class="kpi-val">'+k[1]+'</div><div class="kpi-sub">'+k[3]+'</div></div>').join('');
+  ]
+  /* O quadro da notinha branca só aparece quando ela foi usada: em mês normal ela não
+     existe, e um zero fixo ali viraria mais um número para o olho pular. */
+  .concat(t.notinha > 0.004
+    ? [['Em notinha branca', fmtMoeda(t.notinha), 'kpi-alerta', 'retirado nos caixas da frente']]
+    : [])
+  .map(k=>'<div class="kpi '+k[2]+'"><div class="kpi-rot">'+k[0]+'</div><div class="kpi-val">'+k[1]+'</div><div class="kpi-sub">'+k[3]+'</div></div>').join('');
 
   const visiveis = balancoVisiveis(bal);
   const corpo = document.getElementById('balCorpo');
@@ -8371,20 +8541,54 @@ function renderBalanco(){
   };
   const cel = (v, cls)=> '<td class="'+(cls||'')+'">' + (toNum(v) ? fmtMoeda(v) : '—') + '</td>';
 
-  /* Valor com o seu botão de confirmação. O botão só existe onde existe valor:
-     não faz sentido confirmar um dinheiro que a pessoa não recebeu. */
-  const celValor = (valor, funcId, campo, confirmado, rotulo)=>{
-    if(!toNum(valor)) return '<td>—</td>';
-    return '<td><span class="bal-valor">' + fmtMoeda(valor) +
-      '<button class="bal-conf' + (confirmado ? ' ok' : '') + '" data-func="'+funcId+'" data-campo="'+campo+'" ' +
-      'title="' + (confirmado ? 'Pagamento em ' + rotulo + ' confirmado — clique para desfazer'
-                              : 'Confirmar o pagamento em ' + rotulo) + '">✓</button></span></td>';
+  /* A coluna da modalidade mostra o PLANEJADO. Quando o pagamento saiu diferente do
+     planejado, o valor que saiu vem escrito embaixo — é a única forma de a pessoa ver
+     que a folha dizia uma coisa e a gaveta fez outra. */
+  const celModalidade = (planejado, pago, temPagamento)=>{
+    if(!toNum(planejado) && !toNum(pago)) return '<td>—</td>';
+    const dif = temPagamento && Math.abs(r2(toNum(pago) - toNum(planejado))) > 0.004;
+    return '<td>' + (toNum(planejado) ? fmtMoeda(planejado) : '—') +
+      (dif ? '<div class="bal-pg-nota">pago ' + fmtMoeda(pago) + '</div>' : '') + '</td>';
+  };
+
+  /* O botão da linha. Ele é a única escrita do balanço, e é um ato com consequência no
+     caixa — por isso tem corpo de botão, e não a marquinha de antes. */
+  const celPagar = (li)=>{
+    if(li.total <= 0.004)
+      return '<td><button class="bal-pagar nada" disabled>sem líquido</button></td>';
+    const pg = li.pagamento;
+    /* Confirmado com os dois ✓ que existiam antes desta tela: está pago, mas não tem
+       dia nem retirada no caixa. Não pode virar "Pagar" — isso convidaria a pagar de
+       novo o que já saiu —, então aparece como pago e diz o que lhe falta. */
+    if(!pg && li.valorPago > 0.004)
+      return '<td><button class="bal-pagar pago" data-func="'+li.f.id+'" ' +
+        'title="Confirmado antes desta tela — abra para registrar direito ou desfazer">' +
+        (li.situacao === 'parcial' ? 'Parcial ✓' : 'Pago ✓') + '</button>' +
+        '<div class="bal-pg-nota">confirmado sem passar pelo caixa</div></td>';
+    if(!pg)
+      return '<td><button class="bal-pagar" data-func="'+li.f.id+'" ' +
+        'title="Registrar o pagamento deste colaborador">Pagar</button></td>';
+    const partes = [];
+    /* A data é a porta para o outro lado: clicar leva o caixa para aquele dia, onde a
+       retirada (ou a notinha) deste pagamento está listada. */
+    if(pg.data)             partes.push('<span class="bal-ir-caixa" data-caixa-dia="' + pg.data +
+                                        '" title="Abrir o caixa deste dia">' + dataBR(pg.data) + '</span>');
+    if(pg.pix > 0.004)      partes.push(fmtMoeda(pg.pix) + ' PIX');
+    if(pg.dinheiro > 0.004) partes.push(fmtMoeda(pg.dinheiro) + ' dinheiro');
+    if(pg.notinha > 0.004)  partes.push(fmtMoeda(pg.notinha) + ' notinha');
+    const sumiu = retiradaDoPagamentoSumiu(pg);
+    return '<td><button class="bal-pagar pago" data-func="'+li.f.id+'" ' +
+      'title="Ver, corrigir ou desfazer este pagamento">' +
+      (li.situacao === 'parcial' ? 'Parcial ✓' : 'Pago ✓') + '</button>' +
+      '<div class="bal-pg-nota">' + partes.join('<br>') + '</div>' +
+      (sumiu ? '<div class="bal-pg-nota alerta">retirada apagada no caixa</div>' : '') +
+      '</td>';
   };
 
   let html = '<table class="tabela-ponto valores bal-tabela"><thead><tr>' +
     '<th class="esq">Colaborador</th><th>Total da folha</th><th>Desconto INSS</th><th>Contas descontadas</th>' +
-    '<th>PIX</th><th>Dinheiro</th><th>Total pago</th>' +
-    '<th class="esq">Chave PIX</th><th>Situação</th>' +
+    '<th>PIX</th><th>Dinheiro</th><th>Líquido a pagar</th>' +
+    '<th class="esq">Chave PIX</th><th>Situação</th><th>Pagamento</th>' +
     '</tr></thead><tbody>';
 
   const soma = {bruto:0, pagamento:0, inss:0, contas:0, pix:0, dinheiro:0};
@@ -8402,11 +8606,12 @@ function renderBalanco(){
       '<td class="esq"><div class="tp-nome">'+li.f.nome+'</div>' +
         '<div class="tp-func">'+(li.f.funcao||'—')+'</div></td>' +
       cel(li.bruto) + cel(li.inss) + cel(li.contas) +
-      celValor(li.pix, li.f.id, 'pagoPix', li.confPix, 'PIX') +
-      celValor(li.dinheiro, li.f.id, 'pagoDinheiro', li.confDin, 'dinheiro') +
+      celModalidade(li.pix, li.pagoPixVal, !!li.pagamento) +
+      celModalidade(li.dinheiro, li.pagoDinVal, !!li.pagamento) +
       '<td><b>'+fmtMoeda(li.total)+'</b></td>' +
       '<td class="esq">'+chave+'</td>' +
       '<td><span class="bal-sit '+li.situacao+'">'+SITUACAO[li.situacao]+'</span></td>' +
+      celPagar(li) +
       '</tr>';
   });
 
@@ -8420,59 +8625,481 @@ function renderBalanco(){
     '<td>'+fmtMoeda(soma.inss)+'</td><td>'+fmtMoeda(soma.contas)+'</td>' +
     '<td>'+fmtMoeda(soma.pix)+'</td><td>'+fmtMoeda(soma.dinheiro)+'</td>' +
     '<td>'+fmtMoeda(soma.pagamento)+'</td>' +
-    '<td colspan="2"></td></tr></tfoot></table>' +
+    '<td colspan="3"></td></tr></tfoot></table>' +
     '<div class="nota-rodape">' +
     '<b>A conta do mês:</b> total da folha ' + fmtMoeda(t.bruto) + ' − INSS ' + fmtMoeda(t.inss) +
       ' − contas descontadas ' + fmtMoeda(t.contas) + ' = <b>' + fmtMoeda(t.pagamento) + '</b> de saída de caixa, ' +
       'sendo ' + fmtMoeda(t.pix) + ' em PIX e ' + fmtMoeda(t.dinheiro) + ' em dinheiro. ' +
       'Já saiu ' + fmtMoeda(t.pago) + '; falta ' + fmtMoeda(t.aPagar) + '. ' +
+      (t.notinha > 0.004 ? 'Do que já saiu, ' + fmtMoeda(t.notinha) + ' foram em <b>notinha branca</b>, ' +
+                           'retirados nos caixas da frente. ' : '') +
     '<b>Contas descontadas</b> são as notinhas do mercado e os vales — o que a pessoa já levou. ' +
     (t.atrasos ? 'Os ' + fmtMoeda(t.atrasos) + ' de atraso não entram aí: hora não trabalhada não é conta, ' +
                  'então já vem abatida do total da folha acima. ' : '') +
     'O INSS é retido à parte e não é conta de ninguém. ' +
     'As colunas <b>PIX</b> e <b>Dinheiro</b> sempre somam o total pago de cada um. ' +
-    'Esta tela é de consulta: nenhum valor é digitado aqui. Forma de pagamento, chave PIX e ' +
-    'a divisão entre PIX e dinheiro são lançadas na <b>Folha de Pagamento</b>, na ficha do colaborador. ' +
-    'A única ação do balanço é o <b>✓</b> ao lado de cada valor, para confirmar que aquele pagamento saiu: ' +
-    'confirmando as duas formas a situação vira <b>Pago</b>; confirmando só uma, <b>Parcial</b>; ' +
-    'sem confirmação, <b>A pagar</b>.' +
+    'Nenhum valor é digitado aqui. Forma de pagamento, chave PIX e a divisão entre PIX e dinheiro ' +
+    'são lançadas na <b>Folha de Pagamento</b>, na ficha do colaborador — as colunas acima são esse ' +
+    'planejado. A única ação do balanço é o botão <b>Pagar</b>, que registra o que saiu de verdade: ' +
+    'o dia, as modalidades e os valores. <b>O que sai em dinheiro vira uma retirada no caixa daquele ' +
+    'dia</b> e desconta do caixa diário como qualquer outra saída; o que sai em PIX não toca a gaveta. ' +
+    'Quando a gaveta não tem o dinheiro, a terceira modalidade é a <b>notinha branca</b>: ela entra na ' +
+    'lista de notinhas do dia, é retirada nos caixas da frente e por isso também não desconta daqui. ' +
+    'Desfazer o pagamento apaga a retirada e a notinha junto.' +
     '</div>';
 
   corpo.innerHTML = html;
 }
 
-/* A confirmação é a única escrita do balanço, e mesmo ela não mexe em valor
-   nenhum: só registra que aquele pagamento saiu. Todo o resto — quanto, por qual
-   forma, para quem — é lançado na Folha de Pagamento. */
-document.getElementById('balCorpo').addEventListener('click', (e)=>{
-  const btn = e.target.closest('.bal-conf');
-  if(!btn) return;
-  const l = getLancamento(state.mesAtual, btn.dataset.func);
-  l[btn.dataset.campo] = !l[btn.dataset.campo];
+/* ===================== PAGAR O COLABORADOR =====================
+   Antes o balanço tinha dois ✓, um por modalidade, e eles só diziam "saiu". Não diziam
+   quando nem por onde — e, pior, o dinheiro que saía da gaveta para pagar a folha não
+   aparecia em canto nenhum do caixa. O fechamento do dia dava falta que ninguém
+   explicava, porque a folha tinha levado o dinheiro sem deixar registro.
+
+   Pagar virou um ato: o dia, as modalidades e os valores. O que sai em PIX não toca a
+   gaveta. O que sai em DINHEIRO vira uma retirada de caixa no dia escolhido — a mesma
+   retirada que o balcão lança à mão —, e por isso desconta no caixa diário, no balanço
+   do caixa e no relatório, como qualquer outra saída.
+
+   O lançamento guarda o id da retirada e a retirada guarda de quem e de que mês ela é.
+   As duas nascem e morrem juntas: desfazer o pagamento apaga a retirada, senão o caixa
+   fica com uma saída que a folha já esqueceu. */
+
+function pagamentoDe(l){
+  const p = l && l.pagamento;
+  if(!p) return null;
+  const pix = r2(toNum(p.pix)), dinheiro = r2(toNum(p.dinheiro)), notinha = r2(toNum(p.notinha));
+  if(pix <= 0.004 && dinheiro <= 0.004 && notinha <= 0.004) return null;
+  return {data: p.data || '', pix, dinheiro, notinha,
+          retiradaId: p.retiradaId || '', notinhaId: p.notinhaId || '',
+          em: p.em || '', usuario: p.usuario || ''};
+}
+
+function motivoDaFolha(f, mes){
+  return 'Folha ' + mesLabel(mes) + ' — ' + f.nome;
+}
+
+/* A retirada que este pagamento gerou ainda existe no caixa? Alguém pode ter apagado
+   ela pela tela de retiradas, e aí o balanço estaria dizendo que saiu um dinheiro que o
+   caixa não conhece mais. Só vale perguntar depois que o caixa foi lido do banco. */
+function retiradaDoPagamentoSumiu(pg){
+  if(!pg || !caixaCarregado) return false;
+  if(pg.retiradaId && !(state.retiradas||[]).some(r=> r.id === pg.retiradaId)) return true;
+  if(pg.notinhaId && !(state.notinhasAvulsas||[]).some(n=> n.id === pg.notinhaId)) return true;
+  return false;
+}
+
+async function registrarPagamento(funcId, dados){
+  garantirBaseRecebimentos();
+  const f = (state.funcionarios||[]).find(x=> x.id === funcId);
+  if(!f) return false;
+  const l = getLancamento(state.mesAtual, funcId);
+  const antigo = pagamentoDe(l);
+  const dia = dados.data || state.caixaDia || hojeISO();
+  const pix = r2(dados.pix), dinheiro = r2(dados.dinheiro), notinha = r2(dados.notinha);
+
+  /* Os registros antigos saem sempre antes: o valor pode ter mudado, o dia também, e
+     nem retirada nem notinha se corrigem pela metade. */
+  if(antigo && antigo.retiradaId){
+    state.retiradas = (state.retiradas||[]).filter(r=> r.id !== antigo.retiradaId);
+    await apagarDoCaixa('retiradas', antigo.retiradaId);
+  }
+  if(antigo && antigo.notinhaId){
+    state.notinhasAvulsas = (state.notinhasAvulsas||[]).filter(n=> n.id !== antigo.notinhaId);
+    await apagarDoCaixa('notinhasAvulsas', antigo.notinhaId);
+  }
+
+  let retiradaId = '';
+  if(dinheiro > 0.004){
+    const nova = {
+      id: novoIdRec('s_'),
+      data: dia,
+      valor: dinheiro,
+      motivo: motivoDaFolha(f, state.mesAtual),
+      /* De quem e de que mês — é o que permite reconhecer a retirada da folha no meio
+         das outras saídas do dia. */
+      folhaMes: state.mesAtual,
+      folhaFunc: funcId,
+      criadoEm: new Date().toISOString(),
+      usuario: document.getElementById('usuarioLogado').textContent || ''
+    };
+    state.retiradas.push(nova);
+    retiradaId = nova.id;
+    await salvarNoCaixa('retiradas', nova);
+  }
+
+  /* A notinha branca NÃO é retirada: o dinheiro sai nos caixas da frente, não na gaveta
+     daqui. Por isso ela vira notinha AVULSA — a espécie que não é troco de nada e fica
+     fora de todas as contas do caixa, servindo de lista de conferência dos PDVs. */
+  let notinhaId = '';
+  if(notinha > 0.004){
+    const nova = {
+      id: novoIdRec('n_'),
+      data: dia,
+      valor: notinha,
+      motivo: motivoDaFolha(f, state.mesAtual),
+      obs: 'Pagamento de folha — retira nos caixas da frente.',
+      folhaMes: state.mesAtual,
+      folhaFunc: funcId,
+      criadoEm: new Date().toISOString(),
+      usuario: document.getElementById('usuarioLogado').textContent || ''
+    };
+    state.notinhasAvulsas.push(nova);
+    notinhaId = nova.id;
+    await salvarNoCaixa('notinhasAvulsas', nova);
+  }
+
+  l.pagamento = {data: dia, pix, dinheiro, notinha, retiradaId, notinhaId,
+                 em: new Date().toISOString(),
+                 usuario: document.getElementById('usuarioLogado').textContent || ''};
+  /* As marcas velhas continuam sendo escritas: enquanto uma máquina do escritório
+     estiver na versão antiga do arquivo, é por elas que ela lê o balanço. */
+  l.pagoPix = pix > 0.004;
+  l.pagoDinheiro = dinheiro > 0.004;
   salvarEstado();
+  return true;
+}
+
+async function desfazerPagamento(funcId){
+  garantirBaseRecebimentos();
+  const l = getLancamento(state.mesAtual, funcId);
+  const pg = pagamentoDe(l);
+  if(pg && pg.retiradaId){
+    state.retiradas = (state.retiradas||[]).filter(r=> r.id !== pg.retiradaId);
+    await apagarDoCaixa('retiradas', pg.retiradaId);
+  }
+  if(pg && pg.notinhaId){
+    state.notinhasAvulsas = (state.notinhasAvulsas||[]).filter(n=> n.id !== pg.notinhaId);
+    await apagarDoCaixa('notinhasAvulsas', pg.notinhaId);
+  }
+  delete l.pagamento;
+  l.pagoPix = false;
+  l.pagoDinheiro = false;
+  salvarEstado();
+}
+
+/* ---------------------------------------------------------------- a janela de pagar */
+let pagFuncId = null;
+let pagRetiradaAtual = '';
+let pagTotalAtual = 0;
+let pagMotivoAtual = '';
+
+/* ---------------------------------------------------- quanto a gaveta tem naquele dia
+   O caixa sempre soube esse número; quem não sabia era a hora de pagar. Em 05/09/2026 a
+   folha lançou 5.472,68 em dinheiro num dia em que passaram 4.834,50 pela gaveta — mais
+   do que existiu lá dentro —, e isso só apareceu no fechamento, com o caixa em −638,18 e
+   o dinheiro contado batendo em 440. Parte tinha saído como notinha branca e entrado
+   aqui como dinheiro.
+
+   Agora o modal olha o dia antes de confirmar. Corrigindo um pagamento que já lançou
+   retirada nesse mesmo dia, ela é somada de volta: ela ainda está na conta do caixa, e
+   contá-la faria a gaveta parecer mais vazia do que está. */
+function gavetaNoDia(iso, ignorarRetiradaId){
+  const t = totaisDoDia(iso);
+  const propria = ignorarRetiradaId
+    ? (state.retiradas||[]).find(x=> x.id === ignorarRetiradaId && String(x.data||'') === iso)
+    : null;
+  const saiu = r2(t.saiu - (propria ? toNum(propria.valor) : 0));
+  return {
+    temAbertura: !!t.abertura,
+    inicial: r2(t.inicial),
+    entrou:  r2(t.porForma.dinheiro),
+    saiu:    saiu,
+    saldo:   r2(t.inicial + t.porForma.dinheiro - saiu)
+  };
+}
+
+/* A linha da gaveta no resumo do modal. Só aparece quando há dinheiro no pagamento:
+   PIX e notinha não tocam a gaveta, e o número ali seria só ruído. */
+function linhaDaGavetaPag(dia, emDinheiro){
+  if(emDinheiro <= 0.004) return '';
+  const g = gavetaNoDia(dia, pagRetiradaAtual);
+  if(!g.temAbertura)
+    return '<div class="pgr-gaveta pgr-semab">A abertura de <b>' + dataBR(dia) + '</b> não foi informada — ' +
+           'não dá para saber quanto tem na gaveta neste dia.</div>';
+  if(emDinheiro > g.saldo + 0.004){
+    const excedente = r2(emDinheiro - g.saldo);
+    return '<div class="pgr-gaveta pgr-furo">A gaveta tem <b>' + fmtMoeda(g.saldo) + '</b> em ' + dataBR(dia) +
+      '. Este pagamento de <b>' + fmtMoeda(emDinheiro) + '</b> em dinheiro deixa o caixa em <b>' +
+      fmtMoeda(r2(g.saldo - emDinheiro)) + '</b>.' +
+      '<button type="button" class="pg-jogar" data-valor="' + excedente + '">jogar ' +
+      fmtMoeda(excedente) + ' para notinha branca</button></div>';
+  }
+  return '<div class="pgr-gaveta">A gaveta tem <b>' + fmtMoeda(g.saldo) + '</b> em ' + dataBR(dia) +
+    ' <span class="rec-mini">(abertura ' + fmtMoeda(g.inicial) + ' + ' + fmtMoeda(g.entrou) +
+    ' recebidos − ' + fmtMoeda(g.saiu) + ' já retirados)</span>.</div>';
+}
+
+function valoresDaJanelaPag(){
+  return {
+    pix: document.getElementById('pagUsaPix').checked
+       ? r2(toNum(document.getElementById('pagValPix').value)) : 0,
+    dinheiro: document.getElementById('pagUsaDin').checked
+       ? r2(toNum(document.getElementById('pagValDin').value)) : 0,
+    notinha: document.getElementById('pagUsaNta').checked
+       ? r2(toNum(document.getElementById('pagValNta').value)) : 0
+  };
+}
+
+function atualizarPagResumo(){
+  const usaPix = document.getElementById('pagUsaPix').checked;
+  const usaDin = document.getElementById('pagUsaDin').checked;
+  const usaNta = document.getElementById('pagUsaNta').checked;
+  document.getElementById('pagModPix').classList.toggle('ativa', usaPix);
+  document.getElementById('pagModDin').classList.toggle('ativa', usaDin);
+  document.getElementById('pagModNta').classList.toggle('ativa', usaNta);
+  document.getElementById('pagValPix').disabled = !usaPix;
+  document.getElementById('pagValDin').disabled = !usaDin;
+  document.getElementById('pagValNta').disabled = !usaNta;
+
+  const v = valoresDaJanelaPag();
+  const soma = r2(v.pix + v.dinheiro + v.notinha);
+  const dif  = r2(pagTotalAtual - soma);
+  const dia  = document.getElementById('pagData').value || hojeISO();
+
+  const linhas = ['<div class="pgr-linha"><span>Soma das modalidades</span><b>' + fmtMoeda(soma) + '</b></div>'];
+  if(dif > 0.004)
+    linhas.push('<div class="pgr-linha pgr-falta"><span>Falta para o líquido</span><b>' + fmtMoeda(dif) + '</b></div>');
+  else if(dif < -0.004)
+    linhas.push('<div class="pgr-linha pgr-passou"><span>Passou do líquido</span><b>' + fmtMoeda(-dif) + '</b></div>');
+
+  if(v.dinheiro > 0.004)
+    linhas.push('<div class="pgr-caixa' + (dia !== hojeISO() ? ' pgr-aviso' : '') + '">Sai <b>' +
+      fmtMoeda(v.dinheiro) + '</b> da gaveta, no caixa de <b>' + dataBR(dia) + '</b>, como retirada — “' +
+      escHtml(pagMotivoAtual) + '”.</div>');
+  else
+    linhas.push('<div class="pgr-caixa">Nada sai da gaveta.</div>');
+  if(v.notinha > 0.004)
+    linhas.push('<div class="pgr-nota"><b>' + fmtMoeda(v.notinha) + '</b> em notinha branca: ' +
+      'entra na lista de notinhas de <b>' + dataBR(dia) + '</b> e é retirada nos caixas da frente. ' +
+      'Não mexe no fechamento da gaveta daqui.</div>');
+  linhas.push(linhaDaGavetaPag(dia, v.dinheiro));
+
+  document.getElementById('pagResumo').innerHTML = linhas.join('');
+  document.getElementById('btnPagConfirmar').disabled = (soma <= 0.004 || dif < -0.004);
+}
+
+function abrirPagamento(funcId){
+  const li = apurarBalanco().linhas.find(x=> x.f.id === funcId);
+  if(!li) return;
+  if(li.total <= 0.004){ mostrarToast('Não há líquido a pagar para este colaborador'); return; }
+
+  pagFuncId = funcId;
+  pagRetiradaAtual = (li.pagamento && li.pagamento.retiradaId) || '';
+  pagTotalAtual = li.total;
+  pagMotivoAtual = motivoDaFolha(li.f, state.mesAtual);
+  const pg = li.pagamento;
+  /* Ver o botão da linha: pago pelo modelo antigo dos ✓, sem dia nem retirada. */
+  const legado = !pg && li.valorPago > 0.004;
+
+  document.getElementById('pagTitulo').textContent =
+    pg ? 'Pagamento registrado' : (legado ? 'Pagamento antigo' : 'Pagar colaborador');
+  document.getElementById('pagSub').innerHTML =
+    '<b>' + escHtml(li.f.nome) + '</b>' + (li.f.funcao ? ' · ' + escHtml(li.f.funcao) : '') +
+    ' — folha de ' + mesLabel(state.mesAtual) + '.' +
+    (legado ? ' <b>Já foi confirmado antes desta tela</b>, sem dia e sem retirada no caixa: ' +
+              'confirmar aqui registra direito e lança a saída em dinheiro.' : '');
+  document.getElementById('pagLiquido').textContent = fmtMoeda(li.total);
+  document.getElementById('pagData').value = (pg && pg.data) || state.caixaDia || hojeISO();
+
+  /* Sem pagamento ainda, a janela abre com a divisão que a folha planejou — é ela que a
+     coluna PIX/Dinheiro do balanço mostra. Já pago, abre com o que saiu de verdade. */
+  const pix = pg ? pg.pix : li.pix;
+  const din = pg ? pg.dinheiro : li.dinheiro;
+  /* A folha não planeja notinha branca: ela é a saída de quando a gaveta não tem o
+     dinheiro, decidida na hora de pagar. Por isso só vem preenchida se já foi usada. */
+  const nta = pg ? pg.notinha : 0;
+  document.getElementById('pagUsaPix').checked = pix > 0.004;
+  document.getElementById('pagUsaDin').checked = din > 0.004;
+  document.getElementById('pagUsaNta').checked = nta > 0.004;
+  document.getElementById('pagValPix').value = pix > 0.004 ? pix.toFixed(2).replace('.',',') : '';
+  document.getElementById('pagValDin').value = din > 0.004 ? din.toFixed(2).replace('.',',') : '';
+  document.getElementById('pagValNta').value = nta > 0.004 ? nta.toFixed(2).replace('.',',') : '';
+
+  const chave = chavePixDe(li.f);
+  document.getElementById('pagNotaPix').innerHTML = chave
+    ? 'Chave: <b>' + escHtml(chave) + '</b>'
+    : '<span class="tag-sv">chave não cadastrada</span>';
+
+  document.getElementById('btnPagDesfazer').style.display = (pg || legado) ? '' : 'none';
+  document.getElementById('btnPagConfirmar').textContent =
+    pg ? 'Salvar alteração' : (legado ? 'Registrar direito' : 'Confirmar pagamento');
+  atualizarPagResumo();
+  document.getElementById('overlayPagar').classList.add('show');
+}
+
+const PAG_MODALIDADES = [
+  {check:'pagUsaPix', campo:'pagValPix', chave:'pix'},
+  {check:'pagUsaDin', campo:'pagValDin', chave:'dinheiro'},
+  {check:'pagUsaNta', campo:'pagValNta', chave:'notinha'}
+];
+PAG_MODALIDADES.forEach(m=>{
+  document.getElementById(m.check).addEventListener('change', (e)=>{
+    /* Marcar a modalidade já traz o que falta para fechar o líquido: é o gesto que vem
+       depois, e digitar o mesmo número que a tela toda mostra é trabalho à toa. É assim
+       que a notinha branca fica fácil — marcou, e ela cobre o que a gaveta não tinha. */
+    const campo = document.getElementById(m.campo);
+    if(e.target.checked){
+      const v = valoresDaJanelaPag();
+      const outras = r2(PAG_MODALIDADES.reduce((s,o)=> s + (o.chave === m.chave ? 0 : v[o.chave]), 0));
+      if(r2(toNum(campo.value)) <= 0.004){
+        const falta = r2(pagTotalAtual - outras);
+        campo.value = falta > 0.004 ? falta.toFixed(2).replace('.',',') : '';
+      }
+    }else{
+      campo.value = '';
+    }
+    atualizarPagResumo();
+  });
+  document.getElementById(m.campo).addEventListener('input', atualizarPagResumo);
+});
+document.getElementById('pagData').addEventListener('change', atualizarPagResumo);
+
+/* O gesto que se faz na prática quando a gaveta acaba: o que não cabe vira notinha e o
+   resto continua saindo em dinheiro. O resumo é redesenhado a cada tecla, então o clique
+   é ouvido no quadro, não no botão. */
+document.getElementById('pagResumo').addEventListener('click', (e)=>{
+  const b = e.target.closest('.pg-jogar');
+  if(!b) return;
+  const excedente = r2(toNum(b.dataset.valor));
+  if(excedente <= 0.004) return;
+  const v = valoresDaJanelaPag();
+  const novoDin = r2(v.dinheiro - excedente);
+  const novaNta = r2(v.notinha + excedente);
+  document.getElementById('pagUsaDin').checked = novoDin > 0.004;
+  document.getElementById('pagValDin').value = novoDin > 0.004 ? novoDin.toFixed(2).replace('.',',') : '';
+  document.getElementById('pagUsaNta').checked = true;
+  document.getElementById('pagValNta').value = novaNta.toFixed(2).replace('.',',');
+  atualizarPagResumo();
+  mostrarToast(fmtMoeda(excedente) + ' passaram para notinha branca');
+});
+
+document.getElementById('btnPagConfirmar').addEventListener('click', async ()=>{
+  if(!pagFuncId) return;
+  const v = valoresDaJanelaPag();
+  const soma = r2(v.pix + v.dinheiro + v.notinha);
+  if(soma <= 0.004){ mostrarToast('Escolha a modalidade e informe o valor'); return; }
+  if(soma > pagTotalAtual + 0.004){ mostrarToast('A soma passou do líquido a pagar'); return; }
+
+  const dia = document.getElementById('pagData').value || hojeISO();
+  /* Dinheiro e notinha mexem no caixa de um dia. Fora de hoje, o mesmo freio das
+     retiradas — a notinha entra na lista de conferência daquele dia. */
+  if((v.dinheiro > 0.004 || v.notinha > 0.004) &&
+     !confirmarDataForaDeHoje(dia, 'pagamento lançado no caixa')) return;
+
+  /* A gaveta não comporta este pagamento. Pergunta, e NÃO bloqueia: tem dia em que o
+     pagamento sai de manhã e o dinheiro dos clientes entra à tarde — a gaveta fica
+     negativa no meio do caminho e fecha certa no fim. O que não pode é passar calado,
+     que foi como 1.078,18 de notinha branca entraram como dinheiro em 05/09/2026. */
+  const g = gavetaNoDia(dia, pagRetiradaAtual);
+  if(v.dinheiro > 0.004 && g.temAbertura && v.dinheiro > g.saldo + 0.004){
+    if(!confirm('A gaveta tem ' + fmtMoeda(g.saldo) + ' em ' + dataBR(dia) + '.\n\n' +
+      'Este pagamento leva ' + fmtMoeda(v.dinheiro) + ' em dinheiro e deixa o caixa em ' +
+      fmtMoeda(r2(g.saldo - v.dinheiro)) + '.\n\n' +
+      'Vai mesmo tudo em dinheiro, ou parte é notinha branca?\n\n' +
+      'OK = confirmar em dinheiro\nCancelar = voltar e ajustar')) return;
+  }
+  if(soma < pagTotalAtual - 0.004 &&
+     !confirm('Pagamento PARCIAL.\n\nO líquido é ' + fmtMoeda(pagTotalAtual) + ' e você está pagando ' +
+              fmtMoeda(soma) + '. Faltam ' + fmtMoeda(r2(pagTotalAtual - soma)) +
+              ', e o colaborador fica como "Parcial" no balanço.\n\nConfirmar assim?')) return;
+
+  const btn = document.getElementById('btnPagConfirmar');
+  btn.disabled = true;
+  await registrarPagamento(pagFuncId, {data: dia, pix: v.pix, dinheiro: v.dinheiro, notinha: v.notinha});
+  document.getElementById('overlayPagar').classList.remove('show');
   renderBalanco();
+  renderCaixaAtual();
+  mostrarToast('Pagamento de ' + fmtMoeda(soma) + ' registrado' +
+    (v.dinheiro > 0.004 ? ' · ' + fmtMoeda(v.dinheiro) + ' saíram da gaveta' : '') +
+    (v.notinha > 0.004 ? ' · ' + fmtMoeda(v.notinha) + ' em notinha branca' : ''));
+});
+
+document.getElementById('btnPagDesfazer').addEventListener('click', async ()=>{
+  if(!pagFuncId) return;
+  const li = apurarBalanco().linhas.find(x=> x.f.id === pagFuncId);
+  if(!li || li.valorPago <= 0.004) return;
+  const pg = li.pagamento;
+  const oQueSai = [];
+  if(pg && pg.dinheiro > 0.004)
+    oQueSai.push('A retirada de ' + fmtMoeda(pg.dinheiro) + ' do caixa de ' + dataBR(pg.data) +
+                 ' vai ser apagada, e o dinheiro volta para a gaveta daquele dia.');
+  if(pg && pg.notinha > 0.004)
+    oQueSai.push('A notinha branca de ' + fmtMoeda(pg.notinha) + ' vai sair da lista de ' +
+                 dataBR(pg.data) + ' — avise os caixas da frente se ela já foi para lá.');
+  if(!confirm('Desfazer o pagamento de ' + li.f.nome + '?\n\n' +
+    (!pg ? 'Era uma confirmação antiga, sem nada lançado no caixa: a gaveta não muda.'
+     : oQueSai.length ? oQueSai.join('\n\n')
+     : 'O pagamento era só em PIX; nada muda no caixa.'))) return;
+  await desfazerPagamento(pagFuncId);
+  document.getElementById('overlayPagar').classList.remove('show');
+  renderBalanco();
+  renderCaixaAtual();
+  mostrarToast('Pagamento desfeito');
+});
+
+document.getElementById('btnPagCancelar').addEventListener('click', ()=>
+  document.getElementById('overlayPagar').classList.remove('show'));
+document.getElementById('fecharPagar').addEventListener('click', ()=>
+  document.getElementById('overlayPagar').classList.remove('show'));
+fecharAoClicarFora('overlayPagar');
+
+/* O clique na tabela: cada linha tem o seu botão, e ele abre a janela daquele
+   colaborador. Pago ou não, é a mesma porta — a janela é que muda de cara. */
+document.getElementById('balCorpo').addEventListener('click', (e)=>{
+  /* Da folha para o caixa: a data do pagamento leva o caixa para aquele dia, com a
+     retirada e a notinha deste pagamento na lista. É o mesmo gesto do Balanço do Caixa,
+     onde clicar num dia abre o relatório dele. */
+  const ir = e.target.closest('[data-caixa-dia]');
+  if(ir){
+    state.caixaDia = ir.dataset.caixaDia;
+    gravarCache();
+    trocarAba('recHistorico');
+    return;
+  }
+  const btn = e.target.closest('.bal-pagar');
+  if(!btn || btn.classList.contains('nada')) return;
+  abrirPagamento(btn.dataset.func);
 });
 
 buscaComEspera('balBusca', renderBalanco);
 document.getElementById('balFiltro').addEventListener('change', renderBalanco);
 
-document.getElementById('btnBalancoMarcar').addEventListener('click', ()=>{
+/* Pagar a lista inteira de uma vez, cada um com a divisão que a folha planejou. Só os
+   que estão INTEIRAMENTE em aberto: quem já recebeu parte tem um pagamento registrado, e
+   passar por cima dele aqui apagaria a retirada que já está no caixa e refaria tudo pelo
+   planejado — que não é o que aconteceu. Esse fica para o botão da linha. */
+document.getElementById('btnBalancoMarcar').addEventListener('click', async ()=>{
   const bal = apurarBalanco();
-  /* Confirma de uma vez o que ainda falta — inclusive a forma que faltava nos
-     parciais, sem desfazer a que já estava confirmada. */
-  const pendentes = balancoVisiveis(bal).filter(li=> li.situacao === 'apagar' || li.situacao === 'parcial');
-  if(!pendentes.length){ mostrarToast('Nenhum pagamento em aberto na lista'); return; }
-  const falta = pendentes.reduce((s,li)=> s + r2(li.total - li.valorPago), 0);
-  if(!confirm('Confirmar o pagamento de ' + pendentes.length + ' colaborador(es), somando ' +
-              fmtMoeda(falta) + ' ainda em aberto?')) return;
-  pendentes.forEach(li=>{
-    const l = getLancamento(state.mesAtual, li.f.id);
-    if(li.pix) l.pagoPix = true;
-    if(li.dinheiro) l.pagoDinheiro = true;
-  });
-  salvarEstado();
+  const pendentes = balancoVisiveis(bal).filter(li=> li.situacao === 'apagar');
+  const parciais  = balancoVisiveis(bal).filter(li=> li.situacao === 'parcial').length;
+  if(!pendentes.length){
+    mostrarToast(parciais ? 'Só há pagamentos parciais na lista — pague um a um'
+                          : 'Nenhum pagamento em aberto na lista');
+    return;
+  }
+  const dia = state.caixaDia || hojeISO();
+  const emDinheiro = r2(pendentes.reduce((s,li)=> s + li.dinheiro, 0));
+  const emPix      = r2(pendentes.reduce((s,li)=> s + li.pix, 0));
+  if(!confirm('Pagar ' + pendentes.length + ' colaborador(es), somando ' +
+              fmtMoeda(r2(emPix + emDinheiro)) + '?\n\n' +
+              '· ' + fmtMoeda(emPix) + ' em PIX\n' +
+              '· ' + fmtMoeda(emDinheiro) + ' em dinheiro' +
+              (emDinheiro > 0.004 ? ', que SAEM DO CAIXA de ' + dataBR(dia) +
+                                    ' como ' + pendentes.filter(li=> li.dinheiro > 0.004).length +
+                                    ' retirada(s)' : '') + '\n' +
+              (parciais ? '\nOs ' + parciais + ' parciais ficam de fora — pague um a um.\n' : '') +
+              '\nCada divisão é a que está lançada na folha.')) return;
+  if(emDinheiro > 0.004 && !confirmarDataForaDeHoje(dia, 'pagamento em dinheiro')) return;
+
+  for(const li of pendentes){
+    await registrarPagamento(li.f.id, {data: dia, pix: li.pix, dinheiro: li.dinheiro});
+  }
   renderBalanco();
-  mostrarToast(pendentes.length + ' colaborador(es) confirmado(s) como pagos');
+  renderCaixaAtual();
+  mostrarToast(pendentes.length + ' colaborador(es) pago(s)' +
+    (emDinheiro > 0.004 ? ' · ' + fmtMoeda(emDinheiro) + ' saíram do caixa' : ''));
 });
 
 document.getElementById('btnExportarBalanco').addEventListener('click', ()=>{
@@ -8492,20 +9119,29 @@ document.getElementById('btnExportarBalanco').addEventListener('click', ()=>{
     ['Colaboradores', t.pessoas], [],
     ['DETALHAMENTO'],
     ['Colaborador','Função','Total da folha','Desconto INSS','Contas descontadas',
-     'PIX','Dinheiro','Total pago','Chave PIX','Situação']];
+     'PIX','Dinheiro','Líquido a pagar','Chave PIX','Situação','Pago em',
+     'Pago (PIX)','Pago (dinheiro)','Pago (notinha branca)']];
 
   const SIT_XLS = {pago:'PAGO', parcial:'PARCIAL', apagar:'A PAGAR', nada:'—'};
   bal.linhas.forEach(li=>{
     linhas.push([li.f.nome, li.f.funcao||'', r2(li.bruto), r2(li.inss), r2(li.contas),
       r2(li.pix), r2(li.dinheiro), r2(li.total),
       li.pix ? chavePixDe(li.f) : '',
-      SIT_XLS[li.situacao]]);
+      SIT_XLS[li.situacao],
+      /* O realizado ao lado do planejado: é o que o escritório confere contra o extrato
+         e contra o caixa do dia. */
+      li.pagamento ? dataBR(li.pagamento.data) : '',
+      r2(li.pagoPixVal), r2(li.pagoDinVal), r2(li.pagoNtaVal)]);
   });
   linhas.push(['TOTAL DA FOLHA','', r2(t.bruto), r2(t.inss), r2(t.contas),
-    r2(t.pix), r2(t.dinheiro), r2(t.pagamento), '', '']);
+    r2(t.pix), r2(t.dinheiro), r2(t.pagamento), '', '', '',
+    r2(bal.linhas.reduce((s,li)=> s + li.pagoPixVal, 0)),
+    r2(bal.linhas.reduce((s,li)=> s + li.pagoDinVal, 0)),
+    r2(t.notinha)]);
 
   const ws = XLSX.utils.aoa_to_sheet(linhas);
-  ws['!cols'] = [{wch:34},{wch:20},{wch:15},{wch:15},{wch:21},{wch:13},{wch:13},{wch:13},{wch:30},{wch:11}];
+  ws['!cols'] = [{wch:34},{wch:20},{wch:15},{wch:15},{wch:21},{wch:13},{wch:13},{wch:16},{wch:30},{wch:11},
+                 {wch:12},{wch:13},{wch:15},{wch:20}];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Balanço');
   XLSX.writeFile(wb, 'Balanco_' + bal.mes + '.xlsx');
@@ -9014,7 +9650,10 @@ document.getElementById('btnExportarDashboard').addEventListener('click', ()=>{
 const REL_CORES = {
   marca:[1,109,60], marcaEsc:[1,74,41], texto:[38,51,61], fraco:[110,122,134],
   grade:[90,90,90], zebra:[244,247,249], grupo:[232,238,242],
-  vermelho:[192,57,43], alerta:[176,113,13], azul:[36,113,163], verde:[30,132,73]
+  vermelho:[192,57,43], alerta:[176,113,13], azul:[36,113,163], verde:[30,132,73],
+  /* O roxo da notinha branca, o mesmo do resto do sistema: no papel ela precisa ler
+     como uma terceira coisa, e não como uma variação do dinheiro. */
+  roxo:[107,79,168]
 };
 
 /* Contexto comum: uma linha por colaborador da folha, já com folha + ponto + diárias. */
@@ -9079,6 +9718,9 @@ async function relCriarDoc(def, conteudo, ctx){
   const margem  = paisagem ? 34 : 40;
   const util    = largura - 2*margem;
   const logo    = await obterLogoDataURL();
+  /* O período escrito no papel: o mês, para os relatórios da folha; o dia, para o
+     fechamento do caixa. Cada relatório diz o seu em `ctx.rotulo`. */
+  const periodo = ctx.rotulo || mesLabel(ctx.mes);
 
   /* ---- cabeçalho ---- */
   let y = margem;
@@ -9092,7 +9734,7 @@ async function relCriarDoc(def, conteudo, ctx){
   doc.text(def.titulo, xT, y+30);
   doc.setFont('helvetica','bold'); doc.setFontSize(11);
   doc.setTextColor(...REL_CORES.marcaEsc);
-  doc.text(mesLabel(ctx.mes), largura-margem, y+14, {align:'right'});
+  doc.text(periodo, largura-margem, y+14, {align:'right'});
   doc.setFont('helvetica','normal'); doc.setFontSize(7.5);
   doc.setTextColor(...REL_CORES.fraco);
   doc.text('Emitido em ' + new Date().toLocaleString('pt-BR'), largura-margem, y+28, {align:'right'});
@@ -9177,6 +9819,20 @@ async function relCriarDoc(def, conteudo, ctx){
     doc.setFontSize(fonte);
     doc.setTextColor(...(tipo === 'total' ? [255,255,255] : REL_CORES.texto));
 
+    /* A linha de grupo é um TÍTULO, não uma linha de dados: escreve numa faixa só, da
+       largura da tabela inteira. Antes ela ia para dentro da primeira coluna, e num
+       relatório cuja primeira coluna é estreita — a hora, no caixa do dia — o título
+       saía cortado em "RECEBIME…". */
+    if(tipo === 'grupo'){
+      const prim = (ln.cels || ln)[0];
+      const rot = (prim && typeof prim === 'object') ? prim.txt : prim;
+      doc.text(relCortar(doc, String(rot === null || rot === undefined ? '' : rot), util-10),
+               margem+4, y + alturaLinha - (alturaLinha-fonte)/2 - 1);
+      y += alturaLinha;
+      naPagina++;
+      return;
+    }
+
     let cx = margem;
     (ln.cels || ln).forEach((cel, i)=>{
       const c = colunas[i];
@@ -9219,7 +9875,7 @@ async function relCriarDoc(def, conteudo, ctx){
     doc.line(margem, altura-margem+6, largura-margem, altura-margem+6);
     doc.setFont('helvetica','normal'); doc.setFontSize(7);
     doc.setTextColor(...REL_CORES.fraco);
-    doc.text('Gestão Administrativa · ' + def.titulo + ' · ' + mesLabel(ctx.mes), margem, altura-margem+17);
+    doc.text('Gestão Administrativa · ' + def.titulo + ' · ' + periodo, margem, altura-margem+17);
     doc.text('Página ' + p + ' de ' + nPaginas, largura-margem, altura-margem+17, {align:'right'});
   }
   return doc;
@@ -9508,6 +10164,154 @@ const RELATORIOS = {
     }
   },
 
+  /* O documento da diretoria. Os outros relatórios contam como a folha foi FORMADA;
+     este conta como ela foi PAGA — quanto saiu, para quem, por qual modalidade e em que
+     dia. Por isso as colunas são o realizado, não o planejado da folha: quem lê quer
+     saber o que saiu do caixa, não o que estava previsto sair.
+
+     Os três grupos (pagos, pagos em parte, a pagar) vêm antes de qualquer número: numa
+     reunião a primeira pergunta é sempre "falta alguém?", e a resposta tem que estar na
+     primeira olhada, não somando linha por linha. */
+  balanco: {
+    titulo: 'Balanço Mensal — Pagamento da Folha',
+    desc: 'O que foi efetivamente pago a cada colaborador e por qual modalidade: PIX, dinheiro da gaveta ou notinha branca retirada nos caixas da frente. Traz também a conta do mercado de cada um — quanto consumiu, quanto foi descontado em folha e quanto ficou em débito. Separa quem já recebeu, quem recebeu em parte e quem ainda está em aberto.',
+    classe: 'rel-geral',
+    arquivo: 'Balanco_Pagamentos',
+    orientacao: 'landscape',
+    montar(ctx){
+      const bal = apurarBalanco(ctx.mes);
+      const t = bal.tot;
+      const soma = (fn)=> r2(bal.linhas.reduce((s,li)=> s + fn(li), 0));
+      const pgPix = soma(li=> li.pagoPixVal);
+      const pgDin = soma(li=> li.pagoDinVal);
+      const pgNta = soma(li=> li.pagoNtaVal);
+
+      /* ---------- A CONTA DO MERCADO ----------
+         A diretoria perguntou por ela, e com razão: é o maior desconto da folha depois
+         do INSS, e some dentro do líquido sem deixar rastro no papel. São três números
+         diferentes e o relatório não pode misturá-los:
+           conta do mês — tudo que o colaborador levou, a soma das notinhas dele;
+           descontado   — a fatia que saiu na folha (tudo, ou os 70% combinados);
+           em débito    — o que sobrou, e que vira notinha na conta do mês que vem.
+         Sem a coluna do meio, um desconto de 70% parece conta menor do que foi. */
+      const contaMesDe   = (li)=> r2(toNum(li.l.contaMercadoTotal) || toNum(li.l.contaMercado));
+      const descontadoDe = (li)=> r2(toNum(li.l.contaMercado));
+      const debitoDe     = (li)=> r2(toNum(li.l.contaMercadoSaldo));
+      const percDe       = (li)=> toNum(li.l.contaMercadoPerc);
+      /* O percentual só é escrito quando é exceção: pôr "(100%)" em vinte linhas
+         esconderia justamente as duas que fogem da regra. */
+      const descontadoTxt = (li)=>{
+        const v = descontadoDe(li);
+        if(!v) return '—';
+        const p = percDe(li);
+        return fmtMoeda(v) + (p && p < 100 ? '  (' + p + '%)' : '');
+      };
+      const cmConta     = soma(contaMesDe);
+      const cmDesc      = soma(descontadoDe);
+      const cmDebito    = soma(debitoDe);
+      const cmParciais  = bal.linhas.filter(li=> percDe(li) && percDe(li) < 100).length;
+
+      const GRUPOS = [
+        {sit:'pago',    rot:'PAGOS'},
+        {sit:'parcial', rot:'PAGOS EM PARTE'},
+        {sit:'apagar',  rot:'AINDA A PAGAR'},
+        {sit:'nada',    rot:'SEM VALOR A PAGAR'}
+      ];
+
+      const linhas = [];
+      GRUPOS.forEach(g=>{
+        const doGrupo = bal.linhas.filter(li=> li.situacao === g.sit);
+        if(!doGrupo.length) return;
+        const s = doGrupo.reduce((a,li)=>({
+          conta: a.conta + contaMesDe(li), desc: a.desc + descontadoDe(li),
+          debito: a.debito + debitoDe(li),
+          liq: a.liq + li.total,      pix: a.pix + li.pagoPixVal,
+          din: a.din + li.pagoDinVal, nta: a.nta + li.pagoNtaVal,
+          pago: a.pago + li.valorPago
+        }), {conta:0,desc:0,debito:0,liq:0,pix:0,din:0,nta:0,pago:0});
+
+        linhas.push({tipo:'grupo', cels:[g.rot + ' — ' + doGrupo.length + ' colaborador(es)']});
+        doGrupo.forEach(li=>{
+          const falta = r2(li.total - li.valorPago);
+          const debito = debitoDe(li);
+          linhas.push({cels:[
+            li.f.nome,
+            relDin(contaMesDe(li)),
+            {txt: descontadoTxt(li), cor: percDe(li) && percDe(li) < 100 ? REL_CORES.alerta : null},
+            {txt: debito > 0.004 ? fmtMoeda(debito) : '—', cor: debito > 0.004 ? REL_CORES.alerta : null},
+            fmtMoeda(li.total),
+            {txt: relDin(li.pagoPixVal), cor: li.pagoPixVal > 0.004 ? REL_CORES.azul : null},
+            relDin(li.pagoDinVal),
+            {txt: relDin(li.pagoNtaVal), cor: li.pagoNtaVal > 0.004 ? REL_CORES.roxo : null},
+            fmtMoeda(li.valorPago),
+            relRuim(falta > 0.004 ? fmtMoeda(falta) : '—', falta > 0.004),
+            li.pagamento ? dataBR(li.pagamento.data) : '—'
+          ]});
+        });
+        linhas.push({tipo:'subtotal', cels:[
+          'Subtotal ' + g.rot.toLowerCase(),
+          fmtMoeda(s.conta), fmtMoeda(s.desc), fmtMoeda(s.debito),
+          fmtMoeda(s.liq), fmtMoeda(s.pix), fmtMoeda(s.din), fmtMoeda(s.nta),
+          fmtMoeda(s.pago), fmtMoeda(r2(s.liq - s.pago)), ''
+        ]});
+      });
+      linhas.push({tipo:'total', cels:[
+        'TOTAL GERAL — ' + t.pessoas + ' colab.',
+        fmtMoeda(cmConta), fmtMoeda(cmDesc), fmtMoeda(cmDebito),
+        fmtMoeda(t.pagamento), fmtMoeda(pgPix), fmtMoeda(pgDin), fmtMoeda(pgNta),
+        fmtMoeda(t.pago), fmtMoeda(t.aPagar), ''
+      ]});
+
+      return {
+        vazio: !t.pessoas,
+        meta: [[fmtMoeda(t.pago) + ' pagos', 'destaque'],
+               [t.qtdPagas + ' de ' + t.pessoas + ' quitados', ''],
+               ['paisagem · 1 folha', '']],
+        resumo: [
+          ['Total a pagar', fmtMoeda(t.pagamento), REL_CORES.marcaEsc, t.pessoas + ' colaborador(es)'],
+          ['Já pago', fmtMoeda(t.pago), REL_CORES.verde,
+            t.qtdPagas + ' quitado(s)' + (t.qtdParciais ? ' · ' + t.qtdParciais + ' parcial(is)' : '')],
+          ['Ainda a pagar', fmtMoeda(t.aPagar), t.aPagar > 0.004 ? REL_CORES.vermelho : REL_CORES.verde,
+            t.qtdAbertas + ' em aberto'],
+          ['Em PIX', fmtMoeda(pgPix), REL_CORES.azul, 'transferências'],
+          ['Em dinheiro', fmtMoeda(pgDin), REL_CORES.texto, 'saiu da gaveta'],
+          ['Em notinha branca', fmtMoeda(pgNta), REL_CORES.roxo, 'retirado nos caixas da frente'],
+          ['Conta do mercado', fmtMoeda(cmDesc), REL_CORES.alerta,
+            cmDebito > 0.004 ? fmtMoeda(cmDebito) + ' em débito' : 'descontado em folha']
+        ],
+        /* Onze colunas em paisagem. A Função saiu para as três da conta mercado caberem:
+           num documento de pagamento o cargo não muda decisão nenhuma, e sem esse espaço
+           os nomes longos começavam a sair cortados. Quem precisa do cargo tem o
+           Relatório Geral. */
+        colunas: [
+          {rot:'Colaborador',     peso:20, alin:'esq'},
+          {rot:'Conta do mês',    peso:8,  alin:'dir'},
+          {rot:'Descontado',      peso:10, alin:'dir'},
+          {rot:'Em débito',       peso:8,  alin:'dir'},
+          {rot:'Líquido',         peso:8,  alin:'dir'},
+          {rot:'PIX',             peso:8,  alin:'dir'},
+          {rot:'Dinheiro',        peso:8,  alin:'dir'},
+          {rot:'Notinha branca',  peso:8,  alin:'dir'},
+          {rot:'Total pago',      peso:8,  alin:'dir'},
+          {rot:'Falta',           peso:6,  alin:'dir'},
+          {rot:'Pago em',         peso:8,  alin:'dir'}
+        ],
+        linhas,
+        nota: 'CONTA DO MERCADO: "conta do mês" é tudo que o colaborador levou; "descontado" é a fatia que saiu ' +
+              'na folha — quando não é a conta inteira, o percentual vem escrito ao lado; "em débito" é o que ' +
+              'sobrou, e que entra como notinha na conta do mês seguinte. O desconto JÁ ESTÁ abatido do líquido ' +
+              'da coluna ao lado, não é cobrado duas vezes' +
+              (cmParciais ? ' — ' + cmParciais + ' colaborador(es) com desconto parcial neste mês.' : '.') + ' ' +
+              'As colunas de modalidade são o que foi EFETIVAMENTE pago, e não a divisão prevista na folha. ' +
+              'PIX é transferência e não passa pelo caixa. Dinheiro sai da gaveta e vira uma retirada no caixa ' +
+              'administrativo do dia indicado em "Pago em". Notinha branca é o vale que o colaborador retira nos ' +
+              'caixas da frente do mercado quando não há dinheiro na gaveta: o valor não sai do caixa administrativo, ' +
+              'e por isso aparece à parte. Em todas as linhas vale Líquido = Total pago + Falta. ' +
+              'O líquido de cada um é o da Folha de Pagamento, já descontados INSS, atrasos, conta mercado e vales.'
+      };
+    }
+  },
+
   geral: {
     titulo: 'Relatório Geral — Custo da Folha de Pagamento',
     desc: 'Fechamento completo do mês com tudo somado: vencimentos, descontos, encargos e o custo total, colaborador a colaborador. Em paisagem, para caber em uma folha só.',
@@ -9589,7 +10393,7 @@ const RELATORIOS = {
   }
 };
 
-const REL_ORDEM = ['geral','horasextras','atrasos','faltas','inconsistencias','assiduidade'];
+const REL_ORDEM = ['balanco','geral','horasextras','atrasos','faltas','inconsistencias','assiduidade'];
 
 async function emitirRelatorio(chave, modo){
   const def = RELATORIOS[chave];
@@ -11919,6 +12723,29 @@ function resumoFormas(r){
 
 function recebimentosDoDia(iso){ return (state.recebimentos||[]).filter(r=> String(r.data||'') === iso); }
 function retiradasDoDia(iso){ return (state.retiradas||[]).filter(r=> String(r.data||'') === iso); }
+
+/* ---------- O QUE VEIO DA FOLHA ----------
+   Retirada e notinha que nasceram do botão Pagar do Balanço Mensal carregam de quem e de
+   que mês são (`folhaFunc` / `folhaMes`). É por esses dois campos que o caixa e a folha
+   se reconhecem: aqui vira um selo na lista, para quem confere o dia saber por que a
+   gaveta está mais leve; e nas correções vira uma trava, porque corrigir a retirada por
+   esta porta deixaria o balanço dizendo que pagou um valor que o caixa não tem mais. */
+function ehDaFolha(x){ return !!(x && x.folhaFunc && x.folhaMes); }
+function seloFolha(x){
+  return ehDaFolha(x)
+    ? ' <span class="tag-folha" title="Lançado pelo botão Pagar do Balanço Mensal — corrija por lá">folha</span>'
+    : '';
+}
+/* A porta certa é o balanço. Devolve true quando o registro é da folha e já avisou. */
+function barrarPorSerDaFolha(x, oQue){
+  if(!ehDaFolha(x)) return false;
+  alert('Esta ' + oQue + ' é o pagamento da folha de ' + mesLabel(x.folhaMes) + '.\n\n' +
+        'Motivo: ' + (x.motivo || '—') + '\n\n' +
+        'Ela nasceu no Balanço Mensal e é de lá que se corrige ou se desfaz — assim a folha e o ' +
+        'caixa continuam contando a mesma história. Vá em RH ▸ Balanço Mensal e clique no ' +
+        'botão do colaborador.');
+  return true;
+}
 function vendasDoDia(iso){ return (state.vendas||[]).filter(v=> String(v.data||'') === iso); }
 function suprimentosDoDia(iso){ return (state.suprimentos||[]).filter(s=> String(s.data||'') === iso); }
 /* As notinhas avulsas ficam propositalmente FORA de `totaisDoDia`: nenhum total do caixa
@@ -13436,12 +14263,14 @@ function renderUltimasRet(){
     lista.map(x=>
       '<tr>' +
       celulaDataHora(x.data, x.criadoEm) +
-      '<td class="esq"><span class="rec-cli-nome">'+escHtml(x.motivo)+'</span></td>' +
+      '<td class="esq"><span class="rec-cli-nome">'+escHtml(x.motivo)+'</span>'+seloFolha(x)+'</td>' +
       '<td class="cel-critico">'+fmtMoeda(toNum(x.valor))+'</td>' +
       '<td class="esq rec-mini">'+escHtml(x.usuario||'—')+'</td>' +
       '<td><div class="rec-acoes-linha">' +
-        '<button class="btn btn-outline btn-sm" data-editar-ret="'+x.id+'">Editar</button>' +
-        '<button class="btn btn-vermelho btn-sm" data-excluir-ret="'+x.id+'">Excluir</button>' +
+        (ehDaFolha(x)
+          ? '<span class="rec-mini">corrija no Balanço Mensal</span>'
+          : '<button class="btn btn-outline btn-sm" data-editar-ret="'+x.id+'">Editar</button>' +
+            '<button class="btn btn-vermelho btn-sm" data-excluir-ret="'+x.id+'">Excluir</button>') +
       '</div></td></tr>'
     ).join('') + '</tbody></table>';
 }
@@ -13494,6 +14323,7 @@ function salvarRetirada(){
 function editarRetirada(id){
   const x = (state.retiradas||[]).find(r=> r.id===id);
   if(!x) return;
+  if(barrarPorSerDaFolha(x, 'retirada')) return;
   /* Marca a correção antes de abrir a tela — ver editarRecebimento. */
   retEditandoId = id;
   trocarAba('recRetirada');
@@ -13510,6 +14340,7 @@ function editarRetirada(id){
 function excluirRetirada(id){
   const x = (state.retiradas||[]).find(r=> r.id===id);
   if(!x) return;
+  if(barrarPorSerDaFolha(x, 'retirada')) return;
   if(!confirm('Excluir a retirada de ' + fmtMoeda(toNum(x.valor)) + ' de ' + dataBR(x.data) + '?\n\n' +
     'Motivo: ' + x.motivo)) return;
   state.retiradas = (state.retiradas||[]).filter(r=> r.id!==id);
@@ -13803,13 +14634,15 @@ function htmlBlocoAvulsasNta(lista, dia){
     lista.map(x=>
       '<tr>' +
       celulaDataHora(x.data, x.criadoEm) +
-      '<td class="esq"><span class="rec-cli-nome">'+escHtml(x.motivo)+'</span>' +
+      '<td class="esq"><span class="rec-cli-nome">'+escHtml(x.motivo)+'</span>'+seloFolha(x) +
         (x.obs ? '<div class="rec-mini">'+escHtml(x.obs)+'</div>' : '') + '</td>' +
       '<td>'+fmtMoeda(toNum(x.valor))+'</td>' +
       '<td class="esq rec-mini">'+escHtml(x.usuario||'—')+'</td>' +
       '<td><div class="rec-acoes-linha">' +
-        '<button class="btn btn-outline btn-sm" data-editar-nta="'+x.id+'">Editar</button>' +
-        '<button class="btn btn-vermelho btn-sm" data-excluir-nta="'+x.id+'">Excluir</button>' +
+        (ehDaFolha(x)
+          ? '<span class="rec-mini">corrija no Balanço Mensal</span>'
+          : '<button class="btn btn-outline btn-sm" data-editar-nta="'+x.id+'">Editar</button>' +
+            '<button class="btn btn-vermelho btn-sm" data-excluir-nta="'+x.id+'">Excluir</button>') +
       '</div></td></tr>'
     ).join('') + '</tbody></table>';
 }
@@ -13974,6 +14807,7 @@ function salvarNotinhaAvulsa(){
 function editarNotinhaAvulsa(id){
   const x = (state.notinhasAvulsas||[]).find(r=> r.id===id);
   if(!x) return;
+  if(barrarPorSerDaFolha(x, 'notinha branca')) return;
   ntaEditandoId = id;                 /* antes de abrir a tela — ver editarRecebimento */
   trocarAba('recNotinhas');
   document.getElementById('ntaMotivo').value = x.motivo || '';
@@ -13990,6 +14824,7 @@ function editarNotinhaAvulsa(id){
 function excluirNotinhaAvulsa(id){
   const x = (state.notinhasAvulsas||[]).find(r=> r.id===id);
   if(!x) return;
+  if(barrarPorSerDaFolha(x, 'notinha branca')) return;
   if(!confirm('Excluir a notinha de ' + fmtMoeda(toNum(x.valor)) + ' de ' + dataBR(x.data) + '?\n\n' +
     'Motivo: ' + x.motivo)) return;
   state.notinhasAvulsas = (state.notinhasAvulsas||[]).filter(r=> r.id!==id);
@@ -14518,7 +15353,7 @@ function htmlRetiradasDoMes(retMes, mes){
     '</tr></thead><tbody>' +
     ordenadas.map(x=>
       '<tr>' + celulaDataHora(x.data, x.criadoEm) +
-      '<td class="esq"><span class="rec-cli-nome">'+escHtml(x.motivo)+'</span></td>' +
+      '<td class="esq"><span class="rec-cli-nome">'+escHtml(x.motivo)+'</span>'+seloFolha(x)+'</td>' +
       '<td class="cel-critico">'+fmtMoeda(toNum(x.valor))+'</td>' +
       '<td class="esq rec-mini">'+escHtml(x.usuario||'—')+'</td></tr>'
     ).join('') +
@@ -14591,7 +15426,7 @@ function htmlNotinhasAvulsasDoDia(lista, dia){
     '<th class="esq">Registrada por</th></tr></thead><tbody>' +
     ordenadas.map(x=>
       '<tr>' + celulaDataHora(x.data, x.criadoEm) +
-      '<td class="esq"><span class="rec-cli-nome">'+escHtml(x.motivo)+'</span>' +
+      '<td class="esq"><span class="rec-cli-nome">'+escHtml(x.motivo)+'</span>'+seloFolha(x) +
         (x.obs ? '<div class="rec-mini">'+escHtml(x.obs)+'</div>' : '') + '</td>' +
       '<td>'+fmtMoeda(toNum(x.valor))+'</td>' +
       '<td class="esq rec-mini">'+escHtml(x.usuario||'—')+'</td></tr>'
@@ -14642,6 +15477,16 @@ function renderHistorico(){
           t.sup.length + ' lançamento(s))</span></span><b>'+fmtMoeda(t.porFormaSup.dinheiro)+'</b></div>'
         : '') +
       '<div class="fc-linha"><span>− Retiradas do dia</span><b>'+fmtMoeda(saiu)+'</b></div>' +
+      /* Em dia de pagamento a gaveta fica bem mais leve, e quem confere precisa ver o
+         motivo aqui, não em outra tela: esta linha é a parte das retiradas que veio do
+         botão Pagar do Balanço Mensal. */
+      (function(){
+        const folha = retMes.filter(ehDaFolha);
+        return folha.length
+          ? '<div class="fc-linha fc-sub"><span>dos quais em pagamento de folha <span class="rec-mini">(' +
+            folha.length + ' colaborador(es))</span></span><b>' + fmtMoeda(somaRetiradas(folha)) + '</b></div>'
+          : '';
+      })() +
       '<div class="fc-total"><span class="fc-rot">Deve ter na gaveta</span>' +
         '<span class="fc-val">'+fmtMoeda(t.dinheiroFinal)+'</span></div>' +
       (t.haver > 0
@@ -14661,10 +15506,16 @@ function renderHistorico(){
          nada entrou por elas. Ver "NOTINHAS BRANCAS AVULSAS". */
       (function(){
         const avulsas = notinhasAvulsasDoDia(mes);
+        const daFolha = avulsas.filter(ehDaFolha);
         return avulsas.length
           ? '<div class="fc-linha"><span>Notinhas brancas avulsas <span class="rec-mini">' +
             '(' + avulsas.length + ' papel(is) — não são troco e não mudam nada nesta conta; ' +
-            'confira nos PDVs)</span></span><b>'+fmtMoeda(somaNotinhasAvulsas(avulsas))+'</b></div>'
+            'confira nos PDVs)</span></span><b>'+fmtMoeda(somaNotinhasAvulsas(avulsas))+'</b></div>' +
+            (daFolha.length
+              ? '<div class="fc-linha fc-sub"><span>dos quais em pagamento de folha <span class="rec-mini">(' +
+                daFolha.length + ' colaborador(es) — retiram nos caixas da frente)</span></span><b>' +
+                fmtMoeda(somaNotinhasAvulsas(daFolha)) + '</b></div>'
+              : '')
           : '';
       })() +
       '<div class="rec-mini" style="margin-top:9px;">' +
@@ -15057,6 +15908,184 @@ document.getElementById('btnExportarBalancoCaixa').addEventListener('click', ()=
   XLSX.utils.book_append_sheet(wb, ws, 'Balanço ' + mes);
   XLSX.writeFile(wb, 'Balanco_Caixa_' + mes + '.xlsx');
 });
+
+
+/* ===================== RELATÓRIO DE CAIXA DO DIA (PDF) =====================
+   O fechamento do dia sempre existiu na tela e em Excel. Faltava o papel — o que se
+   leva para a reunião, se assina e se arquiva junto com o dinheiro conferido.
+
+   Ele usa o mesmo desenhista dos relatórios da folha (`relCriarDoc`), então sai com a
+   logo, a faixa de indicadores e o rodapé numerado de sempre. O que muda é o período:
+   aqui é um DIA, e por isso passa `rotulo` no contexto.
+
+   A conta que a diretoria confere está na faixa do topo, não no meio da tabela:
+     abertura + entrou em dinheiro − retiradas = deve ter na gaveta.
+
+   Duas regras da casa aparecem no desenho e não podem ser "arrumadas" depois:
+   • RETIRADA é saída. Vai na coluna Dinheiro, em vermelho e com sinal — na mesma
+     coluna em que as entradas são positivas, porque é a mesma gaveta.
+   • NOTINHA DE TROCO e NOTINHA AVULSA nunca se somam. A primeira tem o dinheiro
+     correspondente guardado aqui; a segunda não tem nada — nada entrou por ela.
+     Somar as duas seria dizer que a gaveta tem um dinheiro que nunca chegou nela. */
+const REL_CAIXA_DIA = {
+  titulo: 'Relatório de Caixa — Fechamento do Dia',
+  arquivo: 'Caixa_do_Dia'
+};
+
+function montarRelatorioCaixaDia(iso){
+  const t = totaisDoDia(iso);
+  const avulsas = notinhasAvulsasDoDia(iso);
+  const somaAvulsas = somaNotinhasAvulsas(avulsas);
+  const porHora = (a,b)=> String(a.criadoEm||'').localeCompare(String(b.criadoEm||''));
+
+  /* Uma linha da tabela: a hora, quem ou o quê, e o valor em cada forma. As formas em
+     branco saem como travessão para o olho não caçar zeros. */
+  const cel = (v)=> toNum(v) ? fmtMoeda(v) : '—';
+  const linhaFormas = (hora, descricao, dinheiro, cartao, pix, cheque, notinha, situacao, corDin)=> ({cels:[
+    hora || '—', descricao,
+    corDin ? {txt: dinheiro, cor: corDin} : cel(dinheiro),
+    cel(cartao), cel(pix), cel(cheque),
+    {txt: cel(notinha), cor: toNum(notinha) ? REL_CORES.roxo : null},
+    situacao || ''
+  ]});
+
+  const linhas = [];
+  const grupo = (rot, n)=> linhas.push({tipo:'grupo', cels:[rot + ' — ' + n]});
+
+  /* ---- recebimentos de clientes ---- */
+  if(t.rec.length){
+    grupo('RECEBIMENTOS DE CLIENTES', t.rec.length + ' conta(s)');
+    t.rec.slice().sort(porHora).forEach(r=>{
+      const sit = situacaoRecebimento(r);
+      linhas.push(linhaFormas(horaDe(r.criadoEm), nomeCliente(r.clienteId),
+        toNum(r.dinheiro), toNum(r.cartao), toNum(r.pix), toNum(r.cheque), notinhaDe(r),
+        sit.rot + (toNum(r.haver) ? ' · haver ' + fmtMoeda(r.haver) : '')));
+    });
+    linhas.push({tipo:'subtotal', cels:['', 'Subtotal dos recebimentos',
+      fmtMoeda(t.porFormaRec.dinheiro), fmtMoeda(t.porFormaRec.cartao),
+      fmtMoeda(t.porFormaRec.pix), fmtMoeda(t.porFormaRec.cheque),
+      fmtMoeda(t.notinhaRec), fmtMoeda(t.entrouRec) + ' em caixa']});
+  }
+
+  /* ---- vendas da loja ---- */
+  if(t.ven.length){
+    grupo('VENDAS DA LOJA', t.ven.length + ' venda(s)');
+    t.ven.slice().sort(porHora).forEach(v=>{
+      const itens = itensDaVenda(v).reduce((s,i)=> s + toNum(i.qtd), 0);
+      linhas.push(linhaFormas(horaDe(v.criadoEm), 'Venda de balcão — ' + itens + ' item(s)',
+        toNum(v.dinheiro), toNum(v.cartao), toNum(v.pix), toNum(v.cheque), notinhaDe(v),
+        'total ' + fmtMoeda(v.total)));
+    });
+    linhas.push({tipo:'subtotal', cels:['', 'Subtotal das vendas',
+      fmtMoeda(t.porFormaVen.dinheiro), fmtMoeda(t.porFormaVen.cartao),
+      fmtMoeda(t.porFormaVen.pix), fmtMoeda(t.porFormaVen.cheque),
+      fmtMoeda(t.notinhaVen), fmtMoeda(t.entrouVen) + ' em caixa']});
+  }
+
+  /* ---- entradas avulsas (suprimento) ---- */
+  if(t.sup.length){
+    grupo('ENTRADAS AVULSAS', t.sup.length + ' lançamento(s)');
+    t.sup.slice().sort(porHora).forEach(s=>{
+      const forma = formaDoSuprimento(s);
+      linhas.push(linhaFormas(horaDe(s.criadoEm), s.origem || 'Entrada avulsa',
+        forma === 'dinheiro' ? toNum(s.valor) : 0,
+        forma === 'cartao'   ? toNum(s.valor) : 0,
+        forma === 'pix'      ? toNum(s.valor) : 0,
+        forma === 'cheque'   ? toNum(s.valor) : 0,
+        0, s.obs || ''));
+    });
+    linhas.push({tipo:'subtotal', cels:['', 'Subtotal das entradas avulsas',
+      fmtMoeda(t.porFormaSup.dinheiro), fmtMoeda(t.porFormaSup.cartao),
+      fmtMoeda(t.porFormaSup.pix), fmtMoeda(t.porFormaSup.cheque),
+      '—', fmtMoeda(t.entrouSup) + ' em caixa']});
+  }
+
+  /* ---- retiradas: a única saída da gaveta ---- */
+  if(t.ret.length){
+    grupo('RETIRADAS DO CAIXA', t.ret.length + ' saída(s)');
+    t.ret.slice().sort(porHora).forEach(r=>{
+      linhas.push(linhaFormas(horaDe(r.criadoEm), r.motivo || 'Retirada',
+        relNeg(toNum(r.valor)), 0, 0, 0, 0,
+        ehDaFolha(r) ? 'pagamento de folha' : '', REL_CORES.vermelho));
+    });
+    linhas.push({tipo:'subtotal', cels:['', 'Subtotal das retiradas',
+      relNeg(t.saiu), '—', '—', '—', '—', '']});
+  }
+
+  /* ---- notinhas avulsas: papel que os PDVs pagam, e que não toca esta gaveta ---- */
+  if(avulsas.length){
+    grupo('NOTINHAS BRANCAS AVULSAS', avulsas.length + ' papel(is)');
+    avulsas.slice().sort(porHora).forEach(n=>{
+      linhas.push(linhaFormas(horaDe(n.criadoEm), n.motivo || 'Notinha avulsa',
+        0, 0, 0, 0, toNum(n.valor),
+        ehDaFolha(n) ? 'pagamento de folha' : 'retira nos caixas da frente'));
+    });
+    linhas.push({tipo:'subtotal', cels:['', 'Subtotal das notinhas avulsas',
+      '—', '—', '—', '—', fmtMoeda(somaAvulsas), 'não entra na conta da gaveta']});
+  }
+
+  const semAbertura = !t.abertura;
+  return {
+    vazio: !t.rec.length && !t.ven.length && !t.sup.length && !t.ret.length && !avulsas.length,
+    resumo: [
+      ['Abertura da gaveta', semAbertura ? 'não informada' : fmtMoeda(t.inicial),
+        semAbertura ? REL_CORES.vermelho : REL_CORES.texto, 'troco deixado no dia anterior'],
+      ['Entrou em dinheiro', fmtMoeda(t.porForma.dinheiro), REL_CORES.verde,
+        'contas, vendas e avulsas'],
+      ['Retiradas do dia', t.saiu ? relNeg(t.saiu) : fmtMoeda(0),
+        t.saiu ? REL_CORES.vermelho : REL_CORES.texto, t.ret.length + ' saída(s)'],
+      ['Deve ter na gaveta', fmtMoeda(t.dinheiroFinal),
+        t.dinheiroFinal < -0.004 ? REL_CORES.vermelho : REL_CORES.marcaEsc,
+        semAbertura ? 'sem a abertura, é parcial' : 'conferir com o dinheiro contado'],
+      ['Entrou no total', fmtMoeda(t.entrou), REL_CORES.azul, 'todas as formas de pagamento'],
+      ['Notinhas de troco', fmtMoeda(t.notinha), REL_CORES.roxo,
+        t.qtdNotinha + ' vale(s)' + (avulsas.length
+          ? ' · e ' + avulsas.length + ' avulsa(s) de ' + fmtMoeda(somaAvulsas) : '')]
+    ],
+    colunas: [
+      {rot:'Hora',                peso:6,  alin:'esq'},
+      {rot:'Cliente / descrição', peso:28, alin:'esq'},
+      {rot:'Dinheiro',            peso:11, alin:'dir'},
+      {rot:'Cartão',              peso:10, alin:'dir'},
+      {rot:'Pix',                 peso:10, alin:'dir'},
+      {rot:'Cheque',              peso:9,  alin:'dir'},
+      {rot:'Notinha branca',      peso:10, alin:'dir'},
+      {rot:'Situação',            peso:16, alin:'esq'}
+    ],
+    linhas,
+    nota: 'A conferência do dia: abertura ' + (semAbertura ? '(não informada)' : fmtMoeda(t.inicial)) +
+          ' + ' + fmtMoeda(t.porForma.dinheiro) + ' que entraram em dinheiro − ' + fmtMoeda(t.saiu) +
+          ' de retiradas = ' + fmtMoeda(t.dinheiroFinal) + ' que devem estar na gaveta no fechamento. ' +
+          'Cartão, Pix e cheque não entram nessa conta: não são dinheiro em espécie. ' +
+          'Retirada é a única saída da gaveta e por isso aparece em vermelho, com sinal. ' +
+          'Notinha de troco é o vale do cliente que pagou a mais: o dinheiro dele ficou aqui e quem paga a ' +
+          'diferença é o caixa da frente, então ela NÃO é descontada desta conta. ' +
+          'Notinha avulsa é o papel que o escritório emite sem ser troco de nada — nada entrou por ela, e ' +
+          'por isso não entra em conta nenhuma daqui; a lista serve para conferir os caixas da frente. ' +
+          'As duas nunca se somam.' +
+          (t.haver > 0 ? ' Quitado em Juros/Haver no dia: ' + fmtMoeda(t.haver) +
+            ' — abate a conta do cliente, mas não é dinheiro entrando.' : '')
+  };
+}
+
+async function emitirRelatorioCaixaDia(modo){
+  const dia = state.caixaDia || hojeISO();
+  try{
+    const conteudo = montarRelatorioCaixaDia(dia);
+    if(conteudo.vazio){ mostrarToast('Nenhum movimento de caixa em ' + dataBR(dia)); return; }
+    const doc = await relCriarDoc(
+      {titulo: REL_CAIXA_DIA.titulo, orientacao: 'landscape'},
+      conteudo,
+      {mes: dia.slice(0,7), rotulo: dataBR(dia)});
+    relSaida(doc, REL_CAIXA_DIA.arquivo + '_' + dia + '.pdf', modo);
+  }catch(e){
+    console.error(e);
+    mostrarToast('Falha ao gerar o relatório: ' + (e.message || e));
+  }
+}
+
+document.getElementById('btnCaixaPdf').addEventListener('click', ()=> emitirRelatorioCaixaDia('baixar'));
+document.getElementById('btnCaixaImprimir').addEventListener('click', ()=> emitirRelatorioCaixaDia('imprimir'));
 
 /* --------------------------------------------------------------- exportações */
 document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=>{
