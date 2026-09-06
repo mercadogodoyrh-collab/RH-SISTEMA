@@ -3657,7 +3657,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '06/09/2026b · Conta do mercado no balanço';
+const VERSAO_SISTEMA = '06/09/2026c · Conta e restante no caixa do dia';
 
 const SUPABASE_URL  = 'https://vieafcgghboxwhultile.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_HaMcgvr_2xmWYotvzetmVA_yscPz2eT';
@@ -15938,16 +15938,31 @@ function montarRelatorioCaixaDia(iso){
   const somaAvulsas = somaNotinhasAvulsas(avulsas);
   const porHora = (a,b)=> String(a.criadoEm||'').localeCompare(String(b.criadoEm||''));
 
-  /* Uma linha da tabela: a hora, quem ou o quê, e o valor em cada forma. As formas em
-     branco saem como travessão para o olho não caçar zeros. */
+  /* Uma linha da tabela: a hora, quem ou o quê, a conta e o valor em cada forma. As
+     casas em branco saem como travessão para o olho não caçar zeros. */
   const cel = (v)=> toNum(v) ? fmtMoeda(v) : '—';
-  const linhaFormas = (hora, descricao, dinheiro, cartao, pix, cheque, notinha, situacao, corDin)=> ({cels:[
-    hora || '—', descricao,
-    corDin ? {txt: dinheiro, cor: corDin} : cel(dinheiro),
-    cel(cartao), cel(pix), cel(cheque),
-    {txt: cel(notinha), cor: toNum(notinha) ? REL_CORES.roxo : null},
-    situacao || ''
+  const linha = (o)=> ({cels:[
+    o.hora || '—', o.descricao,
+    cel(o.total),
+    o.corDin ? {txt: o.dinheiro, cor: o.corDin} : cel(o.dinheiro),
+    cel(o.cartao), cel(o.pix), cel(o.cheque),
+    {txt: cel(o.notinha), cor: toNum(o.notinha) ? REL_CORES.roxo : null},
+    /* O que a conta ainda deve depois deste pagamento. Vermelho porque é o número que
+       vai ser cobrado de novo — sem ele, uma conta de 2.729,22 paga com 1.618,44
+       parecia quitada no papel. */
+    {txt: toNum(o.restante) > 0.004 ? fmtMoeda(o.restante) : '—',
+     cor: toNum(o.restante) > 0.004 ? REL_CORES.vermelho : null},
+    o.situacao || ''
   ]});
+
+  /* O motivo do lançamento da folha vem com o mês na frente ("Folha Agosto/2026 —
+     Fulano"), o que rouba metade da coluna do nome. Aqui o mês vai para a coluna de
+     situação, que é onde ele informa sem atrapalhar a leitura da lista. */
+  const nomeDaFolha = (x)=>{
+    const m = String(x.motivo||'').split(' — ');
+    return m.length > 1 ? m.slice(1).join(' — ') : (x.motivo || '');
+  };
+  const rotuloFolha = (x)=> x.folhaMes ? 'Folha ' + mesLabel(x.folhaMes) : 'pagamento de folha';
 
   const linhas = [];
   const grupo = (rot, n)=> linhas.push({tipo:'grupo', cels:[rot + ' — ' + n]});
@@ -15957,14 +15972,23 @@ function montarRelatorioCaixaDia(iso){
     grupo('RECEBIMENTOS DE CLIENTES', t.rec.length + ' conta(s)');
     t.rec.slice().sort(porHora).forEach(r=>{
       const sit = situacaoRecebimento(r);
-      linhas.push(linhaFormas(horaDe(r.criadoEm), nomeCliente(r.clienteId),
-        toNum(r.dinheiro), toNum(r.cartao), toNum(r.pix), toNum(r.cheque), notinhaDe(r),
-        sit.rot + (toNum(r.haver) ? ' · haver ' + fmtMoeda(r.haver) : '')));
+      linhas.push(linha({
+        hora: horaDe(r.criadoEm), descricao: nomeCliente(r.clienteId),
+        total: toNum(r.total),
+        dinheiro: toNum(r.dinheiro), cartao: toNum(r.cartao),
+        pix: toNum(r.pix), cheque: toNum(r.cheque), notinha: notinhaDe(r),
+        restante: r2(toNum(r.total) - pagoDoRecebimento(r)),
+        situacao: sit.rot + (toNum(r.haver) ? ' · haver ' + fmtMoeda(r.haver) : '')
+      }));
     });
+    const emAberto = r2(t.contas - t.quitado);
     linhas.push({tipo:'subtotal', cels:['', 'Subtotal dos recebimentos',
+      fmtMoeda(t.contas),
       fmtMoeda(t.porFormaRec.dinheiro), fmtMoeda(t.porFormaRec.cartao),
       fmtMoeda(t.porFormaRec.pix), fmtMoeda(t.porFormaRec.cheque),
-      fmtMoeda(t.notinhaRec), fmtMoeda(t.entrouRec) + ' em caixa']});
+      fmtMoeda(t.notinhaRec),
+      emAberto > 0.004 ? fmtMoeda(emAberto) : '—',
+      fmtMoeda(t.entrouRec) + ' em caixa']});
   }
 
   /* ---- vendas da loja ---- */
@@ -15972,14 +15996,20 @@ function montarRelatorioCaixaDia(iso){
     grupo('VENDAS DA LOJA', t.ven.length + ' venda(s)');
     t.ven.slice().sort(porHora).forEach(v=>{
       const itens = itensDaVenda(v).reduce((s,i)=> s + toNum(i.qtd), 0);
-      linhas.push(linhaFormas(horaDe(v.criadoEm), 'Venda de balcão — ' + itens + ' item(s)',
-        toNum(v.dinheiro), toNum(v.cartao), toNum(v.pix), toNum(v.cheque), notinhaDe(v),
-        'total ' + fmtMoeda(v.total)));
+      linhas.push(linha({
+        hora: horaDe(v.criadoEm), descricao: 'Venda de balcão — ' + itens + ' item(s)',
+        total: toNum(v.total),
+        dinheiro: toNum(v.dinheiro), cartao: toNum(v.cartao),
+        pix: toNum(v.pix), cheque: toNum(v.cheque), notinha: notinhaDe(v),
+        restante: 0, situacao: 'à vista'
+      }));
     });
     linhas.push({tipo:'subtotal', cels:['', 'Subtotal das vendas',
+      fmtMoeda(t.vendido),
       fmtMoeda(t.porFormaVen.dinheiro), fmtMoeda(t.porFormaVen.cartao),
       fmtMoeda(t.porFormaVen.pix), fmtMoeda(t.porFormaVen.cheque),
-      fmtMoeda(t.notinhaVen), fmtMoeda(t.entrouVen) + ' em caixa']});
+      fmtMoeda(t.notinhaVen), '—',
+      fmtMoeda(t.entrouVen) + ' em caixa']});
   }
 
   /* ---- entradas avulsas (suprimento) ---- */
@@ -15987,44 +16017,59 @@ function montarRelatorioCaixaDia(iso){
     grupo('ENTRADAS AVULSAS', t.sup.length + ' lançamento(s)');
     t.sup.slice().sort(porHora).forEach(s=>{
       const forma = formaDoSuprimento(s);
-      linhas.push(linhaFormas(horaDe(s.criadoEm), s.origem || 'Entrada avulsa',
-        forma === 'dinheiro' ? toNum(s.valor) : 0,
-        forma === 'cartao'   ? toNum(s.valor) : 0,
-        forma === 'pix'      ? toNum(s.valor) : 0,
-        forma === 'cheque'   ? toNum(s.valor) : 0,
-        0, s.obs || ''));
+      linhas.push(linha({
+        hora: horaDe(s.criadoEm), descricao: s.origem || 'Entrada avulsa',
+        total: toNum(s.valor),
+        dinheiro: forma === 'dinheiro' ? toNum(s.valor) : 0,
+        cartao:   forma === 'cartao'   ? toNum(s.valor) : 0,
+        pix:      forma === 'pix'      ? toNum(s.valor) : 0,
+        cheque:   forma === 'cheque'   ? toNum(s.valor) : 0,
+        notinha: 0, restante: 0, situacao: s.obs || ''
+      }));
     });
     linhas.push({tipo:'subtotal', cels:['', 'Subtotal das entradas avulsas',
+      fmtMoeda(t.entrouSup),
       fmtMoeda(t.porFormaSup.dinheiro), fmtMoeda(t.porFormaSup.cartao),
       fmtMoeda(t.porFormaSup.pix), fmtMoeda(t.porFormaSup.cheque),
-      '—', fmtMoeda(t.entrouSup) + ' em caixa']});
+      '—', '—', fmtMoeda(t.entrouSup) + ' em caixa']});
   }
 
   /* ---- retiradas: a única saída da gaveta ---- */
   if(t.ret.length){
     grupo('RETIRADAS DO CAIXA', t.ret.length + ' saída(s)');
     t.ret.slice().sort(porHora).forEach(r=>{
-      linhas.push(linhaFormas(horaDe(r.criadoEm), r.motivo || 'Retirada',
-        relNeg(toNum(r.valor)), 0, 0, 0, 0,
-        ehDaFolha(r) ? 'pagamento de folha' : '', REL_CORES.vermelho));
+      linhas.push(linha({
+        hora: horaDe(r.criadoEm),
+        descricao: ehDaFolha(r) ? nomeDaFolha(r) : (r.motivo || 'Retirada'),
+        total: 0,
+        dinheiro: relNeg(toNum(r.valor)), corDin: REL_CORES.vermelho,
+        cartao: 0, pix: 0, cheque: 0, notinha: 0, restante: 0,
+        situacao: ehDaFolha(r) ? rotuloFolha(r) : ''
+      }));
     });
     linhas.push({tipo:'subtotal', cels:['', 'Subtotal das retiradas',
-      relNeg(t.saiu), '—', '—', '—', '—', '']});
+      '—', relNeg(t.saiu), '—', '—', '—', '—', '—', 'saíram da gaveta']});
   }
 
   /* ---- notinhas avulsas: papel que os PDVs pagam, e que não toca esta gaveta ---- */
   if(avulsas.length){
     grupo('NOTINHAS BRANCAS AVULSAS', avulsas.length + ' papel(is)');
     avulsas.slice().sort(porHora).forEach(n=>{
-      linhas.push(linhaFormas(horaDe(n.criadoEm), n.motivo || 'Notinha avulsa',
-        0, 0, 0, 0, toNum(n.valor),
-        ehDaFolha(n) ? 'pagamento de folha' : 'retira nos caixas da frente'));
+      linhas.push(linha({
+        hora: horaDe(n.criadoEm),
+        descricao: ehDaFolha(n) ? nomeDaFolha(n) : (n.motivo || 'Notinha avulsa'),
+        total: 0, dinheiro: 0, cartao: 0, pix: 0, cheque: 0,
+        notinha: toNum(n.valor), restante: 0,
+        situacao: ehDaFolha(n) ? rotuloFolha(n) : 'retira nos caixas da frente'
+      }));
     });
     linhas.push({tipo:'subtotal', cels:['', 'Subtotal das notinhas avulsas',
-      '—', '—', '—', '—', fmtMoeda(somaAvulsas), 'não entra na conta da gaveta']});
+      '—', '—', '—', '—', '—', fmtMoeda(somaAvulsas), '—',
+      'não entra na conta da gaveta']});
   }
 
   const semAbertura = !t.abertura;
+  const emAbertoDia = r2(t.contas - t.quitado);
   return {
     vazio: !t.rec.length && !t.ven.length && !t.sup.length && !t.ret.length && !avulsas.length,
     resumo: [
@@ -16037,26 +16082,34 @@ function montarRelatorioCaixaDia(iso){
       ['Deve ter na gaveta', fmtMoeda(t.dinheiroFinal),
         t.dinheiroFinal < -0.004 ? REL_CORES.vermelho : REL_CORES.marcaEsc,
         semAbertura ? 'sem a abertura, é parcial' : 'conferir com o dinheiro contado'],
-      ['Entrou no total', fmtMoeda(t.entrou), REL_CORES.azul, 'todas as formas de pagamento'],
+      ['Contas atendidas', fmtMoeda(t.contas), REL_CORES.texto,
+        t.rec.length + ' conta(s) · quitado ' + fmtMoeda(t.quitado)],
+      ['Ficou em aberto', emAbertoDia > 0.004 ? fmtMoeda(emAbertoDia) : fmtMoeda(0),
+        emAbertoDia > 0.004 ? REL_CORES.vermelho : REL_CORES.verde,
+        'o que os clientes seguem devendo'],
       ['Notinhas de troco', fmtMoeda(t.notinha), REL_CORES.roxo,
         t.qtdNotinha + ' vale(s)' + (avulsas.length
-          ? ' · e ' + avulsas.length + ' avulsa(s) de ' + fmtMoeda(somaAvulsas) : '')]
+          ? ' · ' + avulsas.length + ' avulsa(s)' : '')]
     ],
     colunas: [
-      {rot:'Hora',                peso:6,  alin:'esq'},
-      {rot:'Cliente / descrição', peso:28, alin:'esq'},
-      {rot:'Dinheiro',            peso:11, alin:'dir'},
-      {rot:'Cartão',              peso:10, alin:'dir'},
-      {rot:'Pix',                 peso:10, alin:'dir'},
+      {rot:'Hora',                peso:5,  alin:'esq'},
+      {rot:'Cliente / descrição', peso:22, alin:'esq'},
+      {rot:'Total da conta',      peso:9,  alin:'dir'},
+      {rot:'Dinheiro',            peso:9,  alin:'dir'},
+      {rot:'Cartão',              peso:9,  alin:'dir'},
+      {rot:'Pix',                 peso:8,  alin:'dir'},
       {rot:'Cheque',              peso:9,  alin:'dir'},
-      {rot:'Notinha branca',      peso:10, alin:'dir'},
-      {rot:'Situação',            peso:16, alin:'esq'}
+      {rot:'Notinha branca',      peso:9,  alin:'dir'},
+      {rot:'Restante',            peso:8,  alin:'dir'},
+      {rot:'Situação',            peso:12, alin:'esq'}
     ],
     linhas,
     nota: 'A conferência do dia: abertura ' + (semAbertura ? '(não informada)' : fmtMoeda(t.inicial)) +
           ' + ' + fmtMoeda(t.porForma.dinheiro) + ' que entraram em dinheiro − ' + fmtMoeda(t.saiu) +
           ' de retiradas = ' + fmtMoeda(t.dinheiroFinal) + ' que devem estar na gaveta no fechamento. ' +
           'Cartão, Pix e cheque não entram nessa conta: não são dinheiro em espécie. ' +
+          'TOTAL DA CONTA é quanto o cliente devia; RESTANTE é o que ele continua devendo depois do que ' +
+          'pagou hoje — conta paga por inteiro sai com travessão. ' +
           'Retirada é a única saída da gaveta e por isso aparece em vermelho, com sinal. ' +
           'Notinha de troco é o vale do cliente que pagou a mais: o dinheiro dele ficou aqui e quem paga a ' +
           'diferença é o caixa da frente, então ela NÃO é descontada desta conta. ' +
