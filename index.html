@@ -1774,7 +1774,7 @@
                box-shadow var(--t-medio) var(--suave), color var(--t-medio) var(--suave);}
   /* A trava abre desbotando, não piscando: o nome entra letra a letra e a tela
      inteira acendendo de uma vez no primeiro caractere assustaria. */
-  #recContaBox,#recTrocoBox{transition:opacity var(--t-medio) var(--suave),
+  #recContaBox,#recCalcBox,#recTrocoBox{transition:opacity var(--t-medio) var(--suave),
                                        filter var(--t-medio) var(--suave);}
   /* O selo do ícone vira junto com o quadro: se ele trocasse de cor de uma vez, a
      modalidade preenchida piscaria em duas etapas. */
@@ -2503,11 +2503,76 @@
   .foco-soma-cortina{position:fixed;inset:0;z-index:44;background:rgba(12,20,15,.6);
     opacity:0;visibility:hidden;transition:opacity .13s var(--saida), visibility 0s linear .13s;}
   body.foco-soma .foco-soma-cortina{opacity:1;visibility:visible;transition:opacity .17s var(--suave), visibility 0s;}
-  body.foco-soma #recContaBox .cb-campo,body.foco-soma #recContaBox .cb-soma{position:relative;z-index:46;
+  body.foco-soma #recSomaArea,body.foco-soma #recCalcBox .cb-soma{position:relative;z-index:46;
     box-shadow:0 0 0 3px rgba(255,255,255,.55), 0 20px 44px rgba(0,0,0,.35);}
-  body.foco-soma #recContaBox .cb-soma{background:var(--md-surface-container-low);}
-  body.foco-soma #recContaBox .cb-soma::after{content:"Clique fora ou aperte Tab para sair do modo soma";display:block;
+  body.foco-soma #recCalcBox .cb-soma{background:var(--md-surface-container-low);}
+  body.foco-soma #recCalcBox .cb-soma::after{content:"Clique fora ou aperte Tab para sair do modo soma";display:block;
     margin-top:9px;font-size:11px;font-weight:600;color:var(--md-on-surface-variant);text-align:center;}
+
+  /* ---------- LANÇAR RECEBIMENTO EM UMA TELA SÓ (14/09/2026) ----------
+     A tela ficava tão alta que para chegar no "Registrar recebimento" era preciso rolar.
+     Tudo aqui é só aperto de espaço, escopado nesta tela — a Loja e a janela da conta do
+     mercado usam as mesmas classes e ficam como estavam. */
+  #viewRecLancar .rec-form{padding:16px 20px 18px;}
+  /* As duas colunas. A da direita tem a largura da calculadora com folga para o resumo
+     empilhado caber sem quebrar os valores. */
+  #viewRecLancar .rec-duas{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;align-items:start;}
+  #viewRecLancar .rec-col-esq{min-width:0;}
+  #viewRecLancar .rec-col-dir{display:flex;flex-direction:column;gap:10px;min-width:0;}
+  #viewRecLancar #recContaBox,#viewRecLancar #recCalcBox{display:block;margin:0;}
+  #viewRecLancar .rec-obs{margin-top:10px;}
+  @media(max-width:820px){
+    #viewRecLancar .rec-duas{grid-template-columns:1fr;}
+  }
+  #viewRecLancar .rec-linha{margin-bottom:10px;}
+  #viewRecLancar .rec-ficha{padding:7px 14px;margin-bottom:10px;}
+  #viewRecLancar .rec-trava{margin-bottom:10px;padding:7px 13px;}
+  #viewRecLancar .conta-box{gap:14px;}
+  /* O visor escuro do total dentro da calculadora: sem o cartão verde em volta, só o
+     rótulo e o mostrador, da largura das teclas. */
+  #viewRecLancar #recCalcBox .cb-campo{background:none;padding:0;gap:3px;margin-bottom:8px;border-radius:0;}
+  #viewRecLancar #recCalcBox .cb-campo label{font-size:11.5px;font-weight:600;color:var(--md-on-surface-variant);}
+  #viewRecLancar #recCalcBox .cb-campo input[readonly]{font-size:22px;padding:4px 12px;}
+  .rec-form.passo-cliente #recCalcBox .cb-campo{background:none;}
+  /* A faixa das notinhas somadas, na coluna larga logo acima do resumo. */
+  #viewRecLancar .conta-box .notas-area{margin:0 0 10px;padding:7px 12px;border-top:none;
+    background:var(--md-surface-container-low);border-radius:var(--r-lg);
+    display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;}
+  #viewRecLancar .conta-box .na-topo{margin:0;}
+  /* A frase longa repete o que o resumo logo abaixo já mostra (o total) — fica só o rótulo. */
+  #viewRecLancar .conta-box .na-resumo{display:none;}
+  #viewRecLancar .conta-box .cb-esq .secao-title{margin:12px 0 8px;}
+  #viewRecLancar .conta-box .cb-soma{padding:10px;}
+  #viewRecLancar .conta-box .calc-teclas button{padding:6px 0 7px;}
+  #viewRecLancar .conta-box .cb-soma-txt:empty{display:none;}
+  /* Os quadros das modalidades: sem as notas, a altura é só rótulo, campo e atalho. */
+  #viewRecLancar .rec-mods{margin-bottom:0;}
+  #viewRecLancar .rec-mod > .rm-topo{margin-bottom:8px;}
+  #viewRecLancar .rec-mod[title] .rm-topo{cursor:help;}
+  /* O recado de troco do Cheque repete o quadro do troco; em duas linhas ele esticava a
+     fileira inteira. */
+  #viewRecLancar .rec-mod[data-mod="cheque"] .rm-soma{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  /* Troco numa faixa só; a frase de baixo aparece só quando tem o que dizer. */
+  #viewRecLancar .troco-box{margin-top:10px;padding:7px 14px;gap:6px 14px;}
+  #viewRecLancar .troco-box > input[type="text"]{padding:4px 9px;}
+  #viewRecLancar .troco-box .tc-linha:empty{display:none;}
+  /* O resumo em uma faixa acima das formas de pagamento: total, pago e diferença lado a
+     lado, separados por um fio. A nota fica só nos quadros que avisam algo (troco que não
+     cabe, troco, notinha branca). */
+  #viewRecLancar .rec-somatorio{margin:0;padding:10px 16px;gap:8px 0;
+    grid-template-columns:repeat(auto-fit,minmax(130px,1fr));}
+  #viewRecLancar .rec-somatorio .rs-bloco{padding:0 14px;}
+  #viewRecLancar .rec-somatorio .rs-bloco:first-child{padding-left:0;}
+  #viewRecLancar .rec-somatorio .rs-bloco + .rs-bloco{border-left:1px solid rgba(0,33,14,.14);}
+  #viewRecLancar .rec-somatorio .rs-bloco .rs-val{font-size:20px;margin-top:1px;white-space:nowrap;}
+  #viewRecLancar .rec-somatorio .rs-bloco .rs-nota{line-height:1.35;}
+  #viewRecLancar .rec-somatorio .rs-bloco:not(.rs-erro,.rs-troco,.rs-notinha) .rs-nota{display:none;}
+  /* Botões no pé da coluna: Registrar largo, Limpar ao lado. */
+  #viewRecLancar .rec-col-dir .rec-acoes{margin-top:0;flex-wrap:wrap;gap:8px;}
+  #viewRecLancar .rec-col-dir .rec-acoes .rec-aviso{flex-basis:100%;margin:0;}
+  #viewRecLancar .rec-col-dir .rec-acoes .rec-aviso:empty{display:none;}
+  #viewRecLancar #btnRecSalvar{flex:1;padding-left:10px;padding-right:10px;}
+  #viewRecLancar #btnRecLimpar{padding-left:14px;padding-right:14px;}
 </style>
 </head>
 <!-- `rh-travado` já no HTML: a barra nasce com o cadeado e com a área do RH recolhida,
@@ -2982,14 +3047,8 @@
 <!-- ===================== RECEBIMENTO DE CONTAS: lançamento ===================== -->
 <div id="viewRecLancar" style="display:none;">
   <main>
-    <div class="dash-topo">
-      <div>
-        <h2>Lançar recebimento</h2>
-        <div class="dash-sub">Digite o nome do cliente, o total da conta e distribua o que foi pago entre as modalidades.
-          Cliente novo é cadastrado na hora, e da próxima vez o nome já aparece na busca.</div>
-      </div>
-    </div>
-
+    <!-- Sem título próprio: a barra do topo já diz "Lançar Recebimento", e o repetido só
+         empurrava o formulário para baixo (14/09/2026). -->
     <div id="recDia"></div>
 
     <div class="aviso-retro" id="recAvisoData">
@@ -3005,11 +3064,17 @@
     </div>
 
     <div class="rec-form" id="recForm">
+     <!-- Duas colunas (14/09/2026): à esquerda o caminho do lançamento — cliente, total,
+          formas de pagamento, troco e observação —; à direita, do topo ao pé, a calculadora,
+          o resumo e o botão de registrar. A tela inteira cabe sem rolar e a calculadora
+          continua sempre do lado direito. -->
+     <div class="rec-duas">
+     <div class="rec-col-esq">
       <div class="rec-linha" style="grid-template-columns:2fr 1fr;">
         <div class="campo rec-busca-wrap">
           <label for="recCliente">Cliente</label>
-          <input type="text" id="recCliente" class="nome-cli" autocomplete="off" spellcheck="false" placeholder="Digite o nome do cliente…">
-          <div class="campo-nota" id="recClienteNota">A base cresce sozinha: nome que ainda não existe é cadastrado ao registrar.</div>
+          <input type="text" id="recCliente" class="nome-cli" autocomplete="off" spellcheck="false" placeholder="Digite o nome do cliente…"
+                 title="Nome que ainda não existe é cadastrado ao registrar.">
           <div class="rec-sug" id="recSug"></div>
         </div>
         <div class="campo">
@@ -3029,74 +3094,28 @@
         <span>Comece pelo <b>nome do cliente</b> — a soma das notinhas e as formas de pagamento abrem em seguida.</span>
       </div>
 
-      <!-- A tela em duas colunas: à esquerda o caminho do lançamento (o total e depois
-           as formas de pagamento), à direita a calculadora, parada no mesmo lugar do
-           começo ao fim. O total ganhou corpo grande porque é o número que o resto da
-           tela persegue — as modalidades, o troco e a notinha só fazem sentido contra
-           ele, e um campo do tamanho dos outros não avisava nada. -->
+      <!-- O caminho do lançamento na coluna da esquerda (14/09/2026): primeiro o resumo
+           — total, quantia paga, diferença —, que é o número que as modalidades perseguem;
+           logo abaixo dele, as formas de pagamento. O visor escuro do total subiu para o
+           topo da calculadora, que é quem escreve nele. -->
       <div class="conta-box" id="recContaBox">
         <div class="cb-esq">
-          <div class="secao-title">Total da conta</div>
-          <div class="cb-campo">
-            <label for="recTotal">Soma das notinhas de compra</label>
-            <!-- Visor, e não campo: quem escreve aqui é a calculadora ao lado. Enquanto
-                 dava para digitar por cima da soma, o total gravado e o maço de notinhas
-                 podiam contar duas histórias diferentes, e a conferência do dia seguinte
-                 não tinha como saber qual das duas era a certa. -->
-            <input type="text" id="recTotal" placeholder="0,00" readonly tabindex="-1"
-                   aria-readonly="true" title="A soma vem da calculadora ao lado — este visor não se digita.">
-            <div class="cb-nota">O total que o cliente devia nesta conta — a soma de tudo que ele levou fiado.
-              Quem escreve neste visor é a calculadora ao lado.</div>
-
-            <!-- As notinhas somadas ficam aqui, logo abaixo do visor do total e não
-                 dentro da calculadora: na coluna estreita elas quebravam de duas em
-                 duas e um maço de dez virava uma pilha rolante. Nesta largura cabem
-                 muitas por linha, que é o que permite bater o olho na lista inteira
-                 contra o maço de papel na mão — e coladas no número que elas formam. -->
-            <div class="notas-area" id="recSomaArea" style="display:none;">
-              <div class="na-topo">
-                <span class="na-rot">Notinhas somadas</span>
-                <span class="na-resumo" id="recSomaTxt"></span>
-              </div>
-              <div class="cb-chips" id="recSomaChips"></div>
+          <!-- As notinhas somadas ficam na coluna larga e não dentro da calculadora: na
+               coluna estreita elas quebravam de duas em duas e um maço de dez virava uma
+               pilha rolante. Aqui cabem muitas por linha, que é o que permite bater o olho
+               na lista inteira contra o maço de papel na mão. -->
+          <div class="notas-area" id="recSomaArea" style="display:none;">
+            <div class="na-topo">
+              <span class="na-rot">Notinhas somadas</span>
+              <span class="na-resumo" id="recSomaTxt"></span>
             </div>
+            <div class="cb-chips" id="recSomaChips"></div>
           </div>
+
+          <div class="rec-somatorio" id="recSomatorio"></div>
 
           <div class="secao-title">Formas de pagamento</div>
           <div class="rec-mods" id="recMods"></div>
-        </div>
-        <!-- Calculadora de verdade, e não um campo com botão: quem soma notinha o dia
-             inteiro faz isso no teclado numérico, sem tirar a mão para clicar. O visor
-             é um <input> de propósito — assim as teclas só valem com o foco aqui dentro
-             e digitar o nome do cliente não vira número no meio da soma. -->
-        <div class="cb-soma">
-          <div class="calc-topo">
-            <span class="calc-rot">Calculadora de débitos</span>
-            <button type="button" class="calc-limpar" id="btnRecSomaLimpar" style="display:none;">limpar tudo</button>
-          </div>
-          <div class="calc-visor">
-            <div class="calc-acum" id="recSomaAcum">nenhuma notinha somada</div>
-            <input type="text" inputmode="decimal" id="recSomaVal" placeholder="0,00"
-                   autocomplete="off" spellcheck="false" aria-label="Valor da notinha">
-          </div>
-          <div class="calc-teclas" id="recSomaTeclas">
-            <button type="button" class="ct-func" data-k="C" title="limpa o visor e a lista inteira">C</button>
-            <button type="button" class="ct-func" data-k="CE" title="limpa só o visor (Esc)">CE</button>
-            <button type="button" class="ct-func" data-k="BS" title="apaga o último dígito">&#9003;</button>
-            <button type="button" data-k="7">7</button>
-            <button type="button" data-k="8">8</button>
-            <button type="button" data-k="9">9</button>
-            <button type="button" data-k="4">4</button>
-            <button type="button" data-k="5">5</button>
-            <button type="button" data-k="6">6</button>
-            <button type="button" data-k="1">1</button>
-            <button type="button" data-k="2">2</button>
-            <button type="button" data-k="3">3</button>
-            <button type="button" data-k="0">0</button>
-            <button type="button" data-k=",">,</button>
-            <button type="button" class="ct-mais" data-k="+" title="soma esta notinha (tecla + ou Enter)">+</button>
-          </div>
-          <div class="cb-soma-txt" id="recSomaDica">Digite o valor da notinha e aperte <b>+</b>. Ele soma e já limpa o visor para a próxima.</div>
         </div>
       </div>
 
@@ -3122,11 +3141,58 @@
         <div class="tc-linha" id="recTrocoTxt"></div>
       </div>
 
-      <div class="rec-somatorio" id="recSomatorio"></div>
-
-      <div class="campo" style="margin-top:16px;">
+      <div class="campo rec-obs">
         <label for="recObs">Observação (opcional)</label>
         <input type="text" id="recObs" placeholder="Ex.: pagou o restante na sexta">
+      </div>
+     </div>
+
+     <div class="rec-col-dir">
+      <!-- A calculadora mora na própria caixa (e não mais dentro de #recContaBox) para poder
+           ocupar a coluna da direita; a trava e o modo foco da soma olham as duas. -->
+      <div class="conta-box" id="recCalcBox">
+        <!-- Calculadora de verdade, e não um campo com botão: quem soma notinha o dia
+             inteiro faz isso no teclado numérico, sem tirar a mão para clicar. O visor
+             é um <input> de propósito — assim as teclas só valem com o foco aqui dentro
+             e digitar o nome do cliente não vira número no meio da soma. -->
+        <div class="cb-soma">
+          <div class="calc-topo">
+            <span class="calc-rot">Calculadora de débitos</span>
+            <button type="button" class="calc-limpar" id="btnRecSomaLimpar" style="display:none;">limpar tudo</button>
+          </div>
+          <!-- O visor escuro do total, no topo da calculadora e da largura dela. Visor, e não
+               campo: quem escreve aqui é a soma das notinhas. Enquanto dava para digitar por
+               cima, o total gravado e o maço de notinhas podiam contar duas histórias
+               diferentes, e a conferência do dia seguinte não sabia qual era a certa. -->
+          <div class="cb-campo">
+            <label for="recTotal">Total da conta</label>
+            <input type="text" id="recTotal" placeholder="0,00" readonly tabindex="-1"
+                   aria-readonly="true" title="A soma vem da calculadora — este visor não se digita.">
+          </div>
+          <div class="calc-visor">
+            <div class="calc-acum" id="recSomaAcum">nenhuma notinha somada</div>
+            <input type="text" inputmode="decimal" id="recSomaVal" placeholder="0,00"
+                   autocomplete="off" spellcheck="false" aria-label="Valor da notinha">
+          </div>
+          <div class="calc-teclas" id="recSomaTeclas">
+            <button type="button" class="ct-func" data-k="C" title="limpa o visor e a lista inteira">C</button>
+            <button type="button" class="ct-func" data-k="CE" title="limpa só o visor (Esc)">CE</button>
+            <button type="button" class="ct-func" data-k="BS" title="apaga o último dígito">&#9003;</button>
+            <button type="button" data-k="7">7</button>
+            <button type="button" data-k="8">8</button>
+            <button type="button" data-k="9">9</button>
+            <button type="button" data-k="4">4</button>
+            <button type="button" data-k="5">5</button>
+            <button type="button" data-k="6">6</button>
+            <button type="button" data-k="1">1</button>
+            <button type="button" data-k="2">2</button>
+            <button type="button" data-k="3">3</button>
+            <button type="button" data-k="0">0</button>
+            <button type="button" data-k=",">,</button>
+            <button type="button" class="ct-mais" data-k="+" title="soma esta notinha (tecla + ou Enter)">+</button>
+          </div>
+          <div class="cb-soma-txt" id="recSomaDica"></div>
+        </div>
       </div>
 
       <div class="rec-acoes">
@@ -3134,6 +3200,8 @@
         <button class="btn btn-outline btn-alto" id="btnRecLimpar">Limpar</button>
         <button class="btn btn-primary btn-alto" id="btnRecSalvar">Registrar recebimento</button>
       </div>
+     </div>
+     </div>
     </div>
 
     <div class="rec-bloco" id="recUltimos"></div>
@@ -3463,7 +3531,7 @@
         <h2>Registrar venda</h2>
         <div class="dash-sub">Digite o produto, a quantidade e registre o pagamento. Produto novo é cadastrado na hora,
           com o preço que você digitar, e da próxima vez já aparece na busca com o preço preenchido.
-          A venda é sempre à vista: o pagamento tem que fechar com o total.</div>
+          O pagamento tem que fechar com o total — o que fica para pagar depois vai em <b>A prazo</b>, que não entra no caixa.</div>
       </div>
     </div>
 
@@ -13282,11 +13350,23 @@ const FORMAS_RECEBIMENTO = [
 /* Modalidades que são dinheiro de verdade entrando no caixa. */
 const FORMAS_EM_CAIXA = FORMAS_RECEBIMENTO.filter(f=> !f.naoEntraNoCaixa);
 
-/* As modalidades da loja e do suprimento são as mesmas do recebimento, menos o
-   Juros/Haver: ali o mercado abatia uma conta antiga com crédito que devia ao cliente,
-   e não existe equivalente para um maço de cigarro saindo do balcão nem para dinheiro
-   entrando avulso. Quem vende ou supre, recebe. */
-const FORMAS_VENDA = FORMAS_EM_CAIXA;
+/* A prazo — só da Loja do Escritório (14/09/2026). O produto sai do balcão e o
+   pagamento fica para depois: a venda conta no faturado da loja, mas NÃO entra no caixa
+   (fica de fora de entradaEmCaixa, do fechamento e da gaveta), igual ao Juros/Haver do
+   recebimento. */
+const FORMA_PRAZO = {chave:'prazo', rotulo:'A prazo', naoEntraNoCaixa:true,
+  icone:'<rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/>'};
+
+/* Todas as chaves que um lançamento pode ter — é a lista dos totais por forma. */
+const FORMAS_TODAS = FORMAS_RECEBIMENTO.concat([FORMA_PRAZO]);
+
+/* As modalidades da loja são as mesmas do recebimento, menos o Juros/Haver (ali o
+   mercado abatia uma conta antiga com crédito que devia ao cliente, e não existe
+   equivalente para um maço de cigarro saindo do balcão) e mais o A prazo. */
+const FORMAS_VENDA = FORMAS_EM_CAIXA.concat([FORMA_PRAZO]);
+
+/* O suprimento é dinheiro entrando avulso: só as formas que passam pelo caixa. */
+const FORMAS_SUPRIMENTO = FORMAS_EM_CAIXA;
 
 /* Senff e alimentação eram modalidades separadas até 11/08/2026. Viraram cartão: no
    balcão é tudo a mesma máquina, e o que interessa é quanto passou em cartão. Como o
@@ -14090,7 +14170,7 @@ function notasCompraDe(r){
 function resumoFormas(r){
   /* Modalidade com valor negativo é a que pagou o troco: aparece com o sinal, porque
      ali saiu dinheiro do caixa em vez de entrar. */
-  const usadas = FORMAS_RECEBIMENTO.filter(f=> Math.abs(toNum(r[f.chave])) > 0.004);
+  const usadas = FORMAS_TODAS.filter(f=> Math.abs(toNum(r[f.chave])) > 0.004);
   const partes = usadas.map(f=>{
     const n = parcelasDe(r, f.chave).length;
     return f.rotulo + ' ' + fmtMoeda(toNum(r[f.chave])) + (n > 1 ? ' (' + n + ' ' + f.plural + ')' : '');
@@ -14194,7 +14274,7 @@ function totaisDoDia(iso){
   const ven = vendasDoDia(iso);
   const sup = suprimentosDoDia(iso);
 
-  const zerado = ()=>{ const o = {}; FORMAS_RECEBIMENTO.forEach(f=> o[f.chave] = 0); return o; };
+  const zerado = ()=>{ const o = {}; FORMAS_TODAS.forEach(f=> o[f.chave] = 0); return o; };
   const porFormaRec = zerado(), porFormaVen = zerado(), porFormaSup = zerado(), porForma = zerado();
 
   /* `notinhaRec`/`notinhaVen`: o troco que ficou na gaveta como papel. Não sai de
@@ -14225,7 +14305,7 @@ function totaisDoDia(iso){
     entrouSup += toNum(s.valor);
   });
 
-  FORMAS_RECEBIMENTO.forEach(f=>{
+  FORMAS_TODAS.forEach(f=>{
     porFormaRec[f.chave] = r2(porFormaRec[f.chave]);
     porFormaVen[f.chave] = r2(porFormaVen[f.chave]);
     porFormaSup[f.chave] = r2(porFormaSup[f.chave]);
@@ -14244,6 +14324,7 @@ function totaisDoDia(iso){
     notinha: r2(notinhaRec + notinhaVen), notinhaRec: r2(notinhaRec), notinhaVen: r2(notinhaVen),
     qtdNotinha: rec.filter(r=> notinhaDe(r) > 0).length + ven.filter(v=> notinhaDe(v) > 0).length,
     vendido: r2(vendido), itensVendidos: r2(itensVendidos), saiu,
+    prazoVen: porFormaVen.prazo,   /* vendido na loja a prazo — faturado, mas fora do caixa */
     sobrou: r2(entrou - saiu),
     dinheiroFinal: r2(inicial + porForma.dinheiro - saiu)   /* o que tem que estar na gaveta */
   };
@@ -14471,10 +14552,14 @@ let recModsMontadas = false;
 function montarModsRec(){
   if(recModsMontadas) return;
   document.getElementById('recMods').innerHTML = FORMAS_RECEBIMENTO.map(f=>
-    '<div class="rec-mod" data-mod="'+f.chave+'">' +
+    /* As notas das modalidades (Cartão, Juros/Haver) viraram dica ao passar o mouse: escritas
+       no quadro, esticavam a fileira inteira e empurravam o "Registrar" para fora da tela
+       (14/09/2026). O caso do crédito cheio continua avisado no quadro do troco quando erra. */
+    '<div class="rec-mod" data-mod="'+f.chave+'"' +
+      ((f.nota || f.naoEntraNoCaixa)
+        ? ' title="'+escHtml([f.nota, f.naoEntraNoCaixa ? 'quita a conta, não entra no caixa' : ''].filter(Boolean).join(' · '))+'"'
+        : '') + '>' +
       '<div class="rm-topo"><svg viewBox="0 0 24 24">'+f.icone+'</svg>'+f.rotulo+'</div>' +
-      (f.nota ? '<div class="rm-nota">'+f.nota+'</div>' : '') +
-      (f.naoEntraNoCaixa ? '<div class="rm-nota" style="color:var(--aviso-texto);">quita a conta, não entra no caixa</div>' : '') +
       (f.multiplo
         ? '<div class="rm-linhas" data-linhas="'+f.chave+'"></div>' +
           '<div class="rm-soma" data-soma="'+f.chave+'"></div>' +
@@ -14899,7 +14984,7 @@ function atualizarCaixaTrocoRec(bruto, troco, notinha, total, sugerido, haver){
   }else if(bruto > 0){
     txt.innerHTML = 'Valor exato: não há troco a devolver.';
   }else{
-    txt.innerHTML = 'Calculado sozinho assim que a conta e o que o cliente entregou estiverem preenchidos.';
+    txt.innerHTML = '';
   }
 
   /* O botão só aparece quando o campo saiu do calculado — é o caminho de volta depois
@@ -14937,7 +15022,7 @@ function atualizarPassoRec(){
 function atualizarTravaRec(){
   atualizarPassoRec();
   const liberado = document.getElementById('recCliente').value.trim() !== '';
-  ['recContaBox','recTrocoBox'].forEach(id=>{
+  ['recContaBox','recCalcBox','recTrocoBox'].forEach(id=>{
     const cx = document.getElementById(id);
     if(!cx) return;
     cx.classList.toggle('travado', !liberado);
@@ -15520,7 +15605,7 @@ function celebrarRecebimento(valor, cliente, detalhes){
    Ele só existe na tela de Lançar Recebimento. A janela da conta do mercado reaproveita a
    mesma calculadora, mas já é uma janela sobre cortina — foco dentro de foco não ajuda. */
 function regiaoFocoSoma(el){
-  return !!(el && el.closest && (el.closest('#recContaBox .cb-soma') || el.closest('#recContaBox .cb-campo')));
+  return !!(el && el.closest && (el.closest('#recCalcBox .cb-soma') || el.closest('#recSomaArea')));
 }
 function entrarFocoSoma(){
   if(document.body.classList.contains('foco-soma')) return;
@@ -15530,7 +15615,9 @@ function sairFocoSoma(){
   document.body.classList.remove('foco-soma');
 }
 (function(){
-  const box = document.getElementById('recContaBox');
+  /* O formulário inteiro, e não só um quadro: o visor do total e a calculadora agora
+     moram em colunas diferentes, e é regiaoFocoSoma quem diz o que conta como soma. */
+  const box = document.getElementById('recForm');
   if(!box) return;
   const cortina = document.createElement('div');
   cortina.className = 'foco-soma-cortina';
@@ -15704,9 +15791,10 @@ function renderSomadoraRec(escreverTotal){
       '</b> — é este o total da conta. Clique no × para tirar uma que entrou errada.'
     : '';
 
-  /* O rodapé da calculadora volta a ser a instrução: ele também é onde os avisos de
-     erro aparecem, e um aviso velho não pode sobreviver ao lançamento seguinte. */
-  dica.innerHTML = 'Digite o valor da notinha e aperte <b>+</b>. Ele soma e já limpa o visor para a próxima.';
+  /* O rodapé da calculadora é onde os avisos de erro aparecem, e um aviso velho não pode
+     sobreviver ao lançamento seguinte. Sem aviso ele fica vazio (e some) — a instrução
+     fixa só ocupava altura na tela do lançamento. */
+  dica.innerHTML = '';
   dica.classList.remove('cb-alerta');
 
   /* Só escreve no visor quando a soma é quem manda. Na correção de um lançamento antigo
@@ -15779,6 +15867,13 @@ document.getElementById('recSomaVal').addEventListener('keydown', (e)=>{
   }
   if(e.key === '+' || e.key === 'Enter' || e.key === '='){ e.preventDefault(); addNotaCompra(); return; }
   if(e.key === 'Escape'){ e.preventDefault(); e.target.value = ''; return; }
+  /* Tab do visor vai direto para as formas de pagamento. Com a calculadora na coluna da
+     direita, o próximo campo na ordem da página seria o "Limpar" — e um Enter distraído
+     ali apagava o lançamento inteiro. */
+  if(e.key === 'Tab' && !e.shiftKey){
+    const d = document.getElementById('recPg_dinheiro');
+    if(d && !d.disabled){ e.preventDefault(); d.focus(); }
+  }
 });
 document.getElementById('btnRecSomaLimpar').addEventListener('click', ()=>{
   limparSomadoraRec(true);
@@ -16017,7 +16112,7 @@ function formaLabel(chave){
 }
 function formaDoSuprimento(s){
   const c = s && s.forma;
-  return FORMAS_VENDA.some(f=> f.chave === c) ? c : 'dinheiro';
+  return FORMAS_SUPRIMENTO.some(f=> f.chave === c) ? c : 'dinheiro';
 }
 
 /* O select das modalidades sai da mesma lista de sempre: entrar uma forma nova ali em
@@ -16025,7 +16120,7 @@ function formaDoSuprimento(s){
 function montarSelectFormaSup(){
   const sel = document.getElementById('supForma');
   if(!sel || sel.options.length) return;
-  sel.innerHTML = FORMAS_VENDA.map(f=> '<option value="'+f.chave+'">'+f.rotulo+'</option>').join('');
+  sel.innerHTML = FORMAS_SUPRIMENTO.map(f=> '<option value="'+f.chave+'">'+f.rotulo+'</option>').join('');
 }
 
 function limparFormSup(){
@@ -16996,7 +17091,7 @@ function htmlVendasDoDia(ven, dia){
   const ordenadas = ven.slice().sort((a,b)=> String(a.criadoEm||'').localeCompare(String(b.criadoEm||'')));
   return '<div class="rec-bloco"><h3>Vendas da loja em ' + dataBR(dia) + '</h3>' +
     '<div class="rec-mini" style="margin:-6px 0 10px;">Estas vendas entram no mesmo caixa e já estão somadas ' +
-      'nos totais acima. O detalhe por produto está em Loja do Escritório ▸ Vendas do Dia.</div>' +
+      'nos totais acima — menos o que foi vendido A prazo, que não entra no caixa. O detalhe por produto está em Loja do Escritório ▸ Vendas do Dia.</div>' +
     '<table class="tabela-ponto"><thead><tr>' +
     '<th class="esq">Data / hora</th><th class="esq">Produtos</th><th>Total</th>' +
     FORMAS_VENDA.map(f=> '<th>'+f.rotulo+'</th>').join('') +
@@ -17218,7 +17313,8 @@ function renderHistorico(){
     (t.ven.length
       ? '<div class="kpi kpi-info"><div class="kpi-rot">Vendido na loja</div>' +
         '<div class="kpi-val">'+fmtMoeda(t.vendido)+'</div>' +
-        '<div class="kpi-sub">'+t.ven.length+' venda(s), '+t.itensVendidos+' peça(s)</div></div>'
+        '<div class="kpi-sub">'+t.ven.length+' venda(s), '+t.itensVendidos+' peça(s)' +
+          (t.prazoVen > 0.004 ? ' · ' + fmtMoeda(t.prazoVen) + ' a prazo, fora do caixa' : '') + '</div></div>'
       : '') +
     '<div class="kpi '+(sobrou<0?'kpi-critico':'kpi-ok')+'"><div class="kpi-rot">Sobrou em caixa</div>' +
       '<div class="kpi-val">'+fmtMoeda(sobrou)+'</div>' +
@@ -17627,14 +17723,15 @@ function montarRelatorioCaixaDia(iso){
         total: toNum(v.total),
         dinheiro: toNum(v.dinheiro), cartao: toNum(v.cartao),
         pix: toNum(v.pix), cheque: toNum(v.cheque), notinha: notinhaDe(v),
-        restante: 0, situacao: 'à vista'
+        /* A prazo vai na coluna do que ainda falta receber: é dinheiro a cobrar. */
+        restante: toNum(v.prazo), situacao: toNum(v.prazo) > 0.004 ? 'a prazo' : 'à vista'
       }));
     });
     linhas.push({tipo:'subtotal', cels:['', 'Subtotal das vendas',
       fmtMoeda(t.vendido),
       fmtMoeda(t.porFormaVen.dinheiro), fmtMoeda(t.porFormaVen.cartao),
       fmtMoeda(t.porFormaVen.pix), fmtMoeda(t.porFormaVen.cheque),
-      fmtMoeda(t.notinhaVen), '—',
+      fmtMoeda(t.notinhaVen), t.prazoVen > 0.004 ? fmtMoeda(t.prazoVen) : '—',
       fmtMoeda(t.entrouVen) + ' em caixa']});
   }
 
@@ -17853,6 +17950,7 @@ document.getElementById('btnExportarRecebimentos').addEventListener('click', ()=
   linhasRet.push(['FECHAMENTO DO DIA']);
   linhasRet.push(['', 'Recebido de contas de clientes', t.entrouRec]);
   linhasRet.push(['', 'Vendido na loja do escritório', t.entrouVen]);
+  if(t.prazoVen) linhasRet.push(['', 'Vendido na loja a prazo (não entra no caixa)', t.prazoVen]);
   linhasRet.push(['', 'Entradas avulsas', t.entrouSup]);
   linhasRet.push(['', '= Entrou no caixa (dinheiro, cartão, pix, cheque)', t.entrou]);
   if(t.haver) linhasRet.push(['', 'Quitado em Juros/Haver (não entra no caixa)', t.haver]);
@@ -17992,6 +18090,7 @@ function montarModsVenda(){
     '<div class="rec-mod" data-mod-ven="'+f.chave+'">' +
       '<div class="rm-topo"><svg viewBox="0 0 24 24">'+f.icone+'</svg>'+f.rotulo+'</div>' +
       (f.nota ? '<div class="rm-nota">'+f.nota+'</div>' : '') +
+      (f.naoEntraNoCaixa ? '<div class="rm-nota" style="color:var(--aviso-texto);">não entra no caixa</div>' : '') +
       '<input type="text" inputmode="decimal" id="venPg_'+f.chave+'" data-forma-ven="'+f.chave+'" placeholder="0,00">' +
       '<button type="button" class="rm-resto" data-resto-ven="'+f.chave+'">lançar o restante</button>' +
     '</div>'
@@ -18256,8 +18355,8 @@ function ligarBuscaProduto(){
 }
 
 /* --------------------------------------------------------------- venda: somatório
-   A venda é à vista, então a conta é simples e binária: ou o pagamento fecha com o
-   total, ou não fecha. Não existe "ficou devendo" aqui. */
+   A conta é simples e binária: ou o pagamento fecha com o total, ou não fecha. O que
+   fica para depois se lança em A prazo, que fecha a venda sem entrar no caixa. */
 function atualizarSomatorioVenda(){
   if(!venModsMontadas) return;
   const total = totalDoCarrinho();
@@ -18279,7 +18378,7 @@ function atualizarSomatorioVenda(){
   });
 
   let blocoDif;
-  if(dif > 0.004)       blocoDif = {cls:'rs-falta',   rot:'Falta pagar',  val:fmtMoeda(dif),  nota:'a venda é à vista: distribua o restante'};
+  if(dif > 0.004)       blocoDif = {cls:'rs-falta',   rot:'Falta pagar',  val:fmtMoeda(dif),  nota:'distribua o restante — o que fica para depois vai em A prazo'};
   else if(dif < -0.004) blocoDif = {cls:'rs-troco',   rot:'Passou',       val:fmtMoeda(-dif), nota:'o pagamento passou do total da venda'};
   else if(total > 0)    blocoDif = {cls:'rs-quitado', rot:'Diferença',    val:fmtMoeda(0),    nota:'pagamento fechado com o total'};
   else                  blocoDif = {cls:'',           rot:'Diferença',    val:fmtMoeda(0),    nota:'nenhum produto na venda ainda'};
@@ -18299,9 +18398,14 @@ function atualizarSomatorioVenda(){
       ? '<div class="rs-bloco rs-notinha"><div class="rs-rot">Notinha branca</div>' +
         '<div class="rs-val">'+fmtMoeda(notinha)+'</div>' +
         '<div class="rs-nota">fica na gaveta; o cliente retira na frente</div></div>'
+      : '') +
+    (formas.prazo > 0
+      ? '<div class="rs-bloco rs-troco"><div class="rs-rot">A prazo</div>' +
+        '<div class="rs-val">'+fmtMoeda(formas.prazo)+'</div>' +
+        '<div class="rs-nota">não entra no caixa · em caixa ' + fmtMoeda(r2(bruto - formas.prazo - notinha)) + '</div></div>'
       : '');
 
-  atualizarCaixaNotinhaVen(bruto, notinha, total);
+  atualizarCaixaNotinhaVen(r2(bruto - formas.prazo), notinha, r2(total - formas.prazo));
   atualizarTrocoVenda();
 }
 
@@ -18453,18 +18557,20 @@ function salvarVenda(){
     document.getElementById('venNotinha').focus();
     return;
   }
-  if(notinha > 0 && notinha >= bruto){
+  /* A notinha é troco de nota entregue — só se compara com o que entrou de verdade, e o
+     A prazo não é nota nenhuma. */
+  if(notinha > 0 && notinha >= r2(bruto - formas.prazo)){
     aviso.textContent = 'A notinha branca não pode consumir tudo o que o cliente entregou — ' +
       'o vale é o troco da nota, e a nota tem que pagar os produtos também.';
     document.getElementById('venNotinha').focus();
     return;
   }
-  /* Venda à vista: o pagamento tem que fechar com o total. Produto que sai sem pagar
-     não é venda da loja — é conta, e conta se lança no recebimento. A notinha branca
-     não conta como pagamento: ela é o troco que o cliente vai retirar na frente. */
+  /* O pagamento tem que fechar com o total. O que o cliente leva sem pagar agora entra
+     em A prazo (desde 14/09/2026), que fecha a venda sem entrar no caixa. A notinha
+     branca não conta como pagamento: ela é o troco que o cliente vai retirar na frente. */
   if(r2(total - pago) > 0.004){
     aviso.textContent = 'Falta distribuir ' + fmtMoeda(r2(total - pago)) +
-      ' nas modalidades — a venda da loja é sempre à vista.';
+      ' nas modalidades — se o cliente vai pagar depois, lance em A prazo.';
     return;
   }
   if(r2(pago - total) > 0.004){
@@ -18674,7 +18780,7 @@ function renderLojaVendas(){
       '<div class="kpi-val">'+fmtMoeda(doDia.length ? r2(t.vendido/doDia.length) : 0)+'</div>' +
       '<div class="kpi-sub">valor médio por venda</div></div>' +
     FORMAS_VENDA.filter(f=> t.porFormaVen[f.chave] > 0).map(f=>
-      '<div class="kpi kpi-info"><div class="kpi-rot">Loja em '+f.rotulo.toLowerCase()+'</div>' +
+      '<div class="kpi kpi-info"><div class="kpi-rot">Loja '+(f.chave === 'prazo' ? '' : 'em ')+f.rotulo.toLowerCase()+'</div>' +
         '<div class="kpi-val">'+fmtMoeda(t.porFormaVen[f.chave])+'</div>' +
         '<div class="kpi-sub">'+ (t.vendido > 0 ? Math.round(t.porFormaVen[f.chave]/t.vendido*100)+'% do vendido' : '') +'</div></div>'
     ).join('');
