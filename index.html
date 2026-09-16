@@ -2573,6 +2573,50 @@
   #viewRecLancar .rec-col-dir .rec-acoes .rec-aviso:empty{display:none;}
   #viewRecLancar #btnRecSalvar{flex:1;padding-left:10px;padding-right:10px;}
   #viewRecLancar #btnRecLimpar{padding-left:14px;padding-right:14px;}
+
+  /* ---------- monitor de armazenamento do Supabase ----------
+     Discreto de propósito: uma barrinha e a porcentagem ao lado do chip da nuvem. Só ganha
+     cor quando começa a pesar (70% amarelo, 90% vermelho). Os números vêm da RPC
+     `rh_uso_armazenamento` e são do PROJETO inteiro — o estoque mora no mesmo banco. */
+  .uso-banco{display:inline-flex;align-items:center;gap:6px;font-size:11.5px;font-weight:600;
+    color:var(--md-on-surface-variant);white-space:nowrap;cursor:help;padding:0 2px;
+    font-variant-numeric:tabular-nums;}
+  .uso-banco[hidden]{display:none;}
+  .uso-banco .ub-trilho{width:46px;height:5px;border-radius:var(--r-full);overflow:hidden;
+    background:var(--md-surface-container-highest);}
+  .uso-banco .ub-barra{display:block;height:100%;width:0;border-radius:inherit;background:var(--md-outline);}
+  .uso-banco.aviso{color:var(--aviso-texto);}
+  .uso-banco.aviso .ub-barra{background:var(--aviso);}
+  .uso-banco.erro{color:var(--erro-texto);}
+  .uso-banco.erro .ub-barra{background:var(--md-error);}
+  @media(max-width:760px){ .uso-banco .ub-trilho{width:30px;} }
+
+  /* ---------- VENDAS DA LOJA (Início) ----------
+     Seção de cima do Início, com o relatório de vendas importado. Os cartões de gráfico
+     e os KPIs são os mesmos do resto da tela; o que é só daqui é a "leitura do mês"
+     (análises e sugestões em lista) e o botão de importar. */
+  #iniVendas > .dash-secao:first-child{margin-top:6px;}
+  .vd-acoes{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .vd-acoes select{border:none;background:var(--md-surface-container-high);border-radius:var(--r-full);
+    padding:8px 14px;font-family:inherit;font-size:13px;font-weight:600;color:var(--md-on-surface);min-height:38px;cursor:pointer;}
+  .vd-leitura-card{margin-top:16px;}
+  .vd-leitura{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:14px 28px;}
+  .vd-leitura h4{margin:0 0 10px;font-size:14px;font-weight:600;color:var(--md-on-surface);display:flex;align-items:center;gap:8px;}
+  .vd-leitura h4 i{width:9px;height:9px;border-radius:50%;background:var(--md-primary);flex:none;}
+  .vd-leitura .vd-sug h4 i{background:var(--aviso);}
+  .vd-lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px;}
+  .vd-lista li{font-size:13px;line-height:1.55;color:var(--md-on-surface-variant);
+    background:var(--md-surface-container-low);border-radius:var(--r-md);padding:10px 14px;}
+  .vd-lista li b{color:var(--md-on-surface);font-weight:600;}
+  .vd-lista li.vd-alerta{background:var(--erro-cont);color:var(--erro-texto);}
+  .vd-lista li.vd-alerta b{color:var(--erro-texto);}
+  .vd-lista li.vd-atencao{background:var(--aviso-cont);color:var(--aviso-texto);}
+  .vd-lista li.vd-atencao b{color:var(--aviso-texto);}
+  .vd-vazio{margin-top:4px;}
+  .vd-vazio .ini-desc{max-width:760px;}
+  .dg-dica em{display:block;font-style:normal;font-size:10.5px;opacity:.85;margin-top:2px;}
+  @media(max-width:760px){ .vd-acoes{margin-left:0;} }
+  @media print{ body.imprimindo .vd-acoes{display:none;} }
 </style>
 </head>
 <!-- `rh-travado` já no HTML: a barra nasce com o cadeado e com a área do RH recolhida,
@@ -2610,7 +2654,7 @@
 <div class="overlay" id="overlayTravaRh" style="z-index:190;">
   <div class="modal" style="max-width:390px;">
     <button class="modal-close" id="fecharTravaRh">✕</button>
-    <h2>Recursos Humanos</h2>
+    <h2 id="travaRhTitulo">Recursos Humanos</h2>
     <div class="sub">Área restrita. Confirme a sua senha para abrir — a mesma com que você entrou no sistema.</div>
     <form id="formTravaRh">
       <div class="campo" style="margin-bottom:16px;">
@@ -2634,11 +2678,79 @@
     <div class="bl-marca bl-rotulo">Gestão Administrativa<small>Mercado e Açougue Godoy</small></div>
   </div>
   <nav class="bl-nav">
-    <button class="bl-item bl-inicio ativa" data-aba="inicio" title="Início">
-      <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M9.5 20v-6h5v6"/></svg>
-      <span class="bl-rotulo">Início</span>
-    </button>
+    <!-- Ordem pedida em 14/09/2026: o Caixa Administrativo primeiro (é a tela que abre),
+         depois a Loja do Escritório, depois o RH. O Fechamento Mensal, que era o Início,
+         fica sozinho no fim, atrás da mesma senha do RH. -->
     <div class="bl-secao bl-rotulo">Áreas do sistema</div>
+
+    <div class="bl-grupo" data-grupo="rec">
+      <button class="bl-item bl-cabeca" data-grupo-btn="rec" title="Controle de Caixa Administrativo" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="14" rx="2"/><path d="M2.5 10.5h19"/><path d="M8 3.5h8l1.5 2.5h-11z"/><line x1="12" y1="14" x2="12" y2="17"/></svg>
+        <span class="bl-rotulo">Controle de Caixa Administrativo</span>
+        <svg class="bl-seta bl-rotulo" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="bl-sub"><div class="bl-sub-int">
+        <button class="bl-item bl-filho" data-aba="recLancar" title="Lançar Recebimento">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          <span class="bl-rotulo">Lançar Recebimento</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="recRetirada" title="Retirada de Caixa">
+          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+          <span class="bl-rotulo">Retirada de Caixa</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="recSuprimento" title="Suprimento de Caixa">
+          <svg viewBox="0 0 24 24"><path d="M12 21V7"/><polyline points="6 12.5 12 6.5 18 12.5"/><line x1="4" y1="3" x2="20" y2="3"/></svg>
+          <span class="bl-rotulo">Suprimento de Caixa</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="recNotinhas" title="Notinhas Brancas">
+          <svg viewBox="0 0 24 24"><path d="M5 3h14v18l-3.5-2-3.5 2-3.5-2L5 21z"/><line x1="9" y1="8.5" x2="15" y2="8.5"/><line x1="9" y1="12.5" x2="13" y2="12.5"/></svg>
+          <span class="bl-rotulo">Notinhas Brancas</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="recLancamentos" title="Lançamentos">
+          <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3.5" y1="6" x2="3.51" y2="6"/><line x1="3.5" y1="12" x2="3.51" y2="12"/><line x1="3.5" y1="18" x2="3.51" y2="18"/></svg>
+          <span class="bl-rotulo">Lançamentos</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="recBalanco" title="Balanço Mensal do Caixa">
+          <svg viewBox="0 0 24 24"><path d="M3 20h18"/><rect x="5" y="11" width="3.5" height="7"/><rect x="10.2" y="6" width="3.5" height="12"/><rect x="15.4" y="14" width="3.5" height="4"/></svg>
+          <span class="bl-rotulo">Balanço Mensal</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="recClientes" title="Clientes">
+          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span class="bl-rotulo">Clientes</span>
+          <span class="bl-sino bl-sino-grupo" id="sinoClientes" style="display:none;">0</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="recHistorico" title="Relatório de Caixa">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
+          <span class="bl-rotulo">Relatório de Caixa</span>
+        </button>
+      </div></div>
+    </div>
+
+    <div class="bl-grupo" data-grupo="loja">
+      <button class="bl-item bl-cabeca" data-grupo-btn="loja" title="Loja do Escritório" aria-expanded="false">
+        <svg viewBox="0 0 24 24"><path d="M3.5 9.5 5 4h14l1.5 5.5"/><path d="M3.5 9.5h17v10a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1z"/><path d="M9.5 20.5v-6h5v6"/></svg>
+        <span class="bl-rotulo">Loja do Escritório</span>
+        <svg class="bl-seta bl-rotulo" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="bl-sub"><div class="bl-sub-int">
+        <button class="bl-item bl-filho" data-aba="lojaVender" title="Registrar Venda">
+          <svg viewBox="0 0 24 24"><circle cx="9.5" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 12.4h11.3L21 7H6"/></svg>
+          <span class="bl-rotulo">Registrar Venda</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="lojaVendas" title="Vendas do Dia">
+          <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3.5" y1="6" x2="3.51" y2="6"/><line x1="3.5" y1="12" x2="3.51" y2="12"/><line x1="3.5" y1="18" x2="3.51" y2="18"/></svg>
+          <span class="bl-rotulo">Vendas do Dia</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="lojaProdutos" title="Produtos">
+          <svg viewBox="0 0 24 24"><path d="M20.5 7.5 12 3 3.5 7.5v9L12 21l8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
+          <span class="bl-rotulo">Produtos</span>
+        </button>
+        <button class="bl-item bl-filho" data-aba="lojaBalanco" title="Balanço da Loja">
+          <svg viewBox="0 0 24 24"><path d="M3 20h18"/><rect x="5" y="11" width="3.5" height="7"/><rect x="10.2" y="6" width="3.5" height="12"/><rect x="15.4" y="14" width="3.5" height="4"/></svg>
+          <span class="bl-rotulo">Balanço da Loja</span>
+        </button>
+      </div></div>
+    </div>
 
     <div class="bl-grupo" data-grupo="rh">
       <button class="bl-item bl-cabeca" data-grupo-btn="rh" title="Recursos Humanos" aria-expanded="false">
@@ -2684,77 +2796,14 @@
       </div></div>
     </div>
 
-    <!-- A Loja vem antes do Caixa de propósito: é ali que a venda nasce, e o Caixa é
-         onde ela desemboca. O Relatório de Caixa já soma as vendas da loja, então a
-         ordem do menu segue o caminho do dinheiro. -->
-    <div class="bl-grupo" data-grupo="loja">
-      <button class="bl-item bl-cabeca" data-grupo-btn="loja" title="Loja do Escritório" aria-expanded="false">
-        <svg viewBox="0 0 24 24"><path d="M3.5 9.5 5 4h14l1.5 5.5"/><path d="M3.5 9.5h17v10a1 1 0 0 1-1 1h-15a1 1 0 0 1-1-1z"/><path d="M9.5 20.5v-6h5v6"/></svg>
-        <span class="bl-rotulo">Loja do Escritório</span>
-        <svg class="bl-seta bl-rotulo" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="bl-sub"><div class="bl-sub-int">
-        <button class="bl-item bl-filho" data-aba="lojaVender" title="Registrar Venda">
-          <svg viewBox="0 0 24 24"><circle cx="9.5" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.6 12.4h11.3L21 7H6"/></svg>
-          <span class="bl-rotulo">Registrar Venda</span>
-        </button>
-        <button class="bl-item bl-filho" data-aba="lojaVendas" title="Vendas do Dia">
-          <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3.5" y1="6" x2="3.51" y2="6"/><line x1="3.5" y1="12" x2="3.51" y2="12"/><line x1="3.5" y1="18" x2="3.51" y2="18"/></svg>
-          <span class="bl-rotulo">Vendas do Dia</span>
-        </button>
-        <button class="bl-item bl-filho" data-aba="lojaProdutos" title="Produtos">
-          <svg viewBox="0 0 24 24"><path d="M20.5 7.5 12 3 3.5 7.5v9L12 21l8.5-4.5z"/><path d="M3.5 7.5 12 12l8.5-4.5"/><line x1="12" y1="12" x2="12" y2="21"/></svg>
-          <span class="bl-rotulo">Produtos</span>
-        </button>
-        <button class="bl-item bl-filho" data-aba="lojaBalanco" title="Balanço da Loja">
-          <svg viewBox="0 0 24 24"><path d="M3 20h18"/><rect x="5" y="11" width="3.5" height="7"/><rect x="10.2" y="6" width="3.5" height="12"/><rect x="15.4" y="14" width="3.5" height="4"/></svg>
-          <span class="bl-rotulo">Balanço da Loja</span>
-        </button>
-      </div></div>
-    </div>
-
-    <div class="bl-grupo" data-grupo="rec">
-      <button class="bl-item bl-cabeca" data-grupo-btn="rec" title="Controle de Caixa Administrativo" aria-expanded="false">
-        <svg viewBox="0 0 24 24"><rect x="2.5" y="6" width="19" height="14" rx="2"/><path d="M2.5 10.5h19"/><path d="M8 3.5h8l1.5 2.5h-11z"/><line x1="12" y1="14" x2="12" y2="17"/></svg>
-        <span class="bl-rotulo">Controle de Caixa Administrativo</span>
-        <svg class="bl-seta bl-rotulo" viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
-      </button>
-      <div class="bl-sub"><div class="bl-sub-int">
-        <button class="bl-item bl-filho" data-aba="recLancar" title="Lançar Recebimento">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-          <span class="bl-rotulo">Lançar Recebimento</span>
-        </button>
-        <button class="bl-item bl-filho" data-aba="recRetirada" title="Retirada de Caixa">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
-          <span class="bl-rotulo">Retirada de Caixa</span>
-        </button>
-        <button class="bl-item bl-filho" data-aba="recSuprimento" title="Suprimento de Caixa">
-          <svg viewBox="0 0 24 24"><path d="M12 21V7"/><polyline points="6 12.5 12 6.5 18 12.5"/><line x1="4" y1="3" x2="20" y2="3"/></svg>
-          <span class="bl-rotulo">Suprimento de Caixa</span>
-        </button>
-        <button class="bl-item bl-filho" data-aba="recNotinhas" title="Notinhas Brancas">
-          <svg viewBox="0 0 24 24"><path d="M5 3h14v18l-3.5-2-3.5 2-3.5-2L5 21z"/><line x1="9" y1="8.5" x2="15" y2="8.5"/><line x1="9" y1="12.5" x2="13" y2="12.5"/></svg>
-          <span class="bl-rotulo">Notinhas Brancas</span>
-        </button>
-        <button class="bl-item bl-filho" data-aba="recLancamentos" title="Lançamentos">
-          <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3.5" y1="6" x2="3.51" y2="6"/><line x1="3.5" y1="12" x2="3.51" y2="12"/><line x1="3.5" y1="18" x2="3.51" y2="18"/></svg>
-          <span class="bl-rotulo">Lançamentos</span>
-        </button>
-        <button class="bl-item bl-filho" data-aba="recBalanco" title="Balanço Mensal do Caixa">
-          <svg viewBox="0 0 24 24"><path d="M3 20h18"/><rect x="5" y="11" width="3.5" height="7"/><rect x="10.2" y="6" width="3.5" height="12"/><rect x="15.4" y="14" width="3.5" height="4"/></svg>
-          <span class="bl-rotulo">Balanço Mensal</span>
-        </button>
-        <button class="bl-item bl-filho" data-aba="recClientes" title="Clientes">
-          <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          <span class="bl-rotulo">Clientes</span>
-          <span class="bl-sino bl-sino-grupo" id="sinoClientes" style="display:none;">0</span>
-        </button>
-        <button class="bl-item bl-filho" data-aba="recHistorico" title="Relatório de Caixa">
-          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="13" y2="17"/></svg>
-          <span class="bl-rotulo">Relatório de Caixa</span>
-        </button>
-      </div></div>
-    </div>
+    <div class="bl-secao bl-rotulo">Diretoria</div>
+    <!-- A chave interna continua "inicio" (avisos, releitura e cache usam esse nome); o que
+         mudou foi o lugar, o nome e a trava. -->
+    <button class="bl-item bl-inicio" data-aba="inicio" title="Fechamento Mensal">
+      <svg viewBox="0 0 24 24"><rect x="3" y="4.5" width="18" height="17" rx="2"/><line x1="3" y1="9.5" x2="21" y2="9.5"/><line x1="8" y1="2.5" x2="8" y2="6.5"/><line x1="16" y1="2.5" x2="16" y2="6.5"/><polyline points="7.5 17 10.5 13.5 13 15.5 16.5 12"/></svg>
+      <span class="bl-rotulo">Fechamento Mensal</span>
+      <svg class="bl-cadeado bl-rotulo" viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
+    </button>
   </nav>
   <div class="bl-rodape bl-rotulo">Acesso restrito à<br>equipe administrativa
     <span id="rodapeVersao" style="display:block;margin-top:6px;opacity:.65;"></span></div>
@@ -2771,6 +2820,9 @@
   <button class="chip-nuvem" id="chipNuvem" title="Situação da sincronização com o banco de dados">
     <span class="luz" id="nuvemLuz"></span><span id="nuvemTxt">Conectando…</span>
   </button>
+  <span class="uso-banco" id="usoBanco" hidden>
+    <span class="ub-trilho"><span class="ub-barra" id="usoBancoBarra"></span></span><span id="usoBancoTxt"></span>
+  </span>
   <span id="usuarioLogado" style="font-size:12.5px;color:var(--texto-fraco);"></span>
   <button class="btn btn-outline" id="btnLogout" title="Sair">Sair</button>
   <select id="selMes"></select>
@@ -2788,11 +2840,14 @@
   <main>
     <div class="dash-topo">
       <div>
-        <h2>Visão da diretoria — <span id="iniMes"></span></h2>
+        <h2>Fechamento mensal</h2>
         <div class="dash-sub" id="iniSub"></div>
       </div>
       <button class="btn btn-outline" id="btnImprimirInicio">Imprimir esta página</button>
     </div>
+    <!-- Vendas da loja: o relatório importado do mês passado. Montado por renderVendasInicio(). -->
+    <div id="iniVendas"></div>
+    <div class="dash-secao"><h3>Caixa e folha</h3><span class="dash-nota" id="iniMes"></span></div>
     <div id="iniAlertas"></div>
     <div class="kpis-destaque" id="iniKpis"></div>
     <div id="iniGraficos"></div>
@@ -4491,7 +4546,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '12/09/2026m · Desempenho';
+const VERSAO_SISTEMA = '14/09/2026d · Fechamento Mensal';
 
 /* Cópia do sistema guardada no navegador, para ele ABRIR sem internet — ver sw.js, que
    precisa estar publicado na mesma pasta deste arquivo. Só em https (o Pages) ou no
@@ -4731,11 +4786,13 @@ document.getElementById('btnLogout').addEventListener('click', async ()=>{
      fora como falta de permissão poria a equipe inteira para fora do próprio sistema;
      aqui, deixar entrar sem conferir é o mesmo que não ter trava.
 
-   O que a trava NÃO cobre, e é bom saber: a tela de Início continua mostrando os números
-   da folha do mês para a diretoria. Ela não é uma tela do RH — se um dia esses blocos
-   também tiverem que ficar atrás da senha, é lá que se mexe. */
+   Desde 14/09/2026 a trava cobre também o FECHAMENTO MENSAL (a antiga tela de Início:
+   vendas da loja, caixa e folha do mês). É a mesma senha e a mesma liberação — abriu
+   uma das duas, a outra também está aberta nesta sessão. Quem decide o que é protegido
+   é `abaProtegida()`, lá na NAVEGAÇÃO. */
 let rhLiberado = false;          /* liberado nesta sessão? só na memória, de propósito */
 let rhDepoisDaSenha = null;      /* o que fazer assim que a senha for aceita */
+let rhBotaoTexto = 'Abrir o RH'; /* o botão do modal diz para onde a senha leva */
 
 function travarRh(){
   rhLiberado = false;
@@ -4745,10 +4802,19 @@ function travarRh(){
   const grupo = document.querySelector('.bl-grupo[data-grupo="rh"]');
   if(grupo) grupo.classList.remove('aberto');
   if(typeof marcarGrupos === 'function') marcarGrupos();
+  /* Quem sai deixa a tela aberta por baixo do login. Se era área protegida, o próximo a
+     entrar a veria sem senha — então a tela volta para o caixa. */
+  try{
+    if(state && state.abaAtual && typeof abaProtegida === 'function' && abaProtegida(state.abaAtual)) trocarAba(ABA_PADRAO);
+  }catch(e){}
 }
 
-function pedirSenhaRh(depois){
+function pedirSenhaRh(depois, area){
   rhDepoisDaSenha = (typeof depois === 'function') ? depois : null;
+  const fech = area === 'fechamento';
+  document.getElementById('travaRhTitulo').textContent = fech ? 'Fechamento Mensal' : 'Recursos Humanos';
+  rhBotaoTexto = fech ? 'Abrir o fechamento' : 'Abrir o RH';
+  document.getElementById('btnTravaRh').textContent = rhBotaoTexto;
   document.getElementById('travaRhQuem').textContent =
     document.getElementById('usuarioLogado').textContent || 'você';
   document.getElementById('travaRhSenha').value = '';
@@ -4792,7 +4858,7 @@ document.getElementById('formTravaRh').addEventListener('submit', async (e)=>{
     document.getElementById('travaRhSenha').value = '';
     document.getElementById('travaRhSenha').focus();
   }finally{
-    btn.disabled = false; btn.textContent = 'Abrir o RH';
+    btn.disabled = false; btn.textContent = rhBotaoTexto;
   }
 });
 document.getElementById('fecharTravaRh').addEventListener('click', fecharTravaRh);
@@ -5184,8 +5250,60 @@ function tentarSincronizar(){
   return sincronizandoPromessa;
 }
 
+/* ===================== MONITOR DE ARMAZENAMENTO =====================
+   O plano gratuito do Supabase dá 500 MB de banco e 1 GB de arquivos. Passou disso, o
+   banco pode ficar só leitura — e aí nem o caixa grava. Este monitor lê o tamanho real
+   (RPC `rh_uso_armazenamento`, só para quem tem acesso ao RH) ao conectar e depois a
+   cada 30 minutos. Falha de leitura não avisa nada: o chip da nuvem já cuida da conexão,
+   e o monitor fica com a última leitura (ou escondido) até a próxima dar certo.
+   Se um dia o plano mudar, é só trocar os limites aqui. */
+const LIMITE_BANCO_BYTES    = 500 * 1024 * 1024;
+const LIMITE_ARQUIVOS_BYTES = 1024 * 1024 * 1024;
+let usoBancoLido = 0;
+
+function formatarBytes(b){
+  if(b >= 1024*1024*1024) return (b/1024/1024/1024).toLocaleString('pt-BR',{maximumFractionDigits:2}) + ' GB';
+  if(b >= 1024*1024)      return (b/1024/1024).toLocaleString('pt-BR',{maximumFractionDigits:1}) + ' MB';
+  return Math.round(b/1024).toLocaleString('pt-BR') + ' KB';
+}
+
+async function atualizarUsoBanco(forcar){
+  if(!db || navigator.onLine === false) return;
+  if(!forcar && Date.now() - usoBancoLido < 30*60*1000) return;
+  try{
+    const { data, error } = await comTempoLimite(db.rpc('rh_uso_armazenamento'), 15000);
+    if(error || !data) return;
+    usoBancoLido = Date.now();
+    const banco = Number(data.banco_bytes) || 0;
+    const arq   = Number(data.arquivos_bytes) || 0;
+    const pBanco = banco / LIMITE_BANCO_BYTES * 100;
+    const pArq   = arq / LIMITE_ARQUIVOS_BYTES * 100;
+    const pct = Math.max(pBanco, pArq);   /* o que estourar primeiro é o que manda */
+    const umaCasa = n => n.toLocaleString('pt-BR',{maximumFractionDigits:1});
+    const el = document.getElementById('usoBanco');
+    el.classList.toggle('aviso', pct >= 70 && pct < 90);
+    el.classList.toggle('erro',  pct >= 90);
+    document.getElementById('usoBancoBarra').style.width = Math.min(100, Math.max(pct, 2)) + '%';
+    document.getElementById('usoBancoTxt').textContent = (pct < 10 ? umaCasa(pct) : Math.round(pct)) + '%';
+    const maiores = (data.maiores || []).slice(0,3)
+      .map(t => '  • ' + t.tabela + ': ' + formatarBytes(Number(t.bytes)||0)).join('\n');
+    el.title = 'Armazenamento do Supabase (plano gratuito)\n'
+      + 'Banco: ' + formatarBytes(banco) + ' de 500 MB (' + umaCasa(pBanco) + '%)\n'
+      + 'Arquivos: ' + formatarBytes(arq) + ' de 1 GB (' + umaCasa(pArq) + '%)\n'
+      + (maiores ? 'Maiores tabelas (RH e estoque juntos):\n' + maiores + '\n' : '')
+      + 'Lido às ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})
+      + (pct >= 90 ? '\n\nQUASE CHEIO: acima de 100% o banco pode ficar só leitura.'
+        : pct >= 70 ? '\n\nAtenção: já passou de 70% do plano.' : '');
+    el.hidden = false;
+  }catch(e){
+    /* silencioso de propósito — ver comentário acima */
+  }
+}
+setInterval(()=> atualizarUsoBanco(false), 5*60*1000);
+
 function conexaoRestabelecida(){
   esconderCarregando();
+  atualizarUsoBanco(true);
   const modal = document.getElementById('overlayOffline');
   const estavaPerguntando = modal.classList.contains('show');
   modal.classList.remove('show');
@@ -11691,7 +11809,7 @@ document.getElementById('relGrid').addEventListener('click', (e)=>{
    esconde do cabeçalho o que só serve ao RH (a competência do mês e o ajuste de
    salários não têm sentido no caixa nem na loja). */
 const ABAS = {
-  inicio:       {view:'viewInicio',       titulo:'Início',                     grupo:null},
+  inicio:       {view:'viewInicio',       titulo:'Fechamento Mensal',          grupo:null, protegida:true},
   dashboard:    {view:'viewDashboard',    titulo:'Painel',                     grupo:'rh'},
   folha:        {view:'viewFolha',        titulo:'Folha de Pagamento',         grupo:'rh'},
   ponto:        {view:'viewPonto',        titulo:'Controle de Ponto',          grupo:'rh'},
@@ -11712,6 +11830,15 @@ const ABAS = {
   recClientes:  {view:'viewRecClientes',  titulo:'Clientes',                   grupo:'rec'},
   recHistorico: {view:'viewRecHistorico', titulo:'Relatório de Caixa',         grupo:'rec'}
 };
+
+/* A tela que abre com o sistema, e o pouso seguro quando algo dá errado. Era o Início;
+   desde 14/09/2026 é o Lançar Recebimento, que é o trabalho do dia. */
+const ABA_PADRAO = 'recLancar';
+
+/* Telas atrás da senha: todo o RH e o Fechamento Mensal. Ver "A TRAVA DO RH". */
+function abaProtegida(aba){
+  return !!ABAS[aba] && (ABAS[aba].grupo === 'rh' || !!ABAS[aba].protegida);
+}
 
 /* Sanfona: abrir uma área fecha a outra, para a barra não virar uma lista comprida.
    A tela de Início não pertence a nenhuma área — nesse caso os dropdowns ficam como
@@ -11740,12 +11867,12 @@ function marcarGrupos(){
 function trocarAba(aba){
   /* Tela desconhecida caía no Painel, que é do RH. Com a trava ligada isso viraria um
      pedido de senha vindo do nada — o pouso seguro passa a ser o Início. */
-  if(!ABAS[aba]) aba = rhLiberado ? 'dashboard' : 'inicio';
+  if(!ABAS[aba]) aba = ABA_PADRAO;
   /* Ver "A TRAVA DO RH". O porteiro fica AQUI, e não só no clique do menu: todo caminho
      para uma tela do RH passa por esta função — o botão da barra, o "abrir" dos avisos
      do Início, e o `trocarAba('ponto')` que a importação do cartão ponto dispara sozinha
      no fim da leitura da planilha. Barrar só o clique deixaria três portas abertas. */
-  if(ABAS[aba].grupo === 'rh' && !rhLiberado){ pedirSenhaRh(()=> trocarAba(aba)); return; }
+  if(abaProtegida(aba) && !rhLiberado){ pedirSenhaRh(()=> trocarAba(aba), ABAS[aba].grupo === 'rh' ? 'rh' : 'fechamento'); return; }
   state.abaAtual = aba;
   Object.keys(ABAS).forEach(k=>{
     document.getElementById(ABAS[k].view).style.display = (k===aba) ? '' : 'none';
@@ -11793,7 +11920,7 @@ function trocarAba(aba){
      e piorando à medida que o escritório acumula lançamento.
 
      Pior: era trabalho jogado fora. `state.abaAtual` nunca é lido na abertura — o
-     sistema sempre abre no Início (ver a INICIALIZAÇÃO, lá no fim). Estávamos pagando
+     sistema sempre abre no Lançar Recebimento (ver a INICIALIZAÇÃO, lá no fim). Estávamos pagando
      o preço todo para guardar um valor que a próxima abertura descarta.
 
      Agora o cache é gravado no ócio, e o banco não é acordado por navegação. Quem
@@ -19926,7 +20053,7 @@ function svgBarras(dados, opcoes){
              '" rx="5" fill="'+cor+'"'+(d.destaque?'':' opacity="0.88"')+'/>' +
            '<text x="'+(x+barraL/2).toFixed(1)+'" y="'+(y-8).toFixed(1)+'" text-anchor="middle" font-size="11.5" ' +
              'font-weight="700" fill="#171d19" font-family="Google Sans Flex, Segoe UI, Arial, Helvetica, sans-serif">'+
-             (o.curto ? fmtCurto(d.valor) : fmtMoeda(r2(d.valor)))+'</text>' +
+             (o.fmt ? escHtml(o.fmt(d.valor)) : o.curto ? fmtCurto(d.valor) : fmtMoeda(r2(d.valor)))+'</text>' +
            '<text x="'+(x+barraL/2).toFixed(1)+'" y="'+(base+18)+'" text-anchor="middle" font-size="11" ' +
              'fill="#59625b" font-family="Google Sans Flex, Segoe UI, Arial, Helvetica, sans-serif">'+escHtml(d.rot)+'</text>';
   }).join('');
@@ -19957,7 +20084,11 @@ function svgDiario(dados, opcoes){
   const itens = (dados || []).filter(d=> d);
   if(itens.length < 2) return '<div class="ini-vazio">São necessários pelo menos dois dias com movimento.</div>';
   const id = 'diario' + (++seqDiario);
-  DIARIOS[id] = {itens: itens, cor: o.cor || CORES_GRAFICO[0], modo: o.modo || 'barras'};
+  /* kpis, fmt, fmtCurto e media são opcionais — vieram com as vendas da loja, que usam o
+     mesmo gráfico para dinheiro e para porcentagem (margem). Cada dia pode trazer a sua
+     `cor` (dia fora da curva em vermelho) e uma `dica` extra para o balão. */
+  DIARIOS[id] = {itens: itens, cor: o.cor || CORES_GRAFICO[0], modo: o.modo || 'barras',
+                 kpis: o.kpis, fmt: o.fmt, fmtCurto: o.fmtCurto, media: o.media};
   return '<div class="diario-bloco" id="'+id+'">' + desenhoDiario(id) + '</div>';
 }
 
@@ -19981,8 +20112,9 @@ function desenhoDiario(id){
   const maior = Math.max.apply(null, vals) || 1;
   const total = r2(vals.reduce((s,v)=> s + v, 0));
   const comMovimento = vals.filter(v=> v > 0).length;
-  const media = comMovimento ? r2(total / comMovimento) : 0;
+  const media = (g.media !== undefined) ? g.media : (comMovimento ? r2(total / comMovimento) : 0);
   const iMaior = vals.indexOf(maior);
+  const fmtVal = g.fmt || ((v)=> fmtMoeda(r2(v)));
 
   const L = LARGURA_GRAFICO, A = 232, base = A - 44, topo = 30;
   const fatia = L / n;                      /* uma coluna por dia, nos dois modos: é o
@@ -20010,7 +20142,7 @@ function desenhoDiario(id){
   const rotuloMedia = media > 0
     ? '<text x="'+(L-2)+'" y="'+(yMedia-4).toFixed(1)+'" text-anchor="end" font-size="10" fill="#737c74" ' +
         'stroke="#fff" stroke-width="3" paint-order="stroke" pointer-events="none" ' +
-        'font-family="Google Sans Flex, Segoe UI, Arial, Helvetica, sans-serif">média ' + escHtml(fmtCurto(media)) + '</text>'
+        'font-family="Google Sans Flex, Segoe UI, Arial, Helvetica, sans-serif">média ' + escHtml((g.fmtCurto || fmtCurto)(media)) + '</text>'
     : '';
 
   /* Só a curva e sua área ficam soltas no desenho — são um traço contínuo, não têm
@@ -20032,10 +20164,10 @@ function desenhoDiario(id){
   const colunas = itens.map((d,i)=>{
     const y = cy(d.valor);
     const marca = g.modo === 'curva'
-      ? '<circle class="dg-ponto" cx="'+cx(i).toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.5" fill="'+cor+'"/>'
+      ? '<circle class="dg-ponto" cx="'+cx(i).toFixed(1)+'" cy="'+y.toFixed(1)+'" r="3.5" fill="'+(d.cor || cor)+'"/>'
       : '<rect class="dg-barra" x="'+(cx(i)-barraL/2).toFixed(1)+'" y="'+y.toFixed(1)+'" ' +
           'width="'+barraL.toFixed(1)+'" height="'+Math.max(toNum(d.valor) > 0 ? 2 : 0, base - y).toFixed(1) +
-          '" rx="2.5" fill="'+cor+'"/>';
+          '" rx="2.5" fill="'+(d.cor || cor)+'"/>';
     return '<g class="dg-col" data-dg-hit="'+i+'" data-dg-cy="'+y.toFixed(1)+'">' + marca +
       '<rect class="dg-hit" x="'+(i*fatia).toFixed(1)+'" y="0" width="'+fatia.toFixed(1)+'" height="'+base+'"/>' +
     '</g>';
@@ -20045,7 +20177,7 @@ function desenhoDiario(id){
     linhaMedia +
     '<line x1="0" y1="'+base+'" x2="'+L+'" y2="'+base+'" stroke="#dce3da" stroke-width="1"/>' +
     desenho + eixo + colunas + rotuloMedia +
-    rotuloTopo(cx(iMaior), cy(maior) - 9, fmtMoeda(r2(maior)), L) + '</svg>';
+    rotuloTopo(cx(iMaior), cy(maior) - 9, fmtVal(maior), L) + '</svg>';
 
   const kpi = (rot, val, sub)=>
     '<div class="dg-kpi"><div class="dg-rot">'+escHtml(rot)+'</div>' +
@@ -20057,9 +20189,11 @@ function desenhoDiario(id){
       'data-diario="'+id+'" data-modo="'+modo+'">'+txt+'</button>';
 
   return '<div class="dg-kpis">' +
-      kpi('Entrou no mês', fmtMoeda(total), n + ' dia(s) no período') +
-      kpi('Média por dia', fmtMoeda(media), comMovimento + ' dia(s) com movimento') +
-      kpi('Melhor dia', fmtMoeda(r2(maior)), itens[iMaior].rotLongo || itens[iMaior].rot) +
+    (g.kpis
+      ? g.kpis.map(k=> kpi(k[0], k[1], k[2])).join('')
+      : kpi('Entrou no mês', fmtMoeda(total), n + ' dia(s) no período') +
+        kpi('Média por dia', fmtMoeda(media), comMovimento + ' dia(s) com movimento') +
+        kpi('Melhor dia', fmtMoeda(r2(maior)), itens[iMaior].rotLongo || itens[iMaior].rot)) +
     '</div>' +
     '<div class="dg-topo"><span class="dg-legenda">Passe o mouse sobre um dia para ver o valor</span>' +
       '<div class="dg-modos">' + btn('barras','Barras') + btn('curva','Curva') + '</div></div>' +
@@ -20094,7 +20228,8 @@ document.addEventListener('mouseover', function(ev){
   if(!d || !tela || !dica || !svg) return;
 
   dica.innerHTML = '<b>' + escHtml(d.rotLongo || d.rot) + '</b>' +
-                   '<span>' + escHtml(fmtMoeda(r2(d.valor))) + '</span>';
+                   '<span>' + escHtml(g.fmt ? g.fmt(d.valor) : fmtMoeda(r2(d.valor))) + '</span>' +
+                   (d.dica ? '<em>' + escHtml(d.dica) + '</em>' : '');
   dica.style.display = 'block';
 
   /* A referência é `.dg-tela` — é ela que tem `position:relative`, e portanto é dela
@@ -20334,6 +20469,15 @@ function renderInicio(){
      ao Início — quem desligou uma fatia não vai encontrá-la desligada amanhã. */
   Object.keys(ROSCAS).forEach(k=> delete ROSCAS[k]);
   Object.keys(DIARIOS).forEach(k=> delete DIARIOS[k]);
+  /* As vendas vêm primeiro e isoladas: um relatório esquisito não pode derrubar o
+     caixa e a folha, que são a parte de baixo da mesma tela. */
+  try{ renderVendasInicio(); }
+  catch(e){
+    console.error('Vendas no Início:', e);
+    document.getElementById('iniVendas').innerHTML =
+      '<div class="ini-alerta critico"><span class="ia-marca">!</span><span><b>Não foi possível montar as vendas.</b> ' +
+      escHtml(e && e.message || String(e)) + '</span></div>';
+  }
   garantirBaseRecebimentos();
   /* Duas competências, de propósito, e cada uma com o seu nome na tela: o caixa é o
      mês em curso; a folha é a última já paga. Ver mesFolhaPagaNoInicio(). */
@@ -20367,7 +20511,7 @@ function renderInicio(){
   const mesCaixa = mesAtualPadrao();
   /* O título é do mês em curso, que é o do caixa. A folha, mais atrás, se identifica
      em cada card — sem isso a diretoria lê o custo de pessoal como despesa do mês. */
-  document.getElementById('iniMes').textContent = mesLabel(mesCaixa);
+  document.getElementById('iniMes').textContent = 'caixa de ' + mesLabel(mesCaixa) + ' · folha de ' + mesLabel(mes);
   const diasCaixa = diasDoMesComMovimento(mesCaixa);
   const totaisCaixa = diasCaixa.map(d=> totaisDoDia(d));
   const caixaEntrou = r2(totaisCaixa.reduce((s,t)=> s + t.entrou, 0));
@@ -20525,15 +20669,651 @@ function renderInicio(){
     '</div>';
 
   document.getElementById('iniSub').textContent =
-    (state.empresa || '') + ' · folha de ' + mesLabel(mes) + ' e caixa de ' + mesLabel(mesCaixa) +
-    ' · atualizado em ' + new Date().toLocaleString('pt-BR');
+    (state.empresa || '') + ' · vendas da loja, caixa e folha · atualizado em ' + new Date().toLocaleString('pt-BR');
   document.getElementById('iniNota').textContent =
     'Todos os números desta página saem dos mesmos cálculos das telas de origem — folha, ponto, caixa e clientes. ' +
     'Não há segunda contabilidade: mudou o lançamento, muda aqui. ' +
+    'A exceção são as vendas da loja, que vêm do relatório "Resumo diário de vendas" importado no topo da página ' +
+    'e só mudam quando um relatório novo é importado. ' +
     'A folha aparece uma competência atrás do caixa de propósito: a de ' + mesLabel(mes) + ' foi paga em ' +
     dataPagamentoFolha(mes) + ', e a que o departamento pessoal está apurando agora só vira dinheiro em ' +
     dataPagamentoFolha(mesCaixa) + '.';
 }
+
+/* ============================= VENDAS DA LOJA (relatório importado) =============================
+   A venda do mercado não passa pelo sistema: ela mora no sistema de vendas da loja. O que
+   entra aqui é o relatório "RESUMO DIARIO DE VENDAS" do mês (o primeiro foi
+   X:\xls\relatoriogeralagosto.xls, agosto/2026), importado pelo botão no topo do Início.
+
+   Uma linha por dia: DATA ("01/08/26 SAB"), ENCARGOS, TOT.CUSTO, TOT.VENDA, L.S/CUS,
+   L.S/VEN, R$ LUCRO, CLIENTES, VENDA MEDIA, ITENS VENDIDOS e QTD. VENDIDA. O cabeçalho
+   ocupa DUAS linhas ("VENDA" em cima de "MEDIA"), por isso cada coluna é reconhecida
+   pelo nome das duas linhas juntas. Fica em `state.vendasDiarias['AAAA-MM']`, chave nova
+   de primeiro nível do estado — vai para o rh_config sem migração.
+
+   Houve um relatório errado antes deste: o "RESUMO VENDAS COM RENTABILIDADE" dava só
+   R$ 539 mil em agosto contra R$ 1,6 milhão deste, com os mesmos 12.265 clientes. A
+   leitura continua aceitando aquele formato (colunas CUSTO INIC., COMPRAS…) para não
+   quebrar um mês que tenha sido importado com ele, mas o certo é este.
+
+   ATENÇÃO AO "R$ LUCRO". Conta do relatório: TOT.CUSTO = custo da mercadoria + ENCARGOS,
+   e R$ LUCRO = TOT.VENDA − TOT.CUSTO. Os encargos ficam em 22,8% da venda em todos os
+   dias, e o outro relatório do mesmo sistema abria a conta: ICMS + PIS/COFINS + 18% FIXOS
+   de "despesa operacional". Então o lucro do relatório (4,09% em agosto) é a sobra depois
+   de uma despesa ESTIMADA, e não a margem da mercadoria (26,9% em agosto). O painel mostra
+   as duas, cada uma com o nome do que é — trocar uma pela outra assusta ou engana.
+
+   O arquivo vem com extensão .xls mas é um .xlsx (zip). A leitura é feita aqui mesmo,
+   sem biblioteca: o zip é aberto com DecompressionStream e a planilha lida com DOMParser.
+   Texto separado por tabulação também é aceito. Excel antigo de verdade (binário) não:
+   pede para salvar como .xlsx. */
+
+const VENDAS_COLUNAS = {
+  /* RESUMO DIARIO DE VENDAS */
+  data:'data', encargos:'encargos', totcusto:'custoTotal', totvenda:'venda', lscus:'lucroSobreCusto',
+  lsven:'lucroPct', rlucro:'lucro', clientes:'clientes', vendamedia:'ticket', itensvendidos:'itens',
+  qtdvendida:'quantidade',
+  /* RESUMO VENDAS COM RENTABILIDADE (formato do primeiro relatório, só por compatibilidade) */
+  custoinic:'custoInicial', icms:'icmsPct', piscf:'pisPct', quebra:'quebra', totalcusto:'custoTotal',
+  totalvenda:'venda', lucrobruto:'lucro', vdmed:'ticket', compras:'compras'
+};
+const DIAS_CURTOS = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+let vendasMesEscolhido = null;   /* só desta tela: o mês que a pessoa escolheu no seletor */
+
+function numeroRelatorio(v){
+  if(typeof v === 'number') return v;
+  let t = String(v == null ? '' : v).trim().replace(/[R$\s%]/g, '');
+  if(!t) return 0;
+  if(t.indexOf(',') >= 0) t = t.replace(/\./g, '').replace(',', '.');
+  const n = parseFloat(t);
+  return isNaN(n) ? 0 : n;
+}
+
+/* Data escrita "01/08/26 SAB" ou "01/08/2026", ou como o Excel guarda (dias desde 30/12/1899). */
+function dataRelatorio(v){
+  const t = String(v == null ? '' : v).trim();
+  const m = t.match(/^(\d{2})\/(\d{2})\/(\d{4}|\d{2})(?!\d)/);
+  if(m) return (m[3].length === 2 ? '20' + m[3] : m[3]) + '-' + m[2] + '-' + m[1];
+  if(/^\d{5}(\.0+)?$/.test(t)){
+    const d = new Date(Date.UTC(1899, 11, 30) + parseInt(t, 10) * 86400000);
+    return d.getUTCFullYear() + '-' + String(d.getUTCMonth()+1).padStart(2,'0') + '-' + String(d.getUTCDate()).padStart(2,'0');
+  }
+  return null;
+}
+
+/* Um leitor de zip do tamanho do que precisamos: índice central, e cada arquivo
+   descompactado só quando pedido. */
+function lerArquivosZip(buf){
+  const dv = new DataView(buf), u8 = new Uint8Array(buf), dec = new TextDecoder('utf-8');
+  let fim = -1;
+  for(let i = buf.byteLength - 22; i >= Math.max(0, buf.byteLength - 66000); i--){
+    if(dv.getUint32(i, true) === 0x06054b50){ fim = i; break; }
+  }
+  if(fim < 0) throw new Error('o arquivo compactado está incompleto');
+  const qtd = dv.getUint16(fim + 10, true);
+  let pos = dv.getUint32(fim + 16, true);
+  const arquivos = {};
+  for(let k = 0; k < qtd; k++){
+    if(dv.getUint32(pos, true) !== 0x02014b50) break;
+    const metodo = dv.getUint16(pos + 10, true), tamanho = dv.getUint32(pos + 20, true);
+    const nLen = dv.getUint16(pos + 28, true), eLen = dv.getUint16(pos + 30, true), cLen = dv.getUint16(pos + 32, true);
+    const local = dv.getUint32(pos + 42, true);
+    const nome = dec.decode(u8.subarray(pos + 46, pos + 46 + nLen));
+    pos += 46 + nLen + eLen + cLen;
+    const ini = local + 30 + dv.getUint16(local + 26, true) + dv.getUint16(local + 28, true);
+    arquivos[nome] = {metodo: metodo, dados: u8.subarray(ini, ini + tamanho)};
+  }
+  return {
+    nomes: Object.keys(arquivos),
+    texto: async function(nome){
+      const a = arquivos[nome];
+      if(!a) return null;
+      if(a.metodo === 0) return dec.decode(a.dados);
+      if(a.metodo !== 8 || typeof DecompressionStream === 'undefined')
+        throw new Error('este navegador não abre este tipo de compactação — atualize o Chrome');
+      const fluxo = new Blob([a.dados]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+      return await new Response(fluxo).text();
+    }
+  };
+}
+
+/* A primeira planilha do .xlsx como linhas de texto, na posição certa de cada coluna. */
+async function linhasXlsx(buf){
+  const zip = lerArquivosZip(buf);
+  const nomeFolha = zip.nomes.filter(n=> /^xl\/worksheets\/[^/]+\.xml$/.test(n)).sort()[0];
+  if(!nomeFolha) throw new Error('não há planilha dentro do arquivo');
+  const leitor = new DOMParser();
+  const compartilhados = [];
+  const ss = await zip.texto('xl/sharedStrings.xml');
+  if(ss){
+    const docSs = leitor.parseFromString(ss, 'application/xml');
+    Array.from(docSs.getElementsByTagName('si')).forEach(si=>
+      compartilhados.push(Array.from(si.getElementsByTagName('t')).map(t=> t.textContent).join('')));
+  }
+  const doc = leitor.parseFromString(await zip.texto(nomeFolha), 'application/xml');
+  return Array.from(doc.getElementsByTagName('row')).map(row=>{
+    const linha = [];
+    Array.from(row.getElementsByTagName('c')).forEach(c=>{
+      const ref = (c.getAttribute('r') || '').replace(/[^A-Z]/g, '');
+      let col = 0;
+      for(const ch of ref) col = col * 26 + (ch.charCodeAt(0) - 64);
+      if(!col) col = linha.length + 1;
+      const tipo = c.getAttribute('t');
+      const v = c.getElementsByTagName('v')[0];
+      let val;
+      if(tipo === 'inlineStr') val = Array.from(c.getElementsByTagName('t')).map(x=> x.textContent).join('');
+      else if(tipo === 's') val = compartilhados[parseInt(v && v.textContent, 10)] || '';
+      else val = v ? v.textContent : '';
+      linha[col - 1] = val;
+    });
+    return Array.from(linha, x=> x === undefined ? '' : String(x));
+  });
+}
+
+function linhasTexto(buf){
+  let txt = new TextDecoder('utf-8').decode(buf);
+  if(txt.indexOf('\uFFFD') >= 0) txt = new TextDecoder('windows-1252').decode(buf);
+  return txt.split(/\r?\n/).map(l=> l.split('\t').map(c=> c.trim()));
+}
+
+function interpretarRelatorioVendas(linhas){
+  const ehVenda = (c)=> norm(c) === 'totvenda' || norm(c) === 'totalvenda';
+  const iCab = linhas.findIndex(l=> l.some(c=> norm(c) === 'data') && l.some(ehVenda));
+  if(iCab < 0) throw new Error('este arquivo não é o "Resumo diário de vendas" (faltam as colunas DATA e TOT.VENDA)');
+  /* Nome de cada coluna: primeiro as duas linhas do cabeçalho juntas ("VENDA"+"MEDIA"),
+     depois só a de baixo. A ordem importa: "MEDIA" sozinha não diz nada. */
+  const cima = iCab > 0 ? linhas[iCab - 1] : [];
+  const mapa = {};
+  linhas[iCab].forEach((c, i)=>{
+    const k = VENDAS_COLUNAS[norm((cima[i] || '') + c)] || VENDAS_COLUNAS[norm(c)];
+    if(k && mapa[k] === undefined) mapa[k] = i;
+  });
+
+  const dias = [];
+  let iFim = linhas.length;
+  for(let i = iCab + 1; i < linhas.length; i++){
+    const data = dataRelatorio(linhas[i][mapa.data]);
+    if(!data){ if(dias.length){ iFim = i; break; } continue; }
+    const d = {data: data};
+    Object.keys(mapa).forEach(k=>{ if(k !== 'data') d[k] = numeroRelatorio(linhas[i][mapa[k]]); });
+    dias.push(d);
+  }
+  if(!dias.length) throw new Error('não achei nenhum dia de venda no relatório');
+
+  const texto = linhas.map(l=> l.join(' ')).join('\n');
+  const achar = (re)=>{ const m = texto.match(re); return m ? numeroRelatorio(m[1]) : null; };
+
+  /* O total que o próprio relatório escreve, para conferir a soma dos dias:
+     a linha "TOTAIS:" neste formato, "Preco de VENDA....:" no antigo. */
+  let vendaRelatorio = null;
+  const linhaTotais = linhas.slice(iFim).find(l=> norm(l[0]) === 'totais');
+  if(linhaTotais) vendaRelatorio = numeroRelatorio(linhaTotais[mapa.venda]);
+  else vendaRelatorio = achar(/Preco de VENDA\.*\s*:\s*([\d.,]+)/i);
+
+  /* Total por série da NFC-e (só o formato antigo traz). */
+  const series = {};
+  const iSerie = linhas.findIndex(l=> /total por serie/i.test(l.join(' ')));
+  if(iSerie >= 0){
+    for(let i = iSerie + 1; i < linhas.length; i++){
+      const t = linhas[i].join(' ').trim();
+      const m = t.match(/^(\d+)\.*\s*:\s*([\d.,]+)/);
+      if(m){ series[m[1]] = numeroRelatorio(m[2]); continue; }
+      if(!t && !Object.keys(series).length) continue;
+      break;
+    }
+  }
+  return {
+    dias: dias,
+    despOperPct: achar(/DESP\.?\s*OPERACIONAIS\s*:\s*([\d.,]+)\s*%/i),
+    filial: (texto.match(/FILIAL\s*:\s*(\d+)/i) || [])[1] || '',
+    vendaRelatorio: vendaRelatorio,
+    series: series
+  };
+}
+
+async function importarRelatorioVendas(arquivo){
+  try{
+    const buf = await arquivo.arrayBuffer();
+    const ini = new Uint8Array(buf.slice(0, 4));
+    let linhas;
+    if(ini[0] === 0x50 && ini[1] === 0x4b) linhas = await linhasXlsx(buf);
+    else if(ini[0] === 0xD0 && ini[1] === 0xCF)
+      throw new Error('é uma planilha no formato antigo do Excel. Abra no Excel, salve como .xlsx e importe de novo');
+    else linhas = linhasTexto(buf);
+
+    const r = interpretarRelatorioVendas(linhas);
+    const porMes = {};
+    r.dias.forEach(d=>{ const m = d.data.slice(0,7); (porMes[m] = porMes[m] || []).push(d); });
+    const meses = Object.keys(porMes).sort();
+    const base = state.vendasDiarias || {};
+    const jaTem = meses.filter(m=> base[m]);
+    if(jaTem.length && !confirm('Já existe relatório de vendas de ' + jaTem.map(mesLabel).join(', ') +
+       '.\n\nSubstituir pelo deste arquivo?')) return;
+
+    if(!state.vendasDiarias) state.vendasDiarias = {};
+    const quem = (document.getElementById('usuarioLogado').textContent || '').trim();
+    meses.forEach(m=>{
+      state.vendasDiarias[m] = {
+        arquivo: arquivo.name, importadoEm: new Date().toISOString(), importadoPor: quem,
+        filial: r.filial, despOperPct: r.despOperPct,
+        /* A série é do período inteiro do relatório: só vale guardar se ele é de um mês só. */
+        series: meses.length === 1 ? r.series : {},
+        dias: porMes[m]
+      };
+    });
+    vendasMesEscolhido = meses[meses.length - 1];
+    salvarEstado();
+    renderInicio();
+
+    const soma = r2(r.dias.reduce((s,d)=> s + toNum(d.venda), 0));
+    const bate = r.vendaRelatorio == null || meses.length > 1 || Math.abs(soma - r.vendaRelatorio) < 1;
+    mostrarToast('Vendas de ' + meses.map(mesLabel).join(', ') + ' importadas: ' + r.dias.length + ' dia(s), ' +
+      fmtMoeda(soma) + (bate ? '' : ' — ATENÇÃO: o total do relatório diz ' + fmtMoeda(r.vendaRelatorio)));
+  }catch(e){
+    mostrarToast('Não foi possível importar o relatório: ' + (e && e.message || e));
+  }
+}
+
+function mesAnteriorDe(m){
+  const p = m.split('-').map(Number);
+  const d = new Date(p[0], p[1] - 2, 1);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+
+/* Todas as contas do mês num lugar só. Nada aqui é inventado: é soma e divisão das
+   colunas do relatório. As regras de "fora da curva" estão escritas junto de cada uma. */
+function analisarVendas(reg){
+  const dias = ((reg && reg.dias) || []).filter(d=> d && d.data)
+    .slice().sort((a,b)=> a.data < b.data ? -1 : 1)
+    .map(d=>{
+      const venda = toNum(d.venda), custoTotal = toNum(d.custoTotal), clientes = toNum(d.clientes);
+      /* Custo da mercadoria e encargos nos dois formatos: aqui vem ENCARGOS e o custo sai
+         de TOT.CUSTO − ENCARGOS; no antigo vinha CUSTO INIC. e os encargos saem da diferença. */
+      const custo = d.custoInicial !== undefined ? toNum(d.custoInicial)
+                  : d.encargos !== undefined ? custoTotal - toNum(d.encargos) : custoTotal;
+      const encargos = d.encargos !== undefined ? toNum(d.encargos) : Math.max(0, custoTotal - custo);
+      const lucro = d.lucro !== undefined ? toNum(d.lucro) : venda - custoTotal;
+      return Object.assign({}, d, {
+        venda: venda, custo: custo, encargos: encargos, lucro: lucro, clientes: clientes,
+        itens: toNum(d.itens), compras: toNum(d.compras),
+        dow: deISO(d.data).getDay(),
+        margem: venda > 0 ? (venda - custo) / venda * 100 : 0,
+        lucroPct: venda > 0 ? lucro / venda * 100 : 0,
+        ticket: clientes > 0 ? venda / clientes : 0
+      });
+    });
+  const somaDe = (lista, k)=> lista.reduce((s,d)=> s + toNum(d[k]), 0);
+  const comVenda = dias.filter(d=> d.venda > 0);
+  const venda = somaDe(dias,'venda'), custo = somaDe(dias,'custo'), encargos = somaDe(dias,'encargos');
+  const lucro = somaDe(dias,'lucro'), clientes = somaDe(dias,'clientes'), itens = somaDe(dias,'itens');
+  const compras = somaDe(dias,'compras');
+  const margem = venda > 0 ? (venda - custo) / venda * 100 : 0;
+  const lucroPct = venda > 0 ? lucro / venda * 100 : 0;
+
+  const semana = [0,1,2,3,4,5,6].map(w=>{
+    const ds = comVenda.filter(d=> d.dow === w);
+    const v = somaDe(ds,'venda'), c = somaDe(ds,'clientes');
+    return {w: w, n: ds.length, media: ds.length ? v / ds.length : 0,
+            clientes: ds.length ? c / ds.length : 0, ticket: c ? v / c : 0,
+            itensCliente: c ? somaDe(ds,'itens') / c : 0};
+  });
+  const ultimo = comVenda.length ? parseInt(comVenda[comVenda.length-1].data.slice(8), 10) : 31;
+  const faixas = [[1,10],[11,20],[21,ultimo]].map(f=>{
+    const ds = comVenda.filter(d=>{ const n = parseInt(d.data.slice(8), 10); return n >= f[0] && n <= f[1]; });
+    const v = somaDe(ds,'venda');
+    return {a: f[0], b: f[1], n: ds.length, media: ds.length ? v / ds.length : 0,
+            margem: v > 0 ? (v - somaDe(ds,'custo')) / v * 100 : 0};
+  });
+  const ranking = comVenda.slice().sort((x,y)=> y.venda - x.venda);
+  const top5 = ranking.slice(0, 5);
+  /* Fora da curva: resultado negativo no relatório, ou margem da mercadoria 8 pontos
+     abaixo da do mês (é o que separa venda abaixo do custo da oscilação normal de mix). */
+  const foraDaCurva = comVenda.filter(d=> d.lucro < 0 || d.margem < margem - 8).sort((x,y)=> x.lucroPct - y.lucroPct);
+  const fora = {};
+  foraDaCurva.forEach(d=> fora[d.data] = true);
+  /* Lucro fraco: positivo, mas menos da metade do lucro do mês. Não é erro — é o dia
+     que vendeu, mas quase não deixou nada. */
+  const lucroFraco = lucroPct > 0
+    ? comVenda.filter(d=> !fora[d.data] && d.lucroPct < lucroPct / 2).sort((x,y)=> x.lucroPct - y.lucroPct)
+    : [];
+
+  return {
+    dias: dias, comVenda: comVenda, venda: venda, custo: custo, encargos: encargos, lucro: lucro,
+    clientes: clientes, itens: itens, compras: compras, margem: margem, lucroPct: lucroPct,
+    semana: semana, faixas: faixas, ranking: ranking, top5: top5, foraDaCurva: foraDaCurva,
+    lucroFraco: lucroFraco,
+    top5Pct: venda ? somaDe(top5,'venda') / venda * 100 : 0,
+    mediaDia: comVenda.length ? venda / comVenda.length : 0,
+    clientesDia: comVenda.length ? clientes / comVenda.length : 0,
+    ticket: clientes ? venda / clientes : 0,
+    itensCliente: clientes ? itens / clientes : 0,
+    encargosPct: venda ? encargos / venda * 100 : 0,
+    temCompras: compras > 0.004, temItens: itens > 0,
+    despPct: (reg && reg.despOperPct != null) ? toNum(reg.despOperPct) : null
+  };
+}
+
+const vdPct   = (n, casas)=> toNum(n).toLocaleString('pt-BR', {minimumFractionDigits: casas == null ? 1 : casas, maximumFractionDigits: casas == null ? 1 : casas}) + '%';
+const vdInt   = (n)=> Math.round(toNum(n)).toLocaleString('pt-BR');
+const vdVezes = (n)=> toNum(n).toLocaleString('pt-BR', {maximumFractionDigits: 1});
+const vdDia   = (iso)=> iso.slice(8,10) + '/' + iso.slice(5,7);
+const vdNomeDia = (w)=> DIAS_SEMANA[w].charAt(0).toUpperCase() + DIAS_SEMANA[w].slice(1);
+/* Artigo certo: o sábado e o domingo, mas a segunda-feira. */
+const vdO  = (w)=> (w === 0 || w === 6 ? 'o ' : 'a ') + DIAS_SEMANA[w];
+const vdNo = (w)=> (w === 0 || w === 6 ? 'no ' : 'na ') + DIAS_SEMANA[w];
+const vdListaDias = (ds)=> ds.length === 1 ? ds[0] : ds.slice(0,-1).join(', ') + ' e ' + ds[ds.length-1];
+/* "▲ 5,2% vs. Julho/2026" — só quando há mês anterior importado. */
+function vdVariacao(atual, anterior, rotulo){
+  if(!anterior) return '';
+  const pct = (atual / anterior - 1) * 100;
+  return (Math.abs(pct) < 0.05 ? 'igual a ' : (pct > 0 ? '▲ ' : '▼ ') + vdPct(Math.abs(pct)) + ' vs. ') + rotulo;
+}
+
+/* As frases da "leitura do mês". Cada uma só entra quando o número justifica — num mês
+   sem dia fora da curva, por exemplo, não aparece sugestão de conferir dia nenhum. */
+function leituraVendas(a, ant){
+  const analises = [], sugestoes = [];
+  const R = (v)=> fmtMoeda(r2(v));
+  const semana = a.semana.filter(s=> s.n > 0);
+
+  if(ant){
+    const dv = (a.venda / ant.a.venda - 1) * 100;
+    const varSimples = (x, y)=> vdVariacao(x, y, '').replace(' vs. ', '');
+    analises.push(['', '<b>' + (dv >= 0 ? 'Vendeu ' + vdPct(dv) + ' a mais' : 'Vendeu ' + vdPct(-dv) + ' a menos') +
+      ' que em ' + mesLabel(ant.mes) + '.</b> Clientes: ' + varSimples(a.clientes, ant.a.clientes) +
+      '; ticket médio: ' + varSimples(a.ticket, ant.a.ticket) +
+      '; margem da mercadoria de ' + vdPct(a.margem) + ' contra ' + vdPct(ant.a.margem) + '.']);
+  }
+
+  /* ---- os dias que pedem conferência ---- */
+  if(a.foraDaCurva.length){
+    const lista = a.foraDaCurva.slice(0, 3);
+    analises.push(['vd-alerta', '<b>' + (lista.length === 1 ? 'Um dia fechou' : lista.length + ' dias fecharam') + ' fora da curva.</b> ' +
+      lista.map(d=> vdDia(d.data) + ' (' + DIAS_SEMANA[d.dow] + ') vendeu ' + R(d.venda) + ' com mercadoria custando ' + R(d.custo) +
+        ': margem de ' + vdPct(d.margem) + ' contra ' + vdPct(a.margem) + ' no mês' +
+        (d.lucro < 0 ? ', e prejuízo de ' + R(-d.lucro) + ' depois dos encargos' : '')).join('; ') + '.']);
+    sugestoes.push(['vd-alerta', '<b>Conferir as vendas de ' + vdListaDias(lista.map(d=> vdDia(d.data))) + '.</b> ' +
+      'Margem tão abaixo do normal num dia comum costuma ser produto vendido abaixo do custo: preço errado no caixa, custo cadastrado errado, ' +
+      'promoção sem margem ou venda grande com desconto. Se for cadastro, corrigir antes que se repita.']);
+  }
+  if(a.lucroFraco.length){
+    const lista = a.lucroFraco.slice(0, 5);
+    analises.push(['vd-atencao', '<b>' + (a.lucroFraco.length === 1 ? 'Um dia deixou' : a.lucroFraco.length + ' dias deixaram') +
+      ' menos da metade do lucro normal.</b> ' + vdListaDias(lista.map(d=> vdDia(d.data) + ' (' + vdPct(d.lucroPct, 2) + ')')) +
+      (a.lucroFraco.length > lista.length ? ', entre outros' : '') + ', contra ' + vdPct(a.lucroPct, 2) + ' no mês. Venderam, mas quase não sobrou nada.']);
+  }
+
+  /* ---- a semana ---- */
+  if(semana.length >= 3){
+    const forte = semana.reduce((x,y)=> y.media > x.media ? y : x);
+    const fraco = semana.reduce((x,y)=> y.media < x.media ? y : x);
+    if(forte.media > fraco.media * 1.3){
+      analises.push(['', '<b>' + vdNomeDia(forte.w) + ' é o dia mais forte da semana.</b> Vende em média ' + R(forte.media) +
+        ', ' + vdVezes(forte.media / fraco.media) + ' vezes ' + vdO(fraco.w) + ' (' + R(fraco.media) + '), o mais fraco. ' +
+        'Entram ' + vdPct((forte.clientes / fraco.clientes - 1) * 100, 0) + ' mais clientes e cada um gasta ' +
+        (forte.ticket >= fraco.ticket
+          ? vdPct((forte.ticket / fraco.ticket - 1) * 100, 0) + ' a mais'
+          : vdPct((1 - forte.ticket / fraco.ticket) * 100, 0) + ' a menos') +
+        ' (ticket de ' + R(forte.ticket) + ' contra ' + R(fraco.ticket) + ').']);
+    }
+    const menorTicket = semana.reduce((x,y)=> y.ticket < x.ticket ? y : x);
+    const maiorTicket = semana.reduce((x,y)=> y.ticket > x.ticket ? y : x);
+    if(maiorTicket.ticket > menorTicket.ticket * 1.4){
+      const frase = vdNo(menorTicket.w);
+      sugestoes.push(['', '<b>Aumentar o ticket nos dias de compra pequena.</b> ' + frase.charAt(0).toUpperCase() + frase.slice(1) +
+        ' cada cliente gasta ' + R(menorTicket.ticket) +
+        (a.temItens ? ' e leva ' + vdVezes(menorTicket.itensCliente) + ' itens' : '') +
+        ', contra ' + R(maiorTicket.ticket) + (a.temItens ? ' e ' + vdVezes(maiorTicket.itensCliente) + ' itens' : '') + ' ' + vdNo(maiorTicket.w) +
+        '. Combos (carne e carvão, café da manhã), produto de impulso perto do caixa e oferta de "leve mais, pague menos" ajudam a subir esse valor.']);
+    }
+    const doisFortes = semana.slice().sort((x,y)=> y.media - x.media).slice(0, 2).map(s=> vdNo(s.w));
+    sugestoes.push(['', '<b>Escala e reposição pelos dias fortes.</b> Reforçar caixas, açougue e reposição ' +
+      doisFortes.join(' e ') + ', e concentrar folgas ' + vdNo(fraco.w) + ', o dia que menos vende.']);
+  }
+
+  /* ---- o mês ---- */
+  const f = a.faixas;
+  if(f[0].n && f[1].n && f[2].n){
+    const menorF = f.reduce((x,y)=> y.media < x.media ? y : x);
+    const maiorF = f.reduce((x,y)=> y.media > x.media ? y : x);
+    const meioCai = menorF === f[1] && f[1].media < Math.min(f[0].media, f[2].media) * 0.9;
+    const dias5 = a.top5.map(d=> vdDia(d.data));
+    analises.push(['', (meioCai
+        ? '<b>O começo e o fim do mês vendem mais que o meio.</b> '
+        : '<b>Como a venda se espalhou pelo mês.</b> ') +
+      'Nos dias 1 a 10 a média foi ' + R(f[0].media) + ' por dia; nos dias 11 a 20, ' + R(f[1].media) +
+      (meioCai ? ' (' + vdPct((1 - f[1].media / maiorF.media) * 100, 0) + ' menos que o melhor terço)' : '') +
+      '; do dia 21 ao fim, ' + R(f[2].media) + '. Os 5 melhores dias (' + vdListaDias(dias5) +
+      ') fizeram ' + vdPct(a.top5Pct, 0) + ' do faturamento' + (meioCai ? ', o que coincide com as datas de salário.' : '.')]);
+    if(meioCai){
+      sugestoes.push(['', '<b>Ação comercial entre os dias 11 e 20.</b> É quando a venda cai. Uma oferta fixa na semana ' +
+        '(de açougue, por exemplo) ajuda a trazer o cliente antes do próximo salário.']);
+      sugestoes.push(['', '<b>Estoque cheio antes dos picos.</b> Programar as entregas dos fornecedores para chegarem antes ' +
+        'dos primeiros dias do mês e da última semana, e não no meio deles.']);
+    }
+    const margMax = f.reduce((x,y)=> y.margem > x.margem ? y : x);
+    const margMin = f.reduce((x,y)=> y.margem < x.margem ? y : x);
+    if(margMax.margem - margMin.margem >= 2){
+      analises.push(['', '<b>A margem mudou ao longo do mês.</b> Nos dias ' + margMin.a + ' a ' + margMin.b + ' ficou em ' + vdPct(margMin.margem) +
+        ', contra ' + vdPct(margMax.margem) + ' nos dias ' + margMax.a + ' a ' + margMax.b + '. Ou saiu mais produto de margem baixa (ofertas, carne de promoção), ' +
+        'ou o custo subiu e o preço não acompanhou.']);
+      sugestoes.push(['', '<b>Revisar preços nos dias ' + margMin.a + ' a ' + margMin.b + '.</b> Conferir se entrou mercadoria com custo novo sem reajuste ' +
+        'na etiqueta, e se as ofertas desse período valeram o que custaram.']);
+    }
+  }
+
+  /* ---- para onde vai o dinheiro ---- */
+  if(a.venda > 0){
+    const por100 = (v)=> fmtMoeda(r2(v / a.venda * 100));
+    analises.push([a.lucro < 0 ? 'vd-alerta' : '', '<b>De cada R$ 100,00 vendidos, ' +
+      (a.lucro >= 0 ? 'sobram ' + por100(a.lucro) : 'faltam ' + por100(-a.lucro)) + ' de lucro.</b> ' +
+      por100(a.custo) + ' pagam a mercadoria e ' + por100(a.encargos) + ' vão em encargos — impostos e a despesa operacional que o sistema de vendas estima. ' +
+      'Sobre a mercadoria, a margem é de ' + vdPct(a.margem) + '.']);
+  }
+  if(a.venda > 0 && a.lucroPct < 6){
+    sugestoes.push([a.lucro < 0 ? 'vd-alerta' : '', '<b>Margem apertada: revisar o preço dos itens que mais vendem.</b> ' +
+      'Com este faturamento, cada ponto de margem recuperado vale ' + R(a.venda / 100) + ' por mês.']);
+  }
+  if(a.venda > 0 && a.encargos > 0){
+    sugestoes.push(['', '<b>Confirmar com a contabilidade o que entra em "encargos".</b> São ' + vdPct(a.encargosPct) + ' da venda (' + R(a.encargos) + '). ' +
+      (a.despPct != null
+        ? 'O relatório soma ' + vdPct(a.despPct, 0) + ' fixos de despesa operacional estimada'
+        : 'No outro relatório do mesmo sistema, 18 pontos disso eram despesa operacional fixa, estimada') +
+      ': o lucro mostrado depende dessa estimativa. Cada ponto a mais ou a menos muda o resultado em ' + R(a.venda / 100) + '.']);
+  }
+
+  /* ---- só no formato antigo ---- */
+  if(a.temCompras && a.custo > 0){
+    const xVenda = a.compras / a.venda, xCusto = a.compras / a.custo;
+    if(xCusto > 1.3){
+      analises.push(['vd-atencao', '<b>Comprou ' + R(a.compras) + ', ' + vdVezes(xVenda) + ' vezes o que vendeu.</b> ' +
+        'A mercadoria que saiu, a preço de custo, somou ' + R(a.custo) + ': ' + R(a.compras - a.custo) + ' a mais entraram em estoque ou não são mercadoria de revenda.']);
+      sugestoes.push(['vd-atencao', '<b>Rever o volume de compras.</b> Confirmar se os ' + R(a.compras) +
+        ' são todos mercadoria de revenda desta filial e se o estoque formado foi planejado.']);
+    }
+  }
+  const series = Object.keys(a.series || {});
+  if(series.length > 1){
+    const tot = series.reduce((s,k)=> s + toNum(a.series[k]), 0);
+    if(tot > 0){
+      analises.push(['', '<b>Vendas por série de NFC-e:</b> ' + series.map(k=> 'série ' + k + ' com ' + vdPct(toNum(a.series[k]) / tot * 100, 0) +
+        ' (' + R(a.series[k]) + ')').join(', ') + '. Normalmente cada série corresponde a um caixa.']);
+    }
+  }
+  return {analises: analises, sugestoes: sugestoes};
+}
+
+function renderVendasInicio(){
+  const alvo = document.getElementById('iniVendas');
+  const base = state.vendasDiarias || {};
+  const meses = Object.keys(base).filter(m=> /^\d{4}-\d{2}$/.test(m) && base[m] && (base[m].dias || []).length).sort();
+  const mesPassado = mesAnteriorDe(mesAtualPadrao());
+  const mes = (vendasMesEscolhido && base[vendasMesEscolhido]) ? vendasMesEscolhido
+            : base[mesPassado] ? mesPassado : meses[meses.length - 1];
+
+  const botao = '<button type="button" class="btn btn-outline" data-vd-importar>Importar relatório de vendas</button>';
+  const seletor = meses.length > 1
+    ? '<select data-vd-mes title="Escolher o mês das vendas">' + meses.slice().reverse().map(m=>
+        '<option value="' + m + '"' + (m === mes ? ' selected' : '') + '>' + mesLabel(m) + '</option>').join('') + '</select>'
+    : '';
+  const cabecalho = (titulo, nota)=> '<div class="dash-secao"><h3>' + escHtml(titulo) + '</h3>' +
+    '<span class="dash-nota">' + escHtml(nota) + '</span><div class="vd-acoes">' + seletor + botao + '</div></div>' +
+    '<input type="file" id="vdArquivo" accept=".xls,.xlsx,.txt" hidden>';
+
+  if(!mes){
+    alvo.innerHTML = cabecalho('Vendas da loja', 'nenhum relatório importado ainda') +
+      '<div class="ini-card vd-vazio"><h3>Importe as vendas de ' + escHtml(mesLabel(mesPassado)) + '</h3>' +
+      '<div class="ini-desc">Gere o relatório "Resumo diário de vendas" do mês inteiro, salve em Excel e clique em ' +
+      '<b>Importar relatório de vendas</b>. O painel monta sozinho os números, os gráficos, a leitura do mês e as sugestões.</div>' +
+      botao + '</div>';
+    return;
+  }
+
+  const reg = base[mes];
+  const a = analisarVendas(reg);
+  a.series = reg.series || {};
+  const mesAnt = mesAnteriorDe(mes);
+  const ant = base[mesAnt] ? {mes: mesAnt, a: analisarVendas(base[mesAnt])} : null;
+  const rotAnt = ant ? mesLabel(mesAnt) : '';
+
+  let nota = (reg.filial ? 'filial ' + reg.filial + ' · ' : '') + 'importado em ' +
+    new Date(reg.importadoEm).toLocaleDateString('pt-BR') + (reg.importadoPor ? ' por ' + reg.importadoPor : '');
+  if(mes !== mesPassado && !base[mesPassado]) nota += ' · o relatório de ' + mesLabel(mesPassado) + ' ainda não foi importado';
+
+  /* ---- números grandes ---- */
+  const xCompras = a.custo > 0 ? a.compras / a.custo : 0;
+  const quinto = a.temCompras
+    ? kpiGrande('Compras no mês', fmtMoeda(r2(a.compras)),
+        vdVezes(a.compras / a.venda) + ' vezes o que foi vendido', xCompras > 1.3 ? 'kb-alerta' : 'kb-neutro')
+    : kpiGrande('Itens vendidos', vdInt(a.itens),
+        vdVezes(a.itensCliente) + ' itens por cliente · ' + fmtMoeda(r2(a.itens ? a.venda / a.itens : 0)) + ' por item', 'kb-neutro');
+  const kpis =
+    kpiGrande('Vendas de ' + mesLabel(mes), fmtMoeda(r2(a.venda)),
+      a.comVenda.length + ' dia(s) · média de ' + fmtMoeda(r2(a.mediaDia)) + ' por dia' +
+      (ant ? ' · ' + vdVariacao(a.venda, ant.a.venda, rotAnt) : ''), '') +
+    kpiGrande('Clientes atendidos', vdInt(a.clientes),
+      vdInt(a.clientesDia) + ' por dia · ticket médio de ' + fmtMoeda(r2(a.ticket)) +
+      (ant ? ' · ticket ' + vdVariacao(a.ticket, ant.a.ticket, rotAnt) : ''), 'kb-info') +
+    kpiGrande('Margem da mercadoria', vdPct(a.margem),
+      fmtMoeda(r2(a.venda - a.custo)) + ' acima do custo da mercadoria, antes dos encargos', 'kb-neutro') +
+    kpiGrande('Lucro depois dos encargos', fmtMoeda(r2(a.lucro)),
+      vdPct(a.lucroPct, 2) + ' das vendas · encargos de ' + fmtMoeda(r2(a.encargos)) + ' (' + vdPct(a.encargosPct) + ')',
+      a.lucro < 0 ? 'kb-critico' : a.lucroPct < 5 ? 'kb-alerta' : 'kb-neutro') +
+    quinto;
+
+  /* ---- leitura do mês ---- */
+  const l = leituraVendas(a, ant);
+  /* O que pede ação vem primeiro: vermelho, depois amarelo, depois o resto na ordem escrita. */
+  const peso = {'vd-alerta': 0, 'vd-atencao': 1};
+  const lista = (itens)=> '<ul class="vd-lista">' + itens.map((it, i)=> [it, i])
+    .sort((x, y)=> ((peso[x[0][0]] ?? 2) - (peso[y[0][0]] ?? 2)) || (x[1] - y[1])).map(x=> x[0])
+    .map(i=> '<li' + (i[0] ? ' class="' + i[0] + '"' : '') + '>' + i[1] + '</li>').join('') + '</ul>';
+  const leitura = '<div class="ini-card largo vd-leitura-card"><h3>Leitura de ' + escHtml(mesLabel(mes)) + '</h3>' +
+    '<div class="ini-desc">O que o relatório de vendas mostra, e o que a diretoria pode fazer com isso. As frases são montadas a partir dos números do mês.</div>' +
+    '<div class="vd-leitura"><div><h4><i></i>O que os números mostram</h4>' + lista(l.analises) + '</div>' +
+    '<div class="vd-sug"><h4><i></i>Sugestões para a diretoria</h4>' + lista(l.sugestoes) + '</div></div></div>';
+
+  /* ---- gráficos ---- */
+  const fora = {}, fraco = {};
+  a.foraDaCurva.forEach(d=> fora[d.data] = true);
+  a.lucroFraco.forEach(d=> fraco[d.data] = true);
+  const rotDia = (d)=> vdDia(d.data);
+  const longo = (d)=> DIAS_SEMANA[d.dow] + ', ' + dataBR(d.data);
+
+  const gVendas = a.dias.map(d=> ({
+    rot: rotDia(d), rotLongo: longo(d), valor: d.venda,
+    dica: vdInt(d.clientes) + ' clientes · ticket ' + fmtMoeda(r2(d.ticket)) + ' · lucro ' + vdPct(d.lucroPct, 2)
+  }));
+  const melhor = a.ranking[0], pior = a.ranking[a.ranking.length - 1];
+  const gMargem = a.dias.map(d=> ({
+    rot: rotDia(d), rotLongo: longo(d), valor: r2(d.margem),
+    cor: fora[d.data] ? CORES_GRAFICO[4] : fraco[d.data] ? CORES_GRAFICO[2] : CORES_GRAFICO[1],
+    dica: 'lucro depois dos encargos: ' + fmtMoeda(r2(d.lucro)) + ' (' + vdPct(d.lucroPct, 2) + ')'
+  }));
+  const margens = a.comVenda.slice().sort((x,y)=> y.margem - x.margem);
+
+  const semanaOrdem = [1,2,3,4,5,6,0].map(w=> a.semana[w]).filter(s=> s.n > 0);
+  const destaque = (lista, k, corForte, corFraca)=>{
+    const maior = Math.max.apply(null, lista.map(s=> s[k]));
+    return (s)=> ({destaque: s[k] === maior, cor: s[k] === maior ? corForte : corFraca});
+  };
+  const dSem = destaque(semanaOrdem, 'media', CORES_GRAFICO[0], '#9ccfb0');
+  const dCli = destaque(semanaOrdem, 'clientes', CORES_GRAFICO[1], '#a9c7e3');
+  const dTk  = destaque(semanaOrdem, 'ticket', CORES_GRAFICO[3], '#bca9e3');
+  const dIt  = destaque(semanaOrdem, 'itensCliente', CORES_GRAFICO[5], '#9fd3cb');
+  const gSemana   = semanaOrdem.map(s=> Object.assign({rot: DIAS_CURTOS[s.w], valor: r2(s.media)}, dSem(s)));
+  const gClientes = semanaOrdem.map(s=> Object.assign({rot: DIAS_CURTOS[s.w], valor: Math.round(s.clientes)}, dCli(s)));
+  const gTicket   = semanaOrdem.map(s=> Object.assign({rot: DIAS_CURTOS[s.w], valor: r2(s.ticket)}, dTk(s)));
+  const gItens    = semanaOrdem.map(s=> Object.assign({rot: DIAS_CURTOS[s.w], valor: s.itensCliente}, dIt(s)));
+  const gFaixas = a.faixas.filter(f=> f.n).map(f=> ({rot: 'Dias ' + f.a + ' a ' + f.b, valor: r2(f.media), cor: CORES_GRAFICO[2]}));
+
+  const gDestino = [
+    {rot: 'Mercadoria (custo)',                          valor: r2(a.custo),    cor: CORES_GRAFICO[6]},
+    {rot: 'Encargos (impostos e despesa estimada)',      valor: r2(a.encargos), cor: CORES_GRAFICO[2]},
+    {rot: 'Lucro',                                       valor: r2(a.lucro),    cor: CORES_GRAFICO[0]}
+  ];
+  const oitavo = a.temCompras
+    ? cardGrafico('Compras x vendas',
+        'O que entrou de mercadoria no mês comparado com o que saiu. Comprar muito acima do custo do que foi vendido é estoque crescendo.',
+        svgBarras([
+          {rot: 'Vendido',             valor: r2(a.venda),   cor: CORES_GRAFICO[0]},
+          {rot: 'Custo do que vendeu', valor: r2(a.custo),   cor: CORES_GRAFICO[6]},
+          {rot: 'Comprado',            valor: r2(a.compras), cor: xCompras > 1.3 ? CORES_GRAFICO[2] : CORES_GRAFICO[1]}
+        ], {curto: true}))
+    : cardGrafico('Itens por cliente por dia da semana',
+        'Quantos itens cada cliente levou, em média. Junto com o ticket, mostra se o cliente compra mais coisas ou só coisas mais caras.',
+        a.temItens ? svgBarras(gItens, {fmt: (v)=> vdVezes(v)}) : '<div class="ini-vazio">O relatório não trouxe a quantidade de itens.</div>');
+
+  const pctCurto = (v)=> vdPct(v);
+  const graficos = '<div class="ini-grid">' +
+    cardGrafico('Vendas dia a dia',
+      'Quanto a loja vendeu em cada dia de ' + mesLabel(mes) + '. Passe o mouse num dia para ver clientes, ticket médio e lucro.',
+      svgDiario(gVendas, {cor: CORES_GRAFICO[0], modo: 'barras', kpis: [
+        ['Vendido no mês', fmtMoeda(r2(a.venda)), a.dias.length + ' dia(s) no relatório'],
+        ['Média por dia', fmtMoeda(r2(a.mediaDia)), a.comVenda.length + ' dia(s) com venda'],
+        ['Melhor dia', melhor ? fmtMoeda(r2(melhor.venda)) : '—', melhor ? longo(melhor) : ''] ]})) +
+    cardGrafico('Venda média por dia da semana',
+      'Média de venda de cada dia da semana no mês. A barra escura é o dia mais forte' +
+      (pior ? '; o dia de menor venda do mês foi ' + longo(pior) + ', com ' + fmtMoeda(r2(pior.venda)) : '') + '.',
+      svgBarras(gSemana, {curto: true})) +
+    cardGrafico('Clientes por dia da semana',
+      'Quantos clientes passaram pelo caixa, em média, em cada dia da semana.',
+      svgBarras(gClientes, {fmt: vdInt})) +
+    cardGrafico('Ticket médio por dia da semana',
+      'Quanto cada cliente gastou, em média. Dia de ticket baixo é dia de compra de reposição; dia de ticket alto é a compra do mês.',
+      svgBarras(gTicket, {})) +
+    cardGrafico('Começo, meio e fim do mês',
+      'Venda média por dia em cada terço do mês. Mostra o peso das datas de salário no movimento da loja.',
+      svgBarras(gFaixas, {curto: true})) +
+    cardGrafico('Margem da mercadoria dia a dia',
+      'Venda menos o custo da mercadoria, em porcentagem da venda. A linha tracejada é a margem do mês. ' +
+      'Vermelho é dia fora da curva; laranja é dia que deixou menos da metade do lucro normal.',
+      svgDiario(gMargem, {cor: CORES_GRAFICO[1], modo: 'barras', fmt: pctCurto, fmtCurto: pctCurto, media: r2(a.margem), kpis: [
+        ['Margem do mês', vdPct(a.margem), 'sobre ' + fmtMoeda(r2(a.venda)) + ' vendidos'],
+        ['Maior margem', margens.length ? vdPct(margens[0].margem) : '—', margens.length ? longo(margens[0]) : ''],
+        ['Menor margem', margens.length ? vdPct(margens[margens.length-1].margem) : '—', margens.length ? longo(margens[margens.length-1]) : ''] ]})) +
+    cardGrafico('Para onde vai o dinheiro das vendas',
+      'Tudo o que foi vendido, dividido pelo que paga cada parte. Os encargos são os do relatório: impostos mais a despesa operacional ' +
+      'que o sistema de vendas estima, e não a despesa real do mês' + (a.lucro < 0 ? '. O mês fechou negativo, por isso o lucro não aparece' : '') + '.',
+      svgRosca(gDestino, 'Vendido')) +
+    oitavo +
+  '</div>';
+
+  alvo.innerHTML = cabecalho('Vendas da loja — ' + mesLabel(mes), nota) +
+    '<div class="kpis-destaque">' + kpis + '</div>' + leitura + graficos;
+}
+
+/* Ouvintes presos ao contêiner, que não é recriado: o conteúdo de dentro é. */
+document.getElementById('iniVendas').addEventListener('click', (e)=>{
+  if(e.target.closest('[data-vd-importar]')){
+    const inp = document.getElementById('vdArquivo');
+    if(inp){ inp.value = ''; inp.click(); }
+  }
+});
+document.getElementById('iniVendas').addEventListener('change', (e)=>{
+  if(e.target.id === 'vdArquivo' && e.target.files && e.target.files[0]) importarRelatorioVendas(e.target.files[0]);
+  else if(e.target.matches('[data-vd-mes]')){ vendasMesEscolhido = e.target.value; renderInicio(); }
+});
 
 function kpiGrande(rot, val, sub, classe){
   return '<div class="kpi-big '+(classe||'')+'"><div class="kb-rot">'+escHtml(rot)+'</div>' +
@@ -20588,9 +21368,9 @@ atualizarSalarioBaseComHistorico();
 popularSelectMes();
 renderLista();
 if(!state.pontoAba) state.pontoAba = 'resumo';
-/* O sistema sempre abre na tela inicial: é a visão da diretoria, com os gráficos do
-   mês e os avisos do que precisa de decisão. */
-trocarAba('inicio');
+/* O sistema sempre abre no Lançar Recebimento — o trabalho do dia (pedido de 14/09/2026).
+   A antiga tela inicial virou o Fechamento Mensal, no fim do menu e atrás da senha. */
+trocarAba(ABA_PADRAO);
 fecharAoClicarFora('overlayNuvem');
 fecharAoClicarFora('overlayVincular');
 fecharAoClicarFora('overlayCliente');
