@@ -2531,11 +2531,77 @@
      opacidade) — se um dia algum criar, eles ficam presos embaixo da cortina. */
   .foco-soma-cortina{position:fixed;inset:0;z-index:44;background:rgba(12,20,15,.6);
     opacity:0;visibility:hidden;transition:opacity .13s var(--saida), visibility 0s linear .13s;}
-  body.foco-soma .foco-soma-cortina{opacity:1;visibility:visible;transition:opacity .17s var(--suave), visibility 0s;}
+  body.foco-soma .foco-soma-cortina,body.foco-pagamento .foco-soma-cortina{opacity:1;visibility:visible;transition:opacity .17s var(--suave), visibility 0s;}
+  #recPagamentoFoco,.rec-pagamento-topo,.rec-pagamento-rodape{display:none;}
+  body.foco-pagamento{overflow:hidden;}
+  body.foco-pagamento #recPagamentoFoco{position:fixed;z-index:46;inset:0;margin:auto;
+    width:min(1040px,calc(100% - 32px));height:fit-content;max-height:calc(100dvh - 32px);
+    display:flex;flex-direction:column;min-width:0;background:var(--superficie);color:var(--texto);
+    border-radius:20px;box-shadow:0 24px 70px rgba(0,0,0,.3);overflow:hidden;
+    transform-origin:center;animation:rec-pagamento-abrir .24s cubic-bezier(.2,.8,.2,1);}
+  @keyframes rec-pagamento-abrir{
+    from{opacity:0;transform:scale(.92);}
+    to{opacity:1;transform:scale(1);}
+  }
+  @media(prefers-reduced-motion:reduce){
+    body.foco-pagamento #recPagamentoFoco{animation:none;}
+  }
+  body.foco-pagamento .rec-pagamento-topo{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:20px 24px;border-bottom:1px solid var(--cinza-borda);flex-shrink:0;}
+  .rec-pagamento-topo h3{margin:0;font-size:22px;}
+  .rec-pagamento-topo p{margin:4px 0 0;color:var(--texto-fraco);overflow-wrap:anywhere;}
+  body.foco-pagamento .rec-pagamento-conteudo{padding:20px 24px;overflow:auto;min-height:0;overscroll-behavior:contain;}
+  body.foco-pagamento #recSomatorio{padding:16px 20px;align-items:center;}
+  body.foco-pagamento #recSomatorio .rs-bloco:first-child .rs-rot{font-size:14px;}
+  body.foco-pagamento #recSomatorio .rs-bloco:first-child .rs-val{font-size:32px;line-height:1.2;white-space:normal;overflow-wrap:anywhere;}
+  body.foco-pagamento #recMods{grid-template-columns:repeat(5,minmax(0,1fr));gap:10px;}
+  body.foco-pagamento #recMods .rec-mod{padding:12px 10px;min-width:0;}
+  body.foco-pagamento #recMods .rm-topo{font-size:14px;}
+  body.foco-pagamento #recMods input,body.foco-pagamento #recMods .rm-valor{font-size:20px;min-height:38px;}
+  body.foco-pagamento #recMods .rm-nota,body.foco-pagamento #recMods .rm-add,
+  body.foco-pagamento #recMods .rm-soma{font-size:12px;}
+  body.foco-pagamento .rec-pagamento-rodape{display:flex;flex-wrap:wrap;align-items:center;gap:10px;
+    padding:16px 24px;border-top:1px solid var(--cinza-borda);flex-shrink:0;}
+  body.foco-pagamento #recAcoesRegistro{flex:1;margin:0;gap:10px;}
+  body.foco-pagamento #recAviso:empty{display:none;}
+  #btnRecPagamentoVoltar{background:var(--aviso-cont);color:var(--aviso-texto);border:1px solid var(--aviso-borda);}
+  body.foco-pagamento #recPagamentoFoco .btn{white-space:normal;min-height:44px;}
+  @media(max-width:900px){body.foco-pagamento #recMods{grid-template-columns:repeat(3,minmax(0,1fr));}}
+  @media(max-width:560px){
+    body.foco-pagamento #recPagamentoFoco{width:calc(100% - 16px);max-height:calc(100dvh - 16px);border-radius:14px;}
+    body.foco-pagamento .rec-pagamento-topo,body.foco-pagamento .rec-pagamento-conteudo,
+    body.foco-pagamento .rec-pagamento-rodape{padding:12px;}
+    body.foco-pagamento #recMods{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+    body.foco-pagamento #recMods .rm-topo{font-size:12px;}
+    body.foco-pagamento #recSomatorio .rs-bloco:first-child{grid-column:1 / -1;}
+    body.foco-pagamento #recAcoesRegistro{flex-basis:100%;}
+    body.foco-pagamento #btnRecSalvar{flex:1;}
+  }
   body.foco-soma #recSomaArea,body.foco-soma #recCalcBox .cb-soma{position:relative;z-index:46;
     box-shadow:0 0 0 3px rgba(255,255,255,.55), 0 20px 44px rgba(0,0,0,.35);}
   body.foco-soma #recCalcBox .cb-soma{background:var(--md-surface-container-low);}
   #btnRecSomaConcluir{width:100%;margin-top:10px;white-space:normal;}
+  .rec-etapas{display:flex;flex-wrap:wrap;gap:6px;list-style:none;padding:0;margin:0 0 14px;}
+  .rec-etapas li{flex:1 1 120px;padding:8px 10px;border-radius:var(--r-sm);background:var(--md-surface-container);font-size:12px;color:var(--texto-fraco);}
+  .rec-etapas li[aria-current=step]{background:var(--md-primary-container);color:var(--md-on-primary-container);font-weight:700;}
+  .rec-fluxo-nav{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+  .rec-fluxo-nav .rec-etapas{flex:1 1 480px;margin:0;}
+  .rec-fluxo-nav .btn{padding:8px 14px;min-height:36px;white-space:normal;}
+  .rec-fluxo-nav [hidden]{display:none;}
+  #btnRecVoltar{background:var(--aviso-cont);color:var(--aviso-texto);border:1px solid var(--aviso-borda);font-weight:700;}
+  body.foco-soma #btnRecVoltar{position:relative;z-index:46;box-shadow:0 0 0 3px rgba(255,255,255,.55);}
+  .rec-etapa-bloqueada{opacity:.65;}
+  .rec-etapa-bloqueada :is(input,button,select){cursor:not-allowed;}
+  body.foco-soma #recEtapaNotinhas{position:relative;z-index:46;
+    box-shadow:0 0 0 3px rgba(255,255,255,.55);}
+  .rec-revisao-dados{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:0;}
+  .rec-revisao-dados dt{font-size:12px;color:var(--texto-fraco);}
+  .rec-revisao-dados dd{margin:3px 0 0;font-weight:600;overflow-wrap:anywhere;white-space:pre-wrap;}
+  .rec-revisao-dados>div{padding:10px;background:var(--md-surface-container-lowest);border-radius:var(--r-sm);min-width:0;}
+  .rec-proxima-acao{margin-top:10px;font-size:12px;font-weight:600;color:var(--marca-esc);}
+  .rec-proxima-acao.atencao{color:var(--erro-texto);}
+  .rec-salvamento{font-size:12px;color:var(--texto-fraco);margin:8px 0;}
+  @media(max-width:480px){.rec-revisao-dados{grid-template-columns:minmax(0,1fr);}}
 
   /* ---------- LANÇAR RECEBIMENTO EM UMA TELA SÓ (14/09/2026) ----------
      A tela ficava tão alta que para chegar no "Registrar recebimento" era preciso rolar.
@@ -2562,13 +2628,33 @@
   #viewRecLancar #recCalcBox .cb-campo label{font-size:11.5px;font-weight:600;color:var(--md-on-surface-variant);}
   #viewRecLancar #recCalcBox .cb-campo input[readonly]{font-size:22px;padding:4px 12px;}
   .rec-form.passo-cliente #recCalcBox .cb-campo{background:none;}
-  /* A faixa das notinhas somadas, na coluna larga logo acima do resumo. */
-  #viewRecLancar .conta-box .notas-area{margin:0 0 10px;padding:7px 12px;border-top:none;
-    background:var(--md-surface-container-low);border-radius:var(--r-lg);
-    display:flex;align-items:center;gap:6px 10px;flex-wrap:wrap;}
-  #viewRecLancar .conta-box .na-topo{margin:0;}
-  /* A frase longa repete o que o resumo logo abaixo já mostra (o total) — fica só o rótulo. */
-  #viewRecLancar .conta-box .na-resumo{display:none;}
+  /* Conferência das notinhas ao lado da calculadora; pagamentos ficam no modal. */
+  #viewRecLancar #recSomaArea{margin:0;padding:20px;border:none;display:block;
+    background:var(--md-surface-container-low);border-radius:var(--r-lg);}
+  #recSomaArea .rec-notas-titulo{margin:0 0 14px;font-size:15px;color:var(--texto);}
+  #recSomaArea .rec-notas-total{padding:16px 20px;margin-bottom:16px;
+    border-radius:var(--r-lg);background:var(--md-primary-container);color:var(--md-on-primary-container);}
+  #recSomaArea .rec-notas-total>span{display:block;font-size:13px;font-weight:600;}
+  #recSomaArea #recNotasTotal{display:block;font-size:clamp(28px,3.2vw,40px);line-height:1.2;
+    margin:4px 0;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;}
+  #recSomaArea #recSomaTxt{display:block;font-size:13px;}
+  #recSomaArea #recSomaChips{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));
+    gap:10px;list-style:none;padding:0;margin:0;max-height:230px;overflow:auto;overscroll-behavior:contain;}
+  #recSomaArea .cb-chip{display:flex;min-width:0;gap:10px;padding:8px 10px;font-size:16px;}
+  #recSomaArea .cb-num{font-size:12px;opacity:1;min-width:24px;text-align:center;}
+  #recSomaArea .rec-nota-valor{flex:1;font-weight:650;overflow-wrap:anywhere;font-variant-numeric:tabular-nums;}
+  #recSomaArea .cb-chip button{width:32px;height:32px;flex-shrink:0;font-size:20px;border-radius:8px;}
+  #recSomaArea .cb-chip button:focus-visible{outline:2px solid var(--marca);outline-offset:2px;}
+  #recNotasVazio{padding:24px 16px;text-align:center;border:1px dashed var(--cinza-borda);
+    border-radius:var(--r-lg);color:var(--texto-fraco);line-height:1.6;}
+  #recNotasVazio strong{display:block;margin-bottom:4px;color:var(--texto);font-size:15px;}
+  #recNotasDica{margin:12px 0 0;font-size:12px;line-height:1.5;color:var(--texto-fraco);}
+  #recSomaArea [hidden]{display:none!important;}
+  @media(max-width:820px){
+    #viewRecLancar #recSomaArea{padding:14px;}
+    #recSomaArea #recSomaChips{max-height:180px;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));}
+    #recNotasVazio{padding:14px;}
+  }
   #viewRecLancar .conta-box .cb-esq .secao-title{margin:12px 0 8px;}
   #viewRecLancar .conta-box .cb-soma{padding:10px;}
   #viewRecLancar .conta-box .calc-teclas button{padding:6px 0 7px;}
@@ -2601,6 +2687,137 @@
   #viewRecLancar .rec-col-dir .rec-acoes .rec-aviso:empty{display:none;}
   #viewRecLancar #btnRecSalvar{flex:1;padding-left:10px;padding-right:10px;}
   #viewRecLancar #btnRecLimpar{padding-left:14px;padding-right:14px;}
+
+  /* Um único espaço de trabalho, mostrando apenas a etapa em uso. */
+  #viewRecLancar .rec-form{max-width:980px;margin:0 auto;padding:24px;background:var(--superficie);}
+  #recForm [hidden]{display:none!important;}
+  #viewRecLancar #recForm[data-etapa="0"]{max-width:760px;}
+  #viewRecLancar .rec-fluxo-nav{margin-bottom:20px;gap:16px;}
+  #viewRecLancar .rec-etapas{flex:1 1 300px;gap:12px;}
+  #viewRecLancar .rec-etapas li{flex:0 1 auto;padding:6px 10px;background:transparent;font-size:12px;}
+  #viewRecLancar .rec-etapas li[aria-current="step"]{background:var(--md-primary-container);}
+  #viewRecLancar .rec-titulo-etapa{margin-bottom:20px;}
+  #viewRecLancar .rec-titulo-etapa h2{margin:0 0 4px;font-size:25px;line-height:1.2;}
+  #viewRecLancar #recContexto{margin:0;font-size:14px;color:var(--texto-fraco);overflow-wrap:anywhere;}
+  #viewRecLancar #recTravaAviso{display:none!important;}
+  #viewRecLancar .rec-cliente-acoes{display:flex;justify-content:flex-end;flex-wrap:wrap;gap:10px;margin-top:18px;}
+  #viewRecLancar #recForm:not([data-etapa="0"]) :is(#recEtapaCliente,#recFicha,.rec-cliente-acoes,#recSalvamento){display:none!important;}
+  #viewRecLancar #recForm:not([data-etapa="1"]) :is(#recSomaArea,#recCalcBox){display:none;}
+  #viewRecLancar #recForm:not([data-etapa="1"]) .rec-duas{display:block;}
+  #viewRecLancar #recForm[data-etapa="1"] .rec-duas{grid-template-columns:minmax(0,1fr) 300px;gap:24px;}
+  #viewRecLancar[data-etapa="1"] :is(#recDia,#recUltimos),
+  #viewRecLancar[data-etapa="2"] :is(#recDia,#recUltimos){display:none;}
+  #viewRecLancar #recPagamentoPausa{display:none;padding:20px 0;}
+  #viewRecLancar #recForm[data-etapa="2"] #recPagamentoPausa{display:block;}
+  #recPagamentoPausa p{margin:0 0 18px;color:var(--texto-fraco);}
+  #viewRecLancar #recForm[data-etapa="1"] #recAcoesRegistro{display:none;}
+  #viewRecLancar #recAcoesRegistro #btnRecSalvar{display:none;}
+  #viewRecLancar #recForm[data-etapa="2"] #btnRecLimpar{display:none;}
+  body.foco-pagamento #viewRecLancar #recAcoesRegistro #btnRecSalvar{display:block;}
+  #viewRecLancar #recSalvamento:empty{display:none;}
+  body.foco-soma #recForm{position:relative;z-index:46;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+  body.foco-soma #recSomaArea,body.foco-soma #recCalcBox .cb-soma,
+  body.foco-soma #btnRecVoltar,body.foco-soma #recEtapaNotinhas{z-index:auto;box-shadow:none;}
+  #viewRecLancar #recSomaArea{padding:0;background:transparent;border-radius:0;}
+  #recSomaArea .rec-notas-cabecalho{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;}
+  #recSomaArea .rec-notas-titulo{margin:0;font-size:13px;font-weight:600;color:var(--texto-fraco);}
+  #recSomaArea #btnRecSomaLimpar{display:none;}
+  #recSomaArea .rec-notas-total{background:var(--md-surface-container-low);padding:14px 18px;border-radius:12px;margin-bottom:12px;}
+  #recSomaArea #recNotasTotal{font-size:32px;margin:3px 0;}
+  #recSomaArea #recSomaTxt{font-size:12px;color:var(--texto-fraco);}
+  #recSomaArea #recSomaChips{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;max-height:220px;}
+  #recSomaArea .cb-chip{background:var(--md-surface-container-low);padding:5px 8px;font-size:14px;gap:6px;}
+  #recSomaArea .cb-num{font-size:11px;min-width:18px;}
+  #recNotasVazio{padding:28px 16px;font-size:13px;}
+  #recNotasDica{font-size:11px;}
+  #viewRecLancar #recCalcBox .cb-soma{padding:0;background:transparent;}
+  #viewRecLancar #recCalcBox :is(.cb-campo,.calc-acum){display:none;}
+  #viewRecLancar #recCalcBox .calc-topo{margin-bottom:10px;}
+  #viewRecLancar #recCalcBox .calc-rot{font-size:13px;font-weight:600;color:var(--texto);}
+  #viewRecLancar #recCalcBox .calc-visor{padding:0;border:0;background:transparent;box-shadow:none;margin-bottom:12px;}
+  #viewRecLancar #recSomaVal{background:var(--superficie);border:2px solid var(--marca);border-radius:12px;
+    color:var(--texto);font-size:30px;line-height:1.3;padding:10px 14px;box-shadow:none;}
+  #viewRecLancar #recCalcBox .calc-teclas button{min-height:36px;padding:6px 0;font-size:17px;}
+  #viewRecLancar #recCalcBox .calc-teclas button:not(.ct-func,.ct-mais){background:var(--md-surface-container-low);}
+  #viewRecLancar #recCalcBox .calc-teclas .ct-func{font-size:11px;}
+  #viewRecLancar #btnRecSomaConcluir{min-height:44px;}
+  #btnRecSomarCompacto,#btnRecTeclado{display:none;}
+  #viewRecLancar .rec-calc-ajuda{font-size:12px;line-height:1.5;margin:10px 0 0;color:var(--texto-fraco);}
+  .rec-atalhos{font-size:11px;color:var(--texto-fraco);margin-top:8px;}
+  .rec-atalhos summary,.rec-observacao-opcional summary{cursor:pointer;}
+  .rec-atalhos p{margin:6px 0 0;line-height:1.5;}
+  .rec-observacao-opcional{margin-top:14px;font-size:13px;color:var(--texto-fraco);}
+  @media(max-width:680px){
+    #viewRecLancar .rec-form{padding:16px;}
+    #viewRecLancar .rec-fluxo-nav{gap:8px;margin-bottom:14px;}
+    #viewRecLancar .rec-etapas{gap:2px;flex-basis:100%;}
+    #viewRecLancar .rec-etapas li{padding:6px 8px;}
+    #viewRecLancar .rec-titulo-etapa h2{font-size:22px;}
+    #viewRecLancar #recForm[data-etapa="1"] .rec-duas{grid-template-columns:minmax(0,1fr);gap:20px;}
+    #viewRecLancar #recEtapaCliente{grid-template-columns:minmax(0,1fr)!important;}
+    #recSomaArea #recSomaChips{max-height:110px;}
+    #recSomaArea .rec-notas-cabecalho{margin-bottom:8px;}
+    #recSomaArea .rec-notas-total{padding:10px 14px;}
+    #recSomaArea #recNotasTotal{font-size:26px;}
+    #recNotasVazio{padding:12px;}
+    #viewRecLancar #recCalcBox .calc-teclas button{min-height:38px;}
+    #viewRecLancar #recSomaTeclas{display:none;}
+    #viewRecLancar #recCalcBox.rec-teclado-aberto #recSomaTeclas{display:grid;}
+    #viewRecLancar .rec-soma-confirmacoes{display:flex;gap:10px;}
+    #viewRecLancar .rec-soma-confirmacoes .btn{display:block;flex:1;min-height:44px;margin:0;width:auto;}
+    #viewRecLancar #btnRecTeclado{display:block;margin-top:10px;background:none;border:0;
+      padding:0;color:var(--marca-esc);font:inherit;font-size:12px;cursor:pointer;text-decoration:underline;}
+  }
+
+  /* Cor e profundidade no recebimento, sem acrescentar elementos ao fluxo. */
+  #viewRecLancar .rec-form{
+    background:linear-gradient(135deg,#fff 55%,#f2f6fc);
+    border:1px solid #e0e7ef;box-shadow:0 14px 40px rgba(30,53,82,.09),0 3px 8px rgba(30,53,82,.05);}
+  body.foco-soma #recForm{box-shadow:0 28px 70px rgba(13,31,51,.3),0 4px 14px rgba(13,31,51,.12);}
+  #viewRecLancar .rec-etapas li{background:#edf1f7;color:#536177;}
+  #viewRecLancar .rec-etapas li[aria-current="step"]{background:#e4edff;color:#284a88;
+    box-shadow:inset 0 0 0 1px #c4d5f4,0 3px 8px rgba(47,84,148,.09);}
+  #recSomaArea .rec-notas-total{background:linear-gradient(120deg,#203b58,#285a70);
+    color:#fff;box-shadow:0 8px 18px rgba(32,59,88,.2);border:1px solid #345c76;}
+  #recSomaArea #recNotasTotal{color:#fff;}
+  #recSomaArea #recSomaTxt{color:#d5e7f3;}
+  #recSomaArea #recSomaChips{padding:3px;gap:8px;}
+  #recSomaArea .cb-chip{background:#fff;border:1px solid #e0e7ef;
+    box-shadow:0 2px 5px rgba(30,53,82,.07);}
+  #recSomaArea .cb-num{background:#fff0d3;color:#885600;border-radius:6px;padding:3px;min-width:23px;}
+  #recSomaArea .cb-chip button:hover{background:#ffeded;color:#b52a3b;}
+  #recNotasVazio{background:#f7f9fc;border-color:#ccd8e6;color:#607085;}
+  #viewRecLancar #recCalcBox .cb-soma{padding:14px;background:linear-gradient(150deg,#eef4ff,#f7f9fc);
+    border:1px solid #d9e3f2;border-radius:18px;box-shadow:0 8px 20px rgba(40,68,110,.11);}
+  #viewRecLancar #recCalcBox .calc-rot{color:#35516f;}
+  #viewRecLancar #recSomaVal{background:#fff;border-color:#6384b4;color:#203b58;
+    box-shadow:inset 0 2px 4px rgba(30,53,82,.04),0 2px 6px rgba(30,53,82,.06);}
+  #viewRecLancar #recSomaVal:focus{border-color:#315d99;outline:2px solid #cbdcf4;outline-offset:2px;}
+  #viewRecLancar #recCalcBox .calc-teclas button{box-shadow:0 2px 3px rgba(35,58,90,.13);}
+  #viewRecLancar #recCalcBox .calc-teclas button:not(.ct-func,.ct-mais){background:#fff;color:#233d59;}
+  #viewRecLancar #recCalcBox .calc-teclas button:not(.ct-mais):hover{background:#e1ebfa;}
+  #viewRecLancar #recCalcBox .calc-teclas .ct-func{background:#e0e8f6;color:#35516f;}
+  #viewRecLancar #recCalcBox .calc-teclas .ct-mais{background:#345f9b;color:#fff;}
+  #viewRecLancar #recCalcBox .calc-teclas button:active{box-shadow:inset 0 1px 3px rgba(35,58,90,.18);}
+  #viewRecLancar :is(#btnRecSomaConcluir,#btnRecSalvar,#btnRecAvancar,#btnRecFocarPagamento){
+    background:linear-gradient(120deg,#087a52,#006644);color:#fff;box-shadow:0 5px 12px rgba(0,105,69,.2);}
+  #viewRecLancar :is(#btnRecSomaConcluir,#btnRecSalvar,#btnRecAvancar,#btnRecFocarPagamento):hover{
+    background:linear-gradient(120deg,#086d4b,#005d3e);}
+  body.foco-pagamento #recPagamentoFoco{border:1px solid #dbe4ee;box-shadow:0 28px 80px rgba(13,31,51,.32);}
+  body.foco-pagamento .rec-pagamento-topo{background:linear-gradient(120deg,#f1f5fc,#fff);border-color:#e0e7ef;}
+  body.foco-pagamento .rec-pagamento-conteudo{background:#f9fbfd;}
+  body.foco-pagamento #recSomatorio{background:#edf3fb;border:1px solid #d9e5f3;
+    box-shadow:0 4px 12px rgba(30,53,82,.06);}
+  body.foco-pagamento #recSomatorio .rs-bloco:first-child :is(.rs-rot,.rs-val){color:#203b58;}
+  body.foco-pagamento #recMods .rec-mod{--rec-acento:#167457;background:#fff;
+    border:1px solid #dde5ed;border-top:3px solid var(--rec-acento);box-shadow:0 4px 10px rgba(30,53,82,.07);}
+  body.foco-pagamento #recMods [data-mod="cartao"]{--rec-acento:#7558aa;}
+  body.foco-pagamento #recMods [data-mod="pix"]{--rec-acento:#3474ab;}
+  body.foco-pagamento #recMods [data-mod="cheque"]{--rec-acento:#a87025;}
+  body.foco-pagamento #recMods [data-mod="haver"]{--rec-acento:#62718a;}
+  body.foco-pagamento #recMods .rm-topo svg{background:#f3f6fa;color:var(--rec-acento);}
+  body.foco-pagamento #recMods .rec-mod.preenchida{background:#eef9f3;border-color:#88bda1;
+    border-top-color:var(--rec-acento);box-shadow:inset 0 0 0 1px #88bda1,0 4px 10px rgba(30,53,82,.07);}
 
   /* ---------- monitor de armazenamento do Supabase ----------
      Discreto de propósito: uma barrinha e a porcentagem ao lado do chip da nuvem. Só ganha
@@ -3251,14 +3468,24 @@
       <button class="btn btn-outline btn-sm" id="btnRecCancelarEdicao">Cancelar edição</button>
     </div>
 
-    <div class="rec-form" id="recForm">
+    <div class="rec-form" id="recForm" data-etapa="0">
+      <div class="rec-fluxo-nav">
+      <ol class="rec-etapas" aria-label="Etapas do recebimento" id="recEtapas">
+        <li aria-current="step">1. Cliente</li><li id="recEtapaNotinhas">2. Notinhas</li><li>3. Pagamento</li>
+      </ol>
+      <button type="button" class="btn" id="btnRecVoltar" hidden>← Voltar</button>
+      </div>
+      <div class="rec-titulo-etapa">
+        <h2 id="recTituloEtapa">Quem está pagando?</h2>
+        <p id="recContexto">Selecione um cliente ou digite um novo nome.</p>
+      </div>
      <!-- Duas colunas (14/09/2026): à esquerda o caminho do lançamento — cliente, total,
           formas de pagamento, troco e observação —; à direita, do topo ao pé, a calculadora,
-          o resumo e o botão de registrar. A tela inteira cabe sem rolar e a calculadora
+          e o botão de registrar. A calculadora
           continua sempre do lado direito. -->
      <div class="rec-duas">
      <div class="rec-col-esq">
-      <div class="rec-linha" style="grid-template-columns:2fr 1fr;">
+      <div class="rec-linha" id="recEtapaCliente" style="grid-template-columns:2fr 1fr;">
         <div class="campo rec-busca-wrap">
           <label for="recCliente">Cliente</label>
           <input type="text" id="recCliente" class="nome-cli" autocomplete="off" spellcheck="false" placeholder="Digite o nome do cliente…"
@@ -3272,6 +3499,14 @@
       </div>
 
       <div class="rec-ficha" id="recFicha" style="display:none;"></div>
+      <div class="rec-cliente-acoes">
+        <button type="button" class="btn btn-outline" id="btnRecLimpar">Limpar</button>
+        <button type="button" class="btn btn-primary" id="btnRecAvancar">Continuar para notinhas →</button>
+      </div>
+      <div id="recPagamentoPausa">
+        <p>Suas notinhas estão prontas. Abra o pagamento para concluir.</p>
+        <button type="button" class="btn btn-primary" id="btnRecFocarPagamento" hidden>Abrir pagamento</button>
+      </div>
 
       <!-- A trava do lançamento. Sem o nome do cliente não há onde gravar a soma, e
            somar primeiro para lembrar de quem era depois é como uma conta inteira ia
@@ -3292,20 +3527,31 @@
                coluna estreita elas quebravam de duas em duas e um maço de dez virava uma
                pilha rolante. Aqui cabem muitas por linha, que é o que permite bater o olho
                na lista inteira contra o maço de papel na mão. -->
-          <div class="notas-area" id="recSomaArea" style="display:none;">
-            <div class="na-topo">
-              <span class="na-rot">Notinhas somadas</span>
-              <span class="na-resumo" id="recSomaTxt"></span>
+          <section class="notas-area" id="recSomaArea" aria-labelledby="recNotasTitulo">
+            <div class="rec-notas-cabecalho">
+              <h3 class="rec-notas-titulo" id="recNotasTitulo">Notinhas incluídas</h3>
+              <button type="button" class="calc-limpar" id="btnRecSomaLimpar" style="display:none;">Limpar lista</button>
             </div>
-            <div class="cb-chips" id="recSomaChips"></div>
-          </div>
+            <div class="rec-notas-total" role="status" aria-live="polite" aria-atomic="true">
+              <span>Total da conta</span>
+              <strong id="recNotasTotal">R$ 0,00</strong>
+              <span id="recSomaTxt">Nenhuma notinha somada</span>
+            </div>
+            <div id="recNotasVazio">As notinhas adicionadas aparecem aqui.</div>
+            <ol class="cb-chips" id="recSomaChips" aria-label="Notinhas incluídas na soma" hidden></ol>
+            <p id="recNotasDica" hidden>Use × para remover uma notinha.</p>
+          </section>
 
+          <section id="recPagamentoFoco" aria-labelledby="recPagamentoTitulo">
+          <div class="rec-pagamento-topo">
+            <div><h3 id="recPagamentoTitulo">Pagamento</h3><p id="recPagamentoCliente"></p></div>
+            <button type="button" class="btn btn-outline" id="btnRecSairFocoPagamento">Fechar</button>
+          </div>
+          <div class="rec-pagamento-conteudo">
           <div class="rec-somatorio" id="recSomatorio"></div>
 
           <div class="secao-title">Formas de pagamento</div>
           <div class="rec-mods" id="recMods"></div>
-        </div>
-      </div>
 
       <!-- Os três campos escondidos continuam sendo a verdade que o resto do sistema lê
            (gravação, fechamento, relatórios). O quadro visível abaixo é só a maneira de
@@ -3329,9 +3575,18 @@
         <div class="tc-linha" id="recTrocoTxt"></div>
       </div>
 
-      <div class="campo rec-obs">
+      <details class="rec-observacao-opcional" id="recObsDetalhes"><summary>Adicionar observação</summary>
+      <div class="campo rec-obs" id="recEtapaObs">
         <label for="recObs">Observação (opcional)</label>
         <input type="text" id="recObs" placeholder="Ex.: pagou o restante na sexta">
+      </div>
+      </details>
+          </div>
+          <div class="rec-pagamento-rodape" id="recPagamentoRodape">
+            <button type="button" class="btn" id="btnRecPagamentoVoltar">← Voltar para notinhas</button>
+          </div>
+          </section>
+        </div>
       </div>
      </div>
 
@@ -3345,8 +3600,7 @@
              e digitar o nome do cliente não vira número no meio da soma. -->
         <div class="cb-soma">
           <div class="calc-topo">
-            <span class="calc-rot">Calculadora de débitos</span>
-            <button type="button" class="calc-limpar" id="btnRecSomaLimpar" style="display:none;">limpar tudo</button>
+            <span class="calc-rot">Valor da notinha</span>
           </div>
           <!-- O visor escuro do total, no topo da calculadora e da largura dela. Visor, e não
                campo: quem escreve aqui é a soma das notinhas. Enquanto dava para digitar por
@@ -3363,8 +3617,8 @@
                    autocomplete="off" spellcheck="false" aria-label="Valor da notinha">
           </div>
           <div class="calc-teclas" id="recSomaTeclas">
-            <button type="button" class="ct-func" data-k="C" title="limpa o visor e a lista inteira">C</button>
-            <button type="button" class="ct-func" data-k="CE" title="limpa só o visor (Esc)">CE</button>
+            <button type="button" class="ct-func" data-k="C" title="Limpar o visor e todas as notinhas">Zerar soma</button>
+            <button type="button" class="ct-func" data-k="CE" title="Limpar só o valor digitado (Esc)">Limpar valor</button>
             <button type="button" class="ct-func" data-k="BS" title="apaga o último dígito">&#9003;</button>
             <button type="button" data-k="7">7</button>
             <button type="button" data-k="8">8</button>
@@ -3380,15 +3634,21 @@
             <button type="button" class="ct-mais" data-k="+" title="soma esta notinha (tecla + ou Enter)">+</button>
           </div>
           <div class="cb-soma-txt" id="recSomaDica"></div>
-          <button type="button" class="btn btn-primary" id="btnRecSomaConcluir">Ok</button>
+          <div class="rec-soma-confirmacoes">
+            <button type="button" class="btn btn-outline" id="btnRecSomarCompacto">+ Somar</button>
+            <button type="button" class="btn btn-primary" id="btnRecSomaConcluir">Ok</button>
+          </div>
+          <p class="rec-calc-ajuda">Use + para somar. Ok inclui o último valor e abre o pagamento.</p>
+          <button type="button" id="btnRecTeclado" aria-expanded="false" aria-controls="recSomaTeclas">Mostrar teclado na tela</button>
+          <details class="rec-atalhos"><summary>Atalhos do teclado</summary><p>Enter ou +: somar · Esc: limpar valor · Tab: ir para Ok</p></details>
         </div>
       </div>
 
-      <div class="rec-acoes">
+      <div class="rec-acoes" id="recAcoesRegistro">
         <span class="rec-aviso" id="recAviso"></span>
-        <button class="btn btn-outline btn-alto" id="btnRecLimpar">Limpar</button>
         <button class="btn btn-primary btn-alto" id="btnRecSalvar">Registrar recebimento</button>
       </div>
+      <p class="rec-salvamento" id="recSalvamento" role="status"></p>
      </div>
      </div>
     </div>
@@ -3870,7 +4130,37 @@
 
 </div><!-- /area-conteudo -->
 
-<!-- Modal do cheque: valor e troco -->
+<!-- Revisão e confirmação de operações em recebimentos -->
+<div class="overlay" id="overlayExcluirRec" role="dialog" aria-modal="true" aria-labelledby="excluirRecTitulo">
+  <div class="modal" style="max-width:560px;">
+    <button type="button" class="modal-close" id="fecharExcluirRec" aria-label="Fechar confirmação de exclusão">✕</button>
+    <h2 id="excluirRecTitulo">Excluir lançamento?</h2>
+    <p class="sub">Confira o recebimento abaixo. A exclusão recalcula o saldo do cliente.</p>
+    <dl class="rec-revisao-dados" id="excluirRecDados"></dl>
+    <p class="nuvem-aviso">O lançamento será removido. O cadastro do cliente será mantido.</p>
+    <p id="excluirRecAviso" role="status"></p>
+    <div class="acoes-modal">
+      <button type="button" class="btn btn-outline" id="cancelarExcluirRec">Cancelar</button>
+      <button type="button" class="btn btn-vermelho" id="confirmarExcluirRec">Excluir lançamento</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlayRevisaoSg" role="dialog" aria-modal="true" aria-labelledby="revisaoSgTitulo">
+  <div class="modal" style="max-width:720px;">
+    <button type="button" class="modal-close" id="fecharRevisaoSg" aria-label="Fechar revisão">✕</button>
+    <h2 id="revisaoSgTitulo">Revisar antes da baixa no SG</h2>
+    <p class="sub">Confira os dados e confirme somente depois de lançar no SG.</p>
+    <div id="revisaoSgConteudo"></div>
+    <p class="nuvem-aviso">Após confirmar, este recebimento não poderá ser editado, excluído ou ter a baixa desfeita.</p>
+    <p id="revisaoSgAviso" role="status"></p>
+    <div class="acoes-modal">
+      <button type="button" class="btn btn-outline" id="cancelarRevisaoSg">Voltar e conferir</button>
+      <button type="button" class="btn btn-primary" id="confirmarRevisaoSg">Confirmar baixa no SG</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="overlayTroco">
   <div class="modal" style="max-width:430px;">
     <button class="modal-close" id="fecharTroco">✕</button>
@@ -4680,7 +4970,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '18/09/2026f · Filtro de venda fraca';
+const VERSAO_SISTEMA = '28/09/2026 · Recebimento por etapas';
 
 /* Cópia do sistema guardada no navegador, para ele ABRIR sem internet — ver sw.js, que
    precisa estar publicado na mesma pasta deste arquivo. Só em https (o Pages) ou no
@@ -4886,6 +5176,8 @@ document.getElementById('formLogin').addEventListener('submit', async (e)=>{
 });
 
 document.getElementById('btnLogout').addEventListener('click', async ()=>{
+  if(!confirmarDescarteRec()) return;
+  if(recModsMontadas) limparFormRec();
   if(db){
     try{
       await Promise.race([db.auth.signOut(), new Promise(res=> setTimeout(res, 5000))]);
@@ -5066,6 +5358,7 @@ function statusNuvem(estado, msg){
   luz.className = 'luz ' + (cls[estado]||'');
   txt.textContent = msg || rot[estado] || '';
   nuvemErro = (estado === 'erro') ? (msg || 'Falha ao comunicar com o banco') : null;
+  atualizarStatusGravacaoRec();
 }
 
 /* Recusa por permissão não é falta de internet, e chamar as duas de "Sem conexão" custou
@@ -5569,7 +5862,7 @@ window.addEventListener('beforeunload', (e)=>{
      está no localStorage), mas recomeça a espera — e foi apertando F5 que a tela ficou
      vazia por meia hora em 12/09/2026. */
   const filaCaixa = (typeof caixaFila !== 'undefined') ? caixaFila.length : 0;
-  if(nuvemEnviando || nuvemTimer || filaCaixa){ e.preventDefault(); e.returnValue = ''; }
+  if(nuvemEnviando || nuvemTimer || filaCaixa || temRascunhoRec()){ e.preventDefault(); e.returnValue = ''; }
 });
 
 /* --------- modal do banco de dados --------- */
@@ -12008,6 +12301,8 @@ function trocarAba(aba){
      do Início, e o `trocarAba('ponto')` que a importação do cartão ponto dispara sozinha
      no fim da leitura da planilha. Barrar só o clique deixaria três portas abertas. */
   if(abaProtegida(aba) && !rhLiberado){ pedirSenhaRh(()=> trocarAba(aba), ABAS[aba].grupo === 'rh' ? 'rh' : 'fechamento'); return; }
+  if(state.abaAtual === 'recLancar' && aba !== 'recLancar' && temRascunhoRec() &&
+     !confirm('Há um recebimento ainda não registrado. Sair desta tela?\n\nA digitação será mantida nesta sessão. Volte para concluir antes de fechar ou recarregar o sistema.')) return;
   state.abaAtual = aba;
   Object.keys(ABAS).forEach(k=>{
     document.getElementById(ABAS[k].view).style.display = (k===aba) ? '' : 'none';
@@ -13759,7 +14054,7 @@ let caixaGravacoes = 0;          /* muda a cada gravação pedida por este naveg
 let caixaEscoandoPromessa = null; /* o envio em andamento, para ser esperado de verdade */
 
 async function escoarFilaCaixa(){
-  if(!db) return true;
+  if(!db){ caixaUltimoErro = new Error('Conexão com o banco indisponível'); return false; }
   while(true){
     /* Dois lançamentos seguidos (o cliente novo e o recebimento dele) chamariam o
        escoamento ao mesmo tempo e mandariam a mesma linha duas vezes — uma vez basta.
@@ -13878,7 +14173,7 @@ function renderCaixaAtual(){
     /* A data do formulário acompanha a barra do dia: trocar o dia ali em cima e o campo
        continuar no dia velho é como o lançamento ia parar na data errada. */
     const campoData = document.getElementById('recData');
-    if(campoData && !recEditandoId) campoData.value = state.caixaDia || hojeISO();
+    if(campoData && !recEditandoId && !temRascunhoRec()) campoData.value = state.caixaDia || hojeISO();
     renderUltimosRec();
   }
   if(state.abaAtual === 'recRetirada')  renderRetiradas();
@@ -14385,36 +14680,101 @@ function botaoBaixaSg(r){
   const feito = baixaSgFeita(r);
   const titulo = feito
     ? 'Baixa no SG confirmada em ' + new Date(r.sgBaixadoEm).toLocaleString('pt-BR') +
-      (r.sgBaixadoPor ? ' por ' + r.sgBaixadoPor : '') + ' — clique para desfazer'
-    : 'Confirmar que este recebimento já foi baixado no SG';
+      (r.sgBaixadoPor ? ' por ' + r.sgBaixadoPor : '') + ' — lançamento bloqueado'
+    : 'Revisar os dados antes de confirmar a baixa no SG';
   const icone = feito
     ? '<svg viewBox="0 0 24 24"><polyline points="4 12.5 9.5 18 20 6.5"/></svg>'
     : '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/></svg>';
-  return '<button type="button" class="rec-sg' + (feito ? ' ok' : '') + '" data-sg="'+r.id+'" ' +
-    'title="'+escHtml(titulo)+'">' + icone + (feito ? 'Baixado no SG' : 'Dar baixa no SG') + '</button>';
+  return '<button type="button" class="rec-sg' + (feito ? ' ok' : '') + '" data-sg="'+escHtml(String(r.id))+'" ' + (feito ? 'disabled ' : '') +
+    'title="'+escHtml(titulo)+'">' + icone + (feito ? 'Baixado no SG' : 'Dar baixa no SG') + '</button>' +
+    (feito ? '' : '<div class="rec-proxima-acao">Próxima ação: lançar no SG e revisar a baixa.</div>');
+}
+
+let revisaoSg = null;
+let revisaoSgOrigem = null;
+
+function htmlRevisaoSg(r){
+  const pago = pagoDoRecebimento(r);
+  const troco = toNum(r.troco);
+  const notas = notasCompraDe(r);
+  const linha = (rotulo, valor)=> '<div><dt>'+escHtml(rotulo)+'</dt><dd>'+escHtml(String(valor))+'</dd></div>';
+  const pagamentos = FORMAS_RECEBIMENTO.map(f=>{
+    const bruto = r2(toNum(r[f.chave]) + (r.trocoForma === f.chave ? troco : 0));
+    if(!bruto) return '';
+    const parcelas = parcelasDe(r, f.chave);
+    return linha(f.rotulo, fmtMoeda(bruto) + (parcelas.length > 1 ? ' ('+parcelas.map(fmtMoeda).join(' + ')+')' : ''));
+  }).join('');
+  const diferenca = r2(toNum(r.total) - pago);
+  const formaTroco = (FORMAS_RECEBIMENTO.find(f=>f.chave === r.trocoForma)||{}).rotulo || r.trocoForma || '—';
+  return '<dl class="rec-revisao-dados">' +
+    linha('Cliente', nomeCliente(r.clienteId)) + linha('Data do lançamento', dataBR(r.data)) +
+    linha('Notinhas', notas.length ? notas.map(fmtMoeda).join(' + ') : 'Sem detalhamento individual neste registro') +
+    linha('Total da conta', fmtMoeda(toNum(r.total))) + pagamentos +
+    linha('Troco devolvido', fmtMoeda(troco) + (troco > 0 ? ' em '+formaTroco : '')) +
+    linha('Notinha branca', fmtMoeda(notinhaDe(r))) + linha('Pagamento líquido', fmtMoeda(pago)) +
+    linha(diferenca < 0 ? 'Pago a mais' : 'Falta pagar', fmtMoeda(Math.abs(diferenca))) +
+    linha('Observações', r.obs || 'Nenhuma') + linha('Registrado por', r.usuario || 'Não informado') +
+    linha('Registrado em', r.criadoEm ? new Date(r.criadoEm).toLocaleString('pt-BR') : 'Não informado') +
+    (r.alteradoEm ? linha('Última correção', new Date(r.alteradoEm).toLocaleString('pt-BR')) : '') + '</dl>';
 }
 
 function alternarBaixaSg(id){
   const r = (state.recebimentos||[]).find(x=> String(x.id)===String(id));
   if(!r) return;
-  if(baixaSgFeita(r)){
-    /* Marcar é um clique só; desmarcar pergunta, porque desfazer uma baixa já
-       confirmada é o tipo de coisa que se faz sem querer passando o mouse. */
-    if(!confirm('Desfazer a baixa no SG do recebimento de ' + nomeCliente(r.clienteId) +
-      ' de ' + dataBR(r.data) + '?\n\nEle volta para a lista de pendentes.')) return;
-    delete r.sgBaixadoEm;
-    delete r.sgBaixadoPor;
-    mostrarToast('Baixa no SG desfeita');
-  }else{
-    r.sgBaixadoEm = new Date().toISOString();
-    r.sgBaixadoPor = document.getElementById('usuarioLogado').textContent || '';
-    mostrarToast('Baixa no SG confirmada — ' + nomeCliente(r.clienteId));
+  if(baixaSgFeita(r)){ mostrarToast('Baixa no SG já confirmada. Lançamento bloqueado.'); return; }
+  if(recEditandoId != null && String(recEditandoId) === String(r.id)){
+    mostrarToast('Conclua ou cancele a edição antes de confirmar a baixa no SG.'); return;
   }
-  salvarNoCaixa('recebimentos', r);
-  /* Atualiza a fila imediatamente, mesmo se a baixa veio de outra aba. */
+  revisaoSg = {id:r.id, assinatura:JSON.stringify(r)};
+  revisaoSgOrigem = document.activeElement;
+  document.getElementById('revisaoSgConteudo').innerHTML = htmlRevisaoSg(r);
+  document.getElementById('revisaoSgAviso').textContent = '';
+  sairFocoSoma();
+  document.getElementById('overlayRevisaoSg').classList.add('show');
+  document.getElementById('cancelarRevisaoSg').focus();
+}
+
+function fecharRevisaoSg(){
+  revisaoSg = null;
+  document.getElementById('overlayRevisaoSg').classList.remove('show');
+  if(revisaoSgOrigem && revisaoSgOrigem.isConnected && !revisaoSgOrigem.disabled) revisaoSgOrigem.focus();
+}
+
+function confirmarBaixaSg(){
+  if(!revisaoSg) return;
+  const r = (state.recebimentos||[]).find(x=>String(x.id) === String(revisaoSg.id));
+  if(!r || baixaSgFeita(r)){
+    fecharRevisaoSg(); renderCaixaAtual();
+    mostrarToast(r ? 'Este lançamento já foi baixado no SG.' : 'O lançamento não existe mais.'); return;
+  }
+  if(JSON.stringify(r) !== revisaoSg.assinatura){
+    revisaoSg.assinatura = JSON.stringify(r);
+    document.getElementById('revisaoSgConteudo').innerHTML = htmlRevisaoSg(r);
+    document.getElementById('revisaoSgAviso').textContent = 'Os dados mudaram durante a revisão. Confira novamente antes de confirmar.';
+    document.getElementById('cancelarRevisaoSg').focus(); return;
+  }
+  r.sgBaixadoEm = new Date().toISOString();
+  r.sgBaixadoPor = document.getElementById('usuarioLogado').textContent || '';
+  fecharRevisaoSg();
+  salvarNoCaixa('recebimentos', r).then(()=> mostrarToast('Baixa no SG confirmada — '+situacaoGravacaoRec()));
   renderUltimosRec();
   renderCaixaAtual();
 }
+
+document.getElementById('confirmarRevisaoSg').addEventListener('click', confirmarBaixaSg);
+['fecharRevisaoSg','cancelarRevisaoSg'].forEach(id=>document.getElementById(id).addEventListener('click', fecharRevisaoSg));
+document.getElementById('overlayRevisaoSg').addEventListener('click', e=>{
+  if(e.target === e.currentTarget) fecharRevisaoSg();
+});
+document.getElementById('overlayRevisaoSg').addEventListener('keydown', e=>{
+  if(e.key === 'Escape'){ e.preventDefault(); fecharRevisaoSg(); }
+  if(e.key === 'Tab'){
+    const botoes = [...e.currentTarget.querySelectorAll('button:not(:disabled)')];
+    const primeiro = botoes[0], ultimo = botoes[botoes.length-1];
+    if(e.shiftKey && document.activeElement === primeiro){ e.preventDefault(); ultimo.focus(); }
+    else if(!e.shiftKey && document.activeElement === ultimo){ e.preventDefault(); primeiro.focus(); }
+  }
+});
 
 /* Parcelas de uma modalidade de várias entradas (os cartões daquele pagamento).
    Quando o cliente usou um só, não existe lista: o valor está direto em r[chave]. */
@@ -14632,6 +14992,17 @@ let caixaDiaEscolhidoEm = hojeISO();
 /* Troca o dia de trabalho e redesenha a tela aberta. */
 function trocarDiaCaixa(iso){
   if(!iso) return;
+  if(state.abaAtual === 'recLancar' && recEtapaAtual !== 0){
+    mostrarToast('Use Voltar para cliente antes de alterar a data.');
+    renderCaixaAtual(); return;
+  }
+  if(state.abaAtual === 'recLancar' && !recEditandoId && temRascunhoRec()){
+    const campo = document.getElementById('recData');
+    if(campo.value !== iso && !confirm('Alterar a data deste recebimento ainda não registrado para '+dataBR(iso)+'?')){
+      renderCaixaAtual(); return;
+    }
+    campo.value = iso;
+  }
   state.caixaDia = iso;
   caixaDiaEscolhidoEm = hojeISO();
   gravarCache();      /* o dia que estou olhando é meu, não vai para o banco */
@@ -14813,6 +15184,49 @@ let recEditandoId = null;   /* lançamento aberto para correção */
 let recSugLista = [];       /* sugestões visíveis no momento */
 let recSugIndice = -1;      /* item marcado pelas setas do teclado */
 let recModsMontadas = false;
+let recEtapaAtual = 0;   /* 0 cliente, 1 notinhas, 2 pagamento e registro */
+let recRascunhoBase = null;
+let recNomeAnterior = '';
+let recClienteAnterior = null;
+let recUltimoRegistroNome = '';
+
+function situacaoGravacaoRec(){
+  const pendente = caixaFila.some(p=>p.tipo === 'recebimentos');
+  if(!db || (pendente && modoOffline)) return 'Guardado neste computador, aguardando conexão';
+  if(pendente) return 'Guardado neste computador, aguardando envio ao banco';
+  return 'Salvo no banco';
+}
+function atualizarStatusGravacaoRec(){
+  if(typeof recUltimoRegistroNome === 'undefined' || !recUltimoRegistroNome) return;
+  const el = document.getElementById('recSalvamento');
+  if(el) el.textContent = recUltimoRegistroNome + ' — ' + situacaoGravacaoRec();
+}
+
+function assinaturaRascunhoRec(){
+  return JSON.stringify({editando:recEditandoId, cliente:recClienteSel, notas:recNotasCompra,
+    campos:[...document.querySelectorAll('#recForm input,#recForm select,#recForm textarea')]
+      .map(el=>[el.id || el.name || el.dataset.mod || '', el.value, el.checked])});
+}
+function marcarRascunhoRec(){ recRascunhoBase = assinaturaRascunhoRec(); }
+function temRascunhoRec(){
+  return typeof recRascunhoBase !== 'undefined' && recRascunhoBase !== null &&
+    assinaturaRascunhoRec() !== recRascunhoBase;
+}
+function confirmarDescarteRec(){
+  return !temRascunhoRec() || confirm('Há dados ainda não registrados. Descartar a digitação atual?');
+}
+function temValoresRec(){
+  return recNotasCompra.length > 0 || document.getElementById('recSomaVal').value.trim() !== '' ||
+    toNum(document.getElementById('recTotal').value) !== 0 ||
+    document.getElementById('recObs').value.trim() !== '' ||
+    (recModsMontadas && Object.values(valoresFormasDoForm()).some(v=>toNum(v) !== 0));
+}
+function prepararTrocaClienteRec(){
+  if(!temValoresRec() && recEditandoId == null) return true;
+  if(!confirm('Trocar o cliente? As notinhas e os pagamentos ainda não registrados serão descartados para não passar valores de um cliente para outro.')) return false;
+  limparFormRec(true);
+  return true;
+}
 
 function montarModsRec(){
   if(recModsMontadas) return;
@@ -14978,6 +15392,10 @@ function abrirModalTroco(chave){
 function fecharModalTroco(){
   document.getElementById('overlayTroco').classList.remove('show');
   trocoModChave = null;
+  if(document.body.classList.contains('foco-pagamento')){
+    const botao = document.querySelector('#recMods [data-abrir-troco]');
+    if(botao) botao.focus();
+  }
 }
 
 function atualizarResumoTroco(){
@@ -15128,7 +15546,8 @@ function atualizarSomatorioRec(){
     cx.classList.toggle('preenchida', formas[f.chave] > 0);
     const resto = r2(total - (pago - formas[f.chave]));
     const bSomar = cx.querySelector('.rm-somar');
-    bSomar.innerHTML = 'adicionar valor <b>' + fmtMoeda(aOferecer) + '</b>';
+    bSomar.textContent = 'Usar total';
+    bSomar.title = 'Preencher com ' + fmtMoeda(aOferecer);
     bSomar.classList.toggle('mostra', podeSomar);
     cx.querySelector('.rm-resto').classList.toggle('mostra',
       !podeSomar && total > 0 && resto > 0.004 && formas[f.chave] !== resto);
@@ -15200,6 +15619,52 @@ function atualizarSomatorioRec(){
 
   document.getElementById('recSomatorio').innerHTML = partes.join('');
   atualizarCaixaTrocoRec(bruto, troco, notinha, total, sugerido, r2(formas.haver));
+  atualizarOrientacaoRec();
+}
+
+function atualizarOrientacaoRec(){
+  if(!recModsMontadas) return;
+  document.querySelectorAll('#recEtapas li').forEach((el,i)=>{
+    if(i === recEtapaAtual) el.setAttribute('aria-current','step'); else el.removeAttribute('aria-current');
+  });
+  atualizarTravaRec();
+}
+
+function mudarEtapaRec(etapa){
+  recEtapaAtual = etapa;
+  fecharSugRec();
+  sairFocoSoma();
+  atualizarOrientacaoRec();
+  document.getElementById('recAviso').textContent = '';
+  const alvo = etapa === 0 ? document.getElementById('recCliente') :
+    etapa === 1 ? document.getElementById('recSomaVal') :
+    document.querySelector('#recMods input:not([type="hidden"]):not(:disabled)');
+  if(etapa === 2) entrarFocoPagamento();
+  if(alvo) alvo.focus();
+}
+
+function avancarEtapaRec(){
+  if(recEtapaAtual === 0){
+    const cliente = document.getElementById('recCliente');
+    if(!cliente.value.trim()){
+      document.getElementById('recAviso').textContent = 'Informe o cliente para continuar.';
+      cliente.focus(); return;
+    }
+    cliente.value = arrumarNome(cliente.value);
+    atualizarFichaRec();
+    mudarEtapaRec(1);
+  }else if(recEtapaAtual === 1){
+    const campo = document.getElementById('recSomaVal');
+    if(campo.value.trim()){
+      addNotaCompra();
+      if(campo.value.trim()) return;
+    }
+    mudarEtapaRec(2);
+  }
+}
+
+function voltarEtapaRec(){
+  if(recEtapaAtual > 0) mudarEtapaRec(recEtapaAtual-1);
 }
 
 /* A linha embaixo do quadro do troco: diz, em português, o que vai acontecer com aquele
@@ -15279,26 +15744,45 @@ let recClienteFocado = false;
    está vazio, ou está com o foco — e o verde volta para o quadro do total assim que o
    operador sai dali com um nome escrito. */
 function atualizarPassoRec(){
-  const inp = document.getElementById('recCliente');
-  const noCliente = recClienteFocado || inp.value.trim() === '';
-  document.getElementById('recForm').classList.toggle('passo-cliente', noCliente);
+  const form = document.getElementById('recForm');
+  form.classList.toggle('passo-cliente', recEtapaAtual === 0);
+  form.setAttribute('data-etapa', String(recEtapaAtual));
+  document.getElementById('viewRecLancar').setAttribute('data-etapa', String(recEtapaAtual));
+  document.getElementById('recTituloEtapa').textContent = ['Quem está pagando?','Some as notinhas','Conclua o recebimento'][recEtapaAtual];
+  document.getElementById('recContexto').textContent = recEtapaAtual === 0
+    ? 'Selecione um cliente ou digite um novo nome.'
+    : document.getElementById('recCliente').value + ' · ' + dataBR(document.getElementById('recData').value);
 }
 
 function atualizarTravaRec(){
   atualizarPassoRec();
-  const liberado = document.getElementById('recCliente').value.trim() !== '';
-  ['recContaBox','recCalcBox','recTrocoBox'].forEach(id=>{
+  const grupos = [['recEtapaCliente',0],['recCalcBox',1],['recSomaArea',1],
+    ['recMods',2],['recTrocoBox',2],['recEtapaObs',2]];
+  grupos.forEach(([id,etapa])=>{
     const cx = document.getElementById(id);
     if(!cx) return;
-    cx.classList.toggle('travado', !liberado);
-    /* `disabled` além do cinza: o Tab passa por dentro de um bloco só apagado, e no
-       balcão se anda pela tela no teclado. */
-    cx.querySelectorAll('input,button').forEach(el=> el.disabled = !liberado);
+    const bloqueado = recEtapaAtual !== etapa;
+    cx.classList.toggle('rec-etapa-bloqueada', bloqueado);
+    cx.querySelectorAll('input,button,select,textarea').forEach(el=> el.disabled = bloqueado);
   });
-  document.getElementById('recTravaAviso').style.display = liberado ? 'none' : '';
+  const voltar = document.getElementById('btnRecVoltar');
+  voltar.hidden = recEtapaAtual === 0;
+  const rotuloVoltar = '← Voltar para '+['','cliente','notinhas'][recEtapaAtual];
+  if(voltar.textContent !== rotuloVoltar) voltar.textContent = rotuloVoltar;
+  const avancar = document.getElementById('btnRecAvancar');
+  avancar.hidden = recEtapaAtual !== 0;
+  document.getElementById('btnRecFocarPagamento').hidden = recEtapaAtual !== 2 || document.body.classList.contains('foco-pagamento');
+  /* O registro acontece na própria etapa de pagamento. As validações e a confirmação
+     de conta em aberto continuam em salvarRecebimento. */
+  document.getElementById('btnRecSalvar').disabled = recEtapaAtual !== 2;
+  document.getElementById('recTravaAviso').style.display = recEtapaAtual === 0 ? '' : 'none';
+  document.querySelectorAll('#recDia .caixa-dia,#recDia [data-dia-passo],#recDia [data-dia-hoje]')
+    .forEach(el=> el.disabled = recEtapaAtual !== 0);
 }
 
 function atualizarFichaRec(){
+  recNomeAnterior = document.getElementById('recCliente').value;
+  recClienteAnterior = recClienteSel;
   const ficha = document.getElementById('recFicha');
   atualizarTravaRec();
   if(!recClienteSel){ ficha.style.display = 'none'; atualizarSomatorioRec(); return; }
@@ -15381,8 +15865,10 @@ function marcarSugRec(i){
 }
 
 function escolherSugRec(i){
+  if(recEtapaAtual !== 0) return;
   const item = recSugLista[i];
   if(!item) return;
+  if((item.tipo !== 'cliente' || String(item.id) !== String(recClienteSel)) && !prepararTrocaClienteRec()) return;
   if(item.tipo === 'cliente'){
     recClienteSel = item.id;
     document.getElementById('recCliente').value = nomeCliente(item.id);
@@ -15397,14 +15883,23 @@ function escolherSugRec(i){
      total não recebe digitação. É também a entrada do modo foco da soma: chamado aqui, e
      não só pelo evento de foco, porque o navegador não entrega esse evento quando a janela
      do sistema não está em primeiro plano. */
-  document.getElementById('recSomaVal').focus();
-  if(typeof entrarFocoSoma === 'function' && document.activeElement &&
-     document.activeElement.id === 'recSomaVal') entrarFocoSoma();
+  mudarEtapaRec(1);
 }
 
 function ligarBuscaCliente(){
   const inp = document.getElementById('recCliente');
+  inp.addEventListener('beforeinput', e=>{
+    if(!prepararTrocaClienteRec()) e.preventDefault();
+  });
   inp.addEventListener('input', ()=>{
+    /* Autofill pode não emitir beforeinput. Protege também essa entrada. */
+    if(inp.value !== recNomeAnterior && (temValoresRec() || recEditandoId != null)){
+      const nomeNovo = inp.value;
+      if(!prepararTrocaClienteRec()){
+        inp.value = recNomeAnterior; recClienteSel = recClienteAnterior; return;
+      }
+      inp.value = nomeNovo;
+    }
     const exato = clientePorNome(inp.value);
     recClienteSel = exato ? exato.id : null;
     abrirSugRec();
@@ -15430,7 +15925,7 @@ function ligarBuscaCliente(){
     else if(e.key === 'ArrowUp' && n){ e.preventDefault(); recSugIndice = (recSugIndice-1+n) % n; marcarSugRec(recSugIndice); }
     else if(e.key === 'Enter'){
       if(recSugIndice >= 0){ e.preventDefault(); escolherSugRec(recSugIndice); }
-      else { fecharSugRec(); }
+      else { e.preventDefault(); avancarEtapaRec(); }
     }
     else if(e.key === 'Escape'){ fecharSugRec(); }
   });
@@ -15449,6 +15944,8 @@ function ligarBuscaCliente(){
 
 function limparFormRec(manterCliente){
   recEditandoId = null;
+  recEtapaAtual = 0;
+  sairFocoSoma();
   document.getElementById('recEditandoAviso').classList.remove('show');
   document.getElementById('btnRecSalvar').textContent = 'Registrar recebimento';
   if(!manterCliente){
@@ -15468,6 +15965,7 @@ function limparFormRec(manterCliente){
   definirTrocoRec(0, false, false);   /* zera valor, checkbox e os campos escondidos */
   document.getElementById('recAviso').textContent = '';
   atualizarFichaRec();
+  marcarRascunhoRec();
 }
 
 /* Começou o dia e ninguém informou o que tinha na gaveta: o sistema pergunta antes do
@@ -15502,13 +16000,17 @@ function pedirAberturaDoDia(dia){
 function renderRecLancar(entrando){
   garantirBaseRecebimentos();
   montarModsRec();
-  const dia = (entrando && !recEditandoId) ? diaDeLancamento() : (state.caixaDia || hojeISO());
-  if(!recEditandoId) document.getElementById('recData').value = dia;
+  const preservar = temRascunhoRec() || recEditandoId != null;
+  const dia = preservar ? (document.getElementById('recData').value || hojeISO()) :
+    ((entrando && !recEditandoId) ? diaDeLancamento() : (state.caixaDia || hojeISO()));
+  if(!preservar) document.getElementById('recData').value = dia;
+  if(preservar) state.caixaDia = dia;
   document.getElementById('recDia').innerHTML = htmlSeletorDia();
   atualizarAvisosData();
   atualizarFichaRec();
   renderUltimosRec();
   pedirAberturaDoDia(dia);
+  if(recRascunhoBase === null || !preservar) marcarRascunhoRec();
 }
 
 /* A lista embaixo do formulário é a fila de trabalho: só o que ainda não foi lançado no
@@ -15552,7 +16054,20 @@ function renderUltimosRec(){
 
 function salvarRecebimento(){
   garantirBaseRecebimentos();
+  if(recEditandoId != null){
+    const original = (state.recebimentos||[]).find(r=>String(r.id) === String(recEditandoId));
+    if(!original || baixaSgFeita(original)){
+      mostrarToast('Este lançamento não pode mais ser alterado. A baixa no SG já foi confirmada ou o registro foi removido.'); return;
+    }
+  }
   const aviso = document.getElementById('recAviso');
+  if(document.getElementById('recSomaVal').value.trim()){
+    aviso.textContent = 'Há uma notinha no visor. Aperte + ou Ok para incluí-la antes de registrar.';
+    document.getElementById('recSomaVal').focus(); return;
+  }
+  if(recEtapaAtual !== 2){
+    aviso.textContent = 'Conclua as etapas anteriores antes de registrar.'; return;
+  }
   const nome = arrumarNome(document.getElementById('recCliente').value);
   const total = r2(toNum(document.getElementById('recTotal').value));
   const formas = valoresFormasDoForm();
@@ -15664,12 +16179,13 @@ function salvarRecebimento(){
 
   /* As notinhas de compra que formaram o total, quando a soma foi feita na somadora.
      Não entra em conta nenhuma — é memória de conferência: permite refazer amanhã a
-     soma de hoje sem depender de quem lançou lembrar. Com uma notinha só a lista não
-     diz nada além do total e fica de fora. */
-  dados.notasCompra = (recNotasCompra.length > 1 &&
+     soma de hoje sem depender de quem lançou lembrar. Guarda também a notinha única
+     para que a revisão da baixa no SG mostre tudo o que foi somado. */
+  dados.notasCompra = (recNotasCompra.length > 0 &&
                        somaNotasCompra() === total) ? recNotasCompra.slice() : null;
 
   if(novoCadastro) salvarNoCaixa('clientes', cli);
+  recUltimoRegistroNome = cli.nome;
 
   if(recEditandoId){
     const r = (state.recebimentos||[]).find(x=> x.id===recEditandoId);
@@ -15863,21 +16379,58 @@ function celebrarRecebimento(valor, cliente, detalhes){
    calculadora ficam acesos, por cima da cortina.
 
    Sai pelo botão "Ok" ou com qualquer clique fora desses dois quadros (a cortina cobre o resto da tela, então
-   clicar fora é clicar nela) e quando o foco vai para outro lugar — Tab para as formas de
-   pagamento, troca de tela. O Esc não sai: dentro da
+   clicar fora é clicar nela) e quando o foco vai para outro lugar. Sair da cortina não
+   avança a etapa: Ok confirma a soma, e Voltar reabre o cliente. O Esc não sai: dentro da
    calculadora ele já é o CE, e mudar isso quebraria a mão de quem soma pelo teclado.
 
    Ele só existe na tela de Lançar Recebimento. A janela da conta do mercado reaproveita a
    mesma calculadora, mas já é uma janela sobre cortina — foco dentro de foco não ajuda. */
 function regiaoFocoSoma(el){
-  return !!(el && el.closest && (el.closest('#recCalcBox .cb-soma') || el.closest('#recSomaArea')));
+  return !!(el && el.closest && el.closest('#recForm'));
 }
 function entrarFocoSoma(){
+  if(recEtapaAtual !== 1) return;
   if(document.body.classList.contains('foco-soma')) return;
   document.body.classList.add('foco-soma');
+  atualizarOrientacaoRec();
 }
 function sairFocoSoma(){
   document.body.classList.remove('foco-soma');
+  sairFocoPagamento();
+  atualizarOrientacaoRec();
+}
+let recAcoesOrigem = null;
+function entrarFocoPagamento(){
+  if(recEtapaAtual !== 2 || document.body.classList.contains('foco-pagamento')) return;
+  document.body.classList.remove('foco-soma');
+  const painel = document.getElementById('recPagamentoFoco');
+  const acoes = document.getElementById('recAcoesRegistro');
+  // Só os botões mudam de lugar; os campos mantêm identidade e ordem do rascunho.
+  recAcoesOrigem = document.createComment('ações do recebimento');
+  acoes.before(recAcoesOrigem);
+  document.getElementById('recPagamentoRodape').appendChild(acoes);
+  document.getElementById('recPagamentoCliente').textContent = document.getElementById('recCliente').value;
+  document.getElementById('recObsDetalhes').open = !!document.getElementById('recObs').value.trim();
+  painel.setAttribute('role','dialog');
+  painel.setAttribute('aria-modal','true');
+  document.body.classList.add('foco-pagamento');
+  document.getElementById('btnRecFocarPagamento').hidden = true;
+  const campo = document.querySelector('#recMods input:not([type="hidden"]):not(:disabled)');
+  if(campo) campo.focus();
+}
+function sairFocoPagamento(devolverFoco = false){
+  if(!document.body.classList.contains('foco-pagamento')) return;
+  document.body.classList.remove('foco-pagamento');
+  const painel = document.getElementById('recPagamentoFoco');
+  painel.removeAttribute('role');
+  painel.removeAttribute('aria-modal');
+  if(recAcoesOrigem){
+    recAcoesOrigem.replaceWith(document.getElementById('recAcoesRegistro'));
+    recAcoesOrigem = null;
+  }
+  const abrir = document.getElementById('btnRecFocarPagamento');
+  abrir.hidden = recEtapaAtual !== 2;
+  if(devolverFoco && !abrir.hidden) abrir.focus();
 }
 (function(){
   /* O formulário inteiro, e não só um quadro: o visor do total e a calculadora agora
@@ -15887,18 +16440,27 @@ function sairFocoSoma(){
   const cortina = document.createElement('div');
   cortina.className = 'foco-soma-cortina';
   document.body.appendChild(cortina);
-  document.getElementById('btnRecSomaConcluir').addEventListener('click', ()=>{
-    const campo = document.getElementById('recSomaVal');
-    if(campo.value.trim()){
-      addNotaCompra();
-      /* Valor inválido continua no visor para correção; não encerra a soma. */
-      if(campo.value.trim()) return;
-    }
-    sairFocoSoma();
-    /* Segue para o pagamento com a última notinha somada, sem registrar o recebimento. */
-    const proximo = document.querySelector('#recMods input:not([type="hidden"]):not(:disabled)') ||
-      document.getElementById('recCliente');
-    if(proximo) proximo.focus();
+  document.getElementById('btnRecSomaConcluir').addEventListener('click', avancarEtapaRec);
+  document.getElementById('btnRecSomarCompacto').addEventListener('click', addNotaCompra);
+  document.getElementById('btnRecTeclado').addEventListener('click', e=>{
+    const botao = e.currentTarget;
+    const aberto = botao.getAttribute('aria-expanded') !== 'true';
+    document.getElementById('recCalcBox').classList.toggle('rec-teclado-aberto', aberto);
+    botao.setAttribute('aria-expanded', String(aberto));
+    botao.textContent = aberto ? 'Ocultar teclado na tela' : 'Mostrar teclado na tela';
+  });
+  document.getElementById('btnRecFocarPagamento').addEventListener('click', entrarFocoPagamento);
+  document.getElementById('btnRecSairFocoPagamento').addEventListener('click', ()=>sairFocoPagamento(true));
+  document.getElementById('btnRecPagamentoVoltar').addEventListener('click', voltarEtapaRec);
+  document.getElementById('recPagamentoFoco').addEventListener('keydown', e=>{
+    if(!document.body.classList.contains('foco-pagamento')) return;
+    if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); sairFocoPagamento(true); return; }
+    if(e.key !== 'Tab') return;
+    const itens = [...e.currentTarget.querySelectorAll('button,input,select,textarea,[tabindex]')]
+      .filter(el=>!el.disabled && el.tabIndex >= 0 && el.getClientRects().length);
+    const primeiro = itens[0], ultimo = itens[itens.length-1];
+    if(e.shiftKey && document.activeElement === primeiro){ e.preventDefault(); ultimo.focus(); }
+    else if(!e.shiftKey && document.activeElement === ultimo){ e.preventDefault(); primeiro.focus(); }
   });
   /* Entra quando o foco chega na calculadora ou no visor — inclusive sozinho, logo depois
      de escolher o cliente, que já manda o cursor para a soma. Isso foi testado e aprovado
@@ -15922,17 +16484,21 @@ function sairFocoSoma(){
   });
   cortina.addEventListener('mousedown', (e)=>{
     e.preventDefault();
+    if(document.body.classList.contains('foco-pagamento')){ sairFocoPagamento(true); return; }
     sairFocoSoma();
     if(document.activeElement && regiaoFocoSoma(document.activeElement)) document.activeElement.blur();
   });
 })();
 
 function editarRecebimento(id){
-  const r = (state.recebimentos||[]).find(x=> x.id===id);
+  const r = (state.recebimentos||[]).find(x=> String(x.id)===String(id));
   if(!r) return;
+  if(baixaSgFeita(r)){ mostrarToast('Lançamento baixado no SG não pode ser editado.'); return; }
+  if(!confirmarDescarteRec()) return;
   /* Marca a correção ANTES de abrir a tela: assim a abertura não puxa o dia para hoje
      nem reescreve a data do registro que está sendo corrigido. */
-  recEditandoId = id;
+  limparFormRec();
+  recEditandoId = r.id;
   trocarAba('recLancar');
   recClienteSel = r.clienteId;
   document.getElementById('recCliente').value = nomeCliente(r.clienteId);
@@ -15975,20 +16541,76 @@ function editarRecebimento(id){
   document.getElementById('recEditandoAviso').classList.add('show');
   document.getElementById('btnRecSalvar').textContent = 'Salvar alteração';
   atualizarFichaRec();
+  marcarRascunhoRec();
   window.scrollTo(0,0);
 }
 
-function excluirRecebimento(id){
-  const r = (state.recebimentos||[]).find(x=> x.id===id);
-  if(!r) return;
-  if(!confirm('Excluir o recebimento de ' + nomeCliente(r.clienteId) + ' de ' + dataBR(r.data) + '?\n\n' +
-    'Valor pago: ' + fmtMoeda(pagoDoRecebimento(r)) + '. O saldo do cliente é recalculado.')) return;
-  state.recebimentos = (state.recebimentos||[]).filter(x=> x.id!==id);
-  if(recEditandoId === id) limparFormRec();
-  apagarDoCaixa('recebimentos', id);
-  renderCaixaAtual();
-  mostrarToast('Recebimento excluído');
+let exclusaoRec = null;
+let exclusaoRecOrigem = null;
+
+function preencherExclusaoRec(r){
+  const campos = [['Cliente',nomeCliente(r.clienteId)],['Data',dataBR(r.data)],
+    ['Total da conta',fmtMoeda(toNum(r.total))],['Valor pago',fmtMoeda(pagoDoRecebimento(r))],
+    ['Observação',r.obs || 'Nenhuma']];
+  document.getElementById('excluirRecDados').innerHTML = campos.map(([rotulo,valor])=>
+    '<div><dt>'+escHtml(rotulo)+'</dt><dd>'+escHtml(valor)+'</dd></div>').join('');
 }
+
+function excluirRecebimento(id){
+  const r = (state.recebimentos||[]).find(x=> String(x.id)===String(id));
+  if(!r){ mostrarToast('O lançamento não existe mais.'); renderCaixaAtual(); return; }
+  if(baixaSgFeita(r)){ mostrarToast('Lançamento baixado no SG não pode ser excluído.'); return; }
+  exclusaoRec = {id:r.id,assinatura:JSON.stringify(r)};
+  exclusaoRecOrigem = document.activeElement;
+  preencherExclusaoRec(r);
+  document.getElementById('excluirRecAviso').textContent = '';
+  sairFocoSoma();
+  document.getElementById('overlayExcluirRec').classList.add('show');
+  document.getElementById('cancelarExcluirRec').focus();
+}
+
+function fecharExclusaoRec(){
+  exclusaoRec = null;
+  document.getElementById('overlayExcluirRec').classList.remove('show');
+  if(exclusaoRecOrigem && exclusaoRecOrigem.isConnected && !exclusaoRecOrigem.disabled) exclusaoRecOrigem.focus();
+}
+
+function confirmarExclusaoRec(){
+  if(!exclusaoRec) return;
+  const r = (state.recebimentos||[]).find(x=>String(x.id) === String(exclusaoRec.id));
+  if(!r || baixaSgFeita(r)){
+    fecharExclusaoRec(); renderCaixaAtual();
+    mostrarToast(r ? 'A baixa no SG foi confirmada. Este lançamento não pode ser excluído.' : 'O lançamento já foi removido.'); return;
+  }
+  if(JSON.stringify(r) !== exclusaoRec.assinatura){
+    exclusaoRec.assinatura = JSON.stringify(r);
+    preencherExclusaoRec(r);
+    document.getElementById('excluirRecAviso').textContent = 'O lançamento mudou. Confira os dados atualizados antes de excluir.';
+    document.getElementById('cancelarExcluirRec').focus(); return;
+  }
+  fecharExclusaoRec();
+  state.recebimentos = (state.recebimentos||[]).filter(x=>String(x.id) !== String(r.id));
+  if(recEditandoId != null && String(recEditandoId) === String(r.id)) limparFormRec();
+  apagarDoCaixa('recebimentos', r.id);
+  renderUltimosRec();
+  renderCaixaAtual();
+  mostrarToast('Recebimento removido da lista. A exclusão será sincronizada com o banco.');
+}
+
+document.getElementById('confirmarExcluirRec').addEventListener('click', confirmarExclusaoRec);
+['fecharExcluirRec','cancelarExcluirRec'].forEach(id=>document.getElementById(id).addEventListener('click', fecharExclusaoRec));
+document.getElementById('overlayExcluirRec').addEventListener('click', e=>{
+  if(e.target === e.currentTarget) fecharExclusaoRec();
+});
+document.getElementById('overlayExcluirRec').addEventListener('keydown', e=>{
+  if(e.key === 'Escape'){ e.preventDefault(); fecharExclusaoRec(); }
+  if(e.key === 'Tab'){
+    const botoes = [...e.currentTarget.querySelectorAll('button:not(:disabled)')];
+    const primeiro = botoes[0], ultimo = botoes[botoes.length-1];
+    if(e.shiftKey && document.activeElement === primeiro){ e.preventDefault(); ultimo.focus(); }
+    else if(!e.shiftKey && document.activeElement === ultimo){ e.preventDefault(); primeiro.focus(); }
+  }
+});
 
 /* Um só ouvinte para os botões de editar/excluir das três telas da área. */
 document.addEventListener('click', (e)=>{
@@ -16017,8 +16639,13 @@ document.addEventListener('click', (e)=>{
 });
 
 document.getElementById('btnRecSalvar').addEventListener('click', salvarRecebimento);
-document.getElementById('btnRecLimpar').addEventListener('click', ()=> limparFormRec());
+document.getElementById('btnRecAvancar').addEventListener('click', avancarEtapaRec);
+document.getElementById('btnRecVoltar').addEventListener('click', voltarEtapaRec);
+document.getElementById('btnRecLimpar').addEventListener('click', ()=>{ if(confirmarDescarteRec()) limparFormRec(); });
+document.getElementById('recForm').addEventListener('input', atualizarOrientacaoRec);
+document.getElementById('recForm').addEventListener('change', atualizarOrientacaoRec);
 document.getElementById('btnRecCancelarEdicao').addEventListener('click', ()=>{
+  if(!confirmarDescarteRec()) return;
   limparFormRec();
   mostrarToast('Edição cancelada');
 });
@@ -16045,7 +16672,6 @@ function somaNotasCompra(){ return r2(recNotasCompra.reduce((s,v)=> s + v, 0)); 
 
 function renderSomadoraRec(escreverTotal){
   const chips = document.getElementById('recSomaChips');
-  const area  = document.getElementById('recSomaArea');
   const txt   = document.getElementById('recSomaTxt');
   const dica  = document.getElementById('recSomaDica');
   const acum  = document.getElementById('recSomaAcum');
@@ -16053,9 +16679,12 @@ function renderSomadoraRec(escreverTotal){
   const soma  = somaNotasCompra();
 
   chips.innerHTML = recNotasCompra.map((v,i)=>
-    '<span class="cb-chip"><span class="cb-num">' + (i+1) + '</span>' + fmtMoeda(v) +
-    '<button type="button" data-i="' + i + '" title="tirar esta notinha">&times;</button></span>').join('');
-  area.style.display = recNotasCompra.length ? '' : 'none';
+    '<li class="cb-chip"><span class="cb-num" aria-hidden="true">' + (i+1) + '</span><span class="rec-nota-valor">' + fmtMoeda(v) + '</span>' +
+    '<button type="button" data-i="' + i + '" title="Remover notinha ' + (i+1) + '" aria-label="Remover notinha ' + (i+1) + ' de ' + escHtml(fmtMoeda(v)) + '">&times;</button></li>').join('');
+  chips.hidden = !recNotasCompra.length;
+  document.getElementById('recNotasVazio').hidden = !!recNotasCompra.length;
+  document.getElementById('recNotasDica').hidden = !recNotasCompra.length;
+  document.getElementById('recNotasTotal').textContent = fmtMoeda(soma);
   btnL.style.display = recNotasCompra.length ? '' : 'none';
 
   /* Linha de cima do visor: quantas já entraram e quanto somam. É o que a calculadora
@@ -16064,10 +16693,9 @@ function renderSomadoraRec(escreverTotal){
     ? recNotasCompra.length + ' notinha(s)  ·  soma ' + fmtMoeda(soma)
     : 'nenhuma notinha somada';
 
-  txt.innerHTML = recNotasCompra.length
-    ? '<b>' + recNotasCompra.length + ' notinha(s)</b> somando <b>' + fmtMoeda(soma) +
-      '</b> — é este o total da conta. Clique no × para tirar uma que entrou errada.'
-    : '';
+  txt.textContent = recNotasCompra.length
+    ? recNotasCompra.length + (recNotasCompra.length === 1 ? ' notinha somada' : ' notinhas somadas')
+    : 'Nenhuma notinha somada';
 
   /* O rodapé da calculadora é onde os avisos de erro aparecem, e um aviso velho não pode
      sobreviver ao lançamento seguinte. Sem aviso ele fica vazio (e some) — a instrução
@@ -16140,16 +16768,14 @@ document.getElementById('recSomaVal').addEventListener('keydown', (e)=>{
      dele virar mostrador. */
   if(e.key === 'Enter' && e.target.value.trim() === '' && recNotasCompra.length){
     e.preventDefault();
-    document.getElementById('recPg_dinheiro').focus();
+    avancarEtapaRec();
     return;
   }
   if(e.key === '+' || e.key === 'Enter' || e.key === '='){ e.preventDefault(); addNotaCompra(); return; }
   if(e.key === 'Escape'){ e.preventDefault(); e.target.value = ''; return; }
-  /* Tab do visor vai direto para as formas de pagamento. Com a calculadora na coluna da
-     direita, o próximo campo na ordem da página seria o "Limpar" — e um Enter distraído
-     ali apagava o lançamento inteiro. */
+  /* Tab leva ao Ok; só a confirmação avança e bloqueia a calculadora. */
   if(e.key === 'Tab' && !e.shiftKey){
-    const d = document.getElementById('recPg_dinheiro');
+    const d = document.getElementById('btnRecSomaConcluir');
     if(d && !d.disabled){ e.preventDefault(); d.focus(); }
   }
 });
@@ -16189,7 +16815,9 @@ document.getElementById('btnRecTrocoAuto').addEventListener('click', (e)=>{
   atualizarSomatorioRec();
   document.getElementById('recTrocoValor').focus();
 });
-fecharAoClicarFora('overlayTroco');
+document.getElementById('overlayTroco').addEventListener('click', e=>{
+  if(e.target === e.currentTarget) fecharModalTroco();
+});
 ligarBuscaCliente();
 /* Monta os campos das modalidades já na carga: excluir um lançamento pelo histórico
    mexe no somatório da tela de lançamento mesmo que ela ainda não tenha sido aberta.
@@ -16893,12 +17521,12 @@ function renderLancamentos(){
   const diasFuturos = Array.from(new Set(futuros.map(r=> String(r.data)))).sort();
   document.getElementById('lanInfo').innerHTML =
     escHtml(lista.length + ' de ' + doMes.length + ' lançamento(s) de ' + dataBR(dia) +
-      '. Clique em Editar para abrir o lançamento no formulário e corrigir.') +
+      '. Baixados no SG ficam bloqueados. Pendentes podem ser conferidos na tela de recebimento.') +
     (futuros.length
       ? '<div style="margin-top:6px;color:var(--vermelho);font-weight:700;">' +
         escHtml(futuros.length + ' lançamento(s) estão datados de ' +
           diasFuturos.map(d=> dataBR(d)).join(', ') + ', data que ainda não chegou. ' +
-          'Se a data foi digitada errada, escolha esse dia no seletor acima e corrija em Editar.') + '</div>'
+          'Confira o dia escolhido. Correções de pendentes ficam na tela de recebimento, antes da baixa no SG.') + '</div>'
       : '');
 
   const corpo = document.getElementById('lanCorpo');
@@ -16928,8 +17556,7 @@ function renderLancamentos(){
         '<td class="esq rec-mini">'+escHtml(r.usuario||'—')+
           (r.alteradoEm ? '<div class="rec-mini">corrigido em '+new Date(r.alteradoEm).toLocaleDateString('pt-BR')+'</div>' : '') + '</td>' +
         '<td><div class="rec-acoes-linha">' +
-          '<button class="btn btn-outline btn-sm" data-editar-rec="'+r.id+'">Editar</button>' +
-          '<button class="btn btn-vermelho btn-sm" data-excluir-rec="'+r.id+'">Excluir</button>' +
+          (baixaSgFeita(r) ? '<span class="rec-mini">Bloqueado após baixa no SG</span>' : '<button class="btn btn-vermelho btn-sm" data-excluir-rec="'+r.id+'">Excluir</button>') +
         '</div></td></tr>';
     }).join('') + '</tbody></table>';
 }
