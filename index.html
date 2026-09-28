@@ -369,9 +369,10 @@
   .modal-close:active{transform:scale(.9);}
   .modal h2{margin:0 0 4px;font-size:19px;}
   .modal .sub{color:var(--texto-fraco);font-size:13px;margin-bottom:18px;}
-  .campo-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
-  .campo-row.tres{grid-template-columns:1fr 1fr 1fr;}
-  .campo{display:flex;flex-direction:column;gap:4px;}
+  .campo-row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-bottom:12px;}
+  .campo-row.tres{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .campo{display:flex;flex-direction:column;gap:4px;min-width:0;}
+  .campo :is(input:not([type=checkbox]):not([type=radio]),select,textarea){min-width:0;max-width:100%;}
   .campo label{font-size:11.5px;font-weight:700;color:var(--texto-fraco);text-transform:uppercase;letter-spacing:.03em;}
   .campo input, .campo select{padding:9px 10px;border:1px solid var(--cinza-borda);border-radius:7px;font-size:14px;}
   .campo input[readonly]{background:var(--md-surface-container);color:var(--texto-apagado);cursor:not-allowed;}
@@ -1256,7 +1257,9 @@
      resumo do que cada uma faz. */
   .cm-linha{display:flex;gap:7px;align-items:stretch;}
   .cm-linha input{flex:1;min-width:0;}
-  .cm-linha .btn{white-space:nowrap;}
+  .cm-linha{flex-wrap:wrap;}
+  .cm-linha input{flex-basis:100px;}
+  .cm-linha .btn{white-space:normal;max-width:100%;}
   #overlayContaMercado .conta-box{margin-bottom:18px;}
   .cm-opcoes{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
   .cm-op{display:flex;flex-direction:column;gap:2px;align-items:flex-start;text-align:left;
@@ -1404,6 +1407,21 @@
   .rec-sg:hover{border-color:var(--verde);color:var(--verde);background:var(--ok-cont);}
   .rec-sg.ok{background:var(--ok-cont);border-color:var(--verde);color:var(--ok-texto);}
   .rec-sg.ok:hover{filter:brightness(.97);}
+  /* Pendências no SG alternam vermelho e branco até a confirmação da baixa. */
+  @keyframes sg-pendente-alerta{
+    0%,49.99%{background:var(--md-error);color:#fff;border-color:var(--md-error);}
+    50%,100%{background:#fff;color:var(--md-error);border-color:var(--md-error);}
+  }
+  .rec-sg:not(.ok){
+    background:var(--md-error);color:#fff;border-color:var(--md-error);
+    animation:sg-pendente-alerta 1s steps(1,end) infinite;
+  }
+  @media(prefers-reduced-motion:reduce){
+    .rec-sg:not(.ok){animation:none;}
+  }
+  @media print{
+    .rec-sg:not(.ok){animation:none;background:#fff;color:var(--md-error);}
+  }
   /* ============================= TELA INICIAL (diretoria) =============================
      Números grandes e gráficos simples. Tudo desenhado em SVG puro: sem biblioteca de
      gráfico, o sistema continua um arquivo só e a página imprime igual à tela. */
@@ -2061,6 +2079,17 @@
   .modal h2{font-size:24px;font-weight:600;color:var(--md-on-surface);margin:0 48px 6px 0;letter-spacing:-.015em;}
   .modal .sub{font-size:14px;color:var(--md-on-surface-variant);line-height:1.5;margin-bottom:20px;}
   .acoes-modal{gap:8px;margin-top:24px;}
+  /* Campos e ações devem caber no modal, inclusive com zoom ou tela estreita. */
+  .modal{min-width:0;overflow-wrap:anywhere;}
+  .modal .btn{max-width:100%;white-space:normal;overflow-wrap:anywhere;}
+  .acoes-modal > *{min-width:0;max-width:100%;}
+  @media(max-width:600px){
+    .overlay{padding:16px 12px;}
+    .modal{padding:24px 18px;}
+    .modal .campo-row,.modal .campo-row.tres{grid-template-columns:minmax(0,1fr);}
+    .modal .encargos-grid{grid-template-columns:minmax(0,1fr);}
+    .modal .acoes-modal > .btn{flex:1 1 100%;margin-right:0;}
+  }
   .nuvem-linha{border-bottom-color:var(--divisor);font-size:13.5px;padding:10px 0;}
   .nuvem-aviso{background:var(--aviso-cont);border:none;border-radius:var(--r-md);color:var(--aviso-texto);
     font-size:12px;padding:12px 14px;}
@@ -2506,8 +2535,7 @@
   body.foco-soma #recSomaArea,body.foco-soma #recCalcBox .cb-soma{position:relative;z-index:46;
     box-shadow:0 0 0 3px rgba(255,255,255,.55), 0 20px 44px rgba(0,0,0,.35);}
   body.foco-soma #recCalcBox .cb-soma{background:var(--md-surface-container-low);}
-  body.foco-soma #recCalcBox .cb-soma::after{content:"Clique fora ou aperte Tab para sair do modo soma";display:block;
-    margin-top:9px;font-size:11px;font-weight:600;color:var(--md-on-surface-variant);text-align:center;}
+  #btnRecSomaConcluir{width:100%;margin-top:10px;white-space:normal;}
 
   /* ---------- LANÇAR RECEBIMENTO EM UMA TELA SÓ (14/09/2026) ----------
      A tela ficava tão alta que para chegar no "Registrar recebimento" era preciso rolar.
@@ -2614,6 +2642,53 @@
   .vd-lista li.vd-atencao b{color:var(--aviso-texto);}
   .vd-vazio{margin-top:4px;}
   .vd-vazio .ini-desc{max-width:760px;}
+  /* ---------- VENDAS POR PRODUTO ----------
+     Tela da diretoria com o vendia01 resumido. Reaproveita KPIs, cartões e a "leitura" das
+     vendas do Fechamento; o que é só daqui são os filtros em pílula, as variações embaixo
+     de cada valor da tabela e o mapa venda x margem. */
+  .vp-status{margin:0 0 14px;padding:11px 16px;border-radius:var(--r-md);background:var(--info-cont);color:var(--info-texto);font-size:13px;font-weight:600;}
+  .vp-ferramentas{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+  .vp-ferramentas .search-wrap{max-width:560px;}
+  .vp-ferramentas select{border:none;background:var(--md-surface-container-high);border-radius:var(--r-full);
+    padding:8px 14px;font-family:inherit;font-size:13px;font-weight:600;color:var(--md-on-surface);min-height:38px;cursor:pointer;}
+  .vp-filtros{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 4px;}
+  .vp-chip{border:none;background:var(--md-surface-container-high);color:var(--md-on-surface-variant);border-radius:var(--r-full);
+    padding:7px 14px;font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;}
+  .vp-chip b{font-weight:700;color:var(--md-on-surface);margin-left:2px;}
+  .vp-chip:hover{background:var(--md-surface-container-highest);}
+  .vp-chip.ativo{background:var(--md-primary);color:var(--md-on-primary);}
+  .vp-chip.ativo b{color:inherit;}
+  .vp-tabela tbody tr{cursor:pointer;}
+  .vp-tabela tbody tr:hover td{background:var(--md-surface-container-low);}
+  .vp-nome{font-weight:600;color:var(--md-on-surface);}
+  .vp-bola{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:1px;}
+  .vp-var{font-size:11px;font-weight:600;margin-top:2px;color:var(--md-on-surface-variant);white-space:nowrap;}
+  .vp-var.bom{color:var(--ok-texto);}
+  .vp-var.ruim{color:var(--erro-texto);}
+  .vp-var.neutro{color:var(--info-texto);}
+  .tabela-ponto td.vp-neg, .tabela-ponto td.vp-neg b{color:var(--erro-texto);}
+  .vp-tag{display:inline-block;font-size:10.5px;font-weight:700;padding:1px 7px;border-radius:var(--r-full);
+    background:var(--md-surface-container-high);color:var(--md-on-surface-variant);}
+  .vp-tag-alerta{background:var(--erro-cont);color:var(--erro-texto);}
+  .vp-tag-atencao{background:var(--aviso-cont);color:var(--aviso-texto);}
+  .vp-veredito{font-size:12.5px;line-height:1.5;color:var(--md-on-surface-variant);background:var(--md-surface-container-low);
+    border-radius:var(--r-md);padding:8px 12px;margin:0 0 10px;border-left:4px solid var(--md-outline);}
+  .vp-veredito b{color:var(--md-on-surface);font-weight:600;}
+  .vp-veredito.ok{background:var(--ok-cont);color:var(--ok-texto);border-left-color:var(--ok);}
+  .vp-veredito.ok b{color:var(--ok-texto);}
+  .vp-veredito.ruim{background:var(--erro-cont);color:var(--erro-texto);border-left-color:var(--md-error);}
+  .vp-veredito.ruim b{color:var(--erro-texto);}
+  .vp-acao{cursor:pointer;}
+  .vp-acao:hover rect:first-child{fill:var(--md-surface-container-high);}
+  .vp-mais{text-align:center;margin:14px 0 4px;}
+  .vp-mapa .vp-ponto{cursor:pointer;opacity:.8;}
+  .vp-mapa .vp-ponto:hover{opacity:1;stroke:#171d19;stroke-width:1.5;}
+  .vp-legenda .lg-item{cursor:default;}
+  .vp-ficha-nome{margin-right:48px;}
+  .vp-ficha-kpis{margin:16px 0 12px;}
+  .vp-ficha-frases{margin-bottom:6px;}
+  .tabela-ponto.vp-hist tr.vp-hist-atual td{background:var(--md-primary-suave);}
+  @media print{ body.imprimindo .vp-ferramentas, body.imprimindo .vp-filtros{display:none;} }
   .dg-dica em{display:block;font-style:normal;font-size:10.5px;opacity:.85;margin-top:2px;}
   @media(max-width:760px){ .vd-acoes{margin-left:0;} }
   @media print{ body.imprimindo .vd-acoes{display:none;} }
@@ -2804,6 +2879,11 @@
       <span class="bl-rotulo">Fechamento Mensal</span>
       <svg class="bl-cadeado bl-rotulo" viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
     </button>
+    <button class="bl-item bl-inicio" data-aba="vendasProdutos" title="Vendas por Produto">
+      <svg viewBox="0 0 24 24"><path d="M20.6 13.4l-7.2 7.2a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+      <span class="bl-rotulo">Vendas por Produto</span>
+      <svg class="bl-cadeado bl-rotulo" viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10.5" rx="2"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
+    </button>
   </nav>
   <div class="bl-rodape bl-rotulo">Acesso restrito à<br>equipe administrativa
     <span id="rodapeVersao" style="display:block;margin-top:6px;opacity:.65;"></span></div>
@@ -2853,6 +2933,59 @@
     <div id="iniGraficos"></div>
     <div class="nota-rodape" id="iniNota"></div>
   </main>
+</div>
+
+<!-- Vendas por produto: o vendia01 do SG resumido por mês. Montado por renderVendasProdutos(). -->
+<div id="viewVendasProdutos" style="display:none;">
+  <main>
+    <div class="dash-topo">
+      <div>
+        <h2>Vendas por produto</h2>
+        <div class="dash-sub" id="vpSub">Venda, preço e lucro de cada produto, mês a mês.</div>
+      </div>
+      <div class="vd-acoes" id="vpAcoes"></div>
+    </div>
+    <div class="vp-status" id="vpStatus" hidden></div>
+    <input type="file" id="vpArquivo" accept=".csv,.txt" multiple hidden>
+    <div id="vpPainel"></div>
+    <div id="vpPesquisa" hidden>
+      <div class="dash-secao"><h3>Pesquisar produtos</h3><span class="dash-nota" id="vpNotaTabela"></span></div>
+      <div class="vp-ferramentas">
+        <div class="search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="vpBusca" placeholder="Buscar por nome ou código do produto..." autocomplete="off">
+        </div>
+        <select id="vpOrdem" title="Ordenar por">
+          <option value="lucro">Maior lucro bruto</option>
+          <option value="venda">Maior venda</option>
+          <option value="qtd">Maior quantidade</option>
+          <option value="vendaAsc">Menor venda</option>
+          <option value="margem">Maior margem</option>
+          <option value="margemAsc">Menor margem</option>
+          <option value="altaVenda">Venda que mais subiu (R$)</option>
+          <option value="quedaVenda">Venda que mais caiu (R$)</option>
+          <option value="varPreco">Preço que mais subiu (%)</option>
+          <option value="varPrecoAsc">Preço que mais caiu (%)</option>
+          <option value="prejuizo">Maior prejuízo</option>
+          <option value="perdaMargem">Mais margem perdida (R$)</option>
+          <option value="perdida">Mais venda perdida (R$)</option>
+          <option value="difCusto">Maior correção de custo (R$)</option>
+          <option value="nome">Nome</option>
+        </select>
+        <button type="button" class="btn btn-outline" id="vpExportarLista" title="Planilha com os produtos do filtro e da busca que estão na tela">Exportar esta lista</button>
+        <button type="button" class="btn btn-outline" id="vpExportarCustos" title="Planilha com o custo do SG e o corrigido, para acertar o cadastro">Exportar custos corrigidos</button>
+      </div>
+      <div class="vp-filtros" id="vpFiltros"></div>
+      <div class="lista-info" id="vpInfo"></div>
+      <div id="vpTabela"></div>
+    </div>
+  </main>
+</div>
+<div class="overlay" id="overlayVp">
+  <div class="modal largo">
+    <button class="modal-close" id="fecharVp" title="Fechar">✕</button>
+    <div id="vpDetalhe"></div>
+  </div>
 </div>
 
 <div id="viewDashboard">
@@ -3247,6 +3380,7 @@
             <button type="button" class="ct-mais" data-k="+" title="soma esta notinha (tecla + ou Enter)">+</button>
           </div>
           <div class="cb-soma-txt" id="recSomaDica"></div>
+          <button type="button" class="btn btn-primary" id="btnRecSomaConcluir">Ok</button>
         </div>
       </div>
 
@@ -4546,7 +4680,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '14/09/2026d · Fechamento Mensal';
+const VERSAO_SISTEMA = '18/09/2026f · Filtro de venda fraca';
 
 /* Cópia do sistema guardada no navegador, para ele ABRIR sem internet — ver sw.js, que
    precisa estar publicado na mesma pasta deste arquivo. Só em https (o Pages) ou no
@@ -11810,6 +11944,7 @@ document.getElementById('relGrid').addEventListener('click', (e)=>{
    salários não têm sentido no caixa nem na loja). */
 const ABAS = {
   inicio:       {view:'viewInicio',       titulo:'Fechamento Mensal',          grupo:null, protegida:true},
+  vendasProdutos:{view:'viewVendasProdutos', titulo:'Vendas por Produto',     grupo:null, protegida:true},
   dashboard:    {view:'viewDashboard',    titulo:'Painel',                     grupo:'rh'},
   folha:        {view:'viewFolha',        titulo:'Folha de Pagamento',         grupo:'rh'},
   ponto:        {view:'viewPonto',        titulo:'Controle de Ponto',          grupo:'rh'},
@@ -11885,6 +12020,7 @@ function trocarAba(aba){
   document.getElementById('btnConfigSalarios').style.display = (ABAS[aba].grupo === 'rh') ? '' : 'none';
   abrirGrupo(ABAS[aba].grupo);
   if(aba==='inicio') renderInicio();
+  if(aba==='vendasProdutos') renderVendasProdutos();
   if(aba==='dashboard') renderDashboard();
   if(aba==='ponto') renderPonto();
   if(aba==='ferias') renderFerias();
@@ -15724,7 +15860,7 @@ function celebrarRecebimento(valor, cliente, detalhes){
    ao clicar nela ou no visor do total —, a tela escurece e só o visor da soma e a
    calculadora ficam acesos, por cima da cortina.
 
-   Sai com qualquer clique fora desses dois quadros (a cortina cobre o resto da tela, então
+   Sai pelo botão "Ok" ou com qualquer clique fora desses dois quadros (a cortina cobre o resto da tela, então
    clicar fora é clicar nela) e quando o foco vai para outro lugar — Tab para as formas de
    pagamento, troca de tela. O Esc não sai: dentro da
    calculadora ele já é o CE, e mudar isso quebraria a mão de quem soma pelo teclado.
@@ -15749,6 +15885,13 @@ function sairFocoSoma(){
   const cortina = document.createElement('div');
   cortina.className = 'foco-soma-cortina';
   document.body.appendChild(cortina);
+  document.getElementById('btnRecSomaConcluir').addEventListener('click', ()=>{
+    sairFocoSoma();
+    /* Segue para o pagamento sem alterar as notinhas nem registrar o recebimento. */
+    const proximo = document.querySelector('#recMods input:not([type="hidden"]):not(:disabled)') ||
+      document.getElementById('recCliente');
+    if(proximo) proximo.focus();
+  });
   /* Entra quando o foco chega na calculadora ou no visor — inclusive sozinho, logo depois
      de escolher o cliente, que já manda o cursor para a soma. Isso foi testado e aprovado
      em 12/09/2026: escolheu o cliente, a tela escurece e o maço de notinhas é o próximo
@@ -21152,12 +21295,13 @@ function renderVendasInicio(){
             : base[mesPassado] ? mesPassado : meses[meses.length - 1];
 
   const botao = '<button type="button" class="btn btn-outline" data-vd-importar>Importar relatório de vendas</button>';
+  const atalhoProdutos = '<button type="button" class="btn btn-outline" data-vd-produtos>Ver por produto</button>';
   const seletor = meses.length > 1
     ? '<select data-vd-mes title="Escolher o mês das vendas">' + meses.slice().reverse().map(m=>
         '<option value="' + m + '"' + (m === mes ? ' selected' : '') + '>' + mesLabel(m) + '</option>').join('') + '</select>'
     : '';
   const cabecalho = (titulo, nota)=> '<div class="dash-secao"><h3>' + escHtml(titulo) + '</h3>' +
-    '<span class="dash-nota">' + escHtml(nota) + '</span><div class="vd-acoes">' + seletor + botao + '</div></div>' +
+    '<span class="dash-nota">' + escHtml(nota) + '</span><div class="vd-acoes">' + seletor + atalhoProdutos + botao + '</div></div>' +
     '<input type="file" id="vdArquivo" accept=".xls,.xlsx,.txt" hidden>';
 
   if(!mes){
@@ -21305,6 +21449,7 @@ function renderVendasInicio(){
 
 /* Ouvintes presos ao contêiner, que não é recriado: o conteúdo de dentro é. */
 document.getElementById('iniVendas').addEventListener('click', (e)=>{
+  if(e.target.closest('[data-vd-produtos]')){ trocarAba('vendasProdutos'); return; }
   if(e.target.closest('[data-vd-importar]')){
     const inp = document.getElementById('vdArquivo');
     if(inp){ inp.value = ''; inp.click(); }
@@ -21314,6 +21459,1671 @@ document.getElementById('iniVendas').addEventListener('change', (e)=>{
   if(e.target.id === 'vdArquivo' && e.target.files && e.target.files[0]) importarRelatorioVendas(e.target.files[0]);
   else if(e.target.matches('[data-vd-mes]')){ vendasMesEscolhido = e.target.value; renderInicio(); }
 });
+
+/* ============================= VENDAS POR PRODUTO (vendia01 do SG) =============================
+   Tela da diretoria para pesquisar produto e ver venda, preço e lucro, no mês e no ano, com
+   variação contra o mês anterior e contra o ano anterior. Pedido de 17/09/2026.
+
+   DE ONDE VEM: o VENDIA01.DBF do SG tem uma linha por produto por dia (3,5 milhões de
+   linhas). O X:\exportar_vendia01.bat exporta o ano anterior e o atual para
+   X:\vendia01_2025-2026.csv (~900 mil linhas, 76 MB, menos de um minuto). O botão
+   "Importar" lê o CSV aqui no navegador e guarda só o resumo por produto e por mês.
+
+   ONDE FICA: tabela própria `rh_vendas_produtos`, uma linha por mês, FORA do estado do RH
+   (o estado é reenviado inteiro a cada gravação). Cada linha tem duas colunas:
+   - `resumo`: os totais do mês, poucos bytes. A tela lista todos os meses só com isso.
+   - `dados`: o detalhe por produto, ~200 KB. Só é baixado o mês que a análise na tela
+     usa, e fica guardado até alguém importar de novo.
+   A ficha do produto não baixa mês nenhum: a RPC `rh_vendas_produto_historico` monta no
+   banco a linha daquele produto em cada mês.
+
+   NOMES: o vendia01 só traz o código (CODPRO). O nome vem da tabela `produtos` do Sistema
+   de Estoque, cujo `codigo` é o mesmo do SG, pela RPC `rh_nomes_produtos()`.
+
+   AS CONTAS, conferidas dia a dia contra o RESUMO DIARIO DE VENDAS de agosto/2026:
+   - venda = QTDEVEN17 × PREVEND17. Bateu no centavo: R$ 1.604.750,57.
+   - custo = QTDEVEN17 × CUSSICM17, a mercadoria sem o crédito de ICMS. É o
+     "TOT.CUSTO − ENCARGOS" do resumo. Só o dia 26/08 diferiu (R$ 1.769,76 a menos na base
+     de 17/09): custo corrigido no SG depois de o resumo ser tirado.
+   - icms = VALICMS17, que já é o total da linha.
+   - LUCRO BRUTO = venda − custo − ICMS. É o que o produto deixa antes do PIS/COFINS e das
+     despesas da loja. Não bate com o "R$ LUCRO" do resumo, que tira 18% fixos de despesa
+     estimada de tudo por igual e por isso não serve para comparar um produto com outro.
+
+   COMPARAÇÕES: sempre pela venda POR DIA, nunca pelo total. É o que deixa comparar o mês em
+   andamento com um mês fechado, e fevereiro com março. */
+
+const VP_TABELA = 'rh_vendas_produtos';
+const VP_GRUPOS = {
+  estrela:      {rot:'Estrela',         cor: CORES_GRAFICO[0], desc:'está entre os que fazem 80% da venda e tem margem acima da loja'},
+  movimento:    {rot:'Puxa movimento',  cor: CORES_GRAFICO[1], desc:'está entre os que fazem 80% da venda, mas com margem abaixo da loja'},
+  oportunidade: {rot:'Oportunidade',    cor: CORES_GRAFICO[3], desc:'margem acima da loja, mas vende pouco'},
+  baixa:        {rot:'Margem baixa',    cor: CORES_GRAFICO[6], desc:'vende pouco e com margem abaixo da loja'},
+  prejuizo:     {rot:'Abaixo do custo', cor: CORES_GRAFICO[4], desc:'vendido por menos do que custou somado ao ICMS'},
+  parado:       {rot:'Sem venda',       cor: '#b9c2ba',        desc:'não vendeu no período'}
+};
+/* Os filtros da pesquisa. `ordem` é a ordenação que faz sentido ao escolher o filtro. */
+const VP_FILTROS = [
+  ['todos',        'Todos',                 null,          (l)=> l.v > 0 || !!l.flags.parou],
+  ['estrela',      'Estrelas',              'lucro',       (l)=> l.grupo === 'estrela'],
+  ['movimento',    'Puxam movimento',       'venda',       (l)=> l.grupo === 'movimento'],
+  ['oportunidade', 'Oportunidades',         'lucro',       (l)=> l.grupo === 'oportunidade'],
+  ['prejuizo',     'Abaixo do custo',       'prejuizo',    (l)=> l.grupo === 'prejuizo'],
+  ['custoCorrigido','Custo corrigido',     'difCusto',   (l)=> !!l.flags.custoCorrigido],
+  ['custoEstranho','Custo a conferir',      'venda',       (l)=> !!l.flags.custoEstranho],
+  ['espremido',    'Custo subiu mais que o preço', 'perdaMargem', (l)=> !!l.flags.espremido],
+  ['precoSubiu',   'Preço subiu',           'varPreco',    (l)=> !!l.flags.precoSubiu],
+  ['precoCaiu',    'Preço caiu',            'varPrecoAsc', (l)=> !!l.flags.precoCaiu],
+  ['vendaSubiu',   'Venda subiu',           'altaVenda',   (l)=> !!l.flags.vendaSubiu],
+  ['vendaCaiu',    'Venda caiu',            'quedaVenda',  (l)=> !!l.flags.vendaCaiu],
+  ['parou',        'Parou de vender',       'perdida',     (l)=> !!l.flags.parou],
+  ['fraco',        'Venda fraca (tirar da compra)', 'vendaAsc', (l)=> !!l.flags.fraco && !l.substitui],
+  ['novo',         'Novos',                 'venda',       (l)=> !!l.flags.novo]
+];
+const VP_FLAGS_COM_BASE = ['espremido', 'precoSubiu', 'precoCaiu', 'vendaSubiu', 'vendaCaiu', 'novo', 'fraco'];
+/* Custo abaixo de 10% do preço: não é margem, é custo que faltou cadastrar. Fica fora de
+   ranking, mapa e oportunidades mesmo quando o produto é pequeno demais para a marca de
+   "custo a conferir". */
+const vpSemCusto = (l)=> l.custoUn != null && l.preco > 0 && l.custoUn < l.preco * 0.1;
+
+/* indice: os totais de todos os meses (coluna resumo). meses: o detalhe dos meses baixados. */
+const vpCache = {indice: {}, meses: {}, nomes: {}, nomesOk: false, lidoEm: 0, versao: 0, promessa: null};
+const vpTela = {periodo: null, base: null, filtro: 'todos', limite: 150, roscas: [], desenhada: -1, pedido: 0};
+let vpAnalise = null;   /* a análise na tela: busca, filtro e ficha reaproveitam */
+
+const vpNome = (cod)=> vpCache.nomes[cod] || ('Produto código ' + cod);
+const vpPp = (x)=> (x >= 0 ? '+' : '−') + Math.abs(x).toLocaleString('pt-BR', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + ' ponto' + (Math.abs(x) >= 1.95 ? 's' : '');
+const vpMesCurto = (m)=> mesLabel(m).slice(0, 3) + '/' + m.slice(2, 4);
+const vpMenosUmAno = (m)=> (parseInt(m.slice(0, 4), 10) - 1) + m.slice(4);
+function vpSinal(x){
+  if(x == null) return '—';
+  if(Math.abs(x) < 0.05) return 'estável';
+  return (x >= 0 ? '+' : '−') + vdPct(Math.abs(x));
+}
+/* "Agosto/2026", "Jan a Set/2026" ou "Out/25 a Mar/26". */
+function vpIntervalo(ms){
+  if(!ms.length) return '';
+  if(ms.length === 1) return mesLabel(ms[0]);
+  const a = ms[0], b = ms[ms.length - 1];
+  if(ms.length === 12 && a.slice(5) === '01' && b.slice(5) === '12') return a.slice(0, 4);
+  return a.slice(0, 4) === b.slice(0, 4)
+    ? mesLabel(a).slice(0, 3) + ' a ' + mesLabel(b).slice(0, 3) + '/' + b.slice(0, 4)
+    : vpMesCurto(a) + ' a ' + vpMesCurto(b);
+}
+
+/* ---------- leitura do banco ---------- */
+function vpResumo(mes, r, importadoEm, importadoPor){
+  r = r || {};
+  const pp = mes.split('-').map(Number);
+  const diasNoMes = new Date(pp[0], pp[1], 0).getDate();
+  const venda = +r.venda || 0, custo = +r.custo || 0, icms = +r.icms || 0, ultimoDia = +r.ultimoDia || 0;
+  return {mes: mes, venda: venda, custo: custo, icms: icms, lucro: venda - custo - icms, qtd: +r.qtd || 0,
+    custoSG: r.custoSG != null ? +r.custoSG : custo, corrigidos: +r.corrigidos || 0, corrigido: r.custoSG != null,
+    porDia: Array.isArray(r.porDia) ? r.porDia.map(Number) : null,
+    produtos: +r.produtos || 0, nDias: +r.nDias || 1, ultimoDia: ultimoDia,
+    /* Mês em andamento, ou exportado antes de acabar. */
+    parcial: mes >= mesAtualPadrao() || ultimoDia < diasNoMes - 1,
+    importadoEm: importadoEm, importadoPor: importadoPor || ''};
+}
+
+/* A lista dos meses com os totais: alguns KB. O detalhe de um mês que foi reimportado é
+   descartado aqui e baixado de novo quando a análise pedir. */
+function vpCarregar(forcar){
+  if(vpCache.promessa) return vpCache.promessa;
+  if(!forcar && vpCache.lidoEm && Date.now() - vpCache.lidoEm < 60000) return Promise.resolve();
+  vpCache.promessa = (async ()=>{
+    if(!db) throw new Error('sem conexão com o banco');
+    const r = await comTempoLimite(db.from(VP_TABELA).select('mes, resumo, importado_em, importado_por'), 20000);
+    if(r.error) throw r.error;
+    const novo = {};
+    (r.data || []).forEach(l=> novo[l.mes] = vpResumo(l.mes, l.resumo, l.importado_em, l.importado_por));
+    let mudou = Object.keys(novo).length !== Object.keys(vpCache.indice).length;
+    Object.keys(novo).forEach(m=>{
+      if(!vpCache.indice[m] || vpCache.indice[m].importadoEm !== novo[m].importadoEm){ delete vpCache.meses[m]; mudou = true; }
+    });
+    Object.keys(vpCache.meses).forEach(m=>{ if(!novo[m]) delete vpCache.meses[m]; });
+    vpCache.indice = novo;
+    if(mudou || !vpCache.nomesOk){
+      const n = await comTempoLimite(db.rpc('rh_nomes_produtos'), 30000);
+      /* Sem nome a tela funciona com o código: não vale derrubar a leitura por isso. */
+      if(!n.error){ vpCache.nomes = n.data || {}; vpCache.nomesOk = true; mudou = true; }
+    }
+    if(mudou) vpCache.versao++;
+    vpCache.lidoEm = Date.now();
+  })().finally(()=>{ vpCache.promessa = null; });
+  return vpCache.promessa;
+}
+
+/* Baixa o detalhe dos meses que faltam, de seis em seis: um ano inteiro numa resposta só
+   são 2,5 MB, e na internet do escritório isso estourava o tempo. */
+async function vpGarantirMeses(lista, aviso){
+  const faltam = lista.filter((m, i)=> lista.indexOf(m) === i && vpCache.indice[m] && !vpCache.meses[m]);
+  for(let k = 0; k < faltam.length; k += 6){
+    const lote = faltam.slice(k, k + 6);
+    if(aviso) aviso('Baixando as vendas por produto de ' + vpIntervalo(lote) + '…');
+    const r = await comTempoLimite(db.from(VP_TABELA).select('mes, dados, importado_em').in('mes', lote), 120000);
+    if(r.error) throw r.error;
+    (r.data || []).forEach(l=> vpCache.meses[l.mes] = vpMontarMes(l));
+  }
+  return faltam.length > 0;
+}
+
+/* A linha do banco vem em colunas paralelas (c, v, k, i, q, d, u), que é o jeito mais
+   curto de guardar 7 mil produtos. Aqui vira um Map por código. */
+function vpMontarMes(linha){
+  const d = linha.dados || {};
+  const c = d.c || [], kc = d.kc || {};
+  const prods = new Map();
+  for(let i = 0; i < c.length; i++){
+    const p = {v: +d.v[i] || 0, k: +d.k[i] || 0, i: d.i ? (+d.i[i] || 0) : 0, q: +d.q[i] || 0,
+               d: d.d ? d.d[i] : 0, u: d.u ? d.u[i] : 0, ko: null, kt: ''};
+    /* Custo corrigido na importação: `ko` é o custo que veio do SG, `kt` as letras do problema. */
+    if(kc[i]){ p.ko = +kc[i][0] || 0; p.kt = kc[i][1] || ''; }
+    prods.set(String(c[i]), p);
+  }
+  return {mes: linha.mes, prods: prods, importadoEm: linha.importado_em};
+}
+
+/* ---------- importação do CSV ----------
+   Colunas achadas pelo nome sem o sufixo do SG (DATA17 → DATA), então a ordem do CSV não
+   importa. Aceita vários arquivos de uma vez (o exportador parte o CSV a cada 1 milhão de
+   linhas): tudo vai para o mesmo acumulador antes de fechar os meses, porque um mês pode
+   ter começado num arquivo e terminado no outro, e porque a correção dos custos precisa
+   do histórico inteiro de cada produto.
+
+   O acumulador guarda cada linha do CSV em colunas de números (mês e produto viram
+   índices): são ~900 mil linhas em dois anos, e objeto por linha estouraria a memória
+   dos computadores do escritório. */
+function vpNovoAcumulador(){
+  return {meses: [], idxMes: new Map(), cods: [], idxCod: new Map(),
+          mes: [], dia: [], cod: [], q: [], p: [], c: [], i: []};
+}
+function vpLerCsv(txt, acc){
+  if(txt.charCodeAt(0) === 0xFEFF) txt = txt.slice(1);
+  let fim = txt.indexOf('\n');
+  if(fim < 0) fim = txt.length;
+  const cab = txt.slice(0, fim).trim().split(';').map(s=> s.trim().replace(/^"|"$/g, '').toUpperCase().replace(/\d+$/, ''));
+  const iData = cab.indexOf('DATA'), iCod = cab.indexOf('CODPRO'), iQtd = cab.indexOf('QTDEVEN'),
+        iPreco = cab.indexOf('PREVEND'), iCusto = cab.indexOf('CUSSICM'), iIcms = cab.indexOf('VALICMS');
+  if([iData, iCod, iQtd, iPreco, iCusto].some(i=> i < 0))
+    throw new Error('este arquivo não é a exportação do vendia01 (faltam as colunas DATA17, CODPRO17, QTDEVEN17, PREVEND17 e CUSSICM17)');
+  const num = (s)=>{
+    if(!s) return 0;
+    const n = +(s.indexOf(',') < 0 ? s : s.indexOf('.') < 0 ? s.replace(',', '.') : s.replace(/\./g, '').replace(',', '.'));
+    return n === n ? n : 0;
+  };
+  let pos = fim + 1, linhas = 0;
+  while(pos < txt.length){
+    let nl = txt.indexOf('\n', pos);
+    if(nl < 0) nl = txt.length;
+    const f = txt.slice(pos, nl).split(';');
+    pos = nl + 1;
+    if(f.length <= iCusto) continue;
+    const dt = f[iData].trim();
+    let mes, dia;
+    if(dt.charAt(2) === '/'){ mes = dt.slice(6, 10) + '-' + dt.slice(3, 5); dia = +dt.slice(0, 2); }
+    else if(dt.charAt(4) === '-'){ mes = dt.slice(0, 7); dia = +dt.slice(8, 10); }
+    else if(/^\d{8}$/.test(dt)){ mes = dt.slice(0, 4) + '-' + dt.slice(4, 6); dia = +dt.slice(6, 8); }
+    else continue;
+    if(!(dia >= 1 && dia <= 31)) continue;
+    const cod = f[iCod].trim();
+    if(!cod) continue;
+    let im = acc.idxMes.get(mes);
+    if(im === undefined){ im = acc.meses.length; acc.meses.push(mes); acc.idxMes.set(mes, im); }
+    let ic = acc.idxCod.get(cod);
+    if(ic === undefined){ ic = acc.cods.length; acc.cods.push(cod); acc.idxCod.set(cod, ic); }
+    acc.mes.push(im); acc.dia.push(dia); acc.cod.push(ic);
+    acc.q.push(num(f[iQtd].trim())); acc.p.push(num(f[iPreco].trim())); acc.c.push(num(f[iCusto].trim()));
+    acc.i.push(iIcms >= 0 ? num((f[iIcms] || '').trim()) : 0);
+    linhas++;
+  }
+  return linhas;
+}
+
+/* ---------- CUSTOS ERRADOS DO SG ----------
+   O cadastro do SG tem custo errado em parte das vendas: custo zerado (DIVERSOS a R$ 0,01,
+   bombons e salgados da padaria sem custo), custo da caixa lançado na unidade (SALG CHICHEN
+   TIKS custando R$ 54 mil para R$ 10 mil vendidos) e o contrário (LING TOSCANA SADIA a
+   R$ 3,98 o quilo). Esses erros inventavam prejuízo e margem de 100%, e a diretoria pediu
+   em 17/09/2026 para corrigir todos.
+
+   A correção é feita VENDA A VENDA, na importação, e só vale para esta tela: o SG não é
+   tocado. O custo original fica guardado (`kc` em cada mês) para mostrar os dois e gerar a
+   lista que a equipe usa para acertar o cadastro.
+
+   Como decide, para cada linha do vendia01 (preço p, custo c, razão r = c / p):
+   1. A referência de cada produto sai das vendas dele com r entre 0,1 e 2: a mediana da
+      razão, do custo e do preço. Só vale se houver pelo menos 3 dessas vendas e elas forem
+      30% ou mais das vendas do produto. Sem isso (DIVERSOS, por exemplo, que quase nunca
+      tem custo) a referência é a razão média da loja (0,735 em 2025-2026).
+   2. r abaixo de 0,1: custo zerado ou quase.
+   3. r acima de 2: custo acima do dobro do preço. EXCETO quando o custo está normal e o
+      preço é que caiu para menos da metade do costume: aí o erro foi no preço do caixa, o
+      prejuízo é de verdade e fica como está (94 vendas em 2025-2026).
+   4. Custo fora do histórico do produto (menos da metade ou mais de 1,8 vez a mediana)
+      com o preço dentro do normal (0,6 a 1,6 vez a mediana): custo trocado de embalagem.
+      Legume e carne, que mudam de preço junto com o custo, não caem aqui.
+   O custo corrigido é o preço daquela venda vezes a razão de referência: mantém a margem
+   que o produto costuma ter, no preço que foi praticado no dia.
+
+   Conferido no CSV de 2025-2026: 26.544 vendas corrigidas em 1.859 produtos. */
+function vpCorrigirCustos(acc){
+  const n = acc.q.length, nc = acc.cods.length;
+  const total = new Uint32Array(nc), validos = new Uint32Array(nc);
+  let somaC = 0, somaV = 0;
+  for(let k = 0; k < n; k++){
+    const p = acc.p[k];
+    if(!(p > 0)) continue;
+    const j = acc.cod[k], r = acc.c[k] / p;
+    total[j]++;
+    if(r >= 0.1 && r <= 2){ validos[j]++; somaC += acc.c[k] * acc.q[k]; somaV += p * acc.q[k]; }
+  }
+  /* As vendas válidas agrupadas por produto num vetor só, para tirar as medianas. */
+  const ini = new Uint32Array(nc + 1);
+  for(let j = 0; j < nc; j++) ini[j + 1] = ini[j] + validos[j];
+  const R = new Float64Array(ini[nc]), C = new Float64Array(ini[nc]), P = new Float64Array(ini[nc]);
+  const cursor = ini.slice(0, nc);
+  for(let k = 0; k < n; k++){
+    const p = acc.p[k];
+    if(!(p > 0)) continue;
+    const r = acc.c[k] / p;
+    if(r >= 0.1 && r <= 2){ const pos = cursor[acc.cod[k]]++; R[pos] = r; C[pos] = acc.c[k]; P[pos] = p; }
+  }
+  const mediana = (v, a, b)=>{ const s = v.slice(a, b).sort(); return s[(b - a) >> 1]; };
+  const refR = new Float64Array(nc).fill(NaN), refC = new Float64Array(nc), refP = new Float64Array(nc);
+  for(let j = 0; j < nc; j++){
+    if(validos[j] >= 3 && validos[j] >= total[j] * 0.3){
+      refR[j] = mediana(R, ini[j], ini[j + 1]); refC[j] = mediana(C, ini[j], ini[j + 1]); refP[j] = mediana(P, ini[j], ini[j + 1]);
+    }
+  }
+  const razaoLoja = somaV ? somaC / somaV : 0.75;
+  /* tipo: 1 zerado, 2 acima do dobro do preço, 3 fora do histórico; +4 quando a referência
+     foi a razão da loja e não a do próprio produto. */
+  const custo = new Float64Array(n), tipo = new Uint8Array(n);
+  let corrigidas = 0;
+  for(let k = 0; k < n; k++){
+    const p = acc.p[k], c = acc.c[k], j = acc.cod[k];
+    custo[k] = c;
+    if(!(p > 0)) continue;
+    const r = c / p, temRef = refR[j] === refR[j];
+    let t = 0;
+    if(r < 0.1) t = 1;
+    else if(r > 2){
+      if(temRef && p < refP[j] * 0.5 && c >= refC[j] * 0.5 && c <= refC[j] * 1.8) continue;
+      t = 2;
+    }else if(temRef && (c > refC[j] * 1.8 || c < refC[j] * 0.5) && p >= refP[j] * 0.6 && p <= refP[j] * 1.6) t = 3;
+    if(!t) continue;
+    custo[k] = p * (temRef ? refR[j] : razaoLoja);
+    tipo[k] = t + (temRef ? 0 : 4);
+    corrigidas++;
+  }
+  return {custo: custo, tipo: tipo, razaoLoja: razaoLoja, corrigidas: corrigidas};
+}
+
+/* Letras do problema de custo, guardadas junto do custo original: z zerado, a acima do
+   dobro do preço, h fora do histórico, e estimado pela margem média da loja. */
+function vpLetrasCusto(bits){
+  return (bits & 17 ? 'z' : '') + (bits & 34 ? 'a' : '') + (bits & 68 ? 'h' : '') + (bits & 112 ? 'e' : '');
+}
+function vpUnirLetras(a, b){
+  if(!a) return b || '';
+  if(!b) return a;
+  return ['z', 'a', 'h', 'e'].filter(x=> a.indexOf(x) >= 0 || b.indexOf(x) >= 0).join('');
+}
+
+/* Frase para a dica e para a planilha: o que estava errado e como foi corrigido. */
+function vpDescreverLetras(t){
+  t = t || '';
+  const partes = [];
+  if(t.indexOf('z') >= 0) partes.push('custo zerado no SG');
+  if(t.indexOf('a') >= 0) partes.push('custo acima do dobro do preço');
+  if(t.indexOf('h') >= 0) partes.push('custo fora do histórico do produto');
+  return partes.join(', ') + (t.indexOf('e') >= 0 ? ' (corrigido pela margem média da loja)' : ' (corrigido pela margem do próprio produto)');
+}
+
+function vpFecharMeses(acc){
+  const corr = vpCorrigirCustos(acc);
+  const bits = (x)=>{ let n = 0; while(x){ x &= x - 1; n++; } return n; };
+  const c2 = (x)=> Math.round(x * 100) / 100;
+  const porMes = acc.meses.map(()=> ({p: new Map(), dias: 0, porDia: new Float64Array(31)}));
+  for(let k = 0; k < acc.q.length; k++){
+    const M = porMes[acc.mes[k]];
+    const bit = 1 << (acc.dia[k] - 1);
+    M.dias |= bit;
+    let a = M.p.get(acc.cod[k]);
+    /* venda, custo corrigido, icms, quantidade, dias, custo do SG, problemas */
+    if(!a){ a = [0, 0, 0, 0, 0, 0, 0]; M.p.set(acc.cod[k], a); }
+    const q = acc.q[k];
+    a[0] += q * acc.p[k]; a[1] += q * corr.custo[k]; a[2] += acc.i[k]; a[3] += q; a[4] |= bit;
+    a[5] += q * acc.c[k];
+    M.porDia[acc.dia[k] - 1] += q * acc.p[k];
+    if(corr.tipo[k]) a[6] |= 1 << (corr.tipo[k] - 1);
+  }
+  const saida = {};
+  acc.meses.forEach((m, im)=>{
+    const M = porMes[im];
+    const itens = Array.from(M.p.entries()).sort((a, b)=> b[1][0] - a[1][0]);
+    const o = {ver: 2, dias: [], c: [], v: [], k: [], i: [], q: [], d: [], u: [], kc: {}};
+    const r = {venda: 0, custo: 0, custoSG: 0, icms: 0, qtd: 0, produtos: 0, corrigidos: 0, nDias: 0, ultimoDia: 0};
+    for(let dia = 1; dia <= 31; dia++) if(M.dias & (1 << (dia - 1))) o.dias.push(dia);
+    itens.forEach(([ic, p], idx)=>{
+      const cod = acc.cods[ic];
+      o.c.push(/^\d+$/.test(cod) ? +cod : cod);
+      o.v.push(c2(p[0])); o.k.push(c2(p[1])); o.i.push(c2(p[2]));
+      o.q.push(Math.round(p[3] * 1000) / 1000);
+      o.d.push(bits(p[4])); o.u.push(32 - Math.clz32(p[4]));
+      if(p[6]){ o.kc[idx] = [c2(p[5]), vpLetrasCusto(p[6])]; r.corrigidos++; }
+      r.venda += p[0]; r.custo += p[1]; r.custoSG += p[5]; r.icms += p[2]; r.qtd += p[3];
+      if(p[0] > 0) r.produtos++;
+    });
+    r.venda = c2(r.venda); r.custo = c2(r.custo); r.custoSG = c2(r.custoSG); r.icms = c2(r.icms); r.qtd = Math.round(r.qtd * 1000) / 1000;
+    r.nDias = o.dias.length; r.ultimoDia = o.dias.length ? o.dias[o.dias.length - 1] : 0;
+    /* Venda de cada dia: é o que deixa comparar o mês em andamento com os mesmos dias do ano anterior. */
+    r.porDia = Array.from(M.porDia, c2);
+    saida[m] = {dados: o, resumo: r};
+  });
+  return {meses: saida, corrigidas: corr.corrigidas};
+}
+
+async function vpImportar(arquivos){
+  const status = (t)=>{ const el = document.getElementById('vpStatus'); if(el){ el.textContent = t; el.hidden = !t; } };
+  if(!db){ mostrarToast('Sem conexão com o banco: a importação precisa de internet.'); return; }
+  try{
+    const brutos = vpNovoAcumulador();
+    let linhas = 0;
+    for(const arq of arquivos){
+      status('Lendo ' + arq.name + ' (' + (arq.size / 1048576).toLocaleString('pt-BR', {maximumFractionDigits: 1}) + ' MB)…');
+      /* Deixa a mensagem aparecer antes do trabalho pesado, que segura a tela por uns segundos. */
+      await new Promise(r=> setTimeout(r, 50));
+      linhas += vpLerCsv(await arq.text(), brutos);
+    }
+    status('Conferindo os custos de ' + linhas.toLocaleString('pt-BR') + ' vendas…');
+    await new Promise(r=> setTimeout(r, 50));
+    const fechado = vpFecharMeses(brutos);
+    const prontos = fechado.meses;
+    const lista = Object.keys(prontos).sort();
+    if(!lista.length) throw new Error('nenhuma venda encontrada no arquivo');
+    await vpCarregar().catch(()=>{});
+    const jaTem = lista.filter(m=> vpCache.indice[m]);
+    if(jaTem.length && !confirm('O arquivo tem ' + lista.length + ' mês(es), de ' + mesLabel(lista[0]) + ' a ' + mesLabel(lista[lista.length - 1]) + '.\n\n' +
+       jaTem.length + ' deles já foram importados antes (' + vpIntervalo(jaTem) + '). Substituir pelos deste arquivo?')){ status(''); return; }
+    const quem = (document.getElementById('usuarioLogado').textContent || '').trim();
+    const nomeArq = arquivos.map(a=> a.name).join(', ');
+    for(let k = 0; k < lista.length; k++){
+      const m = lista[k];
+      status('Gravando ' + mesLabel(m) + ' (' + (k + 1) + ' de ' + lista.length + ')…');
+      prontos[m].dados.arquivo = nomeArq;
+      const r = await comTempoLimite(db.from(VP_TABELA).upsert({
+        mes: m, dados: prontos[m].dados, resumo: prontos[m].resumo, importado_em: new Date().toISOString(), importado_por: quem
+      }), 120000);
+      if(r.error) throw r.error;
+    }
+    status('Atualizando a tela…');
+    vpTela.periodo = null; vpTela.base = null;
+    await vpCarregar(true);
+    status('');
+    vpDesenhar();
+    mostrarToast('Vendas por produto importadas: ' + lista.length + ' mês(es), ' + linhas.toLocaleString('pt-BR') + ' linhas do vendia01, ' +
+      fechado.corrigidas.toLocaleString('pt-BR') + ' vendas com custo errado no SG corrigidas.');
+  }catch(e){
+    status('');
+    mostrarToast('Não foi possível importar: ' + (e && e.message || e));
+  }
+}
+
+/* ---------- períodos e bases de comparação ----------
+   Período "m:2026-08" é um mês; "a:2026" é o ano, com os meses que existirem. */
+function vpMesesDoPeriodo(p){
+  if(!p) return [];
+  if(p.slice(0, 2) === 'a:') return Object.keys(vpCache.indice).filter(m=> m.slice(0, 4) === p.slice(2)).sort();
+  return vpCache.indice[p.slice(2)] ? [p.slice(2)] : [];
+}
+function vpOpcoesBase(p){
+  const anual = p.slice(0, 2) === 'a:';
+  return (anual ? [] : [['anterior', 'Comparar com o mês anterior'], ['media3', 'Comparar com a média de 3 meses']])
+    .concat([['anoAnterior', anual ? 'Comparar com o mesmo período do ano anterior' : 'Comparar com o mesmo mês do ano anterior']]);
+}
+function vpMesesBase(p, base){
+  const ms = vpMesesDoPeriodo(p);
+  if(!ms.length) return [];
+  if(base === 'anoAnterior') return ms.map(vpMenosUmAno).filter(m=> vpCache.indice[m]);
+  if(p.slice(0, 2) === 'a:') return [];
+  const out = [];
+  let m = ms[0];
+  for(let k = 0; k < (base === 'media3' ? 3 : 1); k++){ m = mesAnteriorDe(m); if(vpCache.indice[m]) out.push(m); }
+  return out.reverse();
+}
+/* Abre no último mês fechado, comparado com o mesmo mês do ano anterior quando ele existe. */
+function vpPeriodoPadrao(){
+  const ms = Object.keys(vpCache.indice).sort();
+  const fechados = ms.filter(m=> !vpCache.indice[m].parcial);
+  return 'm:' + (fechados.length ? fechados[fechados.length - 1] : ms[ms.length - 1]);
+}
+function vpBasePadrao(p){
+  const ms = vpMesesDoPeriodo(p);
+  return ms.some(m=> vpCache.indice[vpMenosUmAno(m)]) ? 'anoAnterior' : (p.slice(0, 2) === 'a:' ? 'anoAnterior' : 'anterior');
+}
+/* Totais de um conjunto de meses, só com o índice. */
+function vpTotais(ms){
+  const t = {venda: 0, lucro: 0, nDias: 0, meses: 0};
+  ms.forEach(m=>{ const r = vpCache.indice[m]; if(r){ t.venda += r.venda; t.lucro += r.lucro; t.nDias += r.nDias; t.meses++; } });
+  t.vendaDia = t.nDias ? t.venda / t.nDias : 0;
+  t.margem = t.venda ? t.lucro / t.venda * 100 : 0;
+  return t;
+}
+
+/* ---------- comparação da venda TOTAL ----------
+   A diretoria lê venda pelo total do mês (agosto/2026: R$ 1,6 milhão). Até 17/09/2026c os
+   números grandes, a leitura e o gráfico mês a mês comparavam a venda POR DIA, e agosto
+   aparecia como "R$ 58 mil" — o que a diretoria apontou como errado. Agora é o total. O mês
+   em andamento é comparado com os MESMOS DIAS do outro período (setembro até o dia 16
+   contra setembro do ano passado até o dia 16), senão pareceria sempre uma queda enorme. */
+function vpVendaAteDia(m, dia){
+  const r = vpCache.indice[m];
+  if(!r) return null;
+  if(!dia || dia >= r.ultimoDia) return r.venda;
+  if(r.porDia) return r.porDia.slice(0, dia).reduce((soma, v)=> soma + v, 0);
+  /* Mês importado antes de guardar a venda por dia: proporcional aos dias. */
+  return r.venda * Math.min(1, dia / Math.max(1, r.ultimoDia));
+}
+/* `ms` é o período; `base` os meses com que se compara. Média de 3 meses vira um mês. */
+function vpCompararVenda(ms, base){
+  const atual = ms.reduce((soma, m)=> soma + (vpCache.indice[m] ? vpCache.indice[m].venda : 0), 0);
+  const ultimo = vpCache.indice[ms[ms.length - 1]];
+  const ateDia = ultimo && ultimo.parcial ? ultimo.ultimoDia : 0;
+  const mesParcial = ms[ms.length - 1].slice(5);
+  let antes = 0;
+  base.forEach(m=>{
+    const corta = ateDia && (ms.length === 1 || m.slice(5) === mesParcial);
+    antes += corta ? vpVendaAteDia(m, ateDia) : vpCache.indice[m].venda;
+  });
+  antes = antes * ms.length / Math.max(1, base.length);
+  return {atual: atual, antes: antes, pct: antes ? (atual / antes - 1) * 100 : null, ateDia: ateDia, media: base.length > ms.length};
+}
+const vpMi = (v)=> Math.abs(v) >= 1e6 ? 'R$ ' + (v / 1e6).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' mi' : fmtCurto(v);
+const vpSeta = (x)=> x == null ? '' : Math.abs(x) < 0.05 ? '= ' : (x > 0 ? '▲ ' : '▼ ') + vdPct(Math.abs(x));
+
+/* ---------- análise ---------- */
+function vpAgregar(ms){
+  const prods = new Map();
+  ms.forEach(m=> vpCache.meses[m].prods.forEach((p, cod)=>{
+    let a = prods.get(cod);
+    if(!a){ a = {v: 0, k: 0, i: 0, q: 0, d: 0, u: 0, ko: 0, kt: ''}; prods.set(cod, a); }
+    a.v += p.v; a.k += p.k; a.i += p.i; a.q += p.q; a.d += p.d; a.u = p.u;
+    a.ko += p.ko != null ? p.ko : p.k;
+    if(p.kt) a.kt = vpUnirLetras(a.kt, p.kt);
+  }));
+  const t = vpTotais(ms);
+  return {prods: prods, venda: t.venda, lucro: t.lucro, nDias: t.nDias || 1};
+}
+
+function vpAnalisar(periodo, baseModo){
+  const mesesP = vpMesesDoPeriodo(periodo), mesesB = vpMesesBase(periodo, baseModo);
+  const unico = mesesP.length === 1;
+  const ultimoMes = vpCache.indice[mesesP[mesesP.length - 1]];
+  const M = vpAgregar(mesesP);
+  M.parcial = mesesP.some(m=> vpCache.indice[m].parcial);
+  M.ultimoDia = ultimoMes.ultimoDia;
+  const temBase = mesesB.length > 0;
+  const B = temBase ? vpAgregar(mesesB) : null;
+  const nDiasBase = B ? B.nDias : 0;
+  /* Os limites em reais foram pensados para um mês; num ano, valem proporcionalmente. */
+  const escala = Math.max(1, M.nDias / 30);
+  const margemLoja = M.venda > 0 ? M.lucro / M.venda * 100 : 0;
+  /* "Novo" num mês: sem venda na base nem nos 3 meses anteriores. Num ano: sem venda na base. */
+  const antes = unico ? [1, 2, 3].map(k=>{ let m = mesesP[0]; for(let j = 0; j < k; j++) m = mesAnteriorDe(m); return m; }).filter(m=> vpCache.meses[m]) : [];
+
+  /* ---- produto recadastrado com outro código ----
+     O SG recadastra: o código velho para de vender e nasce um novo com o mesmo nome. Sem
+     juntar os dois, o mesmo produto aparece como "novo" de um lado e "parou de vender" do
+     outro. Junta-se só quando o nome é IDÊNTICO — em 2025-2026 foram 18 produtos. Nome
+     parecido (marca ou tamanho diferente) é outro produto, e esse caso é tratado depois
+     como substituição. */
+  let recadastrados = 0;
+  if(vpCache.nomesOk && B){
+    const chave = (cod)=> norm(vpNome(cod));
+    const novosPorNome = new Map();
+    M.prods.forEach((p, cod)=>{ if(B.prods.has(cod)) return; const n = chave(cod); if(n && !novosPorNome.has(n)) novosPorNome.set(n, cod); });
+    B.prods.forEach((b, cod)=>{
+      if(M.prods.has(cod)) return;
+      const alvo = novosPorNome.get(chave(cod));
+      if(!alvo || alvo === cod) return;
+      const destino = B.prods.get(alvo);
+      if(destino){ destino.v += b.v; destino.k += b.k; destino.i += b.i; destino.q += b.q; destino.d += b.d; }
+      else B.prods.set(alvo, {v: b.v, k: b.k, i: b.i, q: b.q, d: b.d, u: b.u});
+      B.prods.delete(cod);
+      recadastrados++;
+    });
+  }
+
+  const linhas = [];
+  const montar = (cod, p, b)=>{
+    const v = p ? p.v : 0, k = p ? p.k : 0, ic = p ? p.i : 0, q = p ? p.q : 0;
+    const lucro = v - k - ic;
+    const L = {cod: cod, nome: vpNome(cod), v: v, k: k, i: ic, q: q, d: p ? p.d : 0, u: p ? p.u : 0,
+      lucro: lucro, margem: v > 0 ? lucro / v * 100 : null,
+      preco: q > 0 ? v / q : null, custoUn: q > 0 ? k / q : null, vDia: v / M.nDias,
+      ko: p ? p.ko : 0, kt: p ? p.kt : '', curvaA: false, flags: {}};
+    if(L.kt){ L.flags.custoCorrigido = true; L.custoUnSG = q > 0 ? L.ko / q : null; L.difCusto = k - L.ko; }
+    if(b && nDiasBase){
+      L.bv = b.v;
+      L.bvDia = b.v / nDiasBase;
+      L.bpreco = b.q > 0 ? b.v / b.q : null;
+      L.bcusto = b.q > 0 ? b.k / b.q : null;
+      L.bmargem = b.v > 0 ? (b.v - b.k - b.i) / b.v * 100 : null;
+      L.bq = b.q; L.bdPct = b.d / nDiasBase;
+      L.varVenda = L.bvDia > 0 ? (L.vDia / L.bvDia - 1) * 100 : null;
+      L.difVenda = (L.vDia - L.bvDia) * M.nDias;          /* em reais, no ritmo deste período */
+      L.varPreco = (L.preco && L.bpreco) ? (L.preco / L.bpreco - 1) * 100 : null;
+      L.varCusto = (L.custoUn && L.bcusto) ? (L.custoUn / L.bcusto - 1) * 100 : null;
+      L.difMargem = (L.margem != null && L.bmargem != null) ? L.margem - L.bmargem : null;
+    }
+    return L;
+  };
+  M.prods.forEach((p, cod)=> linhas.push(montar(cod, p, B && B.prods.get(cod))));
+  if(B) B.prods.forEach((b, cod)=>{ if(!M.prods.has(cod) && b.v > 0) linhas.push(montar(cod, null, b)); });
+  /* "Parou de vender" olha sempre o mês anterior, qualquer que seja a comparação escolhida:
+     contra o ano passado, produto que saiu de linha pareceria falta de estoque. Por isso
+     entram também os que venderam no mês anterior e não aparecem nem aqui nem na base. */
+  const recente = unico && antes[0] === mesAnteriorDe(mesesP[0]) ? vpCache.meses[antes[0]] : null;
+  const nDiasRecente = recente ? vpCache.indice[recente.mes].nDias : 0;
+  if(recente){
+    const ja = new Set(linhas.map(l=> l.cod));
+    recente.prods.forEach((p, cod)=>{
+      if(!ja.has(cod) && p.v / nDiasRecente * M.nDias >= 600 && p.d / nDiasRecente >= 0.4) linhas.push(montar(cod, null, B && B.prods.get(cod)));
+    });
+  }
+
+  /* Curva A: os que, somados do maior para o menor, fazem 80% da venda. */
+  const porVenda = linhas.filter(l=> l.v > 0).sort((a, b)=> b.v - a.v);
+  let acum = 0, corteVenda = 0, nA = 0;
+  for(const l of porVenda){
+    acum += l.v; l.curvaA = true; corteVenda = l.v; nA++;
+    if(acum >= M.venda * 0.8) break;
+  }
+  porVenda.forEach((l, i)=> l.posVenda = i + 1);
+  linhas.forEach(l=>{
+    l.grupo = l.v <= 0 ? 'parado' : l.lucro < 0 ? 'prejuizo'
+            : l.curvaA ? (l.margem >= margemLoja ? 'estrela' : 'movimento')
+            : (l.margem >= margemLoja ? 'oportunidade' : 'baixa');
+  });
+  const porLucro = linhas.filter(l=> l.lucro > 0).sort((a, b)=> b.lucro - a.lucro);
+  const lucroPositivo = porLucro.reduce((s, l)=> s + l.lucro, 0);
+  let acL = 0, n80Lucro = 0;
+  for(const l of porLucro){ acL += l.lucro; n80Lucro++; if(acL >= lucroPositivo * 0.8) break; }
+  porLucro.forEach((l, i)=> l.posLucro = i + 1);
+  linhas.forEach(l=> l.partLucro = M.lucro > 0 ? l.lucro / M.lucro * 100 : 0);
+
+  /* As marcas de cada produto. Os limites em reais tiram da lista o produto de venda
+     miúda, em que um real a mais ou a menos vira 50% de variação e não quer dizer nada. */
+  linhas.forEach(l=>{
+    const f = l.flags;
+    /* Custo que não pode estar certo: zerado ou quase (abaixo de 10% do preço) ou mais que o
+       dobro do preço. Sai das listas de prejuízo, reajuste e oportunidade, senão a leitura
+       acusa um problema de preço que não existe. Desde 17/09/2026c a importação já corrige
+       esses custos venda a venda (ver CUSTOS ERRADOS DO SG); isto só pega o que sobrar, como
+       meses importados antes disso. */
+    if(l.v >= 100 * escala && (l.custoUn < l.preco * 0.1 || l.custoUn > l.preco * 2)) f.custoEstranho = true;
+    /* Parou de vender (só num mês): vendia quase todo dia no mês anterior, num ritmo que
+       valia R$ 600, e agora não vendeu nada ou a última venda foi uma semana antes do fim.
+       É o jeito de enxergar falta de estoque sem ter o estoque. */
+    const pr = recente && recente.prods.get(l.cod);
+    if(pr){
+      const ritmoRec = pr.v / nDiasRecente * M.nDias;
+      if(ritmoRec >= 600 && pr.d / nDiasRecente >= 0.4 &&
+         (l.v <= 0 || (l.u && l.u <= M.ultimoDia - 7 && l.vDia < pr.v / nDiasRecente * 0.6))){
+        f.parou = true;
+        l.vendaPerdida = Math.max(0, ritmoRec - l.v);
+        l.parouPct = pr.d / nDiasRecente;
+      }
+    }
+    if(!temBase) return;
+    if(l.bvDia == null){
+      if(l.v > 0 && !antes.some(m=> vpCache.meses[m].prods.has(l.cod))) f.novo = true;
+      return;
+    }
+    const ritmo = l.bvDia * M.nDias;
+    const relevante = l.v >= 100 * escala || ritmo >= 100 * escala;
+    if(relevante && l.varPreco != null){
+      if(l.varPreco >= 5) f.precoSubiu = true;
+      if(l.varPreco <= -5) f.precoCaiu = true;
+    }
+    if(!f.custoEstranho && l.v >= 1000 * escala && l.difMargem != null && l.difMargem <= -3 &&
+       l.varCusto != null && l.varCusto >= 3 && l.varCusto > (l.varPreco || 0) + 1){
+      f.espremido = true;
+      l.perdaMargem = -l.difMargem / 100 * l.v;
+    }
+    if(l.varVenda != null && l.varVenda >= 30 && l.difVenda >= 300 * escala) f.vendaSubiu = true;
+    if(l.varVenda != null && l.varVenda <= -30 && -l.difVenda >= 300 * escala) f.vendaCaiu = true;
+    /* ---- venda fraca: candidato a sair da próxima compra ----
+       Vende quase nada, em poucos dias, não está crescendo e deixa quase nenhum lucro.
+       Exige venda nos DOIS períodos (pedido dele em 18/09/2026): produto sem venda nenhuma
+       costuma ser o que o fornecedor parou de entregar, não item encalhado na gôndola.
+       Com R$ 30 por mês de corte, em agosto/2026 são 831 produtos que somam 0,75% da venda
+       — o que dá para cortar sem sentir. */
+    if(l.q > 0 && l.bq > 0 && !f.novo && l.v < 30 * escala && ritmo < 60 * escala &&
+       (l.d || 0) <= M.nDias * 0.25 && l.lucro < 10 * escala && !(l.varVenda >= 20)) f.fraco = true;
+  });
+
+  /* ---- produto que entrou no lugar de outro ----
+     A linguiça toscana Frimesa apareceu com "+218.342%" porque a toscana Sadia saiu. São
+     produtos diferentes, e por isso não se juntam; mas a leitura fica errada sem dizer que
+     um substituiu o outro. Procura-se, entre os que sumiram ou despencaram, um nome que
+     compartilhe a maior parte das palavras (a mesma primeira palavra e 60% do conjunto). */
+  if(vpCache.nomesOk && temBase){
+    /* `norm` junta tudo numa palavra só (tira até os espaços): aqui o nome precisa continuar
+       separado em palavras, senão não há o que comparar entre dois nomes parecidos. */
+    const guardadas = new Map();
+    const palavras = (cod)=>{
+      let p = guardadas.get(cod);
+      if(!p){ p = String(vpNome(cod)).normalize('NFD').replace(/[̀-ͯ]/g, '').toUpperCase().match(/[A-Z0-9]+/g) || []; guardadas.set(cod, p); }
+      return p;
+    };
+    const cand = new Map();
+    linhas.forEach(l=>{
+      if(!(l.bvDia > 0)) return;
+      if(l.v > 0 && !(l.varVenda != null && l.varVenda <= -50)) return;
+      const p = (vpNome(l.cod).match(/\S+/g) || [])[0];
+      if(!p) return;
+      if(!cand.has(p)) cand.set(p, []);
+      cand.get(p).push(l);
+    });
+    linhas.forEach(l=>{
+      if(l.v < 300 * escala) return;
+      if(!(l.flags.novo || (l.varVenda != null && l.varVenda >= 500))) return;
+      const p = (vpNome(l.cod).match(/\S+/g) || [])[0];
+      const lista = cand.get(p);
+      if(!lista) return;
+      const meus = palavras(l.cod);
+      let melhor = null, melhorNota = 0;
+      lista.forEach(o=>{
+        const dele = palavras(o.cod);
+        const juntos = meus.filter(x=> dele.indexOf(x) >= 0).length;
+        const nota = juntos / (meus.length + dele.length - juntos);
+        if(nota > melhorNota && nota >= 0.6 && o.bv >= l.v * 0.3){ melhor = o; melhorNota = nota; }
+      });
+      if(melhor){ l.substitui = melhor; melhor.substituidoPor = l; l.mesmoNome = norm(l.nome) === norm(melhor.nome); }
+    });
+  }
+
+  /* Quanto os preços mudaram "no geral": cada produto vendido nos dois períodos, com o
+     peso da quantidade que vendia antes. É o mesmo cálculo de um índice de inflação. */
+  let pa = 0, pb = 0, ca = 0, cb = 0;
+  linhas.forEach(l=>{
+    if(l.preco && l.bpreco && l.bq > 0 && !l.flags.custoEstranho){
+      pa += l.bq * l.preco; pb += l.bq * l.bpreco;
+      ca += l.bq * l.custoUn; cb += l.bq * l.bcusto;
+    }
+  });
+
+  const tB = vpTotais(mesesB);
+  const bVendidos = temBase ? Array.from(B.prods.values()).filter(p=> p.v > 0).length : 0;
+  return {
+    periodo: periodo, baseModo: baseModo, mesesP: mesesP, mesesB: mesesB, unico: unico, anual: periodo.slice(0, 2) === 'a:',
+    M: M, temBase: temBase, linhas: linhas, escala: escala, antes: antes,
+    recente: recente ? recente.mes : null, recadastrados: recadastrados,
+    margemLoja: margemLoja, vendaDia: M.venda / M.nDias, vendidos: porVenda.length,
+    bVendaDia: tB.vendaDia, bMargem: tB.margem, bVendidos: bVendidos,
+    nA: nA, corteVenda: corteVenda, n80Lucro: n80Lucro, porLucro: porLucro, porVenda: porVenda,
+    indicePreco: pb ? (pa / pb - 1) * 100 : null, indiceCusto: cb ? (ca / cb - 1) * 100 : null,
+    rotPeriodo: periodo.slice(0, 2) === 'a:' ? vpIntervalo(mesesP) : mesLabel(mesesP[0]),
+    rotBase: !temBase ? '' : baseModo === 'media3' && mesesB.length > 1 ? 'a média de ' + vpIntervalo(mesesB) : vpIntervalo(mesesB)
+  };
+}
+
+/* ---------- OS DOIS GRÁFICOS DA DIRETORIA ----------
+   Até 17/09/2026d a tela abria com uma lista comprida de frases (análises e sugestões).
+   Em 18/09/2026 a diretoria pediu para tirar esse texto e deixar só duas análises, em
+   forma de gráfico:
+
+   1. O PLACAR contra o ano passado: uma barra por indicador, para a direita o que evoluiu
+      e para a esquerda o que regrediu. Responde "como estamos contra o ano passado?" sem
+      ler número nenhum.
+   2. O DINHEIRO A RECUPERAR: quanto está parado em prejuízo, em margem perdida e em
+      ruptura. Cada barra é um botão que abre o filtro da pesquisa com aqueles produtos.
+
+   O resto da leitura virou uma linha só em cima de cada gráfico (`vp-veredito`), dizendo
+   o que evoluiu e o que regrediu. */
+
+/* Uma barra por indicador: verde para a direita quando melhorou, vermelho para a esquerda
+   quando piorou. `bom` diz o que é melhorar, porque custo subindo é o contrário de venda
+   subindo. */
+function vpPlacarAno(A){
+  const itens = [], L = A.linhas;
+  if(!A.temBase) return itens;
+  const c = vpCompararVenda(A.mesesP, A.mesesB);
+  const tB = vpTotais(A.mesesB);
+  /* No mês em andamento o lucro da base também entra só na fatia comparável. */
+  const fatia = tB.venda ? c.antes / tB.venda : 1;
+  const lucroBase = tB.lucro * fatia;
+  const M = A.M;
+  const pct = (a, b)=> b ? (a / b - 1) * 100 : null;
+  itens.push({rot: 'Venda', valor: c.pct, bom: true, dica: fmtMoeda(r2(c.atual)) + ' contra ' + fmtMoeda(r2(c.antes))});
+  itens.push({rot: 'Lucro bruto', valor: pct(M.lucro, lucroBase), bom: true, dica: fmtMoeda(r2(M.lucro)) + ' contra ' + fmtMoeda(r2(lucroBase))});
+  itens.push({rot: 'Margem bruta', valor: A.margemLoja - A.bMargem, bom: true, pontos: true,
+              dica: vdPct(A.margemLoja) + ' contra ' + vdPct(A.bMargem)});
+  if(A.indicePreco != null){
+    /* Preço não entra como evolução nem como piora: subir preço não é conquista, e o que
+       importa é ele contra o custo, que vem logo abaixo. */
+    itens.push({rot: 'Preço médio', valor: A.indicePreco, bom: null, dica: 'preço dos produtos vendidos nos dois períodos, pesado pela quantidade'});
+    itens.push({rot: 'Custo da mercadoria', valor: A.indiceCusto, bom: false, dica: 'custo dos mesmos produtos: subir é ruim'});
+  }
+  if(A.indicePreco != null){
+    /* O repasse é o que a loja conseguiu segurar de margem: preço menos custo, em pontos. */
+    itens.push({rot: 'Preço menos custo', valor: A.indicePreco - A.indiceCusto, bom: true, pontos: true,
+                dica: 'preço ' + vpSinal(A.indicePreco) + ' contra custo ' + vpSinal(A.indiceCusto) + ': o que sobrou de margem no repasse'});
+  }
+  /* Mix: quanto da venda vem de produto com margem acima da média da loja. Subir é melhorar
+     a qualidade da venda, mesmo quando o faturamento cai. */
+  const vendaBase = L.reduce((soma, l)=> soma + (l.bv || 0), 0);
+  if(vendaBase > 0 && M.venda > 0){
+    const mixAgora = L.filter(l=> l.v > 0 && l.margem != null && l.margem >= A.margemLoja).reduce((soma, l)=> soma + l.v, 0) / M.venda * 100;
+    const mixAntes = L.filter(l=> l.bv > 0 && l.bmargem != null && l.bmargem >= A.bMargem).reduce((soma, l)=> soma + l.bv, 0) / vendaBase * 100;
+    itens.push({rot: 'Venda de produto com margem boa', valor: mixAgora - mixAntes, bom: true, pontos: true,
+                dica: vdPct(mixAgora, 0) + ' da venda veio de produto com margem acima da loja, contra ' + vdPct(mixAntes, 0)});
+  }
+  itens.push({rot: 'Produtos que venderam', valor: pct(A.vendidos, A.bVendidos), bom: true,
+              dica: A.vendidos.toLocaleString('pt-BR') + ' contra ' + Math.round(A.bVendidos).toLocaleString('pt-BR')});
+  /* Margem do ano inteiro até aqui: um mês fraco não apaga o que o ano ganhou. */
+  if(A.unico){
+    const ano = A.mesesP[0].slice(0, 4);
+    const acum = Object.keys(vpCache.indice).filter(x=> x.slice(0, 4) === ano && x <= A.mesesP[0]).sort();
+    const acumAnt = acum.map(vpMenosUmAno);
+    if(acum.length > 1 && acumAnt.every(x=> vpCache.indice[x])){
+      const a = vpTotais(acum), b = vpTotais(acumAnt);
+      itens.push({rot: 'Margem do ano até aqui', valor: a.margem - b.margem, bom: true, pontos: true,
+                  dica: vdPct(a.margem) + ' em ' + vpIntervalo(acum) + ' contra ' + vdPct(b.margem) + ' no mesmo período de ' + (+ano - 1)});
+    }
+  }
+  return itens.filter(i=> i.valor != null);
+}
+
+/* O que a loja GANHOU no período, em reais. Vem antes dos problemas de propósito: a
+   diretoria pediu em 18/09/2026 mais ponto positivo que negativo, e estes são ganhos que os
+   números mostram — não é maquiagem, é a outra metade da mesma conta. */
+function vpGanhos(A){
+  const L = A.linhas, M = A.linhas && A.M, itens = [];
+  if(!A.temBase) return itens;
+  const cresceram = L.filter(l=> l.difVenda > 0 && !l.flags.custoEstranho);
+  if(cresceram.length) itens.push({rot: 'Vendemos mais destes produtos', valor: cresceram.reduce((s, l)=> s + l.difVenda, 0),
+    sub: cresceram.length.toLocaleString('pt-BR') + ' produtos venderam mais que em ' + A.rotBase + '. O valor é quanto a mais eles venderam.',
+    filtro: 'vendaSubiu', cor: CORES_GRAFICO[0]});
+  const margemMelhor = L.filter(l=> l.difMargem > 0 && l.v > 0 && !l.flags.custoEstranho);
+  if(margemMelhor.length) itens.push({rot: 'Estes produtos deixaram mais lucro em cada real vendido', valor: margemMelhor.reduce((s, l)=> s + l.difMargem / 100 * l.v, 0),
+    sub: margemMelhor.length.toLocaleString('pt-BR') + ' produtos com margem maior que em ' + A.rotBase + '. O valor é o lucro a mais que essa margem deu.',
+    filtro: 'todos', cor: CORES_GRAFICO[5]});
+  const novos = L.filter(l=> l.flags.novo);
+  if(novos.length) itens.push({rot: 'Produtos novos na loja', valor: novos.reduce((s, l)=> s + l.v, 0),
+    sub: novos.length.toLocaleString('pt-BR') + ' produtos que não vendiam antes' + (A.recadastrados ? ' (fora ' + A.recadastrados + ' que só trocaram de código)' : '') + '. O valor é o que eles venderam.',
+    filtro: 'novo', cor: CORES_GRAFICO[1]});
+  if(A.indicePreco != null && A.indicePreco > A.indiceCusto){
+    itens.push({rot: 'O preço acompanhou o custo', valor: (A.indicePreco - A.indiceCusto) / 100 * A.M.venda,
+      sub: 'o preço subiu ' + vpSinal(A.indicePreco) + ' e o custo ' + vpSinal(A.indiceCusto) + '. O valor é essa diferença sobre a venda do período.',
+      filtro: 'precoSubiu', cor: CORES_GRAFICO[3]});
+  }
+  const custoCaiu = L.filter(l=> l.q > 0 && l.bcusto && l.custoUn < l.bcusto && !l.flags.custoEstranho && l.v >= 100 * A.escala);
+  if(custoCaiu.length) itens.push({rot: 'Compramos mais barato', valor: custoCaiu.reduce((s, l)=> s + (l.bcusto - l.custoUn) * l.q, 0),
+    sub: custoCaiu.length.toLocaleString('pt-BR') + ' produtos custam menos que em ' + A.rotBase + '. O valor é o que a loja deixou de gastar.',
+    filtro: 'todos', cor: CORES_GRAFICO[5]});
+  const saiuPrejuizo = L.filter(l=> l.v > 0 && l.bmargem != null && l.bmargem < 0 && l.margem > 0 && !l.flags.custoEstranho);
+  if(saiuPrejuizo.length) itens.push({rot: 'Saíram do prejuízo', valor: saiuPrejuizo.reduce((s, l)=> s + l.lucro, 0),
+    sub: saiuPrejuizo.length.toLocaleString('pt-BR') + ' produtos davam prejuízo em ' + A.rotBase + ' e agora dão lucro. O valor é o lucro que deixaram.',
+    filtro: 'todos', cor: CORES_GRAFICO[1]});
+  const estrelas = L.filter(l=> l.grupo === 'estrela');
+  if(estrelas.length) itens.push({rot: 'O lucro dos produtos que sustentam a loja', valor: estrelas.reduce((s, l)=> s + l.lucro, 0),
+    sub: estrelas.length.toLocaleString('pt-BR') + ' produtos vendem muito e com margem acima da média. O valor é o lucro que deixaram.',
+    filtro: 'estrela', cor: CORES_GRAFICO[0]});
+  return itens.sort((a, b)=> b.valor - a.valor);
+}
+
+/* Os produtos que mais cresceram contra o ano passado, em reais de venda a mais. Cada barra
+   abre a ficha daquele produto. */
+function vpMaisCresceram(A, quantos){
+  if(!A.temBase) return [];
+  return A.linhas.filter(l=> l.difVenda > 0 && !l.flags.custoEstranho)
+    .sort((a, b)=> b.difVenda - a.difVenda).slice(0, quantos || 8)
+    .map(l=> ({cod: l.cod, rot: l.nome, valor: l.difVenda, cor: CORES_GRAFICO[0],
+      /* Produto que quase não vendia no ano passado dá porcentagem absurda (+218.342%): nesse
+         caso a frase diz o que aconteceu, em vez do número. */
+      sub: 'vendeu ' + fmtMoeda(r2(l.v)) + (l.varVenda != null && l.varVenda < 500
+        ? ', ' + vpSinal(l.varVenda) + ' por dia contra ' + A.rotBase
+        : ' e quase não vendia em ' + A.rotBase) +
+        (l.substitui ? (l.mesmoNome ? ' · é o mesmo produto do código ' + l.substitui.cod + ', recadastrado' : ' · entrou no lugar de ' + l.substitui.nome) : ' · margem ' + vdPct(l.margem, 0))}));
+}
+
+/* O que dá para recuperar, em reais, e o filtro que mostra cada lista. */
+function vpAcoes(A){
+  const L = A.linhas, esc = A.escala, itens = [];
+  const prej = L.filter(l=> l.grupo === 'prejuizo' && !l.flags.custoEstranho);
+  if(prej.length) itens.push({rot: 'Vendemos por menos do que custou', valor: -prej.reduce((s, l)=> s + l.lucro, 0), filtro: 'prejuizo',
+    sub: prej.length.toLocaleString('pt-BR') + ' produtos saíram por menos que o custo com o ICMS. O valor é o prejuízo.', cor: CORES_GRAFICO[4]});
+  const esp = L.filter(l=> l.flags.espremido);
+  if(esp.length) itens.push({rot: 'O custo subiu e o preço não acompanhou', valor: esp.reduce((s, l)=> s + l.perdaMargem, 0), filtro: 'espremido',
+    sub: esp.length.toLocaleString('pt-BR') + ' produtos com custo novo e etiqueta velha. O valor é o lucro que deixou de entrar.', cor: CORES_GRAFICO[2]});
+  const parou = L.filter(l=> l.flags.parou);
+  if(parou.length) itens.push({rot: 'Produto que sumiu da gôndola', valor: parou.reduce((s, l)=> s + l.vendaPerdida, 0), filtro: 'parou',
+    sub: parou.length.toLocaleString('pt-BR') + ' produtos vendiam quase todo dia e pararam. O valor é a venda que deixou de acontecer.', cor: CORES_GRAFICO[1]});
+  const puxam = L.filter(l=> l.grupo === 'movimento' && !l.flags.custoEstranho && l.margem < A.margemLoja / 2);
+  if(puxam.length){
+    /* Quanto viria se esses itens de giro chegassem à metade da margem da loja. */
+    const ganho = puxam.reduce((s, l)=> s + Math.max(0, (A.margemLoja / 2 - l.margem) / 100 * l.v), 0);
+    itens.push({rot: 'Campeões de venda com margem apertada', valor: ganho, filtro: 'movimento', cor: CORES_GRAFICO[3],
+      sub: puxam.length.toLocaleString('pt-BR') + ' produtos de giro alto com margem abaixo da metade da loja. O valor é o que viria se chegassem à metade.'});
+  }
+  return itens.sort((a, b)=> b.valor - a.valor);
+}
+
+/* Barras para os dois lados, com o nome à esquerda e o número na ponta. */
+function vpSvgPlacar(itens){
+  if(!itens.length) return '<div class="ini-vazio">Sem período de comparação importado.</div>';
+  const L = LARGURA_GRAFICO, alt = 36, A = itens.length * alt + 26;
+  const rot = 168, meio = rot + (L - rot - 58) / 2, meia = (L - rot - 58) / 2;
+  const maior = Math.max.apply(null, itens.map(i=> Math.abs(i.valor))) || 1;
+  const fonte = 'font-family="Google Sans Flex, Segoe UI, Arial, Helvetica, sans-serif"';
+  const corpo = itens.map((i, k)=>{
+    const y = k * alt + 8, larg = Math.max(2, Math.abs(i.valor) / maior * (meia - 8));
+    const positivo = i.valor >= 0;
+    const cor = Math.abs(i.valor) < 0.05 || i.bom == null ? '#8a948c' : (positivo === !!i.bom) ? CORES_GRAFICO[0] : CORES_GRAFICO[4];
+    const txt = (positivo ? '+' : '−') + Math.abs(i.valor).toLocaleString('pt-BR', {minimumFractionDigits: 1, maximumFractionDigits: 1}) + (i.pontos ? ' pt' : '%');
+    return '<text x="0" y="' + (y + 20) + '" font-size="12.5" fill="#171d19" ' + fonte + '>' + escHtml(i.rot) + '</text>' +
+      '<rect x="' + (positivo ? meio : meio - larg).toFixed(1) + '" y="' + (y + 6) + '" width="' + larg.toFixed(1) + '" height="18" rx="4" fill="' + cor + '">' +
+        '<title>' + escHtml(i.rot + ': ' + txt + ' — ' + i.dica) + '</title></rect>' +
+      '<text x="' + (positivo ? meio + larg + 6 : meio - larg - 6).toFixed(1) + '" y="' + (y + 20) + '" text-anchor="' + (positivo ? 'start' : 'end') +
+        '" font-size="12.5" font-weight="700" fill="' + cor + '" ' + fonte + '>' + txt + '</text>';
+  }).join('');
+  return '<svg viewBox="0 0 ' + L + ' ' + A + '" role="img">' +
+    '<line x1="' + meio + '" y1="2" x2="' + meio + '" y2="' + (A - 16) + '" stroke="#c3cbc4" stroke-width="1"/>' + corpo +
+    '<text x="' + (meio - 6) + '" y="' + (A - 4) + '" text-anchor="end" font-size="11" fill="#8a948c" ' + fonte + '>regrediu</text>' +
+    '<text x="' + (meio + 6) + '" y="' + (A - 4) + '" font-size="11" fill="#8a948c" ' + fonte + '>evoluiu</text></svg>';
+}
+
+/* Barras em reais, cada uma abrindo o filtro da pesquisa com aqueles produtos. */
+function vpSvgAcoes(itens){
+  if(!itens.length) return '<div class="ini-vazio">Nada pedindo ação neste período.</div>';
+  const L = LARGURA_GRAFICO, alt = 62, A = itens.length * alt + 6;
+  const maior = Math.max.apply(null, itens.map(i=> i.valor)) || 1;
+  const fonte = 'font-family="Google Sans Flex, Segoe UI, Arial, Helvetica, sans-serif"';
+  return '<svg viewBox="0 0 ' + L + ' ' + A + '" role="img">' + itens.map((i, k)=>{
+    const y = k * alt + 6, w = Math.max(3, i.valor / maior * (L - 130));
+    const alvo = i.cod != null ? 'data-vp-cod="' + escHtml(i.cod) + '"' : 'data-vp-filtro="' + i.filtro + '" data-vp-ir="1"';
+    return '<g class="vp-acao" ' + alvo + '>' +
+      '<rect x="0" y="' + y + '" width="' + L + '" height="' + (alt - 6) + '" rx="6" fill="transparent"/>' +
+      '<text x="0" y="' + (y + 11) + '" font-size="12.5" fill="#171d19" font-weight="700" ' + fonte + '>' + escHtml(i.rot) + '</text>' +
+      (i.sub ? '<text x="0" y="' + (y + 27) + '" font-size="11" fill="#59625b" ' + fonte + '>' + escHtml(vpCurto(i.sub, 96)) + '</text>' : '') +
+      '<rect x="0" y="' + (y + 34) + '" width="' + w.toFixed(1) + '" height="13" rx="4" fill="' + i.cor + '"/>' +
+      '<text x="' + (w + 8).toFixed(1) + '" y="' + (y + 45) + '" font-size="12" font-weight="700" fill="#171d19" ' + fonte + '>' + fmtMoeda(r2(i.valor)) + '</text>' +
+      '<title>' + escHtml(i.sub || i.rot) + (i.cod != null ? ' Clique para abrir a ficha.' : ' Clique para ver a lista.') + '</title></g>';
+  }).join('') + '</svg>';
+}
+
+/* Texto cortado no tamanho que cabe na linha do gráfico. */
+function vpCurto(t, n){ return t.length > n ? t.slice(0, n - 1) + '…' : t; }
+
+/* A linha de conclusão que fica em cima de cada gráfico. */
+function vpVeredito(tipo, html){
+  return '<div class="vp-veredito ' + tipo + '">' + html + '</div>';
+}
+/* Dos produtos do topo do ranking, quantos venderam mais que no período comparado. */
+function vpVerditoTopo(A, itens){
+  const comBase = itens.filter(l=> l.varVenda != null);
+  if(!A.temBase || !comBase.length) return vpVeredito('neutro', 'Sem período de comparação importado.');
+  const subiram = comBase.filter(l=> l.varVenda > 0).length;
+  return vpVeredito(subiram * 2 >= comBase.length ? 'ok' : 'ruim',
+    '<b>' + subiram + ' dos ' + comBase.length + '</b> venderam mais que em ' + escHtml(A.rotBase) + '; ' + (comBase.length - subiram) + ' venderam menos.');
+}
+
+/* Mês a mês do ano contra o anterior, para dizer em quantos meses melhorou. */
+function vpComparaMeses(ano, valorDe, antesDe){
+  const nomes = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+  const out = [];
+  for(let k = 1; k <= 12; k++){
+    const mm = String(k).padStart(2, '0'), mA = ano + '-' + mm, mB = (ano - 1) + '-' + mm;
+    const a = valorDe(mA), b = antesDe ? antesDe(mA, mB) : valorDe(mB);
+    if(a != null && b != null) out.push({nome: nomes[k - 1], a: a, b: b, pct: b ? (a / b - 1) * 100 : null, dif: a - b});
+  }
+  return out;
+}
+function vpVerditoMeses(cmp, ano, o){
+  o = o || {};
+  if(!cmp.length) return vpVeredito('neutro', 'Sem o mesmo mês de ' + (ano - 1) + ' importado para comparar.');
+  const campo = o.pontos ? 'dif' : 'pct';
+  const acima = cmp.filter(x=> x[campo] > 0).length;
+  const melhor = cmp.reduce((x, y)=> y[campo] > x[campo] ? y : x);
+  const pior = cmp.reduce((x, y)=> y[campo] < x[campo] ? y : x);
+  const n = (v)=> o.pontos ? vpPp(v) : vpSinal(v);
+  return vpVeredito(acima * 2 >= cmp.length ? 'ok' : 'ruim',
+    '<b>' + (acima * 2 >= cmp.length ? 'Evoluiu' : 'Regrediu') + ':</b> ' + o.rotulo + ' ' + (acima ? 'ficou acima de ' + (ano - 1) + ' em ' + acima : 'não ficou acima de ' + (ano - 1)) +
+    (acima ? ' de ' + cmp.length + ' meses' : ' em nenhum dos ' + cmp.length + ' meses') + '. ' +
+    'Melhor: ' + melhor.nome + ' (' + n(melhor[campo]) + '); pior: ' + pior.nome + ' (' + n(pior[campo]) + ').');
+}
+
+/* ---------- a tela ---------- */
+function vpStatus(t){ const el = document.getElementById('vpStatus'); if(el){ el.textContent = t; el.hidden = !t; } }
+
+function renderVendasProdutos(){
+  const painel = document.getElementById('vpPainel');
+  if(vpCache.lidoEm) vpDesenhar();
+  else painel.innerHTML = '<div class="ini-card vd-vazio"><h3>Carregando as vendas por produto…</h3>' +
+    '<div class="ini-desc">Buscando no banco os meses importados.</div></div>';
+  vpCarregar().then(()=>{
+    if(state.abaAtual !== 'vendasProdutos') return;
+    if(vpTela.desenhada !== vpCache.versao) vpDesenhar();
+  }).catch(e=>{
+    const msg = escHtml(e && e.message || String(e));
+    if(!vpCache.lidoEm){
+      painel.innerHTML = '<div class="ini-alerta critico"><span class="ia-marca">!</span><span><b>Não foi possível ler as vendas por produto.</b> ' + msg +
+        '</span><button type="button" class="ini-acao" data-vp-recarregar>tentar de novo</button></div>';
+    }else mostrarToast('Não foi possível atualizar as vendas por produto: ' + msg);
+  });
+}
+
+/* Tudo que redesenha a tela passa por aqui: um erro no meio não pode sumir calado dentro da promessa. */
+function vpDesenhar(){
+  return vpDesenharAgora().catch(e=>{
+    console.error('Vendas por produto:', e);
+    document.getElementById('vpPainel').innerHTML = '<div class="ini-alerta critico"><span class="ia-marca">!</span><span><b>Não foi possível montar a análise.</b> ' +
+      escHtml(e && e.message || String(e)) + '</span></div>';
+  });
+}
+
+async function vpDesenharAgora(){
+  const pedido = ++vpTela.pedido;
+  vpTela.desenhada = vpCache.versao;
+  const painel = document.getElementById('vpPainel');
+  const pesquisa = document.getElementById('vpPesquisa');
+  const acoes = document.getElementById('vpAcoes');
+  const meses = Object.keys(vpCache.indice).sort();
+  const botao = '<button type="button" class="btn btn-outline" data-vp-importar>Importar vendia01 (.csv)</button>';
+
+  if(!meses.length){
+    acoes.innerHTML = botao;
+    pesquisa.hidden = true;
+    vpAnalise = null;
+    painel.innerHTML = '<div class="ini-card vd-vazio"><h3>Nenhuma venda por produto importada ainda</h3>' +
+      '<div class="ini-desc">No servidor, rode <b>X:\\exportar_vendia01.bat</b>. Ele lê o vendia01 do SG e grava ' +
+      '<b>X:\\vendia01_' + (new Date().getFullYear() - 1) + '-' + new Date().getFullYear() + '.csv</b>, com o ano anterior e o atual, em cerca de um minuto. ' +
+      'Depois clique em <b>Importar vendia01 (.csv)</b> e escolha esse arquivo. O nome dos produtos vem do cadastro do Sistema de Estoque.</div>' + botao + '</div>';
+    return;
+  }
+  if(!vpTela.periodo || !vpMesesDoPeriodo(vpTela.periodo).length) vpTela.periodo = vpPeriodoPadrao();
+  const periodo = vpTela.periodo;
+  if(!vpTela.base || !vpOpcoesBase(periodo).some(o=> o[0] === vpTela.base)) vpTela.base = vpBasePadrao(periodo);
+
+  const anos = meses.map(m=> m.slice(0, 4)).filter((a, i, l)=> l.indexOf(a) === i).sort().reverse();
+  acoes.innerHTML =
+    '<select data-vp-periodo title="Período analisado"><optgroup label="Ano">' +
+      anos.map(a=>{
+        const ms = meses.filter(m=> m.slice(0, 4) === a);
+        return '<option value="a:' + a + '"' + (periodo === 'a:' + a ? ' selected' : '') + '>Ano de ' + a +
+          (ms.length < 12 || vpCache.indice[ms[ms.length - 1]].parcial ? ' (' + vpIntervalo(ms).replace('/' + a, '').toLowerCase() + ')' : '') + '</option>';
+      }).join('') + '</optgroup><optgroup label="Mês">' +
+      meses.slice().reverse().map(m=> '<option value="m:' + m + '"' + (periodo === 'm:' + m ? ' selected' : '') + '>' + mesLabel(m) +
+        (vpCache.indice[m].parcial ? ' (até dia ' + vpCache.indice[m].ultimoDia + ')' : '') + '</option>').join('') +
+    '</optgroup></select>' +
+    '<select data-vp-base title="Comparar com">' + vpOpcoesBase(periodo).map(o=>
+      '<option value="' + o[0] + '"' + (vpTela.base === o[0] ? ' selected' : '') + '>' + o[1] + '</option>').join('') + '</select>' + botao;
+
+  const ultimaImport = meses.map(m=> vpCache.indice[m]).sort((a, b)=> String(b.importadoEm).localeCompare(String(a.importadoEm)))[0];
+  document.getElementById('vpSub').textContent =
+    'Venda, preço e lucro de cada produto, no mês e no ano · dados de ' + vpIntervalo(meses) +
+    ' · importado em ' + new Date(ultimaImport.importadoEm).toLocaleString('pt-BR') +
+    (ultimaImport.importadoPor ? ' por ' + ultimaImport.importadoPor : '') +
+    (vpCache.nomesOk ? '' : ' · nomes indisponíveis agora, mostrando o código');
+
+  /* ---- o detalhe dos meses que esta análise usa ---- */
+  const mesesP = vpMesesDoPeriodo(periodo), mesesB = vpMesesBase(periodo, vpTela.base);
+  const antes = mesesP.length === 1 ? [1, 2, 3].map(k=>{ let m = mesesP[0]; for(let j = 0; j < k; j++) m = mesAnteriorDe(m); return m; }) : [];
+  const precisa = mesesP.concat(mesesB, antes).filter(m=> vpCache.indice[m]);
+  if(precisa.some(m=> !vpCache.meses[m])){
+    if(!vpAnalise) painel.innerHTML = '<div class="ini-card vd-vazio"><h3>Baixando as vendas por produto…</h3><div class="ini-desc">Só na primeira vez: depois fica guardado.</div></div>';
+    try{
+      await vpGarantirMeses(precisa, vpStatus);
+    }catch(e){
+      vpStatus('');
+      mostrarToast('Não foi possível baixar as vendas por produto: ' + (e && e.message || e));
+      return;
+    }
+    vpStatus('');
+    if(pedido !== vpTela.pedido) return;   /* a pessoa já trocou de período enquanto baixava */
+  }
+
+  const A = vpAnalise = vpAnalisar(periodo, vpTela.base);
+  const M = A.M;
+
+  /* ---- números grandes: sempre com as duas réguas, mês e ano ---- */
+  const variacoes = (fn)=>{
+    const out = [];
+    const add = (ms, rot)=>{ if(ms.length && ms.every(m=> vpCache.indice[m])) out.push(fn(vpTotais(ms), rot)); };
+    if(A.unico){
+      add([mesAnteriorDe(A.mesesP[0])], vpMesCurto(mesAnteriorDe(A.mesesP[0])));
+      add([vpMenosUmAno(A.mesesP[0])], vpMesCurto(vpMenosUmAno(A.mesesP[0])));
+    }else add(A.mesesP.map(vpMenosUmAno), vpIntervalo(A.mesesP.map(vpMenosUmAno)));
+    return out.join(' · ');
+  };
+  const varVenda = (()=>{
+    const out = [];
+    const add = (base, rot)=>{
+      if(!base.length || !base.every(m=> vpCache.indice[m])) return;
+      const c = vpCompararVenda(A.mesesP, base);
+      out.push(vpSeta(c.pct) + ' vs. ' + rot + (c.ateDia ? ' até dia ' + c.ateDia : '') + ' (' + vpMi(c.antes) + ')');
+    };
+    if(A.unico){
+      add([mesAnteriorDe(A.mesesP[0])], vpMesCurto(mesAnteriorDe(A.mesesP[0])));
+      add([vpMenosUmAno(A.mesesP[0])], vpMesCurto(vpMenosUmAno(A.mesesP[0])));
+    }else add(A.mesesP.map(vpMenosUmAno), vpIntervalo(A.mesesP.map(vpMenosUmAno)));
+    return out.join(' · ');
+  })();
+  const nCorrigidos = A.linhas.filter(x=> x.flags.custoCorrigido && x.v > 0).length;
+  const varMargem = variacoes((t, rot)=> vpPp(A.margemLoja - t.margem) + ' vs. ' + rot);
+  const kpis =
+    kpiGrande((M.parcial && A.unico ? 'Vendas até dia ' + M.ultimoDia + ' de ' : 'Vendas de ') + A.rotPeriodo, fmtMoeda(r2(M.venda)),
+      (varVenda ? varVenda + ' · ' : '') + M.nDias + ' dia(s) com venda, média de ' + fmtMoeda(r2(A.vendaDia)) + ' por dia', '') +
+    kpiGrande('Lucro bruto', fmtMoeda(r2(M.lucro)),
+      'margem de ' + vdPct(A.margemLoja) + (varMargem ? ' · ' + varMargem : '') + ' · depois da mercadoria e do ICMS' +
+      (nCorrigidos ? ' · ' + nCorrigidos.toLocaleString('pt-BR') + ' custos do SG corrigidos' : ''),
+      A.temBase && A.margemLoja < A.bMargem - 0.5 ? 'kb-alerta' : 'kb-neutro') +
+    kpiGrande('Produtos que venderam', A.vendidos.toLocaleString('pt-BR'),
+      A.nA.toLocaleString('pt-BR') + ' fazem 80% da venda' + (A.temBase ? ' · ' + vdVariacao(A.vendidos, A.bVendidos, A.rotBase) : ''), 'kb-info') +
+    kpiGrande('Concentração do lucro', A.n80Lucro.toLocaleString('pt-BR') + ' produtos',
+      'fazem 80% do lucro bruto (' + vdPct(A.n80Lucro / Math.max(1, A.vendidos) * 100) + ' dos que venderam)', 'kb-neutro');
+
+  /* ---- gráficos ---- */
+  vpTela.roscas.forEach(id=> delete ROSCAS[id]);
+  const jaHavia = new Set(Object.keys(ROSCAS));
+  const corta = (t, n)=> t.length > n ? t.slice(0, n - 1) + '…' : t;
+  const gTopLucro = A.porLucro.filter(x=> !x.flags.custoEstranho && !vpSemCusto(x)).slice(0, 12).map(x=> ({rot: corta(x.nome, 44) + ' · margem ' + vdPct(x.margem, 0), valor: r2(x.lucro)}));
+  const gTopVenda = A.porVenda.slice(0, 12).map(x=> ({rot: corta(x.nome, 44) + ' · margem ' + vdPct(x.margem, 0), valor: r2(x.v)}));
+  const somaGrupo = (g)=> A.linhas.filter(x=> x.grupo === g).reduce((s, x)=> s + x.lucro, 0);
+  const prejuizo = somaGrupo('prejuizo');
+  const gGrupos = ['estrela', 'movimento', 'oportunidade', 'baixa'].map(g=> ({rot: VP_GRUPOS[g].rot, valor: r2(somaGrupo(g)), cor: VP_GRUPOS[g].cor}));
+  const anoGraf = parseInt(A.mesesP[A.mesesP.length - 1].slice(0, 4), 10);
+  const mesDestaque = A.unico ? A.mesesP[0] : null;
+  let cardPrecos = '';
+  if(A.temBase){
+    const comPreco = A.linhas.filter(x=> x.varPreco != null && !x.flags.custoEstranho && (x.v >= 100 * A.escala || x.bvDia * M.nDias >= 100 * A.escala));
+    const sub = comPreco.filter(x=> x.varPreco >= 5).length, cai = comPreco.filter(x=> x.varPreco <= -5).length;
+    cardPrecos = cardGrafico('Quantos produtos mudaram de preço',
+      'Preço médio em ' + A.rotPeriodo + ' contra ' + A.rotBase + ', nos ' + comPreco.length.toLocaleString('pt-BR') +
+      ' produtos vendidos nos dois períodos. Variação de até 5% conta como estável.',
+      vpVeredito(A.indicePreco >= A.indiceCusto ? 'ok' : 'ruim',
+        '<b>Preços ' + vpSinal(A.indicePreco) + ' e custo ' + vpSinal(A.indiceCusto) + '</b> nos produtos vendidos nos dois períodos: o preço ' +
+        (A.indicePreco >= A.indiceCusto ? 'acompanhou' : 'não acompanhou') + ' o custo contra ' + escHtml(A.rotBase) + '.') +
+      svgBarras([
+        {rot: 'Subiu mais de 5%', valor: sub, cor: CORES_GRAFICO[2]},
+        {rot: 'Estável', valor: comPreco.length - sub - cai, cor: CORES_GRAFICO[6]},
+        {rot: 'Caiu mais de 5%', valor: cai, cor: CORES_GRAFICO[1]}
+      ], {fmt: (v)=> Math.round(v).toLocaleString('pt-BR')}));
+  }
+  const vendaDe = (m)=>{ const r = vpCache.indice[m]; return r ? r.venda : null; };
+  const vendaDiaDe = (m)=>{ const r = vpCache.indice[m]; return r ? r.venda / r.nDias : null; };
+  /* O ano anterior do mês em andamento entra só até o mesmo dia. */
+  const vendaAntesDe = (mA, mB)=>{ const a = vpCache.indice[mA]; return a && a.parcial ? vpVendaAteDia(mB, a.ultimoDia) : vendaDe(mB); };
+  const rotAntes = (mA, mB)=>{ const a = vpCache.indice[mA]; return mesLabel(mB) + (a && a.parcial && vpCache.indice[mB] ? ' até dia ' + a.ultimoDia : ''); };
+  const margemDe = (m)=>{ const r = vpCache.indice[m]; return r && r.venda ? r.lucro / r.venda * 100 : null; };
+
+  /* ---- as duas análises principais, em gráfico ---- */
+  const placar = vpPlacarAno(A);
+  const ganhos = vpGanhos(A);
+  const cresceram = vpMaisCresceram(A, 8);
+  const recuperar = vpAcoes(A);
+  const cmpVenda = vpComparaMeses(anoGraf, vendaDe, vendaAntesDe);
+  const cmpDia = vpComparaMeses(anoGraf, vendaDiaDe);
+  const cmpMargem = vpComparaMeses(anoGraf, margemDe);
+  const comLado = placar.filter(i=> i.bom != null && Math.abs(i.valor) >= 0.05);
+  const melhoraram = comLado.filter(i=> (i.valor >= 0) === !!i.bom).length;
+  const totalRecuperar = recuperar.reduce((soma, i)=> soma + i.valor, 0);
+
+  const graficos = '<div class="ini-grid">' +
+    cardGrafico('Onde a loja ganhou dinheiro',
+      'O que ' + A.rotPeriodo + ' ganhou em relação a ' + (A.rotBase || 'o período anterior') + ', e o lucro que os produtos fortes sustentam. Clique numa barra para ver a lista dos produtos.',
+      (ganhos.length ? vpVeredito('ok', 'A loja ganhou <b>' + fmtMoeda(r2(ganhos.reduce((soma, i)=> soma + i.valor, 0))) + '</b> nestes pontos.') : '') +
+      vpSvgAcoes(ganhos)) +
+    cardGrafico('O que evoluiu e o que regrediu contra ' + escHtml(A.rotBase || 'o ano passado'),
+      'Cada barra é a variação de ' + A.rotPeriodo + ' contra ' + (A.rotBase || 'o mesmo período do ano anterior') + '. Para a direita evoluiu, para a esquerda regrediu. ' +
+      'Custo subindo conta como piora. Passe o mouse para ver os valores.',
+      (comLado.length ? vpVeredito(melhoraram * 2 >= comLado.length ? 'ok' : 'ruim',
+        '<b>' + melhoraram + ' de ' + comLado.length + ' indicadores evoluíram</b> contra ' + escHtml(A.rotBase) + '. O preço médio fica em cinza: ele não é evolução nem piora sozinho.') : '') +
+      vpSvgPlacar(placar)) +
+    cardGrafico('Os produtos que mais cresceram',
+      'Quem puxou a venda para cima em ' + A.rotPeriodo + ' em relação a ' + (A.rotBase || 'o período anterior') + '. A barra é quanto cada um vendeu a mais. Clique para abrir a ficha do produto.',
+      (cresceram.length ? vpVeredito('ok', '<b>' + escHtml(cresceram[0].rot) + '</b> é quem mais cresceu: ' + fmtMoeda(r2(cresceram[0].valor)) + ' a mais que em ' + escHtml(A.rotBase) + '.' +
+        (A.linhas.filter(x=> x.substitui).length ? ' ' + A.linhas.filter(x=> x.substitui).length + ' produto(s) da lista entraram no lugar de outro que saiu — o crescimento deles é troca de produto.' : '')) : '') +
+      vpSvgAcoes(cresceram)) +
+    cardGrafico('Onde a loja pode ganhar mais',
+      'Quanto cada problema vale em ' + A.rotPeriodo + '. Resolvido, vira lucro. Clique numa barra para abrir a lista dos produtos na pesquisa abaixo.',
+      (recuperar.length ? vpVeredito('ruim', 'Há <b>' + fmtMoeda(r2(totalRecuperar)) + '</b> a recuperar nestes pontos.') : '') +
+      vpSvgAcoes(recuperar)) +
+    cardGrafico('Vendas mês a mês: ' + anoGraf + ' x ' + (anoGraf - 1),
+      'Total vendido em cada mês, contra o mesmo mês do ano anterior. * mês em andamento, comparado com os mesmos dias.',
+      vpVerditoMeses(cmpVenda, anoGraf, {rotulo: 'a venda do mês'}) +
+      vpSvgAnoContraAno(anoGraf, vendaDe, {fmt: (v)=> fmtMoeda(r2(v)), rotulo: vpMi, antesDe: vendaAntesDe, rotAntes: rotAntes, mesDestaque: mesDestaque, eIndice: true}), true) +
+    cardGrafico('Venda média por dia, mês a mês: ' + anoGraf + ' x ' + (anoGraf - 1),
+      'Média por dia com venda, que deixa comparar meses de tamanhos diferentes e o mês em andamento (*).',
+      vpVerditoMeses(cmpDia, anoGraf, {rotulo: 'a venda por dia'}) +
+      vpSvgAnoContraAno(anoGraf, vendaDiaDe, {fmt: (v)=> fmtMoeda(r2(v)) + ' por dia', rotulo: fmtCurto, mesDestaque: mesDestaque, eIndice: true}), true) +
+    cardGrafico('Margem bruta mês a mês: ' + anoGraf + ' x ' + (anoGraf - 1),
+      'Lucro bruto sobre a venda em cada mês, contra o mesmo mês do ano anterior. Em cima, a diferença em pontos.',
+      vpVerditoMeses(cmpMargem, anoGraf, {rotulo: 'a margem', pontos: true}) +
+      vpSvgAnoContraAno(anoGraf, margemDe, {fmt: (v)=> vdPct(v), pontos: true, mesDestaque: mesDestaque, eIndice: true}), true) +
+    cardGrafico('Venda x lucro: onde está cada produto',
+      'Quanto mais à direita, mais vendeu; quanto mais alto, maior a margem. As linhas tracejadas são a margem da loja e o corte dos que fazem 80% da venda. Clique num ponto para abrir a ficha.',
+      vpVeredito('neutro', '<b>' + A.linhas.filter(x=> x.grupo === 'estrela').length.toLocaleString('pt-BR') + ' estrelas</b> (vendem muito e com margem acima da loja) e <b>' +
+        A.linhas.filter(x=> x.grupo === 'movimento').length.toLocaleString('pt-BR') + ' que puxam movimento</b> com margem abaixo dela.') +
+      vpSvgDispersao(A), true) +
+    cardGrafico('Os que mais deixam lucro',
+      'Venda menos mercadoria e ICMS. Compare com o gráfico ao lado: nem todo campeão de venda aparece aqui.',
+      vpVerditoTopo(A, A.porLucro.filter(x=> !x.flags.custoEstranho && !vpSemCusto(x)).slice(0, 12)) +
+      svgBarrasH(gTopLucro, CORES_GRAFICO[0])) +
+    cardGrafico('Os que mais vendem',
+      'Com a margem de cada um no nome. Margem abaixo de ' + vdPct(A.margemLoja, 0) + ' está abaixo da média da loja.',
+      vpVerditoTopo(A, A.porVenda.slice(0, 12)) +
+      svgBarrasH(gTopVenda, CORES_GRAFICO[1])) +
+    cardGrafico('De onde vem o lucro bruto',
+      'O lucro de ' + A.rotPeriodo + ' dividido pelos grupos do mapa. ' + (prejuizo < 0 ? 'Os vendidos abaixo do custo tiraram ' + fmtMoeda(r2(-prejuizo)) + ' e não entram na rosca.' : 'Nenhum produto foi vendido abaixo do custo.'),
+      vpVeredito('neutro', '<b>' + vdPct(Math.max(0, somaGrupo('estrela')) / Math.max(1, M.lucro) * 100, 0) + ' do lucro</b> vem das estrelas.') +
+      svgRosca(gGrupos, 'Lucro bruto')) +
+    (cardPrecos || cardGrafico('Quantos produtos mudaram de preço', 'Escolha uma comparação que tenha dados importados para ver as mudanças de preço.', '<div class="ini-vazio">Sem período de comparação importado.</div>')) +
+  '</div>';
+
+  painel.innerHTML = '<div class="kpis-destaque">' + kpis + '</div>' + graficos;
+  vpTela.roscas = Object.keys(ROSCAS).filter(k=> !jaHavia.has(k));
+
+  pesquisa.hidden = false;
+  vpDesenharTabela();
+}
+
+/* Barras de um ano ao lado do anterior, mês a mês. `valorDe(mes)` devolve o número ou null.
+   Com `eIndice`, o asterisco de mês incompleto vem do índice. */
+function vpSvgAnoContraAno(ano, valorDe, o){
+  o = o || {};
+  const L = 1100, A = o.rotulo ? 266 : 250, base = A - (o.rotulo ? 56 : 40), topo = 38;
+  const nomes = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  const atual = [], antes = [];
+  for(let k = 1; k <= 12; k++){
+    const mm = String(k).padStart(2, '0');
+    atual.push(valorDe(ano + '-' + mm)); antes.push(o.antesDe ? o.antesDe(ano + '-' + mm, (ano - 1) + '-' + mm) : valorDe((ano - 1) + '-' + mm));
+  }
+  const todos = atual.concat(antes).filter(v=> v != null);
+  if(!todos.length) return '<div class="ini-vazio">Sem meses para comparar.</div>';
+  const maior = Math.max.apply(null, todos.map(v=> Math.max(0, v))) || 1;
+  const gl = L / 12, bw = Math.min(30, gl * 0.34);
+  const fonte = 'font-family="Google Sans Flex, Segoe UI, Arial, Helvetica, sans-serif"';
+  const fmt = o.fmt || ((v)=> fmtMoeda(r2(v)));
+  const corAtual = CORES_GRAFICO[0], corAntes = '#c3cbc4';
+  const barra = (x, v, cor, titulo, forte)=> v == null ? '' :
+    '<rect x="' + x.toFixed(1) + '" y="' + (base - Math.max(2, Math.max(0, v) / maior * (base - topo))).toFixed(1) + '" width="' + bw.toFixed(1) +
+    '" height="' + Math.max(2, Math.max(0, v) / maior * (base - topo)).toFixed(1) + '" rx="4" fill="' + cor + '"' + (forte ? '' : ' opacity="0.9"') + '><title>' + escHtml(titulo) + '</title></rect>';
+  let svg = '<line x1="0" y1="' + base + '" x2="' + L + '" y2="' + base + '" stroke="#dce3da" stroke-width="1"/>';
+  for(let k = 0; k < 12; k++){
+    const mm = String(k + 1).padStart(2, '0'), mA = ano + '-' + mm, mB = (ano - 1) + '-' + mm;
+    const cx = k * gl + gl / 2;
+    const destaque = o.mesDestaque === mA;
+    if(destaque) svg += '<rect x="' + (k * gl + 3).toFixed(1) + '" y="4" width="' + (gl - 6).toFixed(1) + '" height="' + (base + 30) + '" rx="8" style="fill:var(--md-primary-suave)"/>';
+    svg += barra(cx - bw - 2, antes[k], corAntes, (o.rotAntes ? o.rotAntes(mA, mB) : mesLabel(mB)) + ': ' + (antes[k] != null ? fmt(antes[k]) : ''), false);
+    svg += barra(cx + 2, atual[k], corAtual, mesLabel(mA) + ': ' + (atual[k] != null ? fmt(atual[k]) : ''), true);
+    if(atual[k] != null && antes[k] != null){
+      const dif = o.pontos ? atual[k] - antes[k] : (antes[k] ? (atual[k] / antes[k] - 1) * 100 : 0);
+      const txt = o.pontos ? (dif >= 0 ? '+' : '−') + Math.abs(dif).toLocaleString('pt-BR', {maximumFractionDigits: 1})
+                           : (dif >= 0 ? '+' : '−') + Math.abs(dif).toLocaleString('pt-BR', {maximumFractionDigits: 0}) + '%';
+      const alto = Math.max(atual[k], antes[k], 0);
+      svg += '<text x="' + cx.toFixed(1) + '" y="' + (base - alto / maior * (base - topo) - 8).toFixed(1) + '" text-anchor="middle" font-size="12" font-weight="700" style="fill:' +
+        (Math.abs(dif) < 0.05 ? '#59625b' : dif > 0 ? 'var(--ok-texto)' : 'var(--erro-texto)') + '" ' + fonte + '>' + txt + '</text>';
+    }
+    const parcial = o.eIndice && vpCache.indice[mA] && vpCache.indice[mA].parcial;
+    svg += '<text x="' + cx.toFixed(1) + '" y="' + (base + 20) + '" text-anchor="middle" font-size="12" fill="#59625b"' + (destaque ? ' font-weight="700"' : '') + ' ' + fonte + '>' + nomes[k] + (parcial ? '*' : '') + '</text>';
+    if(o.rotulo && atual[k] != null) svg += '<text x="' + cx.toFixed(1) + '" y="' + (base + 36) + '" text-anchor="middle" font-size="11" fill="#171d19"' + (destaque ? ' font-weight="700"' : '') + ' ' + fonte + '>' + escHtml(o.rotulo(atual[k])) + '</text>';
+  }
+  return '<svg viewBox="0 0 ' + L + ' ' + A + '" role="img">' + svg + '</svg>' +
+    '<div class="ini-legenda vp-legenda"><span class="lg-item"><i style="background:' + corAtual + '"></i>' + ano + '</span>' +
+    '<span class="lg-item"><i style="background:' + corAntes + '"></i>' + (ano - 1) + '</span></div>';
+}
+
+/* O mapa venda x margem. Eixo da venda em escala logarítmica: numa régua comum o leite e o
+   óleo ficariam sozinhos na direita e os outros amassados na parede da esquerda. */
+function vpSvgDispersao(A){
+  /* Os 220 que mais vendem na curva A e uma amostra de 130 dos outros, espalhada de R$ 20 até o
+     corte: só com os maiores, o mapa mostrava apenas o lado direito e as oportunidades nunca
+     apareciam; com os 130 seguintes, ficavam todos amontoados junto da linha do corte. Custo a
+     conferir fica de fora, porque margem de 100% por custo zerado espremeria todo o resto. */
+  const confiaveis = A.porVenda.filter(p=> !p.flags.custoEstranho && !vpSemCusto(p));
+  const naoA = confiaveis.filter(p=> !p.curvaA && p.v >= 20 * A.escala);
+  const passo = Math.max(1, Math.floor(naoA.length / 130));
+  const pts = confiaveis.filter(p=> p.curvaA).slice(0, 220).concat(naoA.filter((p, i)=> i % passo === 0).slice(0, 130));
+  if(pts.length < 5) return '<div class="ini-vazio">Poucos produtos para montar o mapa.</div>';
+  const L = 1100, H = 400, esq = 44, dir = 14, topo = 16, base = H - 34;
+  const vMax = pts[0].v, vMin = Math.max(1, Math.min.apply(null, pts.map(p=> p.v)));
+  const lgMin = Math.log10(vMin), lgMax = Math.log10(vMax);
+  const x = (v)=> esq + (Math.log10(Math.max(v, vMin)) - lgMin) / ((lgMax - lgMin) || 1) * (L - esq - dir);
+  const margens = pts.map(p=> p.margem).sort((a, b)=> a - b);
+  const mMax = Math.max(40, Math.min(90, Math.ceil(margens[Math.floor(margens.length * 0.97)] / 10) * 10));
+  const mMin = Math.min(-10, Math.max(-40, Math.floor(margens[Math.floor(margens.length * 0.02)] / 10) * 10));
+  const y = (m)=> topo + (mMax - Math.max(mMin, Math.min(mMax, m))) / (mMax - mMin) * (base - topo);
+  const fonte = 'font-family="Google Sans Flex, Segoe UI, Arial, Helvetica, sans-serif"';
+
+  let grade = '';
+  for(let m = mMin; m <= mMax; m += 10){
+    grade += '<line x1="' + esq + '" y1="' + y(m).toFixed(1) + '" x2="' + (L - dir) + '" y2="' + y(m).toFixed(1) + '" stroke="' + (m === 0 ? '#b9c2ba' : '#e6ebe4') + '" stroke-width="1"/>' +
+      '<text x="' + (esq - 6) + '" y="' + (y(m) + 4).toFixed(1) + '" text-anchor="end" font-size="11" fill="#59625b" ' + fonte + '>' + m + '%</text>';
+  }
+  [10, 100, 1000, 10000, 100000, 1000000].forEach(v=>{
+    if(v < vMin * 0.9 || v > vMax * 1.1) return;
+    const rot = v >= 1000000 ? 'R$ 1 mi' : v >= 1000 ? 'R$ ' + (v / 1000) + ' mil' : 'R$ ' + v;
+    grade += '<line x1="' + x(v).toFixed(1) + '" y1="' + topo + '" x2="' + x(v).toFixed(1) + '" y2="' + base + '" stroke="#e6ebe4" stroke-width="1"/>' +
+      '<text x="' + x(v).toFixed(1) + '" y="' + (base + 18) + '" text-anchor="middle" font-size="11" fill="#59625b" ' + fonte + '>' + rot + '</text>';
+  });
+  const xc = x(A.corteVenda), ym = y(A.margemLoja);
+  const refs = '<line x1="' + xc.toFixed(1) + '" y1="' + topo + '" x2="' + xc.toFixed(1) + '" y2="' + base + '" stroke="#737c74" stroke-width="1.2" stroke-dasharray="5 4"/>' +
+    '<line x1="' + esq + '" y1="' + ym.toFixed(1) + '" x2="' + (L - dir) + '" y2="' + ym.toFixed(1) + '" stroke="#737c74" stroke-width="1.2" stroke-dasharray="5 4"/>' +
+    '<text x="' + (L - dir - 4) + '" y="' + (ym - 6).toFixed(1) + '" text-anchor="end" font-size="11" fill="#59625b" stroke="#fff" stroke-width="3" paint-order="stroke" ' + fonte + '>margem da loja ' + escHtml(vdPct(A.margemLoja)) + '</text>';
+  const canto = (tx, ax, ay, anchor, g)=> '<text x="' + ax + '" y="' + ay + '" text-anchor="' + anchor + '" font-size="12.5" font-weight="700" fill="' + VP_GRUPOS[g].cor +
+    '" stroke="#fff" stroke-width="4" paint-order="stroke" ' + fonte + '>' + tx + '</text>';
+  const cantos = canto('Estrelas', L - dir - 4, topo + 14, 'end', 'estrela') +
+    canto('Puxam movimento', L - dir - 4, base - 8, 'end', 'movimento') +
+    canto('Oportunidades', esq + 6, topo + 14, 'start', 'oportunidade') +
+    canto('Margem baixa', esq + 6, base - 8, 'start', 'baixa');
+  /* Do menor para o maior: os grandes, que importam mais, ficam por cima. */
+  const pontos = pts.slice().sort((a, b)=> a.v - b.v).map(p=>{
+    const fora = p.margem > mMax || p.margem < mMin;
+    return '<circle class="vp-ponto" data-vp-cod="' + escHtml(p.cod) + '" cx="' + x(p.v).toFixed(1) + '" cy="' + y(p.margem).toFixed(1) + '" r="' + (fora ? 5 : 4.5) +
+      '" fill="' + VP_GRUPOS[p.grupo].cor + '"' + (fora ? ' stroke="#171d19" stroke-width="1.2"' : '') + '><title>' + escHtml(p.nome) +
+      '\nVenda ' + fmtMoeda(r2(p.v)) + ' · margem ' + vdPct(p.margem) + ' · lucro bruto ' + fmtMoeda(r2(p.lucro)) + '</title></circle>';
+  }).join('');
+  return '<svg class="vp-mapa" viewBox="0 0 ' + L + ' ' + H + '" role="img">' + grade + refs + cantos + pontos + '</svg>' +
+    '<div class="ini-legenda vp-legenda">' + ['estrela', 'movimento', 'oportunidade', 'baixa', 'prejuizo'].map(g=>
+      '<span class="lg-item" title="' + escHtml(VP_GRUPOS[g].desc) + '"><i style="background:' + VP_GRUPOS[g].cor + '"></i>' + VP_GRUPOS[g].rot + '</span>').join('') + '</div>';
+}
+
+/* ---------- a pesquisa ---------- */
+function vpOrdenar(lista, ordem){
+  const nulo = (x, d)=> x == null ? d : x;
+  const cmp = {
+    lucro:       (a, b)=> b.lucro - a.lucro,
+    venda:       (a, b)=> b.v - a.v,
+    vendaAsc:    (a, b)=> a.v - b.v,
+    /* Margem só na frente para quem vendeu pelo menos R$ 100: senão o topo vira chiclete a 90%. */
+    margem:      (a, b)=> ((b.v >= 100) - (a.v >= 100)) || nulo(b.margem, -1e9) - nulo(a.margem, -1e9),
+    margemAsc:   (a, b)=> ((b.v >= 100) - (a.v >= 100)) || nulo(a.margem, 1e9) - nulo(b.margem, 1e9),
+    qtd:         (a, b)=> b.q - a.q,
+    altaVenda:   (a, b)=> nulo(b.difVenda, -1e12) - nulo(a.difVenda, -1e12),
+    quedaVenda:  (a, b)=> nulo(a.difVenda, 1e12) - nulo(b.difVenda, 1e12),
+    varPreco:    (a, b)=> nulo(b.varPreco, -1e9) - nulo(a.varPreco, -1e9),
+    varPrecoAsc: (a, b)=> nulo(a.varPreco, 1e9) - nulo(b.varPreco, 1e9),
+    prejuizo:    (a, b)=> a.lucro - b.lucro,
+    perdaMargem: (a, b)=> nulo(b.perdaMargem, 0) - nulo(a.perdaMargem, 0),
+    perdida:     (a, b)=> nulo(b.vendaPerdida, 0) - nulo(a.vendaPerdida, 0),
+    difCusto:    (a, b)=> Math.abs(nulo(b.difCusto, 0)) - Math.abs(nulo(a.difCusto, 0)),
+    nome:        (a, b)=> COMPARADOR_PT.compare(a.nome, b.nome)
+  }[ordem] || ((a, b)=> b.lucro - a.lucro);
+  return lista.sort((a, b)=> cmp(a, b) || b.v - a.v);
+}
+
+function vpDesenharTabela(){
+  const A = vpAnalise;
+  if(!A) return;
+  const palavras = String(document.getElementById('vpBusca').value || '').trim().split(/\s+/).map(norm).filter(Boolean);
+  const ordem = document.getElementById('vpOrdem').value;
+  const buscaOk = (l)=>{
+    if(!palavras.length) return true;
+    const alvo = norm(l.nome) + ' ' + l.cod;
+    return palavras.every(p=> alvo.indexOf(p) >= 0 || String(l.cod) === p);
+  };
+  const achados = A.linhas.filter(buscaOk);
+
+  document.getElementById('vpFiltros').innerHTML = VP_FILTROS.map(f=>{
+    if(!A.temBase && VP_FLAGS_COM_BASE.indexOf(f[0]) >= 0) return '';
+    const n = achados.filter(f[3]).length;
+    if(!n && f[0] !== 'todos' && vpTela.filtro !== f[0]) return '';
+    return '<button type="button" class="vp-chip' + (vpTela.filtro === f[0] ? ' ativo' : '') + '" data-vp-filtro="' + f[0] + '">' +
+      escHtml(f[1]) + ' <b>' + n.toLocaleString('pt-BR') + '</b></button>';
+  }).join('');
+
+  const filtro = VP_FILTROS.find(f=> f[0] === vpTela.filtro) || VP_FILTROS[0];
+  const lista = vpOrdenar(achados.filter(filtro[3]), ordem);
+  const mostrar = lista.slice(0, vpTela.limite);
+  const M = A.M;
+  const tot = lista.reduce((s, l)=>{ s.v += l.v; s.lucro += l.lucro; return s; }, {v: 0, lucro: 0});
+
+  document.getElementById('vpNotaTabela').textContent = A.rotPeriodo + (A.temBase ? ' · variações contra ' + A.rotBase + ', pela venda por dia' : '');
+  document.getElementById('vpInfo').innerHTML = lista.length.toLocaleString('pt-BR') + ' produto(s)' +
+    (lista.length > mostrar.length ? ', mostrando os ' + mostrar.length + ' primeiros' : '') +
+    ' · venda ' + fmtMoeda(r2(tot.v)) + ' · lucro bruto ' + fmtMoeda(r2(tot.lucro)) +
+    (tot.v > 0 ? ' (margem ' + vdPct(tot.lucro / tot.v * 100) + ')' : '') + '. Clique no produto para abrir a ficha.' +
+    (vpTela.filtro === 'fraco' && M.venda > 0
+      ? ' <b>Juntos são ' + vdPct(tot.v / M.venda * 100, 2) + ' da venda de ' + escHtml(A.rotPeriodo) +
+        '</b>: venderam nos dois períodos, mas pouco e em poucos dias. Confira antes de tirar da compra — pode haver item de encomenda ou de época.'
+      : '');
+
+  const corpo = document.getElementById('vpTabela');
+  if(!lista.length){
+    corpo.innerHTML = '<div class="rec-vazio">Nenhum produto com essa busca' + (vpTela.filtro !== 'todos' ? ' neste filtro' : '') + '.</div>';
+    return;
+  }
+  const varTxt = (x, bomSubir, casas)=>{
+    if(x == null) return '';
+    if(Math.abs(x) < 0.05) return '<div class="vp-var">=</div>';
+    const cls = bomSubir == null ? 'neutro' : ((x > 0) === bomSubir ? 'bom' : 'ruim');
+    /* Acima de dez vezes a porcentagem não diz mais nada: o produto quase não vendia antes. */
+    const txt = Math.abs(x) >= 999 ? '10 vezes+' : vdPct(Math.abs(x), casas);
+    return '<div class="vp-var ' + cls + '">' + (x > 0 ? '▲ ' : '▼ ') + txt + '</div>';
+  };
+  const cab = '<thead><tr><th class="esq">Produto</th><th>Qtd</th><th>Venda</th><th>Preço médio</th><th>Custo médio</th>' +
+    '<th>Lucro bruto</th><th>Margem</th><th>% do lucro</th></tr></thead>';
+  const linhas = mostrar.map(l=>{
+    const g = VP_GRUPOS[l.grupo];
+    const marcas = [];
+    if(l.flags.parou) marcas.push('<span class="vp-tag vp-tag-alerta">parou' + (l.v > 0 ? ' dia ' + l.u : '') + '</span>');
+    if(l.flags.custoCorrigido) marcas.push('<span class="vp-tag vp-tag-atencao" title="' + escHtml(vpDescreverLetras(l.kt)) + '">custo corrigido</span>');
+    if(l.flags.custoEstranho) marcas.push('<span class="vp-tag vp-tag-alerta">custo a conferir</span>');
+    if(l.flags.espremido) marcas.push('<span class="vp-tag vp-tag-atencao">custo subiu</span>');
+    if(l.flags.fraco) marcas.push('<span class="vp-tag vp-tag-atencao" title="Vende pouco, em poucos dias, e vendia pouco no período comparado">venda fraca</span>');
+    if(l.flags.novo) marcas.push('<span class="vp-tag">novo</span>');
+    if(l.substitui) marcas.push('<span class="vp-tag" title="' + escHtml((l.mesmoNome ? 'Mesmo produto, recadastrado do código ' : 'Entrou no lugar de ') + (l.mesmoNome ? l.substitui.cod : l.substitui.nome)) + '">' + (l.mesmoNome ? 'recadastrado' : 'no lugar de outro') + '</span>');
+    if(l.substituidoPor) marcas.push('<span class="vp-tag" title="' + escHtml('Quem vende no lugar: ' + l.substituidoPor.nome) + '">substituído</span>');
+    return '<tr data-vp-cod="' + escHtml(l.cod) + '">' +
+      '<td class="esq"><span class="vp-nome">' + escHtml(l.nome) + '</span>' +
+        '<div class="rec-mini"><i class="vp-bola" style="background:' + g.cor + '"></i>' + g.rot + ' · cód. ' + escHtml(l.cod) +
+        (l.posLucro ? ' · nº ' + l.posLucro + ' em lucro' : '') + ' ' + marcas.join(' ') + '</div></td>' +
+      '<td>' + (l.q ? l.q.toLocaleString('pt-BR', {maximumFractionDigits: 3}) : '—') + '</td>' +
+      '<td><b>' + (l.v ? fmtMoeda(r2(l.v)) : '—') + '</b>' + varTxt(l.varVenda, true, 0) + '</td>' +
+      '<td>' + (l.preco != null ? fmtMoeda(r2(l.preco)) : '—') + varTxt(l.varPreco, null) + '</td>' +
+      '<td>' + (l.custoUn != null ? fmtMoeda(r2(l.custoUn)) : '—') + varTxt(l.varCusto, false) +
+        (l.flags.custoCorrigido && l.custoUnSG != null ? '<div class="vp-var neutro" title="Custo médio que está no SG">SG ' + fmtMoeda(r2(l.custoUnSG)) + '</div>' : '') + '</td>' +
+      '<td class="' + (l.lucro < 0 ? 'vp-neg' : '') + '"><b>' + (l.v ? fmtMoeda(r2(l.lucro)) : '—') + '</b></td>' +
+      '<td class="' + (l.margem != null && l.margem < 0 ? 'vp-neg' : '') + '">' + (l.margem != null ? vdPct(l.margem) : '—') +
+        (l.difMargem != null && Math.abs(l.difMargem) >= 0.05
+          ? '<div class="vp-var ' + (l.difMargem > 0 ? 'bom' : 'ruim') + '">' + vpPp(l.difMargem) + '</div>' : '') + '</td>' +
+      '<td>' + (l.lucro && M.lucro > 0 ? vdPct(l.partLucro, 2) : '—') + '</td></tr>';
+  });
+  const mais = lista.length > mostrar.length
+    ? '<div class="vp-mais"><button type="button" class="btn btn-outline" data-vp-mais>Mostrar mais ' + Math.min(150, lista.length - mostrar.length) + ' de ' +
+      (lista.length - mostrar.length).toLocaleString('pt-BR') + ' restantes</button></div>'
+    : '';
+  corpo.innerHTML = tabelaEmBlocos('tabela-ponto vp-tabela', ['31%', '8%', '12%', '10%', '10%', '11%', '10%', '8%'], cab, linhas) + mais;
+}
+
+/* ---------- a ficha do produto ----------
+   O histórico vem pronto do banco (uma linha por mês, só deste produto). Sem conexão, cai
+   para os meses que já estão baixados. */
+async function vpAbrirProduto(cod){
+  const A = vpAnalise;
+  if(!A) return;
+  cod = String(cod);
+  const ov = document.getElementById('overlayVp');
+  const alvo = document.getElementById('vpDetalhe');
+  const atual = A.linhas.find(l=> l.cod === cod) || {cod: cod, nome: vpNome(cod), flags: {}, grupo: 'parado', v: 0, lucro: 0, i: 0, d: 0};
+  alvo.innerHTML = '<h2 class="vp-ficha-nome">' + escHtml(atual.nome) + '</h2><div class="sub">Buscando o histórico…</div>';
+  ov.classList.add('show');
+  ov.scrollTop = 0;
+
+  let brutos = null;
+  try{
+    const r = await comTempoLimite(db.rpc('rh_vendas_produto_historico', {p_codigo: cod}), 20000);
+    if(r.error) throw r.error;
+    brutos = r.data || [];
+  }catch(e){
+    brutos = Object.keys(vpCache.meses).sort().map(m=>{ const p = vpCache.meses[m].prods.get(cod); return p ? Object.assign({mes: m}, p) : null; }).filter(Boolean);
+  }
+  if(!ov.classList.contains('show')) return;
+  const porMes = {};
+  brutos.forEach(b=> porMes[b.mes] = b);
+  const meses = Object.keys(vpCache.indice).sort();
+  const hist = meses.map(m=>{
+    const I = vpCache.indice[m], p = porMes[m];
+    const v = p ? +p.v || 0 : 0, q = p ? +p.q || 0 : 0, k = p ? +p.k || 0 : 0, ic = p ? +p.i || 0 : 0;
+    const lucro = v - k - ic;
+    const ko = !p ? null : p.kc ? +p.kc[0] : (p.ko != null ? +p.ko : null);
+    return {mes: m, I: I, v: v, q: q, k: k, i: ic, lucro: lucro, d: p ? +p.d || 0 : 0, u: p ? +p.u || 0 : 0, ko: ko,
+      vDia: v / I.nDias, preco: q > 0 ? v / q : null, custoUn: q > 0 ? k / q : null, margem: v > 0 ? lucro / v * 100 : null};
+  });
+  const hm = {};
+  hist.forEach(h=> hm[h.mes] = h);
+  const R = (v)=> fmtMoeda(r2(v));
+  const g = VP_GRUPOS[atual.grupo];
+
+  /* Preço e margem em três réguas: contra o mesmo período do ano anterior, contra o mês
+     anterior (quando é um mês) e desde o primeiro mês com venda. */
+  const frases = [];
+  const somaH = (ms)=>{
+    const s = {v: 0, q: 0, k: 0, i: 0};
+    ms.forEach(m=>{ const h = hm[m]; if(h){ s.v += h.v; s.q += h.q; s.k += h.k; s.i += h.i; } });
+    s.preco = s.q > 0 ? s.v / s.q : null; s.custo = s.q > 0 ? s.k / s.q : null; s.margem = s.v > 0 ? (s.v - s.k - s.i) / s.v * 100 : null;
+    return s;
+  };
+  const compara = (rotA, a, rotB, b)=> '<b>Preço médio de ' + R(a.preco) + ' em ' + rotA + ', contra ' + R(b.preco) + ' em ' + rotB + ' (' + vpSinal((a.preco / b.preco - 1) * 100) + ').</b> ' +
+    (a.custo != null && b.custo ? 'Custo de ' + R(b.custo) + ' para ' + R(a.custo) + ' (' + vpSinal((a.custo / b.custo - 1) * 100) + '), ' : '') +
+    'margem de ' + vdPct(b.margem) + ' para ' + vdPct(a.margem) + '.';
+  const agora = somaH(A.mesesP);
+  const anoAntes = A.mesesP.map(vpMenosUmAno).filter(m=> vpCache.indice[m]);
+  if(agora.preco != null){
+    const b = somaH(anoAntes);
+    if(anoAntes.length && b.preco != null) frases.push(['', compara(A.rotPeriodo, agora, vpIntervalo(anoAntes), b)]);
+    if(A.unico){
+      const ant = mesAnteriorDe(A.mesesP[0]);
+      const c = somaH([ant]);
+      if(c.preco != null) frases.push(['', compara(mesLabel(A.mesesP[0]), agora, mesLabel(ant), c)]);
+    }
+    const comVenda = hist.filter(h=> h.q > 0 && h.mes <= A.mesesP[A.mesesP.length - 1]);
+    if(comVenda.length >= 3){
+      const a = comVenda[0], z = comVenda[comVenda.length - 1];
+      frases.push(['', 'Desde ' + mesLabel(a.mes) + ', o preço médio foi de ' + R(a.preco) + ' para ' + R(z.preco) + ' (' + vpSinal((z.preco / a.preco - 1) * 100) + ')' +
+        (a.custoUn ? ' e o custo de ' + R(a.custoUn) + ' para ' + R(z.custoUn) + ' (' + vpSinal((z.custoUn / a.custoUn - 1) * 100) + ')' : '') + '.' +
+        (a.custoUn && (z.custoUn / a.custoUn) - (z.preco / a.preco) >= 0.03 ? ' O custo subiu mais que o preço.' : '')]);
+    }
+  }
+  if(atual.v > 0){
+    frases.push([atual.grupo === 'prejuizo' ? 'vd-alerta' : '', '<b>' + g.rot + ' em ' + A.rotPeriodo + ':</b> ' + g.desc + '. ' +
+      (atual.posVenda ? 'É o nº ' + atual.posVenda + ' em venda' : '') + (atual.posLucro ? ' e o nº ' + atual.posLucro + ' em lucro bruto' : '') +
+      ' entre ' + A.vendidos.toLocaleString('pt-BR') + ' produtos' + (atual.lucro > 0 && A.M.lucro > 0 ? ', com ' + vdPct(atual.partLucro, 2) + ' do lucro da loja' : '') + '.']);
+  }
+  if(atual.substitui) frases.push(['', atual.mesmoNome
+    ? '<b>É o mesmo produto do código ' + escHtml(atual.substitui.cod) + ', recadastrado.</b> Aquele código vendia ' + R(atual.substitui.bv) + ' em ' + A.rotBase +
+      ' e parou. Some os dois para comparar com o ano passado.'
+    : '<b>Entrou no lugar de ' + escHtml(atual.substitui.nome) + '.</b> Aquele produto vendia ' + R(atual.substitui.bv) + ' em ' + A.rotBase +
+      ' e praticamente parou. Por isso a variação deste aqui fica alta demais para servir de comparação.']);
+  if(atual.substituidoPor) frases.push(['', '<b>Quem vende no lugar dele é ' + escHtml(atual.substituidoPor.nome) + '</b>, com ' + R(atual.substituidoPor.v) +
+    ' em ' + A.rotPeriodo + '. A queda daqui é troca de produto, não perda de venda.']);
+  if(atual.flags.custoCorrigido && atual.q > 0) frases.push(['vd-atencao', '<b>Custo corrigido: ' + escHtml(vpDescreverLetras(atual.kt)) + '.</b> ' +
+    'No SG, o custo médio em ' + A.rotPeriodo + ' está em ' + R(atual.custoUnSG) + '; o corrigido é ' + R(atual.custoUn) + '. ' +
+    'Com o custo do SG o lucro bruto apareceria como ' + R(atual.lucro + atual.difCusto) + ', e não ' + R(atual.lucro) + '. Acertar o cadastro no SG.']);
+  if(atual.flags.custoEstranho) frases.push(['vd-alerta', '<b>Custo a conferir no SG.</b> ' +
+    (atual.custoUn < atual.preco * 0.1
+      ? 'Vendeu com custo zerado ou quase zero no cadastro (' + R(atual.custoUn) + ' por unidade), por isso a margem aparece em ' + vdPct(atual.margem, 0) + '.'
+      : 'Vende a ' + R(atual.preco) + ' e o custo está em ' + R(atual.custoUn) + (atual.bcusto ? ' (era ' + R(atual.bcusto) + ')' : '') +
+        '. Custo acima do dobro do preço, ou que mudou tanto, costuma ser cadastro da caixa lançado na unidade, ou o contrário.') +
+    ' O lucro deste produto não é confiável até conferir.']);
+  if(atual.flags.parou) frases.push(['vd-atencao', '<b>Parou de vender.</b> Vendia em ' + vdPct(atual.parouPct * 100, 0) + ' dos dias de ' + mesLabel(A.recente) + ' e ' +
+    (atual.v > 0 ? 'a última venda do mês foi no dia ' + atual.u : 'não vendeu nada no mês') + '. No ritmo de antes seriam ' + R(atual.vendaPerdida) + ' a mais. Verificar estoque.']);
+  if(atual.flags.espremido) frases.push(['vd-atencao', '<b>O custo subiu mais que o preço</b> contra ' + A.rotBase + ': custo ' + vpSinal(atual.varCusto) + ', preço ' + vpSinal(atual.varPreco) +
+    '. Com a margem de antes teria deixado ' + R(atual.perdaMargem) + ' a mais.']);
+  if(atual.q >= 300 * A.escala && atual.lucro >= 0){
+    frases.push(['', 'Cada R$ 0,10 a mais no preço renderia ' + R(atual.q * 0.10) + ' na quantidade vendida em ' + A.rotPeriodo + '.']);
+  }
+
+  const kpis =
+    kpiGrande('Venda em ' + A.rotPeriodo, R(atual.v),
+      (atual.q ? atual.q.toLocaleString('pt-BR', {maximumFractionDigits: 3}) + ' vendidos' + (A.unico ? ' em ' + atual.d + ' dia(s)' : '') : 'sem venda no período') +
+      (atual.varVenda != null ? ' · por dia ' + vpSinal(atual.varVenda) + ' vs. ' + A.rotBase : ''), '') +
+    kpiGrande('Lucro bruto', R(atual.lucro),
+      atual.margem != null ? 'margem de ' + vdPct(atual.margem) + (atual.difMargem != null ? ' (' + vpPp(atual.difMargem) + ')' : '') + ' · loja: ' + vdPct(A.margemLoja) : '—',
+      atual.lucro < 0 ? 'kb-critico' : atual.margem != null && atual.margem < A.margemLoja ? 'kb-alerta' : 'kb-neutro') +
+    kpiGrande('Preço médio', atual.preco != null ? R(atual.preco) : '—',
+      (atual.varPreco != null ? vpSinal(atual.varPreco) + ' vs. ' + A.rotBase + ' · ' : '') + (atual.custoUn != null ? 'custo médio ' + R(atual.custoUn) : ''), 'kb-info') +
+    kpiGrande('ICMS', R(atual.i || 0), atual.v ? vdPct((atual.i || 0) / atual.v * 100) + ' da venda do produto' : '', 'kb-neutro');
+
+  const anoGraf = parseInt(A.mesesP[A.mesesP.length - 1].slice(0, 4), 10);
+  const vendaDe = (m)=> hm[m] ? hm[m].v : null;
+  const precoDe = (m)=> hm[m] && hm[m].preco != null ? hm[m].preco : null;
+  const tabela = '<table class="tabela-ponto vp-hist"><thead><tr><th class="esq">Mês</th><th>Qtd</th><th>Venda</th><th>Venda por dia</th>' +
+    '<th>Preço médio</th><th>Custo médio</th><th>ICMS</th><th>Lucro bruto</th><th>Margem</th><th>Dias com venda</th><th>Última venda</th></tr></thead><tbody>' +
+    hist.slice().reverse().map(h=>
+      '<tr class="' + (A.mesesP.indexOf(h.mes) >= 0 ? 'vp-hist-atual' : '') + '"><td class="esq"><b>' + mesLabel(h.mes) + '</b>' + (h.I.parcial ? '<div class="rec-mini">até dia ' + h.I.ultimoDia + '</div>' : '') + '</td>' +
+      '<td>' + (h.q ? h.q.toLocaleString('pt-BR', {maximumFractionDigits: 3}) : '—') + '</td>' +
+      '<td>' + (h.v ? R(h.v) : '—') + '</td><td>' + (h.v ? R(h.vDia) : '—') + '</td>' +
+      '<td>' + (h.preco != null ? R(h.preco) : '—') + '</td><td>' + (h.custoUn != null ? R(h.custoUn) : '—') +
+        (h.ko != null && h.q > 0 ? '<div class="rec-mini" title="Custo médio que está no SG">SG ' + R(h.ko / h.q) + '</div>' : '') + '</td>' +
+      '<td>' + (h.v ? R(h.i) : '—') + '</td>' +
+      '<td class="' + (h.lucro < 0 ? 'vp-neg' : '') + '">' + (h.v ? R(h.lucro) : '—') + '</td>' +
+      '<td class="' + (h.margem != null && h.margem < 0 ? 'vp-neg' : '') + '">' + (h.margem != null ? vdPct(h.margem) : '—') + '</td>' +
+      '<td>' + (h.d ? h.d + ' de ' + h.I.nDias : '—') + '</td>' +
+      '<td>' + (h.u ? String(h.u).padStart(2, '0') + '/' + h.mes.slice(5, 7) : '—') + '</td></tr>').join('') +
+    '</tbody></table>';
+
+  alvo.innerHTML =
+    '<h2 class="vp-ficha-nome">' + escHtml(atual.nome) + '</h2>' +
+    '<div class="sub"><i class="vp-bola" style="background:' + g.cor + '"></i>' + escHtml(g.rot) + ' · código ' + escHtml(cod) +
+      ' no SG · ' + escHtml(A.rotPeriodo) + (A.temBase ? ' comparado com ' + escHtml(A.rotBase) : '') + '</div>' +
+    '<div class="kpis-destaque vp-ficha-kpis">' + kpis + '</div>' +
+    (frases.length ? '<ul class="vd-lista vp-ficha-frases">' + frases.map(f=> '<li' + (f[0] ? ' class="' + f[0] + '"' : '') + '>' + f[1] + '</li>').join('') + '</ul>' : '') +
+    '<div class="ini-grid">' +
+      cardGrafico('Venda mês a mês: ' + anoGraf + ' x ' + (anoGraf - 1), 'Total vendido do produto em cada mês, com o mesmo mês do ano anterior ao lado. * mês em andamento, comparado com os mesmos dias do ano anterior.',
+        vpSvgAnoContraAno(anoGraf, vendaDe, {fmt: (v)=> fmtMoeda(r2(v)), rotulo: vpMi, mesDestaque: A.unico ? A.mesesP[0] : null, eIndice: true,
+          /* Sem venda diária por produto: o ano anterior do mês em andamento é cortado na mesma proporção da loja. */
+          antesDe: (mA, mB)=>{ const h = hm[mB], a = vpCache.indice[mA], b = vpCache.indice[mB]; if(!h) return null;
+            return a && a.parcial && b && b.venda ? h.v * vpVendaAteDia(mB, a.ultimoDia) / b.venda : h.v; }}), true) +
+      cardGrafico('Preço médio mês a mês: ' + anoGraf + ' x ' + (anoGraf - 1), 'Preço médio de venda por unidade, contra o mesmo mês do ano anterior. Em cima, a variação.',
+        vpSvgAnoContraAno(anoGraf, precoDe, {fmt: (v)=> fmtMoeda(r2(v)), mesDestaque: A.unico ? A.mesesP[0] : null, eIndice: true}), true) +
+      cardGrafico('Preço médio x custo médio', 'Por unidade vendida, em todos os meses importados. A distância entre as duas linhas é o que sobra antes do ICMS.', vpSvgLinhas(hist), true) +
+    '</div>' +
+    '<div class="dash-secao"><h3>Mês a mês</h3><span class="dash-nota">venda = quantidade × preço de venda; custo = mercadoria sem ICMS; lucro bruto = venda − custo − ICMS</span></div>' +
+    tabela;
+}
+
+/* Duas linhas (preço e custo por unidade) nos meses em que o produto vendeu. */
+function vpSvgLinhas(hist){
+  const pts = hist.map((h, i)=> ({i: i, h: h})).filter(p=> p.h.preco != null);
+  if(pts.length < 2) return '<div class="ini-vazio">São necessários pelo menos dois meses com venda.</div>';
+  const L = 1100, A = 250, base = A - 40, topo = 26, esq = 8, dir = 8;
+  const vals = pts.reduce((s, p)=> s.concat([p.h.preco, p.h.custoUn || 0]), []);
+  let mx = Math.max.apply(null, vals), mn = Math.min.apply(null, vals);
+  const folga = (mx - mn) * 0.15 || mx * 0.1 || 1;
+  mx += folga; mn = Math.max(0, mn - folga);
+  const larg = (L - esq - dir) / hist.length;
+  const x = (i)=> esq + larg * i + larg / 2;
+  const y = (v)=> base - (v - mn) / ((mx - mn) || 1) * (base - topo);
+  const fonte = 'font-family="Google Sans Flex, Segoe UI, Arial, Helvetica, sans-serif"';
+  const linha = (campo, cor)=>{
+    const d = pts.map((p, k)=> (k ? 'L' : 'M') + x(p.i).toFixed(1) + ' ' + y(p.h[campo] || 0).toFixed(1)).join(' ');
+    return '<path d="' + d + '" fill="none" stroke="' + cor + '" stroke-width="2.5" stroke-linejoin="round"/>' +
+      pts.map(p=> '<circle cx="' + x(p.i).toFixed(1) + '" cy="' + y(p.h[campo] || 0).toFixed(1) + '" r="3.5" fill="' + cor + '"><title>' +
+        mesLabel(p.h.mes) + ': ' + fmtMoeda(r2(p.h[campo] || 0)) + '</title></circle>').join('');
+  };
+  const primeiro = pts[0], ultimo = pts[pts.length - 1];
+  const rot = (p, campo, cor, acima)=> rotuloTopo(x(p.i), y(p.h[campo] || 0) + (acima ? -9 : 17), fmtMoeda(r2(p.h[campo] || 0)), L).replace('fill="#171d19"', 'fill="' + cor + '"');
+  const passo = Math.ceil(hist.length / 12);
+  const eixo = hist.map((h, i)=> (i % passo === 0 || i === hist.length - 1)
+    ? '<text x="' + x(i).toFixed(1) + '" y="' + (base + 18) + '" text-anchor="middle" font-size="11" fill="#59625b" ' + fonte + '>' + vpMesCurto(h.mes) + '</text>' : '').join('');
+  return '<svg viewBox="0 0 ' + L + ' ' + A + '" role="img">' +
+    '<line x1="0" y1="' + base + '" x2="' + L + '" y2="' + base + '" stroke="#dce3da" stroke-width="1"/>' + eixo +
+    linha('custoUn', CORES_GRAFICO[6]) + linha('preco', CORES_GRAFICO[0]) +
+    rot(primeiro, 'preco', CORES_GRAFICO[0], true) + rot(ultimo, 'preco', CORES_GRAFICO[0], true) +
+    rot(primeiro, 'custoUn', '#59625b', false) + rot(ultimo, 'custoUn', '#59625b', false) +
+    '</svg><div class="ini-legenda"><span class="lg-item"><i style="background:' + CORES_GRAFICO[0] + '"></i>Preço médio</span>' +
+    '<span class="lg-item"><i style="background:' + CORES_GRAFICO[6] + '"></i>Custo médio (mercadoria)</span></div>';
+}
+
+/* A planilha que a equipe usa para acertar o cadastro no SG: um produto por linha, do
+   período que está na tela, maior correção primeiro. */
+function vpExportarCustos(){
+  const A = vpAnalise;
+  if(!A) return;
+  const lista = A.linhas.filter(l=> l.flags.custoCorrigido && l.q > 0).sort((a, b)=> Math.abs(b.difCusto) - Math.abs(a.difCusto));
+  if(!lista.length){ mostrarToast('Nenhum produto com custo corrigido em ' + A.rotPeriodo + '.'); return; }
+  if(typeof XLSX === 'undefined'){ mostrarToast('A biblioteca de planilhas não carregou. Confira a internet e tente de novo.'); return; }
+  const linhas = [
+    ['Custos corrigidos — ' + A.rotPeriodo],
+    ['Custo médio que está no SG e custo corrigido pela margem das vendas sem erro. A correção vale só no Sistema RH: acertar o cadastro no SG.'],
+    [],
+    ['Código', 'Produto', 'Problema', 'Quantidade', 'Venda (R$)', 'Preço médio (R$)', 'Custo médio no SG (R$)',
+     'Custo médio corrigido (R$)', 'Diferença no custo (R$)', 'Lucro bruto com custo do SG (R$)', 'Lucro bruto corrigido (R$)']
+  ];
+  lista.forEach(l=> linhas.push([/^\d+$/.test(l.cod) ? +l.cod : l.cod, l.nome, vpDescreverLetras(l.kt), Math.round(l.q * 1000) / 1000,
+    r2(l.v), r2(l.preco), r2(l.custoUnSG), r2(l.custoUn), r2(l.difCusto), r2(l.lucro + l.difCusto), r2(l.lucro)]));
+  const ws = XLSX.utils.aoa_to_sheet(linhas);
+  ws['!cols'] = [{wch: 9}, {wch: 40}, {wch: 50}].concat(Array(8).fill({wch: 16}));
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Custos corrigidos');
+  XLSX.writeFile(wb, 'Custos_corrigidos_' + A.rotPeriodo.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, '_') + '.xlsx');
+  mostrarToast(lista.length.toLocaleString('pt-BR') + ' produto(s) com custo corrigido exportados.');
+}
+
+/* A lista que está na tela, em planilha: serve para levar os "venda fraca" à reunião de
+   compras, ou qualquer outro filtro para conferência. Exporta a lista inteira, não só as
+   linhas visíveis. */
+function vpExportarLista(){
+  const A = vpAnalise;
+  if(!A) return;
+  const palavras = String(document.getElementById('vpBusca').value || '').trim().split(/\s+/).map(norm).filter(Boolean);
+  const filtro = VP_FILTROS.find(f=> f[0] === vpTela.filtro) || VP_FILTROS[0];
+  const lista = vpOrdenar(A.linhas.filter(l=>{
+    if(!filtro[3](l)) return false;
+    if(!palavras.length) return true;
+    const alvo = norm(l.nome) + ' ' + l.cod;
+    return palavras.every(p=> alvo.indexOf(p) >= 0 || String(l.cod) === p);
+  }), document.getElementById('vpOrdem').value);
+  if(!lista.length){ mostrarToast('Nada para exportar nesta lista.'); return; }
+  if(typeof XLSX === 'undefined'){ mostrarToast('A biblioteca de planilhas não carregou. Confira a internet e tente de novo.'); return; }
+  const marcas = (l)=> [l.flags.fraco && 'venda fraca', l.flags.parou && 'parou de vender', l.flags.novo && 'novo',
+    l.flags.custoCorrigido && 'custo corrigido no SG', l.flags.espremido && 'custo subiu mais que o preço',
+    l.substitui && 'entrou no lugar de ' + l.substitui.nome].filter(Boolean).join('; ');
+  const cab = ['Código', 'Produto', 'Grupo', 'Quantidade', 'Venda (R$)', 'Variação da venda por dia (%)', 'Preço médio (R$)',
+    'Custo médio (R$)', 'Lucro bruto (R$)', 'Margem (%)', 'Dias com venda', 'Dias do período', 'Última venda (dia)', 'Observações'];
+  const linhas = [
+    [escHtml(filtro[1]) + ' — ' + A.rotPeriodo + (A.temBase ? ' (comparado com ' + A.rotBase + ')' : '')],
+    ['Gerado pelo Sistema RH em ' + new Date().toLocaleString('pt-BR')],
+    [],
+    cab
+  ];
+  lista.forEach(l=> linhas.push([/^\d+$/.test(l.cod) ? +l.cod : l.cod, l.nome, VP_GRUPOS[l.grupo].rot, Math.round(l.q * 1000) / 1000,
+    r2(l.v), l.varVenda == null ? '' : r2(l.varVenda), l.preco == null ? '' : r2(l.preco), l.custoUn == null ? '' : r2(l.custoUn),
+    r2(l.lucro), l.margem == null ? '' : r2(l.margem), l.d || 0, A.M.nDias, l.u || '', marcas(l)]));
+  const ws = XLSX.utils.aoa_to_sheet(linhas);
+  ws['!cols'] = [{wch: 9}, {wch: 40}, {wch: 16}].concat(Array(10).fill({wch: 14}), [{wch: 42}]);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Produtos');
+  const nome = (filtro[1] + '_' + A.rotPeriodo).normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^A-Za-z0-9]+/g, '_');
+  XLSX.writeFile(wb, nome + '.xlsx');
+  mostrarToast(lista.length.toLocaleString('pt-BR') + ' produto(s) exportados.');
+}
+
+/* ---------- ouvintes ---------- */
+(function(){
+  const view = document.getElementById('viewVendasProdutos');
+  view.addEventListener('click', (e)=>{
+    if(e.target.closest('[data-vp-importar]')){
+      const inp = document.getElementById('vpArquivo');
+      inp.value = ''; inp.click(); return;
+    }
+    if(e.target.closest('[data-vp-recarregar]')){ renderVendasProdutos(); return; }
+    const chip = e.target.closest('[data-vp-filtro]');
+    if(chip){
+      vpTela.filtro = chip.getAttribute('data-vp-filtro');
+      vpTela.limite = 150;
+      const f = VP_FILTROS.find(x=> x[0] === vpTela.filtro);
+      document.getElementById('vpOrdem').value = (f && f[2]) || 'lucro';
+      vpDesenharTabela();
+      /* Veio de uma barra do gráfico "onde está o dinheiro": leva a pessoa até a lista. */
+      if(chip.getAttribute('data-vp-ir')) document.getElementById('vpPesquisa').scrollIntoView({behavior: 'smooth', block: 'start'});
+      return;
+    }
+    if(e.target.closest('[data-vp-mais]')){ vpTela.limite += 150; vpDesenharTabela(); return; }
+    const alvo = e.target.closest('[data-vp-cod]');
+    if(alvo) vpAbrirProduto(alvo.dataset.vpCod);
+  });
+  view.addEventListener('change', (e)=>{
+    if(e.target.id === 'vpArquivo' && e.target.files && e.target.files.length) vpImportar(Array.from(e.target.files));
+    else if(e.target.matches('[data-vp-periodo]')){ vpTela.periodo = e.target.value; vpTela.limite = 150; vpDesenhar(); }
+    else if(e.target.matches('[data-vp-base]')){ vpTela.base = e.target.value; vpTela.limite = 150; vpDesenhar(); }
+    else if(e.target.id === 'vpOrdem'){ vpTela.limite = 150; vpDesenharTabela(); }
+  });
+  buscaComEspera('vpBusca', ()=>{ vpTela.limite = 150; vpDesenharTabela(); });
+  document.getElementById('vpExportarCustos').addEventListener('click', vpExportarCustos);
+  document.getElementById('vpExportarLista').addEventListener('click', vpExportarLista);
+  const ov = document.getElementById('overlayVp');
+  const fechar = ()=> ov.classList.remove('show');
+  document.getElementById('fecharVp').addEventListener('click', fechar);
+  ov.addEventListener('click', (e)=>{ if(e.target === ov) fechar(); });
+  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape' && ov.classList.contains('show')) fechar(); });
+})();
 
 function kpiGrande(rot, val, sub, classe){
   return '<div class="kpi-big '+(classe||'')+'"><div class="kb-rot">'+escHtml(rot)+'</div>' +
