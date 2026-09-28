@@ -14395,7 +14395,7 @@ function botaoBaixaSg(r){
 }
 
 function alternarBaixaSg(id){
-  const r = (state.recebimentos||[]).find(x=> x.id===id);
+  const r = (state.recebimentos||[]).find(x=> String(x.id)===String(id));
   if(!r) return;
   if(baixaSgFeita(r)){
     /* Marcar é um clique só; desmarcar pergunta, porque desfazer uma baixa já
@@ -14411,6 +14411,8 @@ function alternarBaixaSg(id){
     mostrarToast('Baixa no SG confirmada — ' + nomeCliente(r.clienteId));
   }
   salvarNoCaixa('recebimentos', r);
+  /* Atualiza a fila imediatamente, mesmo se a baixa veio de outra aba. */
+  renderUltimosRec();
   renderCaixaAtual();
 }
 
@@ -15511,7 +15513,7 @@ function renderRecLancar(entrando){
 
 /* A lista embaixo do formulário é a fila de trabalho: só o que ainda não foi lançado no
    SG. Assim que o operador dá a baixa, o lançamento sai da tela — o que sobra ali é
-   exatamente o que falta replicar. O que já foi baixado se consulta no Relatório. */
+   exatamente o que falta replicar. O que já foi baixado se consulta em Lançamentos. */
 function renderUltimosRec(){
   const caixa = document.getElementById('recUltimos');
   const lista = (state.recebimentos||[]).filter(r=> !baixaSgFeita(r))
@@ -15886,8 +15888,14 @@ function sairFocoSoma(){
   cortina.className = 'foco-soma-cortina';
   document.body.appendChild(cortina);
   document.getElementById('btnRecSomaConcluir').addEventListener('click', ()=>{
+    const campo = document.getElementById('recSomaVal');
+    if(campo.value.trim()){
+      addNotaCompra();
+      /* Valor inválido continua no visor para correção; não encerra a soma. */
+      if(campo.value.trim()) return;
+    }
     sairFocoSoma();
-    /* Segue para o pagamento sem alterar as notinhas nem registrar o recebimento. */
+    /* Segue para o pagamento com a última notinha somada, sem registrar o recebimento. */
     const proximo = document.querySelector('#recMods input:not([type="hidden"]):not(:disabled)') ||
       document.getElementById('recCliente');
     if(proximo) proximo.focus();
