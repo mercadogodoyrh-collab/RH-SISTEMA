@@ -2790,10 +2790,75 @@
     color:#fff;box-shadow:0 8px 18px rgba(32,59,88,.2);border:1px solid #345c76;}
   #recSomaArea #recNotasTotal{color:#fff;}
   #recSomaArea #recSomaTxt{color:#d5e7f3;}
-  #recSomaArea #recSomaChips{padding:3px;gap:8px;}
-  #recSomaArea .cb-chip{background:#fff;border:1px solid #e0e7ef;
-    box-shadow:0 2px 5px rgba(30,53,82,.07);}
-  #recSomaArea .cb-num{background:#fff0d3;color:#885600;border-radius:6px;padding:3px;min-width:23px;}
+  /* O quadro ocupa a coluna inteira; só os bilhetes se compactam para caber na tela. */
+  #viewRecLancar #recSomaArea{box-sizing:border-box;width:100%;max-width:none;
+    aspect-ratio:auto;align-self:start;margin:0;padding:12px;
+    display:flex;flex-direction:column;min-height:0;
+    background:#fffdf8;border:1px solid #d8d0bd;border-radius:5px;
+    box-shadow:0 8px 22px rgba(67,57,35,.12),0 2px 4px rgba(67,57,35,.08);}
+  #recSomaArea .rec-notas-cabecalho,#recSomaArea .rec-notas-total{flex-shrink:0;}
+  #recNotasQuadro{position:relative;flex:1;min-height:0;overflow:hidden;}
+  #recSomaArea #recNotasDica{flex-shrink:0;margin:6px 0 0;font-size:10px;}
+  #recSomaArea .rec-notas-total{padding:10px 12px;margin-bottom:12px;box-shadow:none;}
+  #recSomaArea #recNotasTotal{font-size:26px;}
+  #recSomaArea #recSomaChips{position:absolute;top:0;left:0;padding:5px 6px 14px;gap:14px 10px;
+    grid-template-columns:repeat(2,164px);box-sizing:border-box;
+    max-height:none;overflow:visible;align-items:stretch;transform-origin:top left;}
+  #recSomaArea .cb-chip{position:relative;display:flex;flex-direction:column;align-items:stretch;
+    gap:7px;padding:8px 9px 12px;border:1px solid #cbbb8e;border-bottom:2px solid #baa779;border-radius:3px;
+    background:linear-gradient(110deg,#fff8df,#f6edcc);color:#514832;
+    font-family:'Courier New',monospace;font-size:10px;line-height:1.35;
+    box-shadow:0 6px 9px -3px rgba(78,59,22,.32),0 2px 3px rgba(78,59,22,.16),
+      inset 0 1px 0 rgba(255,255,255,.85);}
+  #recSomaArea .cb-chip::after{content:'';position:absolute;left:-1px;right:-1px;bottom:-7px;height:8px;
+    background:linear-gradient(135deg,#f6edcc 25%,transparent 25%) -4px 0/8px 8px,
+      linear-gradient(225deg,#f6edcc 25%,transparent 25%) -4px 0/8px 8px;}
+  #recSomaArea .rec-nota-cabecalho{display:flex;align-items:center;justify-content:space-between;
+    gap:4px;border-bottom:1px dashed #b5a77c;padding-bottom:4px;}
+  #recSomaArea .cb-num{background:none;color:#756644;border-radius:0;padding:0;
+    font-size:10px;text-align:left;letter-spacing:.5px;opacity:1;}
+  #recSomaArea .rec-nota-cliente{display:flex;flex-direction:column;gap:2px;overflow-wrap:anywhere;}
+  #recSomaArea .rec-nota-cliente strong{font-size:11px;text-transform:uppercase;line-height:1.35;}
+  #recSomaArea .rec-nota-total{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;
+    gap:3px 6px;border-top:1px dashed #b5a77c;padding-top:6px;margin-top:auto;}
+  #recSomaArea .rec-nota-valor{flex:0 1 auto;font-size:16px;font-weight:700;color:#403722;}
+  #recSomaArea .cb-chip button{color:#756644;width:24px;height:24px;font-size:16px;}
+  @media(max-width:680px){
+    #viewRecLancar #recSomaArea{padding:10px;}
+  }
+  body.foco-soma{overflow:hidden;}
+  body.foco-soma #viewRecLancar #recForm{position:fixed;inset:12px;z-index:46;
+    width:calc(100% - 24px);height:calc(100dvh - 24px);max-width:1100px;
+    margin:0 auto;padding:16px;display:flex;flex-direction:column;box-sizing:border-box;}
+  body.foco-soma #viewRecLancar .rec-fluxo-nav{margin-bottom:8px;flex-shrink:0;}
+  body.foco-soma #viewRecLancar .rec-titulo-etapa{margin-bottom:10px;flex-shrink:0;}
+  body.foco-soma #viewRecLancar .rec-titulo-etapa h2{font-size:20px;}
+  body.foco-soma #viewRecLancar #recForm[data-etapa="1"] .rec-duas{flex:1;min-height:0;gap:16px;}
+  body.foco-soma #viewRecLancar :is(.rec-col-esq,#recContaBox,#recContaBox>.cb-esq){height:100%;min-height:0;}
+  body.foco-soma #viewRecLancar #recCalcBox .rec-atalhos{display:none;}
+  @media(max-width:680px),(max-height:600px){
+    body.foco-soma #viewRecLancar #recForm{inset:6px;width:calc(100% - 12px);height:calc(100dvh - 12px);padding:10px;}
+    body.foco-soma #viewRecLancar .rec-titulo-etapa{margin-bottom:6px;}
+    body.foco-soma #viewRecLancar .rec-fluxo-nav{gap:4px;}
+    body.foco-soma #viewRecLancar .rec-etapas{flex-basis:auto;gap:2px;}
+    body.foco-soma #viewRecLancar .rec-etapas li{padding:4px;font-size:10px;}
+    body.foco-soma #viewRecLancar #btnRecVoltar{font-size:11px;padding:5px 8px;min-height:28px;}
+    body.foco-soma #viewRecLancar #recCalcBox .rec-calc-ajuda{display:none;}
+    body.foco-soma #viewRecLancar #recCalcBox .cb-soma{padding:8px;}
+    body.foco-soma #viewRecLancar #recSomaTeclas,
+    body.foco-soma #viewRecLancar #recCalcBox.rec-teclado-aberto #recSomaTeclas,
+    body.foco-soma #viewRecLancar #btnRecTeclado{display:none;}
+    body.foco-soma #viewRecLancar #recCalcBox .cb-soma{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 10px;}
+    body.foco-soma #viewRecLancar #recCalcBox .calc-topo{grid-column:1/-1;margin:0;}
+    body.foco-soma #viewRecLancar #recCalcBox .calc-visor{margin:0;}
+    body.foco-soma #viewRecLancar #recSomaVal{font-size:22px;padding:7px 10px;}
+    body.foco-soma #viewRecLancar .rec-soma-confirmacoes{display:flex;gap:6px;}
+    body.foco-soma #viewRecLancar .rec-soma-confirmacoes .btn{display:block;margin:0;min-height:36px;width:auto;padding:7px 12px;}
+    body.foco-soma #viewRecLancar #recSomaDica:empty{display:none;}
+  }
+  @media(max-width:680px){
+    body.foco-soma #viewRecLancar #recForm[data-etapa="1"] .rec-duas{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr) auto;gap:8px;}
+  }
   #recSomaArea .cb-chip button:hover{background:#ffeded;color:#b52a3b;}
   #recNotasVazio{background:#f7f9fc;border-color:#ccd8e6;color:#607085;}
   #viewRecLancar #recCalcBox .cb-soma{padding:14px;background:linear-gradient(150deg,#eef4ff,#f7f9fc);
@@ -2827,6 +2892,107 @@
   body.foco-pagamento #recMods .rm-topo svg{background:#f3f6fa;color:var(--rec-acento);}
   body.foco-pagamento #recMods .rec-mod.preenchida{background:#eef9f3;border-color:#88bda1;
     border-top-color:var(--rec-acento);box-shadow:inset 0 0 0 1px #88bda1,0 4px 10px rgba(30,53,82,.07);}
+
+  /* Fechamento: visão executiva primeiro, conferência sob demanda. */
+  #viewInicio main{max-width:1240px;margin:0 auto;}
+  #viewInicio .dash-topo{margin-bottom:20px;}
+  #viewInicio .dash-topo h2{font-size:26px;}
+  #viewInicio .dash-secao{flex-wrap:wrap;gap:8px 14px;}
+  #viewInicio .vd-acoes{gap:8px;flex-wrap:wrap;}
+  #viewInicio .vd-acoes .btn{font-size:12px;min-height:38px;padding:8px 12px;white-space:normal;}
+  #viewInicio .vd-acoes select{max-width:100%;}
+  #viewInicio .fm-principais{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin-bottom:8px;}
+  #viewInicio .fm-principais .kpi-big{padding:20px 24px;border-radius:18px;background:#fff;border:1px solid #dbe5f1;
+    box-shadow:0 6px 18px rgba(27,54,90,.08);min-width:0;}
+  #viewInicio .fm-principais .kpi-big:first-child{background:linear-gradient(120deg,#203b58,#285a70);color:#fff;border-color:#345c76;}
+  #viewInicio .fm-principais .kpi-big:first-child :is(.kb-rot,.kb-val,.kb-sub){color:#fff;}
+  #viewInicio .fm-principais .kb-val{font-size:clamp(24px,3vw,34px);line-height:1.3;overflow-wrap:anywhere;}
+  #viewInicio .fm-principais .kb-sub{font-size:12px;line-height:1.5;}
+  #viewInicio .fm-nota-resultado{font-size:12px;line-height:1.5;color:var(--texto-fraco);margin:0 0 16px;}
+  #viewInicio .fm-resumos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;margin:0 0 20px;}
+  #viewInicio .fm-resumo{background:#fff;border:1px solid #e0e7ee;border-radius:18px;padding:20px;
+    box-shadow:0 4px 14px rgba(27,54,90,.06);min-width:0;display:flex;flex-direction:column;}
+  #viewInicio .fm-card-topo h3{font-size:17px;margin:0 0 4px;color:#203b58;}
+  #viewInicio .fm-card-topo>span{font-size:12px;color:var(--texto-fraco);}
+  #viewInicio .fm-resumo dl{margin:14px 0 0;}
+  #viewInicio .fm-resumo dl>div{display:flex;justify-content:space-between;gap:16px;padding:9px 0;border-bottom:1px solid #edf0f5;}
+  #viewInicio .fm-resumo dt{font-size:13px;color:var(--texto-fraco);}
+  #viewInicio .fm-resumo dd{margin:0;font-weight:650;font-size:15px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;}
+  #viewInicio .fm-resumo p{font-size:12px;line-height:1.5;color:var(--texto-fraco);margin:12px 0 16px;}
+  #viewInicio .fm-resumo .btn{align-self:flex-start;margin-top:auto;font-size:12px;white-space:normal;}
+  #viewInicio .fm-secao{margin-top:22px;}
+  #viewInicio .fm-pendencias{margin:20px 0;}
+  #viewInicio .fm-pendencias h3{font-size:16px;margin:0 0 10px;}
+  #viewInicio .ini-alertas{gap:6px;margin:0;}
+  #viewInicio .ini-alerta{font-size:12px;padding:10px 12px;align-items:center;}
+  #viewInicio .fm-detalhes{margin:10px 0;background:#fff;border:1px solid #dfe6ee;border-radius:14px;}
+  #viewInicio .fm-detalhes>summary{cursor:pointer;display:flex;align-items:center;gap:12px;padding:14px 18px;list-style:none;}
+  #viewInicio .fm-detalhes>summary::-webkit-details-marker{display:none;}
+  #viewInicio .fm-detalhes>summary::before{content:'›';font-size:24px;color:#365b8b;line-height:1;}
+  #viewInicio .fm-detalhes[open]>summary::before{transform:rotate(90deg);}
+  #viewInicio .fm-detalhes>summary:focus-visible{outline:2px solid #4774ad;outline-offset:2px;border-radius:14px;}
+  #viewInicio .fm-detalhes summary b{font-size:13px;color:#29435f;}
+  #viewInicio .fm-detalhes summary small{display:block;font-size:11px;color:var(--texto-fraco);margin-top:3px;}
+  #viewInicio .fm-detalhes-corpo{padding:0 16px 16px;}
+  #viewInicio .fm-dados-vendas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:4px 0 20px;}
+  #viewInicio .fm-dados-vendas>div{background:#f3f6fa;padding:12px;border-radius:10px;min-width:0;}
+  #viewInicio .fm-dados-vendas dt{font-size:12px;color:var(--texto-fraco);}
+  #viewInicio .fm-dados-vendas dd{margin:4px 0 0;font-size:16px;font-weight:650;overflow-wrap:anywhere;}
+  #viewInicio #iniNota{font-size:11px;line-height:1.6;margin-top:20px;}
+  @media(max-width:700px){
+    #viewInicio .fm-principais,#viewInicio .fm-resumos{grid-template-columns:minmax(0,1fr);}
+    #viewInicio .vd-acoes{margin-left:0;width:100%;}
+    #viewInicio .fm-dados-vendas{grid-template-columns:repeat(2,minmax(0,1fr));}
+    #viewInicio .fm-principais .kpi-big{padding:18px;}
+    #viewInicio .fm-resumo{padding:16px;}
+    #viewInicio .ini-alerta{flex-wrap:wrap;}
+    #viewInicio .ini-alerta>span:nth-child(2){flex:1;min-width:160px;}
+  }
+  @media print{
+    body.imprimindo #viewInicio :is(.fm-detalhes,.vd-acoes,.fm-resumo .btn,.ini-acao,#btnImprimirInicio){display:none!important;}
+    body.imprimindo #viewInicio :is(.kpi-big,.fm-resumo,.ini-alerta){break-inside:avoid;box-shadow:none;}
+    body.imprimindo #viewInicio .fm-principais .kpi-big:first-child{background:#fff;color:#111;}
+    body.imprimindo #viewInicio .fm-principais .kpi-big:first-child :is(.kb-rot,.kb-val,.kb-sub){color:#111;}
+  }
+
+  /* Pagamento avulso: formulário compacto e histórico legível em qualquer tela. */
+  #viewFolha [hidden],#overlayAvulso [hidden]{display:none!important;}
+  #viewFolha .pa-abas{padding-bottom:10px;gap:8px;flex-wrap:wrap;}
+  #paPainel{max-width:1100px;}
+  .pa-cabecalho{display:flex;align-items:center;justify-content:space-between;gap:20px;margin-bottom:22px;}
+  .pa-cabecalho h2{font-size:23px;margin:0 0 6px;}
+  .pa-cabecalho p{color:var(--texto-fraco);line-height:1.6;margin:0;max-width:560px;}
+  .pa-filtros{display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap;margin-bottom:12px;}
+  .pa-filtros label{display:grid;gap:7px;font-size:12px;font-weight:600;}
+  .pa-filtros label:first-child{flex:1;min-width:180px;}
+  .pa-filtros input{width:100%;min-width:0;padding:11px 13px;border:1px solid var(--cinza-borda);border-radius:10px;background:var(--superficie);color:var(--texto);}
+  .pa-lista{display:grid;gap:12px;margin-top:16px;}
+  .pa-registro{background:var(--superficie);border:1px solid var(--cinza-borda);border-left:4px solid #29765f;border-radius:16px;padding:20px;display:flex;justify-content:space-between;gap:18px;box-shadow:0 4px 15px #15372a09;}
+  .pa-registro h3{margin:0 0 7px;font-size:16px;overflow-wrap:anywhere;}
+  .pa-registro p{margin:0 0 7px;font-size:13px;}
+  .pa-registro small{color:var(--texto-fraco);line-height:1.6;}
+  .pa-registro-valor{display:grid;gap:10px;justify-items:end;flex-shrink:0;}
+  .pa-registro-valor strong{font-size:20px;color:var(--marca);}
+  #overlayAvulso .pa-modal{width:100%;max-width:640px;max-height:calc(100dvh - 32px);overflow-y:auto;}
+  .pa-modal .campo{margin-bottom:14px;min-width:0;}
+  .pa-modal :is(input,select,textarea){width:100%;min-width:0;max-width:100%;box-sizing:border-box;}
+  .pa-modal .campo-nota{line-height:1.6;margin-bottom:18px;}
+  .pa-campos{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 14px;}
+  .pa-total{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#e8f3ed;color:#18513d;padding:18px;border-radius:12px;}
+  .pa-total strong{font-size:23px;overflow-wrap:anywhere;}
+  .pa-acoes{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:18px;}
+  .pa-resumo{margin:18px 0;}
+  .pa-resumo>div{display:grid;grid-template-columns:1fr 1.5fr;gap:15px;padding:12px 0;border-bottom:1px solid var(--cinza-borda);}
+  .pa-resumo dt{color:var(--texto-fraco);font-size:13px;}
+  .pa-resumo dd{margin:0;text-align:right;font-weight:600;overflow-wrap:anywhere;white-space:pre-wrap;}
+  .pa-erro{color:#a12727;font-size:13px;line-height:1.6;}
+  @media(max-width:600px){
+    .pa-cabecalho{align-items:stretch;flex-direction:column;}
+    .pa-campos{grid-template-columns:minmax(0,1fr);}
+    .pa-registro{flex-direction:column;}.pa-registro-valor{display:flex;justify-content:space-between;align-items:center;}
+    .pa-acoes .btn{flex:1;white-space:normal;}
+    #overlayAvulso .pa-modal{padding:24px 18px;}
+  }
 
   /* ---------- monitor de armazenamento do Supabase ----------
      Discreto de propósito: uma barrinha e a porcentagem ao lado do chip da nuvem. Só ganha
@@ -3149,13 +3315,13 @@
         <h2>Fechamento mensal</h2>
         <div class="dash-sub" id="iniSub"></div>
       </div>
-      <button class="btn btn-outline" id="btnImprimirInicio">Imprimir esta página</button>
+      <button class="btn btn-outline" id="btnImprimirInicio">Imprimir resumo</button>
     </div>
     <!-- Vendas da loja: o relatório importado do mês passado. Montado por renderVendasInicio(). -->
     <div id="iniVendas"></div>
-    <div class="dash-secao"><h3>Caixa e folha</h3><span class="dash-nota" id="iniMes"></span></div>
-    <div id="iniAlertas"></div>
-    <div class="kpis-destaque" id="iniKpis"></div>
+    <div class="dash-secao fm-secao"><h3>Caixa e folha</h3><span class="dash-nota" id="iniMes"></span></div>
+    <div class="fm-resumos" id="iniKpis"></div>
+    <section class="fm-pendencias" aria-labelledby="fmPendenciasTitulo"><h3 id="fmPendenciasTitulo">Pendências atuais</h3><div id="iniAlertas"></div></section>
     <div id="iniGraficos"></div>
     <div class="nota-rodape" id="iniNota"></div>
   </main>
@@ -3228,6 +3394,11 @@
 </div>
 
 <div id="viewFolha" style="display:none;">
+<div class="toolbar pa-abas" aria-label="Tipo de pagamento">
+  <button type="button" class="btn btn-primary" id="paAbaMensal" aria-pressed="true">Folha mensal</button>
+  <button type="button" class="btn btn-outline" id="paAbaAvulso" aria-pressed="false">Pagamento avulso</button>
+</div>
+<div id="paFolhaMensal">
 <div class="toolbar">
   <div class="search-wrap">
     <svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -3255,7 +3426,42 @@
   <div class="grid" id="grid"></div>
 </main>
 
+</div><!-- /paFolhaMensal -->
+<main id="paPainel" hidden>
+  <div class="pa-cabecalho"><div><h2>Pagamento avulso</h2><p>Salário e horas extras de um período específico, mesmo entre meses diferentes.</p></div>
+    <button type="button" class="btn btn-primary" id="paNovo">+ Novo pagamento avulso</button></div>
+  <div class="pa-filtros"><label for="paBusca">Buscar colaborador<input id="paBusca" type="search" placeholder="Nome do colaborador"></label>
+    <label for="paMes">Mês do pagamento<input id="paMes" type="month"></label>
+    <button type="button" class="btn btn-outline" id="paTodos">Todos os meses</button></div>
+  <p id="paContagem" class="campo-nota"></p>
+  <div id="paLista" class="pa-lista"></div>
+</main>
 </div><!-- /viewFolha -->
+
+<div class="overlay" id="overlayAvulso" style="z-index:65;">
+  <div class="modal pa-modal" role="dialog" aria-modal="true" aria-labelledby="paTitulo">
+    <button type="button" class="modal-close" id="paFechar" aria-label="Fechar pagamento avulso">✕</button>
+    <h2 id="paTitulo">Novo pagamento avulso</h2>
+    <form id="paForm">
+      <p class="campo-nota">Informe os valores referentes ao período. O sistema soma os valores digitados, sem calcular proporcionalidade.</p>
+      <div class="campo"><label for="paColaborador">Colaborador</label><select id="paColaborador" required></select></div>
+      <div class="pa-campos">
+        <div class="campo"><label for="paInicio">Trabalhou de</label><input type="date" id="paInicio" required></div>
+        <div class="campo"><label for="paFim">Até</label><input type="date" id="paFim" required></div>
+        <div class="campo"><label for="paSalario">Salário do período (R$)</label><input type="text" inputmode="decimal" id="paSalario" placeholder="0,00" required></div>
+        <div class="campo"><label for="paExtras">Horas extras (R$)</label><input type="text" inputmode="decimal" id="paExtras" placeholder="0,00"></div>
+        <div class="campo"><label for="paData">Data do pagamento</label><input type="date" id="paData" required></div>
+        <div class="campo"><label for="paForma">Forma de pagamento</label><select id="paForma"><option value="pix">PIX</option><option value="dinheiro">Dinheiro do caixa administrativo</option><option value="notinha">Notinha branca (caixas da frente)</option></select></div>
+      </div>
+      <div class="campo"><label for="paObs">Observações (opcional)</label><textarea id="paObs" rows="2" maxlength="1000" placeholder="Ex.: dias pendentes após o desligamento"></textarea></div>
+      <div class="pa-total"><span>Total do pagamento</span><strong id="paTotal" aria-live="polite">R$ 0,00</strong></div>
+      <div class="pa-acoes"><button type="submit" class="btn btn-primary">Revisar pagamento</button></div>
+    </form>
+    <div id="paRevisao" hidden></div>
+    <p id="paErro" role="alert" class="pa-erro"></p>
+    <div id="paConfirmacao" class="pa-acoes" hidden><button type="button" class="btn btn-outline" id="paVoltar">Voltar e corrigir</button><button type="button" class="btn btn-primary" id="paConfirmar">Confirmar pagamento</button></div>
+  </div>
+</div>
 
 <div id="viewPonto" style="display:none;">
   <div class="toolbar">
@@ -3546,8 +3752,10 @@
               <strong id="recNotasTotal">R$ 0,00</strong>
               <span id="recSomaTxt">Nenhuma notinha somada</span>
             </div>
+            <div id="recNotasQuadro">
             <div id="recNotasVazio">As notinhas adicionadas aparecem aqui.</div>
             <ol class="cb-chips" id="recSomaChips" aria-label="Notinhas incluídas na soma" hidden></ol>
+            </div>
             <p id="recNotasDica" hidden>Use × para remover uma notinha.</p>
           </section>
 
@@ -5231,6 +5439,7 @@ let rhBotaoTexto = 'Abrir o RH'; /* o botão do modal diz para onde a senha leva
 
 function travarRh(){
   rhLiberado = false;
+  document.getElementById('overlayAvulso').classList.remove('show');
   document.body.classList.add('rh-travado');
   /* A área volta recolhida: um dropdown aberto embaixo de um cadeado é um convite a
      clicar em cada item para descobrir que nenhum abre. */
@@ -6356,6 +6565,7 @@ document.getElementById('selMes').addEventListener('change', (e)=>{
 /* Redesenha a área que está aberta. Chamado sempre que a base muda (troca de mês,
    recarga do banco), para o painel e o financeiro não ficarem com números velhos. */
 function renderAbaAtual(){
+  if(state.abaAtual === 'folha') alternarAbaFolha(paAbaAtual);
   if(state.abaAtual === 'inicio' && typeof renderInicio === 'function') renderInicio();
   if(state.abaAtual === 'dashboard' && typeof renderDashboard === 'function') renderDashboard();
   if(state.abaAtual === 'ferias' && typeof renderFerias === 'function') renderFerias();
@@ -10372,6 +10582,169 @@ function renderBalanco(){
    As duas nascem e morrem juntas: desfazer o pagamento apaga a retirada, senão o caixa
    fica com uma saída que a folha já esqueceu. */
 
+/* Pagamentos avulsos ficam no estado do RH (rh_config), separados da folha mensal.
+   O nome é guardado junto do vínculo para preservar o histórico de desligados. */
+let paAbaAtual = 'mensal';
+let paRevisando = null;
+let paSalvando = false;
+const PA_FORMAS = {pix:'PIX', dinheiro:'Dinheiro do caixa administrativo', notinha:'Notinha branca (caixas da frente)'};
+function pagamentosAvulsos(){ return Array.isArray(state.pagamentosAvulsos) ? state.pagamentosAvulsos : []; }
+function alternarAbaFolha(aba){
+  paAbaAtual = aba === 'avulso' ? 'avulso' : 'mensal';
+  const av = paAbaAtual === 'avulso';
+  document.getElementById('paFolhaMensal').hidden = av;
+  document.getElementById('paPainel').hidden = !av;
+  [['paAbaMensal',!av],['paAbaAvulso',av]].forEach(([id,ativa])=>{
+    const b=document.getElementById(id); b.className='btn '+(ativa?'btn-primary':'btn-outline'); b.setAttribute('aria-pressed',String(ativa));
+  });
+  if(state.abaAtual === 'folha'){
+    document.getElementById('selMes').style.display=av?'none':'';
+    document.getElementById('btnConfigSalarios').style.display=av?'none':'';
+    document.querySelectorAll('.acoes-folha').forEach(b=>b.style.display=av?'none':'');
+  }
+  if(av) renderPagamentosAvulsos();
+}
+function renderPagamentosAvulsos(){
+  const busca=document.getElementById('paBusca').value.trim().toLocaleLowerCase('pt-BR');
+  const mes=document.getElementById('paMes').value;
+  const lista=pagamentosAvulsos().filter(p=>(!mes||p.data.slice(0,7)===mes)&&(!busca||p.nome.toLocaleLowerCase('pt-BR').includes(busca)))
+    .slice().sort((a,b)=>b.data.localeCompare(a.data)||b.criadoEm.localeCompare(a.criadoEm));
+  document.getElementById('paContagem').textContent=lista.length+' pagamento(s)'+(mes?' em '+mesLabel(mes):' · todos os meses');
+  document.getElementById('paLista').innerHTML=lista.length?lista.map(p=>'<article class="pa-registro"><div><h3>'+escHtml(p.nome)+'</h3><p>Período: '+dataBR(p.inicio)+' a '+dataBR(p.fim)+'</p><small>Pagamento em '+dataBR(p.data)+' · '+escHtml(PA_FORMAS[p.forma]||p.forma)+'</small></div><div class="pa-registro-valor"><strong>'+fmtMoeda(p.total)+'</strong><button type="button" class="btn btn-outline" data-pa-ver="'+escHtml(p.id)+'">Ver detalhes</button></div></article>').join(''):'<div class="ini-vazio">'+(busca||mes?'Nenhum pagamento encontrado com esses filtros.':'Nenhum pagamento avulso registrado. Clique em “Novo pagamento avulso” para começar.')+'</div>';
+}
+function paValor(texto){
+  const s=String(texto||'').trim();
+  if(!s) return 0;
+  if(!/^(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d{1,2})?$/.test(s)) return NaN;
+  const n=Number(s.replace(/\./g,'').replace(',','.'));
+  return Number.isFinite(n)&&n<=999999999.99?r2(n):NaN;
+}
+function validarPagamentoAvulso(d){
+  const f=(state.funcionarios||[]).find(f=>f.id===d.funcId);
+  if(!f) throw Error('Selecione um colaborador cadastrado. Colaboradores desligados também estão disponíveis.');
+  for(const [campo,rotulo] of [['inicio','início'],['fim','fim'],['data','pagamento']]){
+    const s=d[campo]; const dt=new Date(s+'T12:00:00Z');
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(s)||!Number.isFinite(dt.getTime())||dt.toISOString().slice(0,10)!==s) throw Error('Informe uma data válida de '+rotulo+'.');
+  }
+  if(d.fim<d.inicio) throw Error('O fim do período deve ser igual ou posterior ao início.');
+  if(d.data<d.fim) throw Error('A data do pagamento não pode ser anterior ao fim do período trabalhado.');
+  if(d.data>hojeISO()) throw Error('Informe a data em que o pagamento foi realizado, sem data futura.');
+  if(!Number.isFinite(d.salario)||!Number.isFinite(d.extras)||d.salario<0||d.extras<0) throw Error('Informe valores válidos, como 1.250,50, sem números negativos.');
+  const total=r2(d.salario+d.extras);
+  if(total<=0) throw Error('Informe o salário ou as horas extras para que o total seja maior que zero.');
+  if(!Object.hasOwn(PA_FORMAS,d.forma)) throw Error('Selecione a forma de pagamento.');
+  if(pagamentosAvulsos().some(p=>p.funcId===d.funcId&&p.inicio===d.inicio&&p.fim===d.fim)) throw Error('Já existe um pagamento avulso deste colaborador para esse período. Confira o histórico antes de lançar novamente.');
+  return {...d,nome:f.nome,total};
+}
+function htmlPagamentoAvulso(p){
+  return '<dl class="pa-resumo">'+[
+    ['Colaborador',p.nome],['Período trabalhado',dataBR(p.inicio)+' a '+dataBR(p.fim)],
+    ['Salário do período',fmtMoeda(p.salario)],['Horas extras',fmtMoeda(p.extras)],
+    ['Total',fmtMoeda(p.total)],['Data do pagamento',dataBR(p.data)],['Forma de pagamento',PA_FORMAS[p.forma]],
+    ...(p.obs?[['Observações',p.obs]]:[]),...(p.usuario?[['Registrado por',p.usuario]]:[])
+  ].map(([k,v])=>'<div><dt>'+escHtml(k)+'</dt><dd>'+escHtml(v)+'</dd></div>').join('')+'</dl>'+
+    '<p class="campo-nota">'+(p.forma==='dinheiro'?'Gera uma retirada no caixa administrativo na data do pagamento.':p.forma==='notinha'?'Gera uma notinha branca para conferência nos caixas da frente.':'Pagamento por PIX, sem retirada da gaveta do caixa administrativo.')+'</p>';
+}
+function abrirPagamentoAvulso(id){
+  paRevisando=null; document.getElementById('paErro').textContent='';
+  const p=id?pagamentosAvulsos().find(p=>p.id===id):null;
+  document.getElementById('paTitulo').textContent=p?'Detalhes do pagamento avulso':'Novo pagamento avulso';
+  document.getElementById('paForm').hidden=!!p;
+  document.getElementById('paRevisao').hidden=!p;
+  document.getElementById('paConfirmacao').hidden=true;
+  if(p) document.getElementById('paRevisao').innerHTML=htmlPagamentoAvulso(p);
+  else{
+    document.getElementById('paForm').reset();
+    document.getElementById('paColaborador').innerHTML='<option value="">Selecione o colaborador</option>'+(state.funcionarios||[]).slice().sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR')).map(f=>'<option value="'+escHtml(f.id)+'">'+escHtml(f.nome+(f.desligamento?' · desligado':''))+'</option>').join('');
+    document.getElementById('paData').value=hojeISO();
+    document.getElementById('paData').max=hojeISO();
+    document.getElementById('paTotal').textContent=fmtMoeda(0);
+  }
+  document.getElementById('overlayAvulso').classList.add('show');
+  document.getElementById(p?'paFechar':'paColaborador').focus();
+}
+function fecharPagamentoAvulso(){
+  if(paSalvando) return;
+  document.getElementById('overlayAvulso').classList.remove('show');paRevisando=null;
+  document.getElementById('paNovo').focus();
+}
+function revisarPagamentoAvulso(e){
+  e.preventDefault();
+  try{
+    const val=id=>document.getElementById(id).value;
+    paRevisando=validarPagamentoAvulso({funcId:val('paColaborador'),inicio:val('paInicio'),fim:val('paFim'),data:val('paData'),salario:paValor(val('paSalario')),extras:paValor(val('paExtras')),forma:val('paForma'),obs:val('paObs').trim()});
+    document.getElementById('paRevisao').innerHTML=htmlPagamentoAvulso(paRevisando);
+    document.getElementById('paForm').hidden=true;document.getElementById('paRevisao').hidden=false;
+    document.getElementById('paConfirmacao').hidden=false;document.getElementById('paErro').textContent='';
+    document.getElementById('paTitulo').textContent='Revisar pagamento avulso';
+    document.getElementById('paConfirmar').focus();
+  }catch(e){document.getElementById('paErro').textContent=e.message;}
+}
+async function confirmarPagamentoAvulso(){
+  if(paSalvando||!paRevisando) return;
+  const btn=document.getElementById('paConfirmar');
+  try{
+    if(!rhLiberado||!bancoRhCarregado||modoOffline) throw Error('Conecte o sistema ao banco e entre no RH antes de registrar o pagamento avulso.');
+    const d=validarPagamentoAvulso(paRevisando);
+    if(d.forma!=='pix'&&!caixaCarregado) throw Error('Aguarde o carregamento do caixa antes de registrar esta forma de pagamento.');
+    if(d.forma==='dinheiro'){
+      const g=gavetaNoDia(d.data);
+      if(!g.temAbertura) throw Error('Informe a abertura do caixa de '+dataBR(d.data)+' antes de confirmar o pagamento em dinheiro.');
+      if(d.total>g.saldo+0.004) throw Error('Saldo insuficiente na gaveta: '+fmtMoeda(g.saldo)+'. Confira a forma de pagamento e o caixa.');
+    }
+    paSalvando=true;btn.disabled=true;
+    garantirBaseRecebimentos();
+    const p={...d,id:novoIdRec('pa_'),criadoEm:new Date().toISOString(),usuario:document.getElementById('usuarioLogado').textContent||''};
+    const tipo=d.forma==='dinheiro'?'retiradas':d.forma==='notinha'?'notinhasAvulsas':null;
+    let saida=null;
+    if(tipo){
+      saida={id:novoIdRec(tipo==='retiradas'?'s_':'n_'),data:p.data,valor:p.total,motivo:'Pagamento avulso — '+p.nome+' — '+dataBR(p.inicio)+' a '+dataBR(p.fim),obs:p.obs,avulsoId:p.id,criadoEm:p.criadoEm,usuario:p.usuario};
+      p.saidaId=saida.id;p.saidaTipo=tipo;
+      state[tipo].push(saida);
+      enfileirarCaixa('gravar',tipo,saida.id,saida);
+      descartarIndiceCaixa();
+    }
+    state.pagamentosAvulsos=[...pagamentosAvulsos(),p];
+    salvarEstado();
+    // A confirmação vira histórico antes da rede; cliques repetidos não criam outro pagamento.
+    paRevisando=null;paSalvando=false;fecharPagamentoAvulso();
+    document.getElementById('paBusca').value='';document.getElementById('paMes').value=p.data.slice(0,7);
+    renderPagamentosAvulsos();
+    mostrarToast('Pagamento registrado. Acompanhe a sincronização no topo da tela.');
+    if(saida){const ok=await escoarFilaCaixa();if(!ok) guardadoOffline(caixaUltimoErro,'Saída guardada neste computador, aguardando conexão.');}
+  }catch(e){document.getElementById('paErro').textContent=e.message;}
+  finally{paSalvando=false;btn.disabled=false;}
+}
+document.getElementById('paAbaMensal').addEventListener('click',()=>alternarAbaFolha('mensal'));
+document.getElementById('paAbaAvulso').addEventListener('click',()=>alternarAbaFolha('avulso'));
+document.getElementById('paNovo').addEventListener('click',()=>abrirPagamentoAvulso());
+document.getElementById('paFechar').addEventListener('click',fecharPagamentoAvulso);
+document.getElementById('paForm').addEventListener('submit',revisarPagamentoAvulso);
+document.getElementById('paConfirmar').addEventListener('click',confirmarPagamentoAvulso);
+document.getElementById('paVoltar').addEventListener('click',()=>{
+  if(paSalvando) return;
+  paRevisando=null;document.getElementById('paForm').hidden=false;document.getElementById('paRevisao').hidden=true;
+  document.getElementById('paConfirmacao').hidden=true;document.getElementById('paErro').textContent='';
+  document.getElementById('paTitulo').textContent='Novo pagamento avulso';document.getElementById('paColaborador').focus();
+});
+['paSalario','paExtras'].forEach(id=>document.getElementById(id).addEventListener('input',()=>{
+  const s=paValor(document.getElementById('paSalario').value),h=paValor(document.getElementById('paExtras').value);
+  document.getElementById('paTotal').textContent=Number.isFinite(s+h)?fmtMoeda(r2(s+h)):'Confira os valores';
+}));
+document.getElementById('paBusca').addEventListener('input',renderPagamentosAvulsos);
+document.getElementById('paMes').addEventListener('change',renderPagamentosAvulsos);
+document.getElementById('paTodos').addEventListener('click',()=>{document.getElementById('paMes').value='';renderPagamentosAvulsos();});
+document.getElementById('paLista').addEventListener('click',e=>{const b=e.target.closest('[data-pa-ver]');if(b) abrirPagamentoAvulso(b.dataset.paVer);});
+document.getElementById('overlayAvulso').addEventListener('keydown',e=>{
+  if(e.key==='Escape'){e.preventDefault();fecharPagamentoAvulso();}
+  if(e.key==='Tab'){
+    const els=[...e.currentTarget.querySelectorAll('button,input,select,textarea')].filter(el=>!el.disabled&&el.getClientRects().length);
+    if(!els.length) return;
+    if(e.shiftKey&&document.activeElement===els[0]){e.preventDefault();els[els.length-1].focus();}
+    else if(!e.shiftKey&&document.activeElement===els[els.length-1]){e.preventDefault();els[0].focus();}
+  }
+});
+
 function pagamentoDe(l){
   const p = l && l.pagamento;
   if(!p) return null;
@@ -12319,11 +12692,12 @@ function trocarAba(aba){
   document.getElementById('tituloAba').textContent = ABAS[aba].titulo;
   document.querySelectorAll('.bl-item').forEach(t=> t.classList.toggle('ativa', t.dataset.aba===aba));
   document.querySelectorAll('.acoes-folha').forEach(b=> b.style.display = (aba==='folha') ? '' : 'none');
-  const soRh = ABAS[aba].grupo === 'rh' || aba === 'inicio';
+  const soRh = ABAS[aba].grupo === 'rh';
   document.getElementById('selMes').style.display = soRh ? '' : 'none';
   document.getElementById('btnConfigSalarios').style.display = (ABAS[aba].grupo === 'rh') ? '' : 'none';
   abrirGrupo(ABAS[aba].grupo);
   if(aba==='inicio') renderInicio();
+  if(aba==='folha') alternarAbaFolha(paAbaAtual);
   if(aba==='vendasProdutos') renderVendasProdutos();
   if(aba==='dashboard') renderDashboard();
   if(aba==='ponto') renderPonto();
@@ -12821,9 +13195,9 @@ function renderValores(dados){
 
 buscaComEspera('pontoBusca', renderPonto);
 document.getElementById('pontoFiltro').addEventListener('change', renderPonto);
-document.querySelectorAll('.subtab').forEach(b=> b.addEventListener('click', ()=>{
+document.querySelectorAll('#viewPonto .subtab').forEach(b=> b.addEventListener('click', ()=>{
   state.pontoAba = b.dataset.sub;
-  document.querySelectorAll('.subtab').forEach(x=>x.classList.toggle('ativa', x===b));
+  document.querySelectorAll('#viewPonto .subtab').forEach(x=>x.classList.toggle('ativa', x===b));
   document.getElementById('pontoFiltro').style.display = (state.pontoAba==='resumo') ? '' : 'none';
   renderPonto();
 }));
@@ -15218,6 +15592,9 @@ function assinaturaRascunhoRec(){
 }
 function marcarRascunhoRec(){ recRascunhoBase = assinaturaRascunhoRec(); }
 function temRascunhoRec(){
+  /* Data e campos calculados podem mudar sem digitação. Um formulário novo vazio
+     não é um recebimento pendente; em edição, apagar dados ainda exige proteção. */
+  if(recEditandoId == null && !document.getElementById('recCliente').value.trim() && !temValoresRec()) return false;
   return typeof recRascunhoBase !== 'undefined' && recRascunhoBase !== null &&
     assinaturaRascunhoRec() !== recRascunhoBase;
 }
@@ -15761,6 +16138,7 @@ function atualizarPassoRec(){
   document.getElementById('recContexto').textContent = recEtapaAtual === 0
     ? 'Selecione um cliente ou digite um novo nome.'
     : document.getElementById('recCliente').value + ' · ' + dataBR(document.getElementById('recData').value);
+  if(recEtapaAtual === 1) agendarAjusteNotinhas();
 }
 
 function atualizarTravaRec(){
@@ -16679,6 +17057,55 @@ let recNotasCompra = [];
 
 function somaNotasCompra(){ return r2(recNotasCompra.reduce((s,v)=> s + v, 0)); }
 
+/* Mede os bilhetes reais (inclusive nomes longos) e escolhe a grade que conserva
+   o maior tamanho possível. A soma fica fora da escala, sempre em destaque. */
+let recAjusteNotinhasFrame = 0;
+function agendarAjusteNotinhas(){
+  cancelAnimationFrame(recAjusteNotinhasFrame);
+  recAjusteNotinhasFrame = requestAnimationFrame(ajustarNotinhasNaTela);
+}
+function ajustarNotinhasNaTela(){
+  const area = document.getElementById('recSomaArea');
+  if(!area.getClientRects().length) return;
+  const coluna = area.closest('.rec-col-esq');
+  const emFoco = document.body.classList.contains('foco-soma');
+  const alturaDisponivel = emFoco ? coluna.clientHeight :
+    Math.max(180, window.innerHeight - area.getBoundingClientRect().top - 24);
+  area.style.width = '100%';
+  area.style.height = Math.max(1, alturaDisponivel) + 'px';
+
+  const quadro = document.getElementById('recNotasQuadro');
+  const lista = document.getElementById('recSomaChips');
+  const itens = Array.from(lista.children);
+  if(!itens.length || !quadro.clientWidth || !quadro.clientHeight) return;
+  lista.style.transform = 'none';
+  lista.style.gridAutoRows = 'auto';
+  lista.style.gridTemplateColumns = '164px';
+  lista.style.width = '176px';
+  // Todos têm a mesma largura natural; o maior nome determina a altura da linha.
+  const alturaItem = Math.max(...itens.map(el=>el.offsetHeight));
+  let melhor = {escala:0, colunas:1, largura:176};
+  for(let colunas=1; colunas<=itens.length; colunas++){
+    const linhas = Math.ceil(itens.length / colunas);
+    const larguraGrade = colunas * 164 + (colunas - 1) * 10 + 12;
+    const alturaGrade = linhas * alturaItem + (linhas - 1) * 14 + 19;
+    const escala = Math.min(1, (quadro.clientWidth - 1) / larguraGrade, (quadro.clientHeight - 1) / alturaGrade);
+    // Em tamanhos iguais, preenche mais colunas antes de começar outra linha.
+    if(escala >= melhor.escala) melhor = {escala, colunas, largura:larguraGrade};
+  }
+  lista.style.gridTemplateColumns = 'repeat(' + melhor.colunas + ',164px)';
+  lista.style.gridAutoRows = alturaItem + 'px';
+  lista.style.width = melhor.largura + 'px';
+  lista.style.transform = 'scale(' + melhor.escala + ')';
+  lista.style.left = '0px';
+}
+const recNotinhasResize = new ResizeObserver(agendarAjusteNotinhas);
+recNotinhasResize.observe(document.querySelector('#recForm .rec-duas'));
+recNotinhasResize.observe(document.getElementById('recNotasQuadro'));
+window.addEventListener('resize', agendarAjusteNotinhas);
+window.visualViewport?.addEventListener('resize', agendarAjusteNotinhas);
+document.fonts?.ready.then(agendarAjusteNotinhas);
+
 function renderSomadoraRec(escreverTotal){
   const chips = document.getElementById('recSomaChips');
   const txt   = document.getElementById('recSomaTxt');
@@ -16687,14 +17114,21 @@ function renderSomadoraRec(escreverTotal){
   const btnL  = document.getElementById('btnRecSomaLimpar');
   const soma  = somaNotasCompra();
 
+  const clienteNota = recClienteSel ? clientePorId(recClienteSel) : null;
+  const nomeNota = clienteNota?.nome || document.getElementById('recCliente').value.trim();
+  const codigoNota = clienteNota?.codigo;
   chips.innerHTML = recNotasCompra.map((v,i)=>
-    '<li class="cb-chip"><span class="cb-num" aria-hidden="true">' + (i+1) + '</span><span class="rec-nota-valor">' + fmtMoeda(v) + '</span>' +
-    '<button type="button" data-i="' + i + '" title="Remover notinha ' + (i+1) + '" aria-label="Remover notinha ' + (i+1) + ' de ' + escHtml(fmtMoeda(v)) + '">&times;</button></li>').join('');
+    '<li class="cb-chip"><div class="rec-nota-cabecalho"><span class="cb-num">NOTINHA ' + String(i+1).padStart(2,'0') + '</span>' +
+    '<button type="button" data-i="' + i + '" title="Remover notinha ' + (i+1) + '" aria-label="Remover notinha ' + (i+1) + ' de ' + escHtml(fmtMoeda(v)) + '">&times;</button></div>' +
+    '<div class="rec-nota-cliente">' + (codigoNota != null && String(codigoNota).trim() ? '<span>Cód. cliente: ' + escHtml(String(codigoNota)) + '</span>' : '') +
+    '<span>Cliente:</span><strong>' + escHtml(nomeNota || 'Cliente não informado') + '</strong></div>' +
+    '<div class="rec-nota-total"><span>VALOR</span><span class="rec-nota-valor">' + fmtMoeda(v) + '</span></div></li>').join('');
   chips.hidden = !recNotasCompra.length;
   document.getElementById('recNotasVazio').hidden = !!recNotasCompra.length;
   document.getElementById('recNotasDica').hidden = !recNotasCompra.length;
   document.getElementById('recNotasTotal').textContent = fmtMoeda(soma);
   btnL.style.display = recNotasCompra.length ? '' : 'none';
+  agendarAjusteNotinhas();
 
   /* Linha de cima do visor: quantas já entraram e quanto somam. É o que a calculadora
      de mesa não mostrava — lá só existia o acumulado, sem dizer de quantas parcelas. */
@@ -21250,7 +21684,19 @@ function folhaNoCaixa(mesCaixa){
   return {valor: somaRetiradas(daFolha), qtd: daFolha.length, competencias: Object.keys(comps).sort()};
 }
 
+function detalhesFechamento(id, titulo, subtitulo, corpo){
+  return '<details class="fm-detalhes" id="'+escHtml(id)+'" data-fech-detalhe><summary><span><b>'+escHtml(titulo)+
+    '</b><small>'+escHtml(subtitulo)+'</small></span></summary><div class="fm-detalhes-corpo">'+corpo+'</div></details>';
+}
+
+function resumoFechamento(titulo, periodo, linhas, nota, aba, acao){
+  return '<article class="fm-resumo"><div class="fm-card-topo"><h3>'+escHtml(titulo)+'</h3><span>'+escHtml(periodo)+'</span></div>' +
+    '<dl>'+linhas.map(([rot,val])=>'<div><dt>'+escHtml(rot)+'</dt><dd>'+escHtml(val)+'</dd></div>').join('')+'</dl>' +
+    '<p>'+escHtml(nota)+'</p><button type="button" class="btn btn-outline" data-ir-para="'+escHtml(aba)+'">'+escHtml(acao)+'</button></article>';
+}
+
 function renderInicio(){
+  const abertos = [...document.querySelectorAll('#viewInicio details[data-fech-detalhe][open]')].map(el=>el.id);
   /* A tela é remontada inteira: as roscas antigas não existem mais e o registro delas
      iria só acumulando. Zerar aqui também devolve os gráficos completos a cada volta
      ao Início — quem desligou uma fatia não vai encontrá-la desligada amanhã. */
@@ -21319,54 +21765,19 @@ function renderInicio(){
     .map(x=> ({rot: String(x.nome).toUpperCase(), valor:x.r.saldo}));   /* o gráfico é SVG: maiúscula na mão */
   const restCli = restanteDeClientes(mesCaixa, resumos);
 
-  /* ---- os quatro números grandes ----
-     Quatro, e só quatro. Sete cartões viraram uma parede de dinheiro em que nenhum
-     número se destacava — e destaque é a única serventia de um cartão desse tamanho.
-     O que saiu daqui não sumiu da tela: encargo e o resultado do caixa continuam nos
-     gráficos. Os cartões de texto da "leitura do mês" saíram em 12/09/2026, a pedido:
-     o Início fica só com os números principais. */
+  /* Resumos executivos: os mesmos cálculos, com períodos explicitamente separados. */
   document.getElementById('iniKpis').innerHTML =
-    kpiGrande('Recebimentos de ' + mesLabel(mesCaixa), fmtMoeda(caixaEntrou),
-              diasCaixa.length + ' dia(s) com movimento · saíram ' + fmtMoeda(caixaSaiu), '') +
-    /* O que REALMENTE pagamos: as três formas somadas. A notinha branca entra aqui
-       mesmo saindo do caixa da frente e não da nossa gaveta — para o colaborador é
-       salário recebido igual, e é isso que este cartão responde. Quem separa por
-       onde o dinheiro saiu é o gráfico "Como a folha foi paga", mais abaixo. */
-    kpiGrande('Folha paga de ' + mesLabel(mes), fmtMoeda(pgFolha.pago),
-              'Pix ' + fmtMoeda(pgFolha.pix) + ' + dinheiro ' + fmtMoeda(pgFolha.dinheiro) +
-              (pgFolha.notinha > 0.004 ? ' + notinha branca ' + fmtMoeda(pgFolha.notinha) : '') +
-              ' · ' + fmtMoeda(conta.atual) + ' descontados em conta do mercado',
-              'kb-neutro') +
-    kpiGrande('Horas extras de ' + mesLabel(mes), fmtMoeda(he.valor),
-              (he.min ? pHHMM(he.min) + ' de ' + he.colabs + ' colaborador(es) · ' : '') +
-              dashPct(he.valor, fin.geral.total) + ' dos vencimentos',
-              he.valor > 0.004 ? 'kb-info' : 'kb-neutro') +
-    /* Conta do mercado: o número sozinho não diz nada — o que a diretoria quer saber
-       é se a equipe está comprando mais fiado do que no mês passado. Ver
-       contaMercadoDaFolha() para o porquê de a comparação pular meses sem registro. */
-    kpiGrande('Conta do mercado em ' + mesLabel(mes), fmtMoeda(conta.atual),
-              conta.colabs + ' colaborador(es) com desconto · ' +
-              (conta.ant
-                 ? (Math.abs(conta.diferenca) < 0.005
-                      ? 'igual a ' + mesLabel(conta.ant.mes) + ' (' + fmtMoeda(conta.ant.valor) + ')'
-                      : (conta.diferenca > 0 ? '▲ ' : '▼ ') + fmtMoeda(Math.abs(conta.diferenca)) +
-                        ' (' + dashPct(Math.abs(conta.diferenca), conta.ant.valor) + ') vs. ' +
-                        mesLabel(conta.ant.mes) + ', que teve ' + fmtMoeda(conta.ant.valor) +
-                        /* Sem esta ressalva o número do mês comparado não bate com
-                           nenhuma tela, e quem for conferir acha que o painel erra. */
-                        (conta.ant.remendado ? ' (com o que foi lançado em outros descontos)' : ''))
-                 : (conta.atual > 0.004
-                      ? 'primeira competência com desconto de conta em folha'
-                      : 'nenhuma competência com desconto de conta em folha')),
-              conta.ant && conta.diferenca > 0.004 ? 'kb-alerta' : 'kb-neutro') +
-    /* Restante das CONTAS DE CLIENTE, não da folha: quem pagou parte e ficou devendo
-       o resto. É a fila de cobrança — ver restanteDeClientes(). */
-    kpiGrande('Valor restante a cobrar', fmtMoeda(restCli.valor),
-              restCli.clientes + ' cliente(s) com conta pela metade' +
-              (restCli.parciaisNoMes
-                 ? ' · ' + restCli.parciaisNoMes + ' pagamento(s) parcial(is) em ' + mesLabel(mesCaixa)
-                 : ''),
-              restCli.valor > 0.004 ? 'kb-critico' : 'kb-neutro');
+    resumoFechamento('Caixa administrativo', mesLabel(mesCaixa) + ' · mês em andamento', [
+      ['Entradas registradas', fmtMoeda(caixaEntrou)],
+      ['Saídas registradas', fmtMoeda(caixaSaiu)],
+      ['Restante de contas parciais', fmtMoeda(restCli.valor)]
+    ], 'Cobranças: saldo atual de ' + restCli.clientes + ' cliente(s). Entradas e saídas não representam o lucro da empresa.', 'recBalanco', 'Abrir balanço do caixa') +
+    resumoFechamento('Folha mensal', 'Competência ' + mesLabel(mes), fin.linhas.length ? [
+      ['Pago na folha mensal', fmtMoeda(pgFolha.pago)],
+      ['Ainda a pagar', fmtMoeda(pgFolha.aPagar)],
+      ['Horas extras', fmtMoeda(he.valor)],
+      ['Contas do mercado descontadas', fmtMoeda(conta.atual)]
+    ] : [], fin.linhas.length ? 'Pagamento previsto em ' + dataPagamentoFolha(mes) + '. Horas extras já fazem parte da folha; contas são descontos.' : 'Nenhuma folha registrada nesta competência.', 'financeiro', 'Conferir folha');
 
   /* ---- avisos ---- */
   document.getElementById('iniAlertas').innerHTML = alertasInicio(fin, totaisCaixa, resumos);
@@ -21420,7 +21831,7 @@ function renderInicio(){
      competência paga, e no fim os clientes. Antes vinha embaralhado, e a diretoria
      pulava de setembro para agosto e de volta a cada cartão. */
   document.getElementById('iniGraficos').innerHTML =
-    '<div class="ini-grid">' +
+    detalhesFechamento('fmCaixaDetalhes','Conferir caixa e cobranças','Formas de pagamento, movimento diário e maiores devedores', '<div class="ini-grid">' +
       cardGrafico('Como o dinheiro entrou no caixa',
         'Todo o dinheiro recebido em ' + mesLabel(mesCaixa) + ', separado pela forma de pagamento.',
         svgRosca(gCaixa, 'Entrou no mês')) +
@@ -21432,6 +21843,8 @@ function renderInicio(){
         'O que foi recebido em ' + mesLabel(mesCaixa) + ' contra o que foi retirado, com a folha separada das demais saídas. ' +
         'A parcela da folha é a competência de ' + mesLabel(mes) + ' paga em dinheiro na gaveta — pix, notinha branca, FGTS e INSS não passam por este caixa.',
         svgBarras(gEntradaSaida, {curto:true})) +
+      cardGrafico('Quem mais deve', 'Saldos atuais dos cinco maiores devedores.', svgBarrasH(devedores, CORES_GRAFICO[4])) + '</div>') +
+    detalhesFechamento('fmFolhaDetalhes','Conferir folha e encargos','Composição, pagamentos e evolução por competência', '<div class="ini-grid">' +
       cardGrafico('Para onde foi a folha de ' + mesLabel(mes),
         'O total dos vencimentos da competência paga em ' + dataPagamentoFolha(mes) + ': o que o colaborador levou para casa e o que ficou retido em desconto. ' +
         'A competência em apuração não entra aqui — atraso e encargo dela só viram dinheiro no pagamento.',
@@ -21450,21 +21863,14 @@ function renderInicio(){
       cardGrafico('Encargos mês a mês',
         'FGTS mais INSS de cada competência. Serve para ver se o encargo está crescendo junto com a folha ou mais rápido que ela.',
         svgBarras(evolucaoEncargos, {curto:true})) +
-      cardGrafico('Quem mais deve',
-        'Os cinco maiores saldos em aberto. A cobrança começa por aqui.',
-        svgBarrasH(devedores, CORES_GRAFICO[4])) +
-    '</div>';
+    '</div>');
 
   document.getElementById('iniSub').textContent =
-    (state.empresa || '') + ' · vendas da loja, caixa e folha · atualizado em ' + new Date().toLocaleString('pt-BR');
+    (state.empresa ? state.empresa + ' · ' : '') + 'Resumo para a diretoria';
   document.getElementById('iniNota').textContent =
-    'Todos os números desta página saem dos mesmos cálculos das telas de origem — folha, ponto, caixa e clientes. ' +
-    'Não há segunda contabilidade: mudou o lançamento, muda aqui. ' +
-    'A exceção são as vendas da loja, que vêm do relatório "Resumo diário de vendas" importado no topo da página ' +
-    'e só mudam quando um relatório novo é importado. ' +
-    'A folha aparece uma competência atrás do caixa de propósito: a de ' + mesLabel(mes) + ' foi paga em ' +
-    dataPagamentoFolha(mes) + ', e a que o departamento pessoal está apurando agora só vira dinheiro em ' +
-    dataPagamentoFolha(mesCaixa) + '.';
+    'Vendas: relatório importado. Caixa: mês atual. Folha: última competência de referência para pagamento. ' +
+    'Os períodos estão identificados em cada seção. Atualizado em ' + new Date().toLocaleString('pt-BR') + '.';
+  abertos.forEach(id=>{ const el=document.getElementById(id); if(el) el.open=true; });
 }
 
 /* ============================= VENDAS DA LOJA (relatório importado) =============================
@@ -21952,8 +22358,7 @@ function renderVendasInicio(){
     alvo.innerHTML = cabecalho('Vendas da loja', 'nenhum relatório importado ainda') +
       '<div class="ini-card vd-vazio"><h3>Importe as vendas de ' + escHtml(mesLabel(mesPassado)) + '</h3>' +
       '<div class="ini-desc">Gere o relatório "Resumo diário de vendas" do mês inteiro, salve em Excel e clique em ' +
-      '<b>Importar relatório de vendas</b>. O painel monta sozinho os números, os gráficos, a leitura do mês e as sugestões.</div>' +
-      botao + '</div>';
+      '<b>Importar relatório de vendas</b>. Os valores aparecerão após a importação.</div></div>';
     return;
   }
 
@@ -21968,26 +22373,19 @@ function renderVendasInicio(){
     new Date(reg.importadoEm).toLocaleDateString('pt-BR') + (reg.importadoPor ? ' por ' + reg.importadoPor : '');
   if(mes !== mesPassado && !base[mesPassado]) nota += ' · o relatório de ' + mesLabel(mesPassado) + ' ainda não foi importado';
 
-  /* ---- números grandes ---- */
+  /* Dois indicadores de decisão. O resultado é uma estimativa do relatório, não lucro líquido. */
   const xCompras = a.custo > 0 ? a.compras / a.custo : 0;
-  const quinto = a.temCompras
-    ? kpiGrande('Compras no mês', fmtMoeda(r2(a.compras)),
-        vdVezes(a.compras / a.venda) + ' vezes o que foi vendido', xCompras > 1.3 ? 'kb-alerta' : 'kb-neutro')
-    : kpiGrande('Itens vendidos', vdInt(a.itens),
-        vdVezes(a.itensCliente) + ' itens por cliente · ' + fmtMoeda(r2(a.itens ? a.venda / a.itens : 0)) + ' por item', 'kb-neutro');
   const kpis =
-    kpiGrande('Vendas de ' + mesLabel(mes), fmtMoeda(r2(a.venda)),
-      a.comVenda.length + ' dia(s) · média de ' + fmtMoeda(r2(a.mediaDia)) + ' por dia' +
-      (ant ? ' · ' + vdVariacao(a.venda, ant.a.venda, rotAnt) : ''), '') +
-    kpiGrande('Clientes atendidos', vdInt(a.clientes),
-      vdInt(a.clientesDia) + ' por dia · ticket médio de ' + fmtMoeda(r2(a.ticket)) +
-      (ant ? ' · ticket ' + vdVariacao(a.ticket, ant.a.ticket, rotAnt) : ''), 'kb-info') +
-    kpiGrande('Margem da mercadoria', vdPct(a.margem),
-      fmtMoeda(r2(a.venda - a.custo)) + ' acima do custo da mercadoria, antes dos encargos', 'kb-neutro') +
-    kpiGrande('Lucro depois dos encargos', fmtMoeda(r2(a.lucro)),
-      vdPct(a.lucroPct, 2) + ' das vendas · encargos de ' + fmtMoeda(r2(a.encargos)) + ' (' + vdPct(a.encargosPct) + ')',
-      a.lucro < 0 ? 'kb-critico' : a.lucroPct < 5 ? 'kb-alerta' : 'kb-neutro') +
-    quinto;
+    kpiGrande('Vendas da loja', fmtMoeda(r2(a.venda)),
+      a.dias.length + ' dia(s) no relatório' + (ant ? ' · ' + vdVariacao(a.venda, ant.a.venda, rotAnt) : ''), '') +
+    kpiGrande('Resultado estimado das vendas', fmtMoeda(r2(a.lucro)),
+      vdPct(a.lucroPct, 2) + ' das vendas · após custo e encargos do relatório', a.lucro < 0 ? 'kb-critico' : 'kb-info');
+  const dados = '<dl class="fm-dados-vendas">' + [
+    ['Clientes atendidos', vdInt(a.clientes)], ['Ticket médio', fmtMoeda(r2(a.ticket))],
+    ['Custo da mercadoria', fmtMoeda(r2(a.custo))], ['Encargos do relatório', fmtMoeda(r2(a.encargos))],
+    ['Margem da mercadoria', vdPct(a.margem)],
+    [a.temCompras ? 'Compras no mês' : 'Itens vendidos', a.temCompras ? fmtMoeda(r2(a.compras)) : vdInt(a.itens)]
+  ].map(([rot,val])=>'<div><dt>'+escHtml(rot)+'</dt><dd>'+escHtml(val)+'</dd></div>').join('') + '</dl>';
 
   /* ---- leitura do mês ---- */
   const l = leituraVendas(a, ant);
@@ -22088,7 +22486,10 @@ function renderVendasInicio(){
   '</div>';
 
   alvo.innerHTML = cabecalho('Vendas da loja — ' + mesLabel(mes), nota) +
-    '<div class="kpis-destaque">' + kpis + '</div>' + leitura + graficos;
+    '<div class="kpis-destaque fm-principais">' + kpis + '</div>' +
+    '<p class="fm-nota-resultado">Resultado estimado pelo relatório de vendas, com despesas estimadas. Não é o lucro líquido da empresa.</p>' +
+    detalhesFechamento('fmVendasDetalhes','Conferir números e gráficos de vendas','Clientes, ticket médio, custos e evolução diária', dados + graficos) +
+    detalhesFechamento('fmLeituraDetalhes','Ver análise do relatório','Comparações e pontos para revisão', leitura);
 }
 
 /* Ouvintes presos ao contêiner, que não é recriado: o conteúdo de dentro é. */
@@ -23795,8 +24196,7 @@ function alertasInicio(fin, totaisCaixa, resumos){
   const pendentesSg = (state.recebimentos||[]).filter(r=> !baixaSgFeita(r)).length;
   if(pendentesSg) avisos.push(['atencao','!', '<b>' + pendentesSg + ' recebimento(s) ainda não baixados no SG.</b>', 'recLancar']);
 
-  if(!avisos.length) avisos.push(['ok','✓','<b>Caixa em dia.</b> Todos os dias com abertura informada, ' +
-    'nada pendente de baixa no SG e nenhum cliente acima do limite de débito.', null]);
+  if(!avisos.length) avisos.push(['ok','✓','<b>Sem pendências identificadas</b> nos registros disponíveis de caixa e clientes.', null]);
 
   return '<div class="ini-alertas">' + avisos.map(a=>
     '<div class="ini-alerta '+a[0]+'"><span class="ia-marca">'+a[1]+'</span><span>'+a[2]+'</span>' +
@@ -23807,6 +24207,15 @@ function alertasInicio(fin, totaisCaixa, resumos){
 document.getElementById('iniAlertas').addEventListener('click', (e)=>{
   const btn = e.target.closest('button[data-ir-para]');
   if(btn) trocarAba(btn.dataset.irPara);
+});
+document.getElementById('iniKpis').addEventListener('click', e=>{
+  const btn=e.target.closest('button[data-ir-para]');
+  if(!btn) return;
+  if(btn.dataset.irPara==='financeiro'){
+    state.mesAtual=mesFolhaPagaNoInicio();
+    popularSelectMes();invalidarPonto();renderLista();
+  }
+  trocarAba(btn.dataset.irPara);
 });
 
 document.getElementById('btnImprimirInicio').addEventListener('click', ()=>{
