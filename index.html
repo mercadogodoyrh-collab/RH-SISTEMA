@@ -22,6 +22,22 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
 <style>
+  .bol-card{max-width:920px;margin:0 auto;padding:24px;border-radius:24px;background:var(--md-surface-container-lowest)}
+  .bol-entrada{display:flex;gap:12px;align-items:end;margin:24px 0 12px;flex-wrap:wrap}
+  .bol-entrada .campo{flex:1;min-width:220px}
+  #bolCodigo{font-family:monospace;width:100%;min-width:0}
+  .bol-resumo{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:20px;margin:20px 0;border-radius:16px;background:var(--md-primary-container);color:var(--md-on-primary-container);flex-wrap:wrap}
+  #bolTotal{font-size:clamp(24px,5vw,38px);font-weight:700}
+  #bolLista{list-style:none;padding:0;margin:16px 0}
+  #bolLista li{display:flex;align-items:center;gap:14px;padding:16px 0;border-bottom:1px solid var(--md-outline-variant);flex-wrap:wrap}
+  .bol-dados{flex:1;min-width:180px}.bol-dados small{display:block;overflow-wrap:anywhere;color:var(--md-on-surface-variant);margin-top:5px}
+  #bolMensagem{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:180px;padding:24px;margin:18px 0;text-align:center;border:2px solid #94a3b8;border-radius:20px;background:#f1f5f9;color:#334155}
+  #bolMensagem strong{font-size:clamp(28px,4vw,44px);line-height:1.15}
+  #bolMensagem b{font-size:clamp(36px,6vw,64px);line-height:1.1}
+  #bolMensagem span{font-size:18px;line-height:1.4}
+  #bolMensagem[data-estado="sucesso"]{background:#dcfce7;border-color:#15803d;color:#14532d}
+  #bolMensagem[data-estado="erro"]{background:#fee2e2;border-color:#b91c1c;color:#7f1d1d}
+  @media(max-width:600px){.bol-card{padding:16px}.bol-entrada .btn{width:100%}}
   /* ============================= MATERIAL YOU — TOKENS =============================
      Redesenho de 12/09/2026. O sistema passou a seguir o Material 3 (Material You):
      cor em papéis tonais gerados a partir do verde da marca, superfícies em camadas em
@@ -849,6 +865,58 @@
   .ocorr td{font-size:12px;}
 
   .modal.largo{max-width:1120px;}
+  #overlayEspelho{z-index:55;}
+  #overlayEspelho [hidden]{display:none!important;}
+  #overlayPreencherEscala{z-index:60;}
+  .pre-dia{display:grid;grid-template-columns:minmax(0,1fr) 200px;gap:16px;padding:16px;border:1px solid var(--cinza-borda);border-radius:12px;margin:12px 0;}
+  .pre-dia label{display:flex;align-items:center;gap:10px;}
+  .pre-dia p{font-size:13px;margin:8px 0;color:var(--texto-fraco);}
+  .pre-dia .campo label{display:block;font-size:12px;margin-bottom:8px;}
+  .pre-dia input[type=text]{width:100%;box-sizing:border-box;}
+  .pre-dia-bloqueado{background:var(--cinza-claro,#f5f7f5);}
+  @media(max-width:600px){.pre-dia{grid-template-columns:1fr;}}
+  #overlayEspelho .modal{max-width:1440px;width:96vw;}
+  .ep-topo,.ep-atalho{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:16px 0;}
+  .ep-topo>span,.ep-atalho>span{font-size:12px;color:var(--texto-fraco);}
+  #espDetalhesMes{padding:14px;border:1px solid var(--cinza-borda);border-radius:12px;margin-bottom:16px;}
+  #espDetalhesMes>summary{cursor:pointer;font-weight:700;}
+  /* O editor cresce com os campos; o limite de 68vh pertence só à tabela do espelho.
+     Reservar menos altura que o conteúdo faz o rodapé sobrepor os ajustes do dia. */
+  #overlayEspelho.ponto-editando #espTabela{max-height:none;overflow:visible;box-shadow:none;background:transparent;}
+  #overlayEspelho.ponto-editando #espRodape{display:none;}
+  .ep-editor{display:grid;grid-template-columns:240px minmax(0,1fr);gap:22px;min-width:0;align-items:start;}
+  .ep-nav{min-width:0;}
+  .ep-nav label{display:block;font-size:12px;font-weight:700;margin-bottom:6px;}
+  .ep-nav select{width:100%;margin-bottom:10px;}
+  .ep-dias{max-height:570px;overflow:auto;display:grid;gap:6px;align-content:start;}
+  .ep-dia{display:flex;justify-content:space-between;gap:8px;text-align:left;padding:12px;border:1px solid var(--cinza-borda);border-radius:10px;background:var(--md-surface-container-lowest);color:var(--texto);cursor:pointer;}
+  .ep-dia[aria-pressed="true"]{border-color:var(--verde);background:var(--md-primary-container);font-weight:700;}
+  .ep-dia small{font-size:11px;}
+  .ep-painel{min-width:0;padding:22px;border:1px solid var(--cinza-borda);border-radius:16px;}
+  .ep-painel h3{font-size:21px;margin:0 0 8px;}
+  .ep-painel h4{font-size:14px;margin:0 0 10px;}
+  .ep-nota{font-size:12px;color:var(--texto-fraco);line-height:1.6;}
+  .ep-horarios{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0;}
+  .ep-par{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+  .ep-par label{font-size:12px;color:var(--texto-fraco);}
+  .ep-hora{display:block;width:100%;min-width:0;box-sizing:border-box;margin-top:5px;padding:11px 10px;border:1px solid var(--cinza-borda);border-radius:10px;background:var(--md-surface-container-lowest);color:var(--texto);font-size:17px;font-variant-numeric:tabular-nums;}
+  .ep-acoes{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0;}
+  .ep-opcoes{border:0;padding:0;margin:22px 0 0;display:grid;gap:12px;min-width:0;}
+  .ep-opcoes>section{padding-top:16px;border-top:1px solid var(--cinza-borda);}
+  .ep-opcoes:disabled{opacity:.55;}
+  .ep-opcoes .campo-row{margin-bottom:8px;}
+  .ep-opcoes .select-motivo{width:100%;}
+  .ep-aviso{font-size:13px;color:var(--texto-fraco);min-height:20px;}
+  #overlayEspelho #btnExcluirColaborador,#overlayEspelho #btnAplicarFolha{display:none!important;}
+  #overlayEspelho:not(.ponto-editando) :is(.falta-lbl,.cortesia-lbl,.mrc-desfazer,.select-motivo){display:none;}
+  @media(max-width:760px){
+    #overlayEspelho .modal{width:100%;padding:18px;}
+    .ep-editor{grid-template-columns:minmax(0,1fr);gap:12px;}
+    .ep-dias{display:flex;max-height:100px;overflow:auto;}
+    .ep-dia{flex:0 0 165px;flex-direction:column;}
+    .ep-painel{padding:14px;}
+    .ep-horarios{grid-template-columns:1fr;}
+  }
   .esp-escala{font-size:11.5px;color:var(--texto-fraco);background:var(--md-surface-container-low);border:1px solid var(--cinza-borda);border-radius:8px;padding:8px 10px;margin-bottom:14px;line-height:1.7;}
   .esp-folha{font-size:12.5px;background:var(--marca-cl);border-radius:8px;padding:10px 12px;margin:14px 0 4px;line-height:1.7;}
   .tabela-dias{width:100%;border-collapse:collapse;font-size:12.5px;}
@@ -3161,6 +3229,10 @@
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
           <span class="bl-rotulo">Lançar Recebimento</span>
         </button>
+        <button class="bl-item bl-filho" data-aba="recBoletos" title="Calculadora de Boletos">
+          <svg viewBox="0 0 24 24"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 10h2m4 0h2M8 14h2m4 0h2M8 18h2m4 0h2"/></svg>
+          <span class="bl-rotulo">Calculadora de Boletos</span>
+        </button>
         <button class="bl-item bl-filho" data-aba="recRetirada" title="Retirada de Caixa">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
           <span class="bl-rotulo">Retirada de Caixa</span>
@@ -3484,6 +3556,7 @@
     <button class="btn btn-outline btn-valores btn-valores-geral" title="Mostrar ou ocultar o valor de todos os colaboradores"></button>
     <button class="btn btn-primary" id="btnImportarPonto">Importar cartão ponto</button>
     <button class="btn btn-outline" id="btnHeDia">Hora extra do dia</button>
+    <button class="btn btn-outline" id="btnFeriados">Feriados</button>
     <button class="btn btn-outline" id="btnRegras">Parâmetros de apuração</button>
     <button class="btn btn-outline" id="btnExportarPonto">Exportar relatório</button>
     <button class="btn btn-verde" id="btnAplicarTodos">Aplicar horas na folha</button>
@@ -3665,6 +3738,41 @@
 </div>
 
 <!-- ===================== RECEBIMENTO DE CONTAS: lançamento ===================== -->
+<div id="viewRecBoletos" style="display:none;">
+  <main><section class="bol-card" aria-labelledby="bolTitulo">
+    <h2 id="bolTitulo">Somar boletos</h2>
+    <p>Clique no campo e passe o boleto no leitor. Também pode colar a linha digitável.</p>
+    <form id="bolForm" class="bol-entrada">
+      <div class="campo"><label for="bolCodigo">Código de barras ou linha digitável</label>
+        <input id="bolCodigo" type="text" inputmode="numeric" autocomplete="off" spellcheck="false" placeholder="Leia ou cole o código aqui" aria-describedby="bolAjuda bolMensagem">
+      </div>
+      <button class="btn btn-primary" type="submit">Adicionar boleto</button>
+    </form>
+    <p id="bolAjuda" class="campo-nota">Aceita 44, 47 ou 48 dígitos. Enter, Tab ou “Adicionar boleto” conferem imediatamente, sem espera. Se o leitor não enviar Enter ou Tab, use o botão. Espere “Boleto Somado” antes de passar o próximo.</p>
+    <div id="bolMensagem" role="status" aria-live="polite" aria-atomic="true"><strong>Pronto para ler</strong><span>Passe o boleto no leitor ou cole o código acima.</span></div>
+    <div class="bol-entrada">
+      <button id="bolRepetir" class="btn btn-outline" type="button">Ler novamente</button>
+      <button id="bolDigitar" class="btn btn-outline" type="button">Digitar ou colar linha digitável</button>
+    </div>
+    <details id="bolManual"><summary>Informar valor manualmente</summary>
+      <p>Use quando não conseguir ler o código. Confira o valor no documento. Esta inclusão não valida o código nem identifica boletos repetidos.</p>
+      <form id="bolManualForm" class="bol-entrada">
+        <div class="campo"><label for="bolManualValor">Valor do boleto (R$)</label><input id="bolManualValor" type="text" inputmode="decimal" autocomplete="off" placeholder="Ex.: 123,45" required></div>
+        <button class="btn btn-primary" type="submit">Conferir e incluir valor</button>
+      </form>
+    </details>
+    <details><summary>Diagnóstico do leitor</summary>
+      <p id="bolDiagnostico">Nenhuma leitura recebida.</p>
+      <p id="bolUltimoCodigo" style="overflow-wrap:anywhere"></p>
+      <p class="campo-nota">Intervalos maiores que 150 ms são marcados como pausas entre entradas; também podem ser digitação manual. Estes dados mostram o que chegou ao sistema, não identificam falhas ópticas. Se não houver Enter ou Tab, confirme pelo botão. Tente manter o boleto plano e ajustar a distância e o ângulo do leitor. O bip do aparelho não confirma a soma.</p>
+    </details>
+    <div class="bol-resumo"><span><strong id="bolQuantidade">0 boletos</strong><br>Total da soma</span><output id="bolTotal" aria-live="polite">R$ 0,00</output></div>
+    <p id="bolVazio">Os boletos adicionados aparecerão aqui.</p>
+    <ol id="bolLista" aria-label="Boletos incluídos"></ol>
+    <button id="bolLimpar" class="btn btn-outline" type="button" disabled>Limpar soma</button>
+    <p class="campo-nota" style="margin-top:20px">Soma de conferência, sem registrar pagamentos ou movimentar o caixa. Valores lidos vêm do código, sem atualização de juros ou descontos; valores manuais dependem da sua conferência. A lista é mantida ao trocar de aba e apagada ao fechar ou recarregar a página.</p>
+  </section></main>
+</div>
 <div id="viewRecLancar" style="display:none;">
   <main>
     <!-- Sem título próprio: a barra do topo já diz "Lançar Recebimento", e o repetido só
@@ -4347,6 +4455,16 @@
 
 </div><!-- /area-conteudo -->
 
+<div class="overlay" id="overlayDetalheRec" role="dialog" aria-modal="true" aria-labelledby="detalheRecTitulo">
+  <div class="modal" style="max-width:760px;">
+    <button type="button" class="modal-close" id="fecharDetalheRec" aria-label="Fechar detalhes">✕</button>
+    <h2 id="detalheRecTitulo">Detalhes do lançamento</h2>
+    <p class="sub">Confira as notinhas e todos os dados do recebimento.</p>
+    <div id="detalheRecConteudo"></div>
+    <div class="acoes-modal"><button type="button" class="btn btn-outline" id="concluirDetalheRec">Fechar</button></div>
+  </div>
+</div>
+
 <!-- Revisão e confirmação de operações em recebimentos -->
 <div class="overlay" id="overlayExcluirRec" role="dialog" aria-modal="true" aria-labelledby="excluirRecTitulo">
   <div class="modal" style="max-width:560px;">
@@ -4541,6 +4659,20 @@
 </div>
 
 <input type="file" id="filePonto" accept=".xls,.xlsx">
+<div class="overlay" id="overlayImportacaoPonto">
+  <div class="modal largo">
+    <button class="modal-close" id="fecharImportacaoPonto" aria-label="Fechar">✕</button>
+    <h2>Importar sem apagar horários</h2>
+    <p>Serão aproveitados somente dias com batidas. Falta, folga e células vazias do arquivo serão ignoradas. Dias que já têm horários no sistema serão preservados por inteiro, inclusive os registrados por QR code.</p>
+    <div class="campo"><label for="importacaoPontoAte">Último dia a aproveitar do aparelho</label><input type="date" id="importacaoPontoAte" required></div>
+    <p class="sub">Se o aparelho parou em 09/09, informe essa data. Horários diferentes no mesmo dia ficam para conferência no espelho; não serão misturados automaticamente.</p>
+    <div id="importacaoPontoResumo" aria-live="polite"></div>
+    <div class="acoes-modal">
+      <button type="button" class="btn btn-outline" id="cancelarImportacaoPonto">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="confirmarImportacaoPonto">Importar preservando horários</button>
+    </div>
+  </div>
+</div>
 
 <!-- Modal espelho de ponto -->
 <div class="overlay" id="overlayEspelho">
@@ -4548,19 +4680,43 @@
     <button class="modal-close" id="fecharEspelho">✕</button>
     <h2 id="espTitulo">Espelho de ponto</h2>
     <div class="sub" id="espSub"></div>
+    <div class="ep-topo">
+      <button type="button" class="btn btn-outline" id="btnEditarMarcacoes">Ver espelho do mês</button>
+      <button type="button" class="btn btn-outline" id="btnVoltarFolhaPonto" hidden>Voltar à folha</button>
+      <span>Correções salvas atualizam a folha automaticamente.</span>
+    </div>
+    <details id="espDetalhesMes"><summary>Escala, resumo e valores do mês</summary>
     <div class="esp-escala" id="espEscala"></div>
     <div class="kpis" id="espResumo"></div>
     <div id="espValores"></div>
+    </details>
     <div class="esp-tabela-wrap" id="espTabela"></div>
     <div id="espRodape"></div>
     <div class="acoes-modal">
       <!-- Ver "MARCAÇÕES AJUSTADAS À MÃO": o ajuste é por pessoa e por dia, e mora aqui
            dentro do espelho porque é olhando o mês inteiro que se enxerga o erro. -->
-      <button class="btn btn-outline" id="btnEditarMarcacoes">Editar marcações</button>
+      <button class="btn btn-outline" id="btnPreencherAutomaticamente">Preencher automaticamente</button>
+      <button class="btn btn-outline" id="btnDesfazerPreenchimentoEscala" style="display:none;">Desfazer preenchimento automático</button>
       <button class="btn btn-outline" id="btnEspelhoPDF">Emitir espelho em PDF</button>
       <button class="btn btn-outline" id="btnVincular" style="display:none;">Incluir na folha</button>
       <button class="btn btn-outline btn-excluir-modal" id="btnExcluirColaborador">Excluir colaborador do sistema</button>
       <button class="btn btn-verde" id="btnAplicarFolha">Aplicar horas na folha do mês</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlayPreencherEscala">
+  <div class="modal largo">
+    <button class="modal-close" id="fecharPreencherEscala" aria-label="Fechar preenchimento">✕</button>
+    <h2>Preencher automaticamente</h2>
+    <p id="preencherEscalaPessoa"></p>
+    <p>Confira a situação de cada dia e selecione as faltas a preencher pela escala. Se necessário, informe as horas extras a acrescentar naquele dia (ex.: 2, 1,5 ou 01:30).</p>
+    <p class="sub">Somente faltas já exibidas neste mês, anteriores a hoje e com escala válida. Batidas existentes, dias incompletos, folgas, férias, afastamentos e feriados serão preservados.</p>
+    <div id="preencherEscalaDias"></div>
+    <p id="preencherEscalaAviso" role="status"></p>
+    <div class="acoes-modal">
+      <button type="button" class="btn btn-outline" id="cancelarPreencherEscala">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="confirmarPreencherEscala">Confirmar preenchimento</button>
     </div>
   </div>
 </div>
@@ -4595,15 +4751,25 @@
     <div class="rec-mini" id="heDiaResumo" style="margin-top:10px;"></div>
     <div class="acoes-modal">
       <button type="button" class="btn btn-outline" id="btnCancelarHeDia">Cancelar</button>
-      <!-- Ver "FERIADO TRABALHADO": não usa o campo de horas — lança o DOBRO do que
-           cada um trabalhou no dia, lido do próprio cartão ponto. -->
-      <button type="button" class="btn btn-outline" id="btnFeriadoHeDia">Marcar feriado (paga o dobro)</button>
+      <!-- Feriado individual: dia de salário + R$ 70 na verba própria da folha. -->
+      <button type="button" class="btn btn-outline" id="btnFeriadoHeDia">Marcar feriado (horas + R$ 70)</button>
       <button type="button" class="btn btn-primary" id="btnSalvarHeDia">Lançar hora extra</button>
     </div>
   </div>
 </div>
 
 <!-- Modal regras -->
+<div class="overlay" id="overlayFeriados">
+  <div class="modal" style="max-width:640px;">
+    <button class="modal-close" id="fecharFeriados">✕</button>
+    <h2>Feriados gerais</h2>
+    <p class="sub">As datas valem para todos os colaboradores. Quem trabalhar recebe, na folha, o horas trabalhadas × valor-hora cadastrado + R$ 70 por feriado. Sem jornada apurada, não há pagamento adicional.</p>
+    <div class="campo-row"><div class="campo"><label for="feriadoData">Data do feriado</label><input type="date" id="feriadoData"></div></div>
+    <button type="button" class="btn btn-verde" id="adicionarFeriado">Adicionar feriado</button>
+    <div id="listaFeriados" style="display:grid;gap:12px;margin-top:20px;"></div>
+    <p class="sub">A folha do mês aberto é recalculada ao adicionar ou remover uma data. Os registros de ponto são preservados.</p>
+  </div>
+</div>
 <div class="overlay" id="overlayRegras">
   <div class="modal" style="max-width:560px;">
     <button class="modal-close" id="fecharRegras">✕</button>
@@ -4640,7 +4806,7 @@
       <div class="campo"></div>
     </div>
     <div class="regras-dica" style="margin-top:2px;">
-      Feriado e domingo trabalhados <b>não geram pagamento adicional</b> por padrão. Quem é pago por fora tem o valor definido individualmente na engrenagem ⚙ no topo da página — e só nesses casos a verba aparece na folha e no holerite.
+      Feriado trabalhado paga <b>horas trabalhadas × valor-hora cadastrado + R$ 70 por dia</b> na folha e no holerite. Domingo mantém o valor individual cadastrado.
     </div>
     <div class="regras-dica">
       <b>Critérios de apuração:</b><br>
@@ -4667,9 +4833,9 @@
     <h2>Salário base e valores por colaborador</h2>
     <div class="sub">Aqui você atualiza o salário base cadastral de cada colaborador. Essa alteração não muda folhas de meses já lançados — apenas o valor usado como base no mês atual e nos próximos.<br>
       <b>H. extra (R$/h)</b>: preencha só para quem recebe valor diferente do geral; em branco vale o parâmetro de <b>Controle de Ponto &gt; Parâmetros de apuração</b>.<br>
-      <b>Feriado (R$)</b> e <b>Domingo (R$)</b> são pagamento por fora: por padrão <b>ninguém recebe</b> e nem aparece na folha. Preencha apenas para quem é pago por fora — só esses passam a mostrar a verba na folha e no holerite.</div>
+      <b>Feriado</b>: calculado automaticamente pelo horas trabalhadas × valor-hora cadastrado + R$ 70. <b>Domingo (R$)</b>: preencha apenas para quem recebe esse adicional.</div>
     <div class="ls-cabecalho">
-      <span>Colaborador</span><span>H. extra (R$/h)</span><span>Feriado (R$)</span><span>Domingo (R$)</span><span>Salário base (R$)</span>
+      <span>Colaborador</span><span>H. extra (R$/h)</span><span>Adicional feriado (R$)</span><span>Domingo (R$)</span><span>Salário base (R$)</span>
     </div>
     <div class="lista-salarios" id="listaSalarios"></div>
     <div class="acoes-modal">
@@ -4764,6 +4930,7 @@
 
     <div class="secao-title">Lançamento do mês — <span id="mesLabelLanc"></span></div>
     <div class="sub" id="subLancamento" style="margin:-6px 0 14px;">Apenas adiantamento, conta mercado, desconto e observação são editáveis aqui. Os demais valores vêm do salário base e da apuração do ponto.</div>
+    <div class="ep-atalho"><button type="button" class="btn btn-outline" id="btnAjustarPontoFolha">Ajustar controle de ponto</button><span>Abre o ponto desta pessoa e deste mês. Sua digitação aqui é mantida.</span></div>
 
     <div id="blocoMensalista">
       <div class="campo-row tres">
@@ -4778,7 +4945,7 @@
       </div>
       <!-- Pagamento por fora: só aparece para quem tem valor cadastrado na engrenagem -->
       <div class="campo-row tres" id="linhaPorFora" style="display:none;">
-        <div class="campo" id="campoFeriado"><label>Feriado trabalhado</label><input id="lFeriado" type="number" step="0.01" readonly></div>
+        <div class="campo" id="campoFeriado"><label for="lFeriado">Feriado trabalhado</label><input id="lFeriado" type="number" step="0.01" readonly><small>Por dia apurado: horas trabalhadas × valor-hora cadastrado + R$ 70.</small><div id="feriadosFolgaFolha"></div></div>
         <div class="campo" id="campoDomingo"><label>Domingo trabalhado</label><input id="lDomingo" type="number" step="0.01" readonly></div>
         <div class="campo"></div>
       </div>
@@ -5187,7 +5354,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '28/09/2026 · Recebimento por etapas';
+const VERSAO_SISTEMA = '03/10/2026 · Feriados: horas trabalhadas + R$ 70';
 
 /* Cópia do sistema guardada no navegador, para ele ABRIR sem internet — ver sw.js, que
    precisa estar publicado na mesma pasta deste arquivo. Só em https (o Pages) ou no
@@ -5605,6 +5772,8 @@ function statusFalha(e){
 /* Chamada em todo ponto do sistema que altera dados — mantém o nome antigo para não
    mexer nas dezenas de chamadas já existentes. */
 function salvarEstado(){
+  // Grava a folha já coerente com as correções do ponto, antes de gerar o cache/envio.
+  if(bancoPronto) sincronizarFolhaComPonto();
   gravarCache();
   if(!bancoPronto) return;   /* durante a carga inicial só o cache é atualizado */
   if(nuvemEnviando){ nuvemRefazer = true; return; }
@@ -6388,6 +6557,21 @@ function valorHeManual(f, l){
   return toNum(l && l.heQtd) * valorHoraExtraDe(f);
 }
 
+/* Compartilhado pela gravação e pelos botões de aplicação. Não altera pagamentos,
+   horas manuais, outras competências nem lançamentos sem cartão correspondente. */
+function sincronizarFolhaComPonto(){
+  invalidarPonto();
+  const mapa = mapaPontoPorFunc();
+  if(!mapa) return;
+  state.funcionarios.forEach(f=>{
+    if(!batePonto(f) || !mapa[f.id]) return;
+    const l = getLancamento(state.mesAtual,f.id);
+    sincronizarPontoNoLancamento(f,l,mapa);
+    const venc = toNum(l.salario)+toNum(l.feriado)+toNum(l.domingo)+toNum(l.folgas)+toNum(l.horaExtra)+toNum(l.salFamilia);
+    l.inss = calcularInssColaborador(f,venc).valor;
+  });
+}
+
 /* ============================= SALÁRIO PROPORCIONAL =============================
    Mensalista que não trabalhou o mês inteiro recebe por avos, e até 02/09/2026 o
    sistema pagava sempre o salário cheio: `l.salario = f.salarioBase`, sem olhar
@@ -6948,11 +7132,12 @@ document.getElementById('btnRemoverModalidade').addEventListener('click', ()=>{
    esconder dinheiro de uma folha antiga). */
 function aplicarPagamentoPorForaNoForm(f, l){
   /* Valor zerado equivale a não pagar, então também não mostra a verba. */
-  const mostraFeriado = toNum(f && f.valorFeriado) > 0 || toNum(l && l.feriado) !== 0;
+  const mostraFeriado = !!(f && batePonto(f)) || toNum(l && l.feriado) !== 0;
   const mostraDomingo = toNum(f && f.valorDomingo) > 0 || toNum(l && l.domingo) !== 0;
   document.getElementById('campoFeriado').style.display = mostraFeriado ? '' : 'none';
   document.getElementById('campoDomingo').style.display = mostraDomingo ? '' : 'none';
   document.getElementById('linhaPorFora').style.display = (mostraFeriado || mostraDomingo) ? '' : 'none';
+  renderFeriadosFolgaFolha(f);
 }
 
 /* ============================= HORA EXTRA MANUAL =============================
@@ -7815,7 +8000,7 @@ function abrirConfigSalarios(){
     </div>`;
     }
     const he  = temValorProprio(f.valorHoraExtra) ? f.valorHoraExtra : '';
-    const fer = temValorProprio(f.valorFeriado)   ? f.valorFeriado   : '';
+    const fer = 70;
     const dom = temValorProprio(f.valorDomingo)   ? f.valorDomingo   : '';
     /* Valor zerado é o mesmo que não pagar — não conta como "recebe por fora". */
     const porFora = [toNum(fer)>0 ? 'feriado' : null, toNum(dom)>0 ? 'domingo' : null].filter(Boolean);
@@ -7825,7 +8010,7 @@ function abrirConfigSalarios(){
     <div class="linha-salario" data-id="${f.id}">
       ${cabecalho}
       <input type="number" min="0" step="0.01" class="ls-he${he!=='' ? ' ls-excecao' : ''}" value="${he}" placeholder="${toNum(cfg.valorHoraExtra)}" title="Em branco = usa o valor geral de ${fmtMoeda(cfg.valorHoraExtra)}/h">
-      <input type="number" min="0" step="0.01" class="ls-fer${toNum(fer)>0 ? ' ls-excecao' : ''}" value="${fer}" placeholder="não paga" title="Em branco ou zero = não recebe por feriado trabalhado e a verba não aparece na folha">
+      <input type="number" min="0" step="0.01" class="ls-fer${toNum(fer)>0 ? ' ls-excecao' : ''}" value="${fer}" readonly title="horas trabalhadas × valor-hora cadastrado + R$ 70 por feriado trabalhado">
       <input type="number" min="0" step="0.01" class="ls-dom${toNum(dom)>0 ? ' ls-excecao' : ''}" value="${dom}" placeholder="não paga" title="Em branco ou zero = não recebe por domingo trabalhado e a verba não aparece na folha">
       <input type="number" step="0.01" class="ls-input" value="${f.salarioBase || 0}">
       <label class="ls-inss-check"><input type="checkbox" class="ls-inss" ${f.descontaInss===false ? '' : 'checked'}> Desconta INSS</label>
@@ -7854,7 +8039,7 @@ document.getElementById('btnSalvarSalarios').addEventListener('click', ()=>{
     /* Valores próprios: campo em branco remove a exceção. Na hora extra isso
        significa voltar ao valor geral; em feriado e domingo significa não pagar
        (e a verba deixa de aparecer na folha e no holerite). */
-    [['ls-he','valorHoraExtra'], ['ls-fer','valorFeriado'], ['ls-dom','valorDomingo']].forEach(([cls, prop])=>{
+    [['ls-he','valorHoraExtra'], ['ls-dom','valorDomingo']].forEach(([cls, prop])=>{
       const el = linha.querySelector('.' + cls);
       if(!el || el.disabled) return;
       const bruto = el.value.trim();
@@ -8287,7 +8472,9 @@ function desenharFichaPontoCompacta(doc, it, x0, x1, yIni, yLimite){
      e o atraso são as duas colunas que o colaborador confere de verdade nesta folha.
      Os 27pt que sobraram foram para as marcações e para a coluna Extra, que precisava
      caber "05:12 ×2" do feriado sem cortar. */
-  const cols = [['Dia',40,'esq'], ['E1',26], ['S1',26], ['E2',26], ['S2',26], ['E3',26], ['S3',26], ['Extra',36], ['Atr',27]];
+  // Reserva 29pt úteis para "Feriado" em negrito, sem reduzir o tamanho da letra.
+  // Os 5pt vêm de Dia e Extra; a largura total de cada metade permanece igual.
+  const cols = [['Dia',37,'esq'], ['E1',26], ['S1',26], ['E2',26], ['S2',26], ['E3',26], ['S3',26], ['Extra',34], ['Atr',32]];
   const larguraCols = cols.reduce((s,cl)=> s + cl[1], 0);
   /* Sobra da divisão vai toda para a coluna do dia: é a única que carrega texto. */
   cols[0][1] += Math.max(0, larguraBloco - 8 - larguraCols);
@@ -8353,7 +8540,7 @@ function desenharFichaPontoCompacta(doc, it, x0, x1, yIni, yLimite){
      Ver "CORTESIA DO DIA". */
   const corDaBatida = (d, i, idx)=>{
     const tem = (cod)=> (d.ocorrencias || []).some(o=> o.cod === cod);
-    const acusa = !d.cortesiaDia;
+    const acusa = !d.cortesiaDia && !diaFeriadoNoDocumento(d);
     if(i === idx.pri){
       if(acusa && d.atrasoMin > 0) return VERMELHO;   /* chegou depois da escala */
       if(tem('HE-ENT')) return AZUL;                  /* entrou antes do corte de hora extra */
@@ -8396,7 +8583,8 @@ function desenharFichaPontoCompacta(doc, it, x0, x1, yIni, yLimite){
            mais pesa na folha. Ver "FOLGA QUE ERA FALTA". */
         /* Com FALTA escrito na linha inteira, esta coluna não repete a palavra: mostra
            o que o dia custou, que é a informação que ainda faltava. */
-        (d.tipo === 'falta'
+        (diaFeriadoNoDocumento(d) ? {t:'Feriado', b:true}
+          : d.tipo === 'falta'
           ? {t:'-' + pHHMM(d.debitoMin), c: VERMELHO}
           : {t: d.atrasoMin ? pHHMM(d.atrasoMin) : (d.saidaAntMin ? '-' + pHHMM(d.saidaAntMin) : '—'),
              c: (d.atrasoMin || d.saidaAntMin) ? VERMELHO : null})
@@ -8434,7 +8622,7 @@ function desenharFichaPontoCompacta(doc, it, x0, x1, yIni, yLimite){
   legenda('em azul = hora extra', AZUL, true);
   tinta(null); doc.setFont('helvetica','normal'); doc.setTextColor(115);
   doc.text('(*) batida lançada manualmente' +
-    (ajustados ? '   (†) marcação ajustada à mão — ' + ajustados + ' dia(s)' : '') +
+    (ajustados ? '   (†) marcação ajustada no sistema — ' + ajustados + ' dia(s)' : '') +
     /* Os dias pagos saem "limpos" na tabela; sem esta linha, o papel não contaria que
        houve uma decisão da diretoria por trás. */
     (cortesias ? '   ' + cortesias + ' dia(s) pago(s) integralmente por decisão da empresa, ' +
@@ -9132,7 +9320,7 @@ function analisarDia(dia, escala, cfg){
     res.saldoMin = 0;
     /* O valor do feriado é individual (pagamento por fora), então a ocorrência do
        dia só registra o fato; o valor aparece na aba Horas e remuneração. */
-    oc.push({sev:'info', cod:'FERIADO', txt:'Feriado trabalhado — não gera hora extra na data'});
+    oc.push({sev:'info', cod:'FERIADO', txt:'Feriado trabalhado — horas trabalhadas × valor-hora cadastrado + R$ 70 na folha'});
     return res;
   }
 
@@ -9236,7 +9424,7 @@ function agregarDias(dias){
     r.saidaAntMin += d.saidaAntMin;
     r.extraMin += d.extraMin;
     r.normalMin += d.normalMin;
-    if(d.feriado){ r.feriadosQtd++; r.feriadosMin += d.trabalhadoMin; }
+    if(d.feriado && d.trabalhadoMin > 0 && !d.batidasFaltantes){ r.feriadosQtd++; r.feriadosMin += d.trabalhadoMin; }
     /* Domingo trabalhado é pago à parte do feriado. Feriado que cai no domingo
        conta só como feriado, para não remunerar o mesmo dia duas vezes. */
     if(d.dow === 'dom' && !d.feriado){ r.domingosQtd++; r.domingosMin += d.trabalhadoMin; }
@@ -9353,6 +9541,7 @@ function salvarMarcacaoPonto(mes, nomePonto, iso, cels){
   if(cels){
     state.pontoMarcacoes[mes][chave][iso] = {
       cels: cels.slice(0,6),
+      extraEscalaMin: toNum((state.pontoMarcacoes[mes][chave][iso] || {}).extraEscalaMin),
       por: document.getElementById('usuarioLogado').textContent || '',
       em: new Date().toISOString()
     };
@@ -9453,6 +9642,28 @@ function faltaMarcada(mes, nomePonto, iso){
   return porColab ? (porColab[iso] || null) : null;
 }
 
+function folgaMarcada(mes, nomePonto, iso){
+  const porColab = state.pontoFolgas && state.pontoFolgas[mes] && state.pontoFolgas[mes][norm(nomePonto)];
+  return porColab ? porColab[iso] || null : null;
+}
+
+function salvarFolgaPonto(mes, nomePonto, iso, marcada){
+  if(!state.pontoFolgas) state.pontoFolgas = {};
+  if(!state.pontoFolgas[mes]) state.pontoFolgas[mes] = {};
+  const chave = norm(nomePonto);
+  if(!state.pontoFolgas[mes][chave]) state.pontoFolgas[mes][chave] = {};
+  if(marcada){
+    state.pontoFolgas[mes][chave][iso] = {
+      por:document.getElementById('usuarioLogado').textContent || '',
+      em:new Date().toISOString()
+    };
+  }else{
+    delete state.pontoFolgas[mes][chave][iso];
+  }
+  invalidarPonto();
+  salvarEstado();
+}
+
 function salvarFaltaPonto(mes, nomePonto, iso, marcada){
   if(!state.pontoFaltas) state.pontoFaltas = {};
   if(!state.pontoFaltas[mes]) state.pontoFaltas[mes] = {};
@@ -9470,31 +9681,48 @@ function salvarFaltaPonto(mes, nomePonto, iso, marcada){
   salvarEstado();
 }
 
-/* ---------- FERIADO TRABALHADO ----------
-   O dia marcado como feriado lança, como hora extra, o DOBRO das horas que a pessoa
-   trabalhou nele: quem cumpriu 5:12 recebe 10:24 de hora extra. Nos documentos a coluna
-   mostra as HORAS REAIS com o "×2" ao lado — "05:12 ×2" —, porque é a jornada cumprida
-   que a pessoa reconhece; o produto aparece na declaração ao pé. Daí o "×2" ao lado do
-   número nos documentos.
-
-   Por que dobrando as HORAS e não a taxa: o sistema paga hora extra por um valor-hora
-   só — R$ 8,50 no geral, ou o próprio do colaborador na engrenagem — e não tem taxa
-   especial por data. Dobrar as horas é o único jeito de o dobro chegar ao bolso sem
-   inventar uma segunda tabela de preço, que seria mais uma coisa para manter e para
-   sair errada. A conta fecha igual: 4:30 × R$ 8,50 × 2 = 9:00 × R$ 8,50 = R$ 76,50.
-
-   A quantidade NÃO é gravada: fica gravada só a marca de feriado, e as horas são lidas
-   do dia na hora de apurar. É o que faz a conta se corrigir sozinha — se alguém depois
-   ajustar uma marcação daquele dia, o feriado passa a pagar as horas novas, sem ninguém
-   ter que lembrar de refazer o lançamento. Quem trabalhou zero hora recebe zero.
-
-   Marcar feriado SUBSTITUI a hora extra que estivesse lançada à mão naquele dia: são
-   duas respostas para a mesma pergunta, e a última é a que vale. */
+/* Feriado individual usa a mesma regra do calendário geral: horas trabalhadas × valor-hora cadastrado + R$ 70.
+   A marca é preservada separadamente das batidas, sem converter jornada em horas extras. */
+function salvarFeriadoFolga(mes,nome,iso,marcado){
+  if(!state.pontoExtrasDia) state.pontoExtrasDia={};
+  if(!state.pontoExtrasDia[mes]) state.pontoExtrasDia[mes]={};
+  const chave=norm(nome);
+  if(!state.pontoExtrasDia[mes][chave]) state.pontoExtrasDia[mes][chave]={};
+  const anterior=state.pontoExtrasDia[mes][chave][iso]||{};
+  state.pontoExtrasDia[mes][chave][iso]=Object.assign({},anterior,{
+    feriadoFolga:!!marcado,folgaPor:document.getElementById('usuarioLogado').textContent||'',folgaEm:new Date().toISOString()
+  });
+  invalidarPonto();salvarEstado();
+}
+function checkboxFeriadoFolga(d){
+  return '<label style="display:flex;gap:8px;align-items:flex-start;margin-top:12px;font-size:13px;"><input type="checkbox" class="feriado-folga-chk" data-iso="'+escHtml(d.iso)+'"'+(d.feriadoFolga?' checked':'')+'> '+escHtml(dataBR(d.iso))+' — Trocar feriado por folga</label>';
+}
+function renderFeriadosFolgaFolha(f){
+  const el=document.getElementById('feriadosFolgaFolha');if(!el)return;
+  const mapa=f && batePonto(f) ? mapaPontoPorFunc() : null;
+  const it=mapa && mapa[f.id];
+  const dias=it ? it.a.dias.filter(d=>d.feriado || d.tipo==='feriado') : [];
+  el.innerHTML=dias.map(checkboxFeriadoFolga).join('')+(dias.length?'<p class="sub">Salvo ao marcar. Substitui o pagamento do feriado por uma folga a combinar; não altera automaticamente outra data.</p>':'');
+}
+document.getElementById('feriadosFolgaFolha').addEventListener('change',e=>{
+  const chk=e.target.closest('.feriado-folga-chk');if(!chk)return;
+  const mapa=mapaPontoPorFunc(),it=mapa && mapa[colabAtualId];
+  if(!it || !it.a.dias.some(d=>d.iso===chk.dataset.iso && (d.feriado||d.tipo==='feriado')))return;
+  salvarFeriadoFolga(state.mesAtual,it.c.nome,chk.dataset.iso,chk.checked);
+  atualizarDerivadosPontoNoForm();renderLista();renderPonto();
+});
+document.getElementById('espTabela').addEventListener('change',e=>{
+  const chk=e.target.closest('.feriado-folga-chk');if(!chk)return;
+  if(!permitirNavegacaoEditorPonto()){chk.checked=!chk.checked;return;}
+  const it=itemAtualEditorPonto();if(!conferirBaseEditor(it))return;
+  salvarFeriadoFolga(state.mesAtual,it.c.nome,chk.dataset.iso,chk.checked);
+  renderLista();renderPonto();abrirEspelho(espelhoIdx,true,true);
+});
 function extraDiaPonto(mes, nomePonto, iso){
   const porColab = state.pontoExtrasDia && state.pontoExtrasDia[mes] && state.pontoExtrasDia[mes][norm(nomePonto)];
   const reg = porColab ? porColab[iso] : null;
   if(!reg) return null;
-  return (reg.feriado || toNum(reg.min) > 0) ? reg : null;
+  return (reg.feriado || reg.feriadoFolga || toNum(reg.min) > 0) ? reg : null;
 }
 
 function salvarExtraDiaPonto(mes, nomePonto, iso, min, motivo, feriado){
@@ -9503,6 +9731,7 @@ function salvarExtraDiaPonto(mes, nomePonto, iso, min, motivo, feriado){
   const chave = norm(nomePonto);
   if(!state.pontoExtrasDia[mes][chave]) state.pontoExtrasDia[mes][chave] = {};
   const base = {
+    feriadoFolga: !!(extraDiaPonto(mes,nomePonto,iso)||{}).feriadoFolga,
     motivo: String(motivo || '').trim(),
     por: document.getElementById('usuarioLogado').textContent || '',
     em: new Date().toISOString()
@@ -9512,7 +9741,8 @@ function salvarExtraDiaPonto(mes, nomePonto, iso, min, motivo, feriado){
   }else if(toNum(min) > 0){
     state.pontoExtrasDia[mes][chave][iso] = Object.assign({min: Math.round(toNum(min))}, base);
   }else{
-    delete state.pontoExtrasDia[mes][chave][iso];
+    if(base.feriadoFolga) state.pontoExtrasDia[mes][chave][iso] = base;
+    else delete state.pontoExtrasDia[mes][chave][iso];
   }
 }
 
@@ -9541,14 +9771,20 @@ function analisarColaboradorComCorrecoes(c, mes, cfg){
   cfg = Object.assign({}, PONTO_CFG_PADRAO, cfg||{});
   const dias = c.dias.map(diaBruto=>{
     const diaOriginal = diaComMarcacoesEditadas(diaBruto, mes, c.nome);
-    const r = analisarDiaJustificado(diaOriginal, c, mes, cfg);
+    const ext = extraDiaPonto(mes, c.nome, diaOriginal.iso);
+    const cfgDia = ext && ext.feriado
+      ? Object.assign({},cfg,{feriados:Array.from(new Set([...(cfg.feriados||[]),diaOriginal.iso]))}) : cfg;
+    const r = analisarDiaJustificado(diaOriginal, c, mes, cfgDia);
+    r.feriadoFolga = !!(ext && ext.feriadoFolga && (r.feriado || r.tipo==='feriado'));
+    if(r.feriadoFolga) r.ocorrencias.push({sev:'info',cod:'FERIADO-FOLGA',txt:'Feriado trocado por folga — sem pagamento de horas do feriado ou adicional de R$ 70. Folga a combinar.'});
     if(diaOriginal.edicaoMarc){
       r.marcacaoEditada = true;
       r.editadoPor = diaOriginal.edicaoMarc.por || '';
       r.editadoEm  = diaOriginal.edicaoMarc.em || '';
+      r.preenchidoEscala = diaOriginal.edicaoMarc.origem === 'escala';
       r.ocorrencias = (r.ocorrencias || []).concat([{
         sev:'info', cod:'EDITADO',
-        txt:'Marcações ajustadas à mão' + (r.editadoPor ? ' por ' + r.editadoPor : '') +
+        txt:(r.preenchidoEscala ? 'Horários preenchidos pela escala' : 'Marcações ajustadas à mão') + (r.editadoPor ? ' por ' + r.editadoPor : '') +
             (r.editadoEm ? ' em ' + new Date(r.editadoEm).toLocaleDateString('pt-BR') : '')
       }]);
     }
@@ -9571,44 +9807,37 @@ function analisarColaboradorComCorrecoes(c, mes, cfg){
         }]);
       }
     }
+    /* A decisão de folga fica separada do bruto e não encobre nenhuma batida.
+       Desmarcar devolve a classificação anterior, inclusive uma falta manual. */
+    const fol = folgaMarcada(mes,c.nome,diaOriginal.iso);
+    const semBatidas = !pontoDiaTemHorario(diaBruto) && !pontoDiaTemHorario(diaOriginal);
+    r.podeFolga = semBatidas && (r.tipo === 'falta' || (!!fol && r.tipo === 'folga'));
+    if(r.podeFolga && fol){
+      r.folgaMarcada = true;
+      r.folgaPor = fol.por || '';
+      r.tipo = 'folga';
+      r.debitoMin = 0;
+      r.saldoMin = r.extraMin;
+      r.marc = r.marc.map(m=>Object.assign({},m,{status:'folga',bruto:'Folga'}));
+      r.ocorrencias = r.ocorrencias.filter(o=>o.cod !== 'FALTA');
+      r.ocorrencias.push({sev:'info',cod:'FOLGA-MARCADA',
+        txt:'Dia marcado como folga no sistema' + (fol.por ? ' por '+fol.por : '')});
+    }
     /* A hora extra combinada com a equipe entra ANTES da cortesia, senão o saldo que a
        cortesia recalcula sairia sem ela. Ver "HORA EXTRA LANÇADA NO DIA". */
-    const ext = extraDiaPonto(mes, c.nome, diaOriginal.iso);
-    if(ext){
-      /* No feriado a quantidade é lida do próprio dia e DOBRADA — ver "FERIADO
-         TRABALHADO". O sistema paga hora extra por uma taxa só (R$ 8,50, ou a do
-         colaborador), sem taxa especial por data; então "pagar o feriado em dobro" se
-         faz dobrando as HORAS, que é o único jeito de o dobro chegar ao bolso dentro
-         desta engrenagem. */
-      const trabMin = Math.round(toNum(r.trabalhadoMin));
-      const minLancado = ext.feriado ? trabMin * 2 : toNum(ext.min);
-      if(minLancado > 0){
-        r.extraDiaMin = minLancado;
-        r.feriadoDobra = !!ext.feriado;
-        /* O feriado SUBSTITUI a hora extra apurada no dia; a lançada à mão SOMA.
-           A diferença não é detalhe: no feriado, os minutos que o relógio apurou como
-           extra (entrar antes das 07:30, sair depois das 18:30) já estão dentro das
-           horas trabalhadas, e as horas trabalhadas já foram dobradas. Somar a apuração
-           por cima paga esses minutos três vezes — foi assim que um dia de 5:12 saiu
-           como 10:48 de hora extra em vez de 10:24. */
-        r.extraMin = ext.feriado ? minLancado : (toNum(r.extraMin) + minLancado);
-        r.saldoMin = r.extraMin - toNum(r.debitoMin);
-        r.ocorrencias = (r.ocorrencias || []).concat([{
-          sev:'info', cod:'HE-DIA',
-          txt: (ext.feriado
-                 ? 'Feriado trabalhado: ' + pHHMM(trabMin) + ' trabalhadas × 2 = ' +
-                   pHHMM(minLancado) + ' de hora extra (substitui a apurada no dia)'
-                 : 'Hora extra lançada no dia: ' + pHHMM(minLancado)) +
-               (ext.motivo ? ' — ' + ext.motivo : '') + (ext.por ? ' (por ' + ext.por + ')' : '')
-        }]);
-      }else if(ext.feriado){
-        /* Feriado marcado num dia sem jornada: nada a pagar, mas o dia fica dito — quem
-           conferir precisa saber que a marca existe e por que ela não rendeu nada. */
-        r.ocorrencias = (r.ocorrencias || []).concat([{
-          sev:'info', cod:'HE-DIA-ZERO',
-          txt:'Feriado marcado, sem horas trabalhadas no dia — nada a pagar em dobro'
-        }]);
-      }
+    if(ext && !ext.feriado && toNum(ext.min) > 0){
+      r.extraDiaMin = toNum(ext.min);
+      r.extraMin = toNum(r.extraMin) + r.extraDiaMin;
+      r.saldoMin = r.extraMin - toNum(r.debitoMin);
+      r.ocorrencias.push({sev:'info',cod:'HE-DIA',txt:'Hora extra lançada no dia: ' + pHHMM(r.extraDiaMin) + (ext.motivo ? ' — '+ext.motivo : '')});
+    }
+    const extraEscalaMin = toNum(diaOriginal.edicaoMarc && diaOriginal.edicaoMarc.extraEscalaMin);
+    if(extraEscalaMin > 0){
+      r.extraDiaMin = toNum(r.extraDiaMin) + extraEscalaMin;
+      r.extraMin += extraEscalaMin;
+      if(r.tipo === 'ok') r.tipo = 'extra';
+      r.saldoMin = r.extraMin - toNum(r.debitoMin);
+      r.ocorrencias.push({sev:'info',cod:'HE-ESCALA',txt:'Horas extras acrescentadas no preenchimento automático: '+pHHMM(extraEscalaMin)});
     }
     /* A cortesia vem POR ÚLTIMO: ela perdoa o desconto que sobrou depois de tudo o
        mais — marcação ajustada, registro justificado. Ver "CORTESIA DO DIA". */
@@ -9811,7 +10040,7 @@ function invalidarPonto(){ pontoCache = {mes:null, dados:null}; }
    trabalhado, então o valor geral é zero e só recebe quem tem valor próprio. */
 function temValorProprio(v){ return v !== undefined && v !== null && v !== ''; }
 
-const CAMPOS_VALOR_PROPRIO = ['valorHoraExtra', 'valorFeriado', 'valorDomingo'];
+const CAMPOS_VALOR_PROPRIO = ['valorHoraExtra', 'valorDomingo'];
 
 function temAlgumValorProprio(f){
   return !!f && CAMPOS_VALOR_PROPRIO.some(k => temValorProprio(f[k]));
@@ -9843,7 +10072,12 @@ function valoresColaborador(a, salarioBase, cfg, f){
   cfg = cfgColaborador(f, cfg || pontoCfg());
   const hExtra = pHoras(a.extraMin), hDev = pHoras(a.debitoMin);
   const vExtra = hExtra * (cfg.valorHoraExtra||0);
-  const vFeriados = (a.feriadosQtd||0) * (cfg.valorFeriado||0);
+  const valorFeriado = 70; // Adicional fixo por dia, além das horas realmente apuradas.
+  const trocados=(a.dias||[]).filter(d=>d.feriadoFolga && d.feriado && d.trabalhadoMin>0 && !d.batidasFaltantes);
+  const feriadosFolgaQtd=trocados.length;
+  const feriadosPagosQtd=Math.max(0,toNum(a.feriadosQtd)-feriadosFolgaQtd);
+  const feriadosPagosMin=Math.max(0,toNum(a.feriadosMin)-trocados.reduce((s,d)=>s+d.trabalhadoMin,0));
+  const vFeriados = pHoras(feriadosPagosMin) * (cfg.valorHoraExtra||0) + feriadosPagosQtd * valorFeriado;
   const vDomingos = (a.domingosQtd||0) * (cfg.valorDomingo||0);
 
   const diaria = (salarioBase||0) / AVOS_SALARIO;
@@ -9857,9 +10091,9 @@ function valoresColaborador(a, salarioBase, cfg, f){
   const vDesc = hDevSemFalta * (cfg.valorHoraExtra||0) + vFaltas;
 
   return {
-    hExtra, hDev, hDevSemFalta,
+    hExtra, hDev, hDevSemFalta, feriadosFolgaQtd, feriadosPagosQtd, feriadosPagosMin,
     feriadosQtd: a.feriadosQtd||0, domingosQtd: a.domingosQtd||0,
-    valorHoraExtra: cfg.valorHoraExtra||0, valorFeriado: cfg.valorFeriado||0,
+    valorHoraExtra: cfg.valorHoraExtra||0, valorFeriado,
     valorDomingo: cfg.valorDomingo||0,
     faltas, diaria, vFaltas,
     vExtra, vFeriados, vDomingos, vDesc,
@@ -10603,6 +10837,7 @@ function alternarAbaFolha(aba){
     document.querySelectorAll('.acoes-folha').forEach(b=>b.style.display=av?'none':'');
   }
   if(av) renderPagamentosAvulsos();
+  else renderLista();
 }
 function renderPagamentosAvulsos(){
   const busca=document.getElementById('paBusca').value.trim().toLocaleLowerCase('pt-BR');
@@ -11268,14 +11503,7 @@ function dashApurarPonto(){
     faltas:0, faltasMin:0, semBatDias:0, semBatQtd:0, semJustificativa:0,
     atrasoQtd:0, atrasoMin:0, saidaQtd:0, saidaMin:0, intervQtd:0, manualQtd:0,
     extraMin:0, debitoMin:0, foraEscalaMin:0, feriados:0, domingos:0,
-    /* Parcela da hora extra que veio de feriado trabalhado — ver "FERIADO TRABALHADO".
-       O valor é somado colaborador a colaborador, com a taxa de cada um: quem tem
-       valor-hora próprio na engrenagem não pode ser calculado pelo geral de R$ 8,50.
-
-       Aqui existem DUAS contagens, e confundi-las já deu erro no painel: somar o
-       `feriadoDobraQtd` de cada pessoa dá dias-colaborador, não dias. Treze pessoas num
-       feriado viravam "13 dias". Então `feriadoDobraDatas` guarda as DATAS distintas e
-       `feriadoDobraColabs` conta quem recebeu. */
+    /* Campos históricos mantidos para o painel: horas reais, valor e datas dos feriados. */
     feriadoDobraMin:0, feriadoDobraValor:0, feriadoDobraColabs:0, feriadoDobraDatas:[],
     licencas:0, folgas:0, notaSoma:0};
   dados.itens.forEach(it=>{
@@ -11289,12 +11517,12 @@ function dashApurarPonto(){
     t.saidaQtd += a.saidaAntQtd;     t.saidaMin += a.saidaAntMin;
     t.intervQtd += a.intervaloQtd;   t.manualQtd += a.manualQtd;
     t.extraMin += a.extraMin;        t.debitoMin += a.debitoMin;
-    t.feriadoDobraMin += (a.feriadoDobraMin||0);
-    if(a.feriadoDobraMin){
+    t.feriadoDobraMin += (a.feriadosMin||0);
+    if(a.feriadosQtd){
       t.feriadoDobraColabs++;
-      t.feriadoDobraValor += pHoras(a.feriadoDobraMin) * valorHoraExtraDe(it.vinculo);
+      t.feriadoDobraValor += valoresColaborador(a,it.vinculo && it.vinculo.salarioBase,pontoCfg(),it.vinculo).vFeriados;
       a.dias.forEach(d=>{
-        if(d.feriadoDobra && d.iso && t.feriadoDobraDatas.indexOf(d.iso) < 0) t.feriadoDobraDatas.push(d.iso);
+        if(d.feriado && d.trabalhadoMin > 0 && !d.batidasFaltantes && d.iso && t.feriadoDobraDatas.indexOf(d.iso) < 0) t.feriadoDobraDatas.push(d.iso);
       });
     }
     t.foraEscalaMin += a.foraEscalaMin;
@@ -11437,16 +11665,12 @@ function renderDashboard(){
       ['Horas trabalhadas', pHHMM(p.trabalhadoMin), 'kpi-info', p.diasTrab + ' dia(s) com registro'],
       ['Horas extras', pHHMM(extraMinTotal), extraMinTotal?'kpi-info':'kpi-ok',
         fmtMoeda(g.horaExtra) + ' pagos' + (dia.extraMin ? ' · inclui ' + pHHMM(dia.extraMin) + ' de diaristas' : '')],
-      /* Indicador próprio, e não uma linha miúda dentro do de hora extra. Hora extra de
-         feriado é decisão de calendário — a loja abriu no feriado —, e não excesso de
-         jornada: no mesmo número, uma esconde a outra e a diretoria acaba cobrando da
-         equipe horas que a própria empresa mandou fazer. Aparece só quando existe, para
-         não virar mais um zero fixo no painel. Ver "FERIADO TRABALHADO". */
+      /* Feriados têm verba própria, separada de horas extras. */
       ['Horas de feriado', pHHMM(p.feriadoDobraMin), 'kpi-info',
         fmtMoeda(p.feriadoDobraValor) + ' · ' +
         p.feriadoDobraDatas.length + ' feriado(s) · ' +
         p.feriadoDobraColabs + ' colaborador(es) · ' +
-        dashPct(p.feriadoDobraMin, extraMinTotal) + ' das horas extras', p.feriadoDobraMin],
+        'horas trabalhadas × valor-hora cadastrado + R$ 70 por dia', p.feriadoDobraMin],
       ['Horas devidas', pHHMM(p.debitoMin), p.debitoMin?'kpi-alerta':'kpi-ok', fmtMoeda(g.atrasos) + ' descontados'],
       ['Saldo de horas', pHHMM(p.extraMin - p.debitoMin), (p.extraMin - p.debitoMin) >= 0 ? 'kpi-ok':'kpi-alerta', 'extras − devidas'],
       ['Absenteísmo', (p.absenteismo*100).toLocaleString('pt-BR',{maximumFractionDigits:1}) + '%',
@@ -12611,6 +12835,165 @@ document.getElementById('relGrid').addEventListener('click', (e)=>{
   else emitirRelatorio(btn.dataset.rel, btn.dataset.modo);
 });
 
+/* Calculadora isolada: valores em centavos, sem gravação no caixa ou na nuvem.
+   Layouts: cobrança FEBRABAN (manual Banrisul, seção 6.3) e arrecadação FEBRABAN.
+   47 dígitos reordenam os campos da cobrança; 48 têm um DV por bloco de 11. */
+const boletosCalculadora = [];
+function boletoModulo10(dados){
+  let soma=0, peso=2;
+  for(let i=dados.length-1;i>=0;i--){ const n=Number(dados[i])*peso; soma+=Math.floor(n/10)+n%10; peso=3-peso; }
+  return (10-soma%10)%10;
+}
+function boletoModulo11(dados, arrecadacao=false){
+  let soma=0, peso=2;
+  for(let i=dados.length-1;i>=0;i--){ soma+=Number(dados[i])*peso; peso=peso===9?2:peso+1; }
+  const resto=soma%11;
+  if(arrecadacao) return resto<2?0:resto===10?1:11-resto;
+  const dv=11-resto;
+  return dv===0||dv===10||dv===11?1:dv;
+}
+function interpretarBoleto(texto){
+  if(!/^[\d\s.\-]+$/.test(texto)) throw Error('Use apenas o código numérico do boleto.');
+  let codigo=texto.replace(/[\s.\-]/g,'');
+  if(![44,47,48].includes(codigo.length)) throw Error('Leitura incompleta: o código precisa ter 44, 47 ou 48 dígitos. Leia novamente.');
+  const conferir=(dados,dv,calcular)=>{ if(calcular(dados)!==Number(dv)) throw Error('Código inválido: os dígitos de conferência não coincidem. Leia novamente.'); };
+  if(codigo.length===47){
+    conferir(codigo.slice(0,9),codigo[9],boletoModulo10);
+    conferir(codigo.slice(10,20),codigo[20],boletoModulo10);
+    conferir(codigo.slice(21,31),codigo[31],boletoModulo10);
+    codigo=codigo.slice(0,4)+codigo[32]+codigo.slice(33)+codigo.slice(4,9)+codigo.slice(10,20)+codigo.slice(21,31);
+    if(codigo[0]==='8') throw Error('Formato de arrecadação inválido: use 44 ou 48 dígitos.');
+  }else if(codigo.length===48){
+    if(codigo[0]!=='8'||!/[6789]/.test(codigo[2])) throw Error('Linha de arrecadação inválida.');
+    const calcular=/[67]/.test(codigo[2])?boletoModulo10:d=>boletoModulo11(d,true);
+    let barras='';
+    for(let i=0;i<48;i+=12){ const bloco=codigo.slice(i,i+11); conferir(bloco,codigo[i+11],calcular); barras+=bloco; }
+    codigo=barras;
+  }
+  let centavos, tipo;
+  if(codigo[0]==='8'){
+    if(!/[12345679]/.test(codigo[1])||!/[6789]/.test(codigo[2])) throw Error('Tipo de arrecadação não reconhecido.');
+    const calcular=/[67]/.test(codigo[2])?boletoModulo10:d=>boletoModulo11(d,true);
+    conferir(codigo.slice(0,3)+codigo.slice(4),codigo[3],calcular);
+    if(/[79]/.test(codigo[2])) throw Error('Este código contém um valor de referência, não um valor em reais. Não foi somado.');
+    centavos=Number(codigo.slice(4,15)); tipo='Conta / arrecadação';
+  }else{
+    if(codigo[3]!=='9') throw Error('Este boleto não informa valor em reais. Não foi somado.');
+    conferir(codigo.slice(0,4)+codigo.slice(5),codigo[4],boletoModulo11);
+    centavos=Number(codigo.slice(9,19)); tipo='Boleto bancário';
+  }
+  if(!centavos) throw Error('Este boleto não tem valor definido no código. Confira o valor no documento; ele não foi somado.');
+  return {codigo,centavos,tipo};
+}
+function renderBoletos(){
+  document.getElementById('bolTotal').textContent=fmtMoeda(boletosCalculadora.reduce((s,b)=>s+b.centavos,0)/100);
+  document.getElementById('bolQuantidade').textContent=boletosCalculadora.length+' boleto'+(boletosCalculadora.length===1?'':'s');
+  document.getElementById('bolVazio').hidden=boletosCalculadora.length>0;
+  document.getElementById('bolLimpar').disabled=!boletosCalculadora.length;
+  document.getElementById('bolLista').innerHTML=boletosCalculadora.map((b,i)=>'<li><div class="bol-dados"><strong>'+(i+1)+'. '+b.tipo+'</strong><small>'+b.codigo+'</small></div><strong>'+fmtMoeda(b.centavos/100)+'</strong><button type="button" class="btn btn-outline" data-bol-remover="'+i+'" aria-label="Remover boleto '+(i+1)+'">Remover</button></li>').join('');
+}
+let bolCaptura=null;
+function diagnosticoBoleto(finalizacao='aguardando Enter, Tab ou botão'){
+  const texto=document.getElementById('bolCodigo').value;
+  const d=bolCaptura;
+  document.getElementById('bolDiagnostico').textContent=texto.replace(/\D/g,'').length+' dígitos recebidos · '+(d?d.ultimo-d.inicio:0)+' ms de captura · '+(d?d.pausas:0)+' pausas acima de 150 ms · maior intervalo: '+(d?d.maior:0)+' ms · '+finalizacao;
+  document.getElementById('bolUltimoCodigo').textContent='Última entrada: '+texto;
+}
+function prepararBoleto(digitacao=false){
+  bolCaptura=null;
+  const campo=document.getElementById('bolCodigo'); campo.value=''; campo.focus({preventScroll:true});
+  feedbackBoleto('neutro',digitacao?'Digite ou cole a linha':'Pronto para ler',digitacao?'Copie os números impressos no boleto e confirme em Adicionar boleto.':'Acione o gatilho para uma nova leitura.');
+}
+function feedbackBoleto(estado,titulo,detalhe,valor=''){
+  const mensagem=document.getElementById('bolMensagem');
+  mensagem.dataset.estado=estado;
+  mensagem.dataset.erro=String(estado==='erro');
+  mensagem.replaceChildren();
+  for(const [tag,texto] of [['strong',titulo],['b',valor],['span',detalhe]]){
+    if(!texto) continue;
+    const elemento=document.createElement(tag); elemento.textContent=texto; mensagem.appendChild(elemento);
+  }
+}
+function adicionarBoleto(origem='botão'){
+  const campo=document.getElementById('bolCodigo');
+  if(!campo.value.trim()) return;
+  diagnosticoBoleto('confirmado por '+origem);
+  try{
+    const boleto=interpretarBoleto(campo.value);
+    if(boletosCalculadora.some(b=>b.codigo===boleto.codigo)) throw Error('Este boleto já está na soma. Ele não foi adicionado novamente.');
+    boletosCalculadora.push(boleto); renderBoletos();
+    feedbackBoleto('sucesso','✓ Boleto Somado','Pode passar o próximo boleto.',fmtMoeda(boleto.centavos/100));
+    campo.value='';
+  }catch(e){
+    const titulo=/já está/.test(e.message)?'Boleto já somado':/incompleta/.test(e.message)?'Leitura incompleta':'Não foi somado';
+    feedbackBoleto('erro',titulo,e.message.replace(' Leia novamente.','')+(/já está/.test(e.message)?' Pode passar o próximo boleto.':' Leia novamente ou use a linha digitável.'));
+    // Preserva a tentativa no diagnóstico e deixa a próxima captura limpa.
+    campo.value='';
+  }
+  bolCaptura=null;
+  campo.focus({preventScroll:true});
+}
+document.getElementById('bolForm').addEventListener('submit',e=>{e.preventDefault();adicionarBoleto();});
+document.getElementById('bolCodigo').addEventListener('keydown',e=>{
+  if((e.key==='Enter'||e.key==='Tab')&&e.currentTarget.value.trim()) {e.preventDefault();adicionarBoleto(e.key);}
+});
+document.getElementById('bolCodigo').addEventListener('input',e=>{
+  const texto=e.currentTarget.value, quantidade=texto.replace(/\D/g,'').length;
+  const agora=Date.now();
+  if(!bolCaptura) bolCaptura={inicio:agora,ultimo:agora,pausas:0,maior:0};
+  const intervalo=agora-bolCaptura.ultimo;
+  bolCaptura.maior=Math.max(bolCaptura.maior,intervalo); if(intervalo>150) bolCaptura.pausas++;
+  bolCaptura.ultimo=agora;
+  diagnosticoBoleto();
+  feedbackBoleto('lendo',quantidade?'Recebendo código':'Pronto para ler',quantidade?quantidade+' dígitos recebidos. Ao terminar, confirme com Enter, Tab ou Adicionar boleto.':'Passe o boleto no leitor ou cole o código acima.');
+  if(!texto) bolCaptura=null;
+});
+document.getElementById('bolRepetir').addEventListener('click',()=>prepararBoleto());
+document.getElementById('bolDigitar').addEventListener('click',()=>prepararBoleto(true));
+function valorManualBoleto(texto){
+  const valor=texto.trim();
+  if(!/^(?:\d+|\d{1,3}(?:\.\d{3})+)(?:,\d{1,2})?$/.test(valor)) throw Error('Informe o valor em reais, por exemplo 123,45.');
+  const [reais,fracao='']=valor.replace(/\./g,'').split(',');
+  const centavos=Number(reais)*100+Number(fracao.padEnd(2,'0'));
+  if(!Number.isSafeInteger(centavos)||centavos<=0||centavos>99999999999) throw Error('Informe um valor positivo de até R$ 999.999.999,99.');
+  return centavos;
+}
+document.getElementById('bolManualForm').addEventListener('submit',e=>{
+  e.preventDefault();
+  const campo=document.getElementById('bolManualValor');
+  try{
+    const centavos=valorManualBoleto(campo.value);
+    const repetido=boletosCalculadora.some(b=>b.centavos===centavos);
+    if(!confirm('Confirma a inclusão manual de '+fmtMoeda(centavos/100)+'?\nConfira o valor no documento. O código não será validado e não é possível identificar duplicidades.'+(repetido?'\nAtenção: já existe um lançamento com este valor.':''))) return;
+    boletosCalculadora.push({centavos,tipo:'Inclusão manual',codigo:'Manual, sem validação do código',manual:true});renderBoletos();
+    campo.value='';document.getElementById('bolManual').open=false;
+    prepararBoleto();feedbackBoleto('sucesso','✓ Valor manual somado','Manual, sem validação do código. Confira o documento.',fmtMoeda(centavos/100));
+  }catch(erro){feedbackBoleto('erro','Valor não incluído',erro.message);campo.focus();}
+});
+// Leitores USB funcionam como teclado. Recupera a entrada apenas nesta tela,
+// preservando outros campos editáveis e atalhos do navegador.
+document.addEventListener('keydown',e=>{
+  if(document.getElementById('viewRecBoletos').style.display==='none'||e.ctrlKey||e.altKey||e.metaKey||!/^\d$/.test(e.key)) return;
+  if(e.target.closest('input,textarea,select,[contenteditable="true"],[role="textbox"]')) return;
+  const campo=document.getElementById('bolCodigo');
+  campo.focus({preventScroll:true});
+  // Insere explicitamente o primeiro dígito para não o perder ao mudar o foco.
+  e.preventDefault(); campo.setRangeText(e.key,campo.selectionStart,campo.selectionEnd,'end');
+  campo.dispatchEvent(new Event('input',{bubbles:true}));
+});
+document.getElementById('bolLista').addEventListener('click',e=>{
+  const botao=e.target.closest('[data-bol-remover]'); if(!botao) return;
+  boletosCalculadora.splice(Number(botao.dataset.bolRemover),1); renderBoletos();
+  feedbackBoleto('neutro','Boleto removido','Total atualizado. Pode passar o próximo boleto.');
+  document.getElementById('bolCodigo').focus();
+});
+document.getElementById('bolLimpar').addEventListener('click',()=>{
+  if(!boletosCalculadora.length||!confirm('Limpar todos os boletos desta soma?')) return;
+  boletosCalculadora.length=0; renderBoletos();
+  bolCaptura=null;
+  feedbackBoleto('neutro','Pronto para ler','Soma limpa. Passe o próximo boleto.'); document.getElementById('bolCodigo').value=''; document.getElementById('bolCodigo').focus();
+});
+
 /* ============================= NAVEGAÇÃO (barra lateral) =============================
    O sistema tem três áreas de primeiro nível — Recursos Humanos, Controle de Caixa
    Administrativo e Loja do Escritório — e cada uma abre em dropdown as suas telas.
@@ -12631,6 +13014,7 @@ const ABAS = {
   lojaVendas:   {view:'viewLojaVendas',   titulo:'Vendas do Dia',              grupo:'loja'},
   lojaProdutos: {view:'viewLojaProdutos', titulo:'Produtos da Loja',           grupo:'loja'},
   lojaBalanco:  {view:'viewLojaBalanco',  titulo:'Balanço da Loja',            grupo:'loja'},
+  recBoletos:   {view:'viewRecBoletos',   titulo:'Calculadora de Boletos',     grupo:'rec'},
   recLancar:    {view:'viewRecLancar',    titulo:'Lançar Recebimento',         grupo:'rec'},
   recRetirada:  {view:'viewRecRetirada',  titulo:'Retirada de Caixa',          grupo:'rec'},
   recSuprimento:{view:'viewRecSuprimento',titulo:'Suprimento de Caixa',        grupo:'rec'},
@@ -12707,6 +13091,7 @@ function trocarAba(aba){
   if(aba==='relatorios') renderRelatorios();
   /* O `true` diz que a tela está sendo ABERTA: as telas de lançamento voltam para hoje. */
   if(aba==='recLancar') renderRecLancar(true);
+  if(aba==='recBoletos'){ renderBoletos(); document.getElementById('bolCodigo').focus(); }
   if(aba==='recRetirada') renderRetiradas(true);
   if(aba==='recSuprimento') renderSuprimentos(true);
   if(aba==='recNotinhas') renderNotinhasAvulsas(true);
@@ -12885,8 +13270,112 @@ function atualizarSinoPonto(){
 }
 
 /* ============================= PONTO: IMPORTAÇÃO ============================= */
-document.getElementById('btnImportarPonto').addEventListener('click', ()=> document.getElementById('filePonto').click());
+let importacaoPontoPendente = null;
 
+function pontoDiaTemHorario(dia){
+  return (dia.cels || []).some(v=>pMin(v) !== null);
+}
+
+/* Não altera a base. A mesma combinação é refeita na confirmação para proteger
+   também marcações recebidas enquanto a conferência estava aberta. */
+function prepararImportacaoPonto(base, cartoes, ate, arquivo){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(ate)) throw new Error('Informe o último dia do aparelho.');
+  const meses = JSON.parse(JSON.stringify(base || {}));
+  const resumo = {adicionados:0, preservados:0, semHorario:0, aposLimite:0, semCadastro:0, conflitos:[], meses:[]};
+  const alterados = new Set();
+  cartoes.forEach(p=>p.colaboradores.forEach(c=>{
+    const f = acharFuncDoPonto(c);
+    if(!f){ resumo.semCadastro++; return; }
+    (c.dias || []).forEach(d=>{
+      if(d.iso > ate){ resumo.aposLimite++; return; }
+      if(!pontoDiaTemHorario(d)){ resumo.semHorario++; return; }
+      const mk = d.iso.slice(0,7);
+      const mes = meses[mk] || {empresa:p.empresa, cnpj:p.cnpj, periodo:p.periodo, colaboradores:[], ignorados:[]};
+      // CPF e vínculo na folha evitam duplicar o mesmo funcionário com nomes diferentes.
+      const candidatos = mes.colaboradores.filter(x=>{
+        const fx = acharFuncDoPonto(x);
+        return (fx && fx.id === f.id) || (soDigitos(c.cpf) && soDigitos(c.cpf) === soDigitos(x.cpf));
+      });
+      if(candidatos.length > 1) throw new Error('Há cartões duplicados de ' + f.nome + '. Confira os vínculos antes de importar.');
+      let destino = candidatos[0];
+      const existente = destino && (destino.dias || []).find(x=>x.iso === d.iso);
+      if(existente && pontoDiaTemHorario(existente)){
+        resumo.preservados++;
+        const horas = dia=>(dia.cels || []).map(pMin);
+        if(JSON.stringify(horas(existente)) !== JSON.stringify(horas(d))){
+          resumo.conflitos.push({nome:destino.nome, iso:d.iso, atual:horas(existente), aparelho:horas(d)});
+        }
+        return;
+      }
+      if(!destino){
+        destino = Object.assign({}, c, {dias:[], totalRelogio:{atraso:null, extras:null}});
+        mes.colaboradores.push(destino);
+      }
+      destino.dias = destino.dias || [];
+      const novo = JSON.parse(JSON.stringify(d));
+      if(existente) destino.dias[destino.dias.indexOf(existente)] = Object.assign({}, existente, novo);
+      else destino.dias.push(novo);
+      destino.dias.sort((a,b)=>a.iso.localeCompare(b.iso));
+      // Totais do arquivo completo não representam um cartão combinado ou parcial.
+      destino.totalRelogio = {atraso:null, extras:null};
+      meses[mk] = mes;
+      alterados.add(mk);
+      resumo.adicionados++;
+    });
+  }));
+  resumo.meses = [...alterados].sort();
+  resumo.meses.forEach(mk=>{
+    const mes = meses[mk];
+    mes.ultimaImportacao = {arquivo, ate, modo:'preservar-horarios', em:new Date().toISOString()};
+    if(!mes.arquivo){ mes.arquivo = arquivo; mes.importadoEm = mes.ultimaImportacao.em; }
+    mes.ignorados = (mes.ignorados || []).filter(x=>!mes.colaboradores.some(c=>norm(c.nome)===norm(x.nome)));
+  });
+  return {meses, resumo};
+}
+
+function conferirImportacaoPonto(){
+  const btn = document.getElementById('confirmarImportacaoPonto');
+  btn.disabled = true;
+  if(!importacaoPontoPendente) return;
+  try{
+    const plano = prepararImportacaoPonto(state.ponto, importacaoPontoPendente.cartoes,
+      document.getElementById('importacaoPontoAte').value, importacaoPontoPendente.arquivo);
+    const r = plano.resumo;
+    const horarios = valores=>valores.map(v=>v===null?'—':pHHMM(v)).join(' / ');
+    document.getElementById('importacaoPontoResumo').innerHTML =
+      '<p><b>' + r.adicionados + ' dia(s) com horários a importar</b> · ' + r.preservados + ' dia(s) com horários preservados.</p>' +
+      '<p>Ignorados: ' + r.semHorario + ' dia(s) sem batidas, ' + r.aposLimite + ' dia(s) após a data limite e ' + r.semCadastro + ' cartão(ões) sem cadastro na folha.</p>' +
+      (r.conflitos.length ? '<details><summary>' + r.conflitos.length + ' diferença(s) para conferir — horários atuais serão mantidos</summary><ul>' +
+        r.conflitos.map(x=>'<li><b>'+escHtml(x.nome)+' · '+escHtml(x.iso.split('-').reverse().join('/'))+'</b><br>Sistema: '+horarios(x.atual)+'<br>Aparelho: '+horarios(x.aparelho)+'</li>').join('') + '</ul></details>' : '');
+    btn.disabled = !r.adicionados;
+    return plano;
+  }catch(err){ document.getElementById('importacaoPontoResumo').textContent = err.message; }
+}
+
+function fecharImportacaoPonto(){
+  importacaoPontoPendente = null;
+  document.getElementById('overlayImportacaoPonto').classList.remove('show');
+}
+document.getElementById('fecharImportacaoPonto').addEventListener('click', fecharImportacaoPonto);
+document.getElementById('cancelarImportacaoPonto').addEventListener('click', fecharImportacaoPonto);
+document.getElementById('importacaoPontoAte').addEventListener('input', conferirImportacaoPonto);
+document.getElementById('confirmarImportacaoPonto').addEventListener('click', ()=>{
+  const plano = conferirImportacaoPonto();
+  if(!plano || !plano.resumo.adicionados) return;
+  // Só os meses afetados são atualizados; correções e demais dados ficam intactos.
+  if(!state.ponto) state.ponto = {};
+  plano.resumo.meses.forEach(mk=>{ state.ponto[mk] = plano.meses[mk]; });
+  state.mesAtual = plano.resumo.meses[plano.resumo.meses.length-1];
+  fecharImportacaoPonto();
+  invalidarPonto();
+  salvarEstado();
+  popularSelectMes();
+  renderLista();
+  renderPonto();
+  trocarAba('ponto');
+  mostrarToast(plano.resumo.adicionados + ' dia(s) importado(s). Horários existentes preservados.');
+});
+document.getElementById('btnImportarPonto').addEventListener('click', ()=> document.getElementById('filePonto').click());
 document.getElementById('filePonto').addEventListener('change', function(e){
   const file = e.target.files[0];
   if(!file) return;
@@ -12894,77 +13383,24 @@ document.getElementById('filePonto').addEventListener('change', function(e){
   reader.onload = function(ev){
     try{
       const wb = XLSX.read(new Uint8Array(ev.target.result), {type:'array'});
-      let importados = 0, ignorados = 0, mesesImportados = [];
-      wb.SheetNames.forEach(nomeAba=>{
-        const rows = XLSX.utils.sheet_to_json(wb.Sheets[nomeAba], {header:1, defval:null, raw:true, blankrows:true});
-        const p = parsePontoRows(rows);
-        if(!p || !p.colaboradores.length) return;
-        // agrupa por mês (a planilha pode conter mais de um mês)
-        const porMes = {};
-        p.colaboradores.forEach(c=>{
-          const grupos = {};
-          c.dias.forEach(d=>{
-            const mk = d.iso.slice(0,7);
-            (grupos[mk] = grupos[mk] || []).push(d);
-          });
-          Object.keys(grupos).forEach(mk=>{
-            porMes[mk] = porMes[mk] || [];
-            porMes[mk].push(Object.assign({}, c, {dias: grupos[mk]}));
-          });
-        });
-        Object.keys(porMes).forEach(mk=>{
-          /* A peneira é por MÊS, e não pelo arquivo inteiro: um arquivo pode trazer
-             dois meses, e quem só tem folga em agosto pode ter trabalhado em julho.
-             Ver "QUEM ENTRA NA APURAÇÃO DO PONTO". */
-          const dentro = [], fora = [];
-          porMes[mk].forEach(c=>{
-            const motivo = motivoForaDoPonto(c);
-            if(motivo) fora.push({nome: c.nome || '', cpf: c.cpf || '', motivo: motivo});
-            else dentro.push(c);
-          });
-          /* Mês em que ninguém passou pela peneira não vira importação: gravar um mês
-             com zero colaboradores apagaria o que já estava apurado ali. */
-          if(!dentro.length){ ignorados += fora.length; return; }
-          state.ponto[mk] = {
-            empresa: p.empresa, cnpj: p.cnpj, periodo: p.periodo,
-            arquivo: file.name, importadoEm: new Date().toISOString(),
-            colaboradores: dentro,
-            ignorados: fora
-          };
-          importados += dentro.length;
-          ignorados += fora.length;
-          mesesImportados.push(mk);
-        });
-      });
-      /* Arquivo lido mas ninguém aproveitado é diferente de arquivo não reconhecido, e
-         confundir os dois manda a pessoa procurar defeito no arquivo errado. */
-      if(!importados){
-        mostrarToast(ignorados
-          ? 'Nenhum colaborador do arquivo entrou: ' + ignorados + ' nome(s) sem cadastro na folha ou só com folga'
-          : 'Não foi identificado um cartão ponto neste arquivo');
-        return;
-      }
-      if(mesesImportados.length) state.mesAtual = mesesImportados.sort()[mesesImportados.length-1];
-      invalidarPonto();
-      salvarEstado();
-      popularSelectMes();
-      renderLista();
-      renderPonto();
-      trocarAba('ponto');
-      /* "Sem vínculo" era o aviso de antes, quando o nome de fora entrava assim mesmo.
-         Agora ele não entra — o que precisa ser dito é quantos ficaram de fora e que
-         a lista deles está no cabeçalho da tela, ao alcance de quem quiser conferir. */
-      mostrarToast('Cartão ponto de ' + mesesImportados.map(mesLabel).join(', ') + ' importado · ' +
-        importados + ' colaborador(es) apurado(s)' +
-        (ignorados ? ' · ' + ignorados + ' nome(s) do arquivo ficaram de fora (veja no topo da tela)' : ''));
-    }catch(err){
-      console.error(err);
-      mostrarToast('Falha na leitura da planilha de ponto');
-    }
+      const cartoes = wb.SheetNames.map(nome=>parsePontoRows(XLSX.utils.sheet_to_json(wb.Sheets[nome],
+        {header:1, defval:null, raw:true, blankrows:true}))).filter(p=>p && p.colaboradores.length);
+      const datas = cartoes.flatMap(p=>p.colaboradores.flatMap(c=>(c.dias || []).filter(pontoDiaTemHorario).map(d=>d.iso))).sort();
+      if(!datas.length){ mostrarToast('Nenhum horário encontrado no arquivo. Nada foi alterado.'); return; }
+      importacaoPontoPendente = {arquivo:file.name, cartoes};
+      const limite = document.getElementById('importacaoPontoAte');
+      limite.min = datas[0];
+      limite.max = datas[datas.length-1];
+      limite.value = limite.max;
+      conferirImportacaoPonto();
+      document.getElementById('overlayImportacaoPonto').classList.add('show');
+    }catch(err){ console.error(err); mostrarToast('Falha na leitura da planilha de ponto. Nada foi alterado.'); }
   };
+  reader.onerror = ()=>mostrarToast('Não foi possível ler o arquivo. Nada foi alterado.');
   reader.readAsArrayBuffer(file);
   e.target.value = '';
 });
+
 
 /* ============================= PONTO: RENDER PRINCIPAL ============================= */
 function pontoClasseNota(n){ return n>=90?'nota-a': n>=75?'nota-b': n>=55?'nota-c':'nota-d'; }
@@ -12999,7 +13435,7 @@ function renderPonto(){
     (dados.info.periodo && dados.info.periodo.de ? ' · Período ' + dados.info.periodo.de + ' a ' + dados.info.periodo.ate : '') +
     ' · ' + t.colab + ' colaborador(es)' +
     '<br>Parâmetros: tolerância de atraso ' + cfg.tolAtraso + ' min · hora extra antes das ' + pHHMM(cfg.heEntradaAntes) + ' e após as ' + pHHMM(cfg.heSaidaApos) + ' a ' + fmtMoeda(cfg.valorHoraExtra) + '/h' +
-    ' · feriado e domingo pagos por fora, valor individual · registro a partir das ' + pHHMM(cfg.saidaFinalApos) + ' encerra a jornada (domingos ' + pHHMM(cfg.saidaFinalDomApos) + ', 3º sábado ' + pHHMM(cfg.saidaFinalSab3Apos) + ')' +
+    ' · feriado: horas trabalhadas × valor-hora cadastrado + R$ 70; domingo: valor individual · registro a partir das ' + pHHMM(cfg.saidaFinalApos) + ' encerra a jornada (domingos ' + pHHMM(cfg.saidaFinalDomApos) + ', 3º sábado ' + pHHMM(cfg.saidaFinalSab3Apos) + ')' +
     /* Quem ficou de fora fica dito aqui, com nome e motivo. É a contrapartida de filtrar
        na importação: o arquivo tinha 18 nomes e a tela mostra 14 — a diferença não pode
        depender de alguém lembrar da regra. Ver "QUEM ENTRA NA APURAÇÃO DO PONTO". */
@@ -13017,7 +13453,7 @@ function renderPonto(){
     ['Saídas antecipadas',t.saiQtd + ' · ' + pHHMM(t.saiMin), t.saiMin?'kpi-alerta':'kpi-ok', 'ocorrências · tempo total'],
     ['Intervalos irregulares', t.interv,       t.interv?'kpi-alerta':'kpi-ok',   'abaixo do mínimo ou não registrado'],
     ['Horas extras',      pHHMM(t.extra),      'kpi-info',                       'antes das ' + pHHMM(cfg.heEntradaAntes) + ' + após as ' + pHHMM(cfg.heSaidaApos)],
-    ['Feriados trabalhados', t.feriados,       t.feriados?'kpi-info':'kpi-ok',    'pago por fora só a quem tem valor cadastrado'],
+    ['Feriados trabalhados', t.feriados,       t.feriados?'kpi-info':'kpi-ok',    'horas trabalhadas × valor-hora cadastrado + R$ 70 por dia trabalhado'],
     ['Domingos trabalhados', t.domingos,       t.domingos?'kpi-info':'kpi-ok',    'pago por fora só a quem tem valor cadastrado'],
     ['Horas devidas',     pHHMM(t.debito),     t.debito?'kpi-alerta':'kpi-ok',   'jornada não cumprida e faltas'],
     ['Saldo geral',       pHHMM(t.saldo),      t.saldo>=0?'kpi-ok':'kpi-alerta', 'extras − devidas']
@@ -13067,8 +13503,8 @@ function renderTabelaPonto(dados){
       '<td class="col-acoes"><div class="menu-acoes">' +
       '<button type="button" class="btn-3pontos" data-idx="'+it.idx+'" title="Ações">&#8942;</button>' +
       '<div class="dropdown-acoes">' +
-      '<button type="button" class="item-editar" data-idx="'+it.idx+'">Editar</button>' +
-      '<button type="button" class="item-editar-registros" data-idx="'+it.idx+'">Editar registros</button>' +
+      '<button type="button" class="item-editar" data-idx="'+it.idx+'">Cadastro e folha</button>' +
+      '<button type="button" class="item-editar-registros" data-idx="'+it.idx+'">Ajustar ponto</button>' +
       (it.vinculo ? '' : '<button type="button" class="item-vincular" data-idx="'+it.idx+'">Vincular à folha</button>') +
       '<button type="button" class="item-excluir" data-idx="'+it.idx+'">Excluir</button>' +
       '</div></div></td>' +
@@ -13151,7 +13587,7 @@ function renderValores(dados){
       dinheiro(v.vExtra, 'cel-info', fmtMoeda(v.valorHoraExtra)+' por hora') +
       '<td class="mono">'+(v.feriadosQtd||'—')+'</td>' +
       dinheiro(v.vFeriados, v.vFeriados?'cel-info':'',
-        (v.valorFeriado?fmtMoeda(v.valorFeriado)+' por dia':'não recebe por feriado'),
+        pHHMM(v.feriadosPagosMin||0)+' × '+fmtMoeda(v.valorHoraExtra)+'/h + '+fmtMoeda(v.valorFeriado)+' por dia',
         v.vFeriados?fmtMoeda(v.vFeriados):'—') +
       '<td class="mono">'+(v.domingosQtd||'—')+'</td>' +
       dinheiro(v.vDomingos, v.vDomingos?'cel-info':'',
@@ -13163,8 +13599,8 @@ function renderValores(dados){
       '<td class="col-acoes"><div class="menu-acoes">' +
       '<button type="button" class="btn-3pontos" data-idx="'+it.idx+'" title="Ações">&#8942;</button>' +
       '<div class="dropdown-acoes">' +
-      '<button type="button" class="item-editar" data-idx="'+it.idx+'">Editar</button>' +
-      '<button type="button" class="item-editar-registros" data-idx="'+it.idx+'">Editar registros</button>' +
+      '<button type="button" class="item-editar" data-idx="'+it.idx+'">Cadastro e folha</button>' +
+      '<button type="button" class="item-editar-registros" data-idx="'+it.idx+'">Ajustar ponto</button>' +
       (it.vinculo ? '' : '<button type="button" class="item-vincular" data-idx="'+it.idx+'">Vincular à folha</button>') +
       '<button type="button" class="item-excluir" data-idx="'+it.idx+'">Excluir</button>' +
       '</div></div></td>' +
@@ -13184,7 +13620,7 @@ function renderValores(dados){
     (ver ? '' : '<b>Valores ocultos.</b> Clique no colaborador para abrir o espelho e ver os valores dele, ' +
                 'ou use “Mostrar valores” para exibir a lista inteira.<br>') +
     'Hora extra remunerada a '+fmtMoeda(cfg.valorHoraExtra)+' por hora (valor geral). ' +
-    '<b>Feriado e domingo trabalhados não geram pagamento adicional</b> — só recebe quem tem valor por fora cadastrado na engrenagem ⚙ no topo da página. ' +
+    '<b>Feriado trabalhado: horas trabalhadas × valor-hora cadastrado + R$ 70 por dia.</b> Domingo mantém o valor individual cadastrado. ' +
     (nProprios ? '<b>'+nProprios+' colaborador(es) com valor próprio</b> estão marcados na lista; passe o mouse sobre o valor para ver a taxa aplicada. ' : '') +
     'Horas devidas descontadas pelo mesmo valor da hora extra do colaborador. ' +
     '"Total com salário" = salário base + hora extra + feriados + domingos − horas devidas, <b>antes</b> de INSS, adiantamento, salário-família e demais descontos da folha.' +
@@ -13233,7 +13669,7 @@ function renderValoresEspelho(it){
     linha('Salário base', 'cadastro do colaborador', fmtMoeda(base)) +
     linha('Horas extras', pHHMM(it.a.extraMin) + ' × ' + fmtMoeda(v.valorHoraExtra) + '/h', fmtMoeda(v.vExtra), 'cel-info') +
     (v.feriadosQtd
-      ? linha('Feriados trabalhados', v.feriadosQtd + ' dia(s) × ' + (v.valorFeriado ? fmtMoeda(v.valorFeriado) : 'sem pagamento por fora'),
+      ? linha('Feriados trabalhados', pHHMM(v.feriadosPagosMin||0)+' × '+fmtMoeda(v.valorHoraExtra)+'/h + '+v.feriadosPagosQtd+' dia(s) × '+fmtMoeda(v.valorFeriado)+(v.feriadosFolgaQtd?' · '+v.feriadosFolgaQtd+' trocado(s) por folga':''),
               v.vFeriados ? fmtMoeda(v.vFeriados) : '—', v.vFeriados?'cel-info':'')
       : '') +
     (v.domingosQtd
@@ -13350,25 +13786,186 @@ function textoDeclaracaoEspelho(periodo){
     'inclusive a Ficha de Horário de Trabalho.';
 }
 
+let pontoEditorIso = '', pontoEditorFiltro = 'todos', pontoEditorContexto = '', pontoEditorSujo = false;
+let pontoEditorBase = '', pontoRetornoFolha = null;
+
+function permitirNavegacaoEditorPonto(){
+  if(!pontoEditorSujo) return true;
+  mostrarToast('Salve ou descarte os horários digitados antes de continuar.');
+  return false;
+}
+function assinaturaDiaEditor(c,mes,iso){
+  return JSON.stringify([c.dias.find(d=>d.iso===iso),marcacoesEditadas(mes,c.nome,iso),
+    pontoCorrecao(mes,c.nome,iso),folgaMarcada(mes,c.nome,iso),faltaMarcada(mes,c.nome,iso),
+    extraDiaPonto(mes,c.nome,iso),cortesiaPonto(mes,c.nome,iso)]);
+}
+function horariosValidosEditor(valores){
+  if(valores.length !== 6) throw new Error('Confira os seis campos de horário.');
+  return valores.map(v=>{
+    const txt = String(v || '').trim();
+    if(!txt) return null;
+    const hora = pTextoHora(txt);
+    if(hora === null || pMin(hora) < 0 || pMin(hora) >= 1440) throw new Error('Horário inválido: '+txt+'. Use, por exemplo, 07:30.');
+    return hora;
+  });
+}
+function renderEditorPonto(it){
+  const c = it.c, dias = it.a.dias;
+  const contexto = state.mesAtual+'|'+c.nome;
+  if(pontoEditorContexto !== contexto){ pontoEditorContexto=contexto; pontoEditorIso=''; pontoEditorFiltro='todos'; }
+  const lista = dias.filter(d=>pontoEditorFiltro==='todos' || (pontoEditorFiltro==='ajustados'
+    ? d.marcacaoEditada || d.folgaMarcada || d.faltaMarcada || d.motivoAtual || d.cortesiaDia || d.extraDiaMin
+    : d.tipo==='falta' || d.batidasFaltantes>0 || d.debitoMin>0));
+  if(!lista.some(d=>d.iso===pontoEditorIso)) pontoEditorIso = lista[0] ? lista[0].iso : '';
+  const d = lista.find(d=>d.iso===pontoEditorIso);
+  const nav = '<nav class="ep-nav" aria-label="Dias do ponto"><label for="epFiltro">Mostrar dias</label><select id="epFiltro">'+
+    [['todos','Todos os dias'],['pendencias','Faltas e pendências'],['ajustados','Dias ajustados']].map(([v,t])=>'<option value="'+v+'"'+(v===pontoEditorFiltro?' selected':'')+'>'+t+'</option>').join('')+'</select><div class="ep-dias">'+
+    lista.map(x=>'<button type="button" class="ep-dia" data-dia="'+x.iso+'" aria-pressed="'+(x.iso===pontoEditorIso)+'"><span>'+escHtml(dataBR(x.iso))+' · '+escHtml(PONTO_DOW_LABEL[x.dow] || '')+'</span><small>'+escHtml((PONTO_TIPO[x.tipo] || PONTO_TIPO.ok).rot)+'</small></button>').join('')+'</div></nav>';
+  pontoEditorSujo=false;
+  if(!d) return '<div class="ep-editor">'+nav+'<div class="ep-painel">Nenhum dia neste filtro.</div></div>';
+  pontoEditorBase=assinaturaDiaEditor(c,state.mesAtual,d.iso);
+  const original=c.dias.find(x=>x.iso===d.iso);
+  const efetivo=diaComMarcacoesEditadas(original,state.mesAtual,c.nome);
+  const entradas=Array.from({length:6},(_,i)=>pMin(efetivo.cels[i])===null?'':pHHMM(pMin(efetivo.cels[i])));
+  const campos=[0,2,4].map(i=>'<div class="ep-par">'+[i,i+1].map(k=>'<label>'+(k%2?'Saída ':'Entrada ')+(Math.floor(k/2)+1)+
+    '<input class="ep-hora" data-pos="'+k+'" value="'+entradas[k]+'" data-inicial="'+entradas[k]+'" placeholder="--:--" inputmode="numeric" maxlength="5" autocomplete="off"></label>').join('')+'</div>').join('');
+  let situacao='';
+  if(d.feriado || d.tipo==='feriado') situacao+=checkboxFeriadoFolga(d)+'<p class="ep-nota">Substitui as horas pagas do feriado e os R$ 70 por uma folga a combinar. Desmarque para voltar ao pagamento.</p>';
+  if(d.podeFolga || d.folgaMarcada) situacao+='<label class="cortesia-lbl"><input type="checkbox" class="folga-chk" data-iso="'+d.iso+'"'+(d.folgaMarcada?' checked':'')+'> Marcar como folga — sem desconto de falta</label>';
+  if((d.podeFalta || d.faltaMarcada) && !d.folgaMarcada) situacao+='<label class="falta-lbl"><input type="checkbox" class="falta-chk" data-iso="'+d.iso+'"'+(d.faltaMarcada?' checked':'')+'> Foi falta — descontar o dia</label>';
+  if(d.registroAusenteOriginal){
+    situacao+='<label for="epMotivo">Justificativa de registro ausente</label><select id="epMotivo" class="select-motivo" data-iso="'+d.iso+'"><option value="">Selecionar motivo…</option>'+Object.keys(MOTIVOS_AUSENCIA).map(k=>'<option value="'+k+'"'+(k===d.motivoAtual?' selected':'')+'>'+escHtml(MOTIVOS_AUSENCIA[k])+'</option>').join('')+'</select>';
+  }
+  if(d.podeCortesia) situacao+='<label class="cortesia-lbl"><input type="checkbox" class="cortesia-chk" data-iso="'+d.iso+'"'+(d.cortesiaDia?' checked':'')+'> Pago o dia trabalhado — não descontar as horas devidas</label>';
+  const ext=extraDiaPonto(state.mesAtual,c.nome,d.iso);
+  return '<div class="ep-editor">'+nav+'<article class="ep-painel"><h3>'+escHtml(dataBR(d.iso))+' · '+escHtml(PONTO_DOW_LABEL[d.dow] || '')+'</h3>'+
+    '<p><span class="pill '+(PONTO_TIPO[d.tipo] || PONTO_TIPO.ok).cls+'">'+escHtml((PONTO_TIPO[d.tipo] || PONTO_TIPO.ok).rot)+'</span> · Trabalhado '+pHHMM(d.trabalhadoMin)+' · Extras '+pHHMM(d.extraMin)+' · Horas devidas '+pHHMM(d.debitoMin)+'</p>'+
+    '<p class="ep-nota">Escala: '+((c.escala || {})[d.dow] || []).map(v=>v==null?'—':pHHMM(v)).join(' / ')+'<br>Registro original: '+escHtml((original.cels || []).map(v=>pMin(v)!==null?pHHMM(pMin(v)):String(v || '—')).join(' / '))+'</p>'+
+    '<h4>Horários do dia</h4><div class="ep-horarios">'+campos+'</div><div class="ep-acoes"><button type="button" class="btn btn-primary" id="epSalvarHorarios" disabled>Salvar horários do dia</button><button type="button" class="btn btn-outline" id="epDescartar" disabled>Descartar digitação</button></div><p id="epAviso" class="ep-aviso" role="status">Os horários só mudam quando você salva. Campo vazio remove a marcação daquele horário.</p>'+
+    '<fieldset class="ep-opcoes" id="epOpcoes"><section><h4>Situação e justificativa</h4><p class="ep-nota">Estas opções são salvas ao alterar.</p>'+(situacao || '<p class="ep-nota">Nenhuma decisão pendente. Dias com batidas não são convertidos em folga.</p>')+'</section>'+
+    '<section><h4>Hora extra combinada neste dia</h4><div class="campo-row"><div class="campo"><label for="epExtra">Quantidade de horas</label><input id="epExtra" value="'+(ext && !ext.feriado ? pHHMM(ext.min):'')+'" placeholder="Ex.: 2 ou 1:30"></div><div class="campo"><label for="epExtraMotivo">Motivo</label><input id="epExtraMotivo" value="'+escHtml(ext ? ext.motivo || '':'')+'"></div></div><label><input type="checkbox" id="epExtraFeriado"'+(ext && ext.feriado?' checked':'')+'> Feriado trabalhado: horas trabalhadas × valor-hora cadastrado + R$ 70</label><div class="ep-acoes"><button type="button" class="btn btn-outline" id="epSalvarExtra">Salvar hora extra do dia</button></div><p class="ep-nota">A quantidade soma às extras apuradas. O feriado é pago na verba própria da folha: horas trabalhadas × valor-hora cadastrado + R$ 70, sem dobrar horas extras. Zero ou vazio remove a hora extra combinada.</p></section>'+
+    '<section><h4>Conferência e histórico</h4>'+ocorrenciasEspelho(d).map(o=>'<p class="ep-nota">'+escHtml(o.txt)+'</p>').join('')+
+    (d.marcacaoEditada?'<button type="button" class="btn btn-outline mrc-desfazer" data-iso="'+d.iso+'">Desfazer horários ajustados</button>':'<p class="ep-nota">Horários originais preservados.</p>')+'</section></fieldset></article></div>';
+}
+
+function atualizarDerivadosPontoNoForm(){
+  const f=state.funcionarios.find(x=>x.id===colabAtualId);
+  if(!f || !batePonto(f)) return;
+  const l=getLancamento(state.mesAtual,f.id);
+  sincronizarPontoNoLancamento(f,l);
+  hePontoForm=toNum(l.horaExtraPonto);
+  ['Atrasos','Feriado','Domingo'].forEach(k=>{ document.getElementById('l'+k).value=toNum(l[k.toLowerCase()]); });
+  aplicarPagamentoPorForaNoForm(f,l);
+  atualizarResumo();
+  montarHistorico(f.id);
+}
+function fecharEditorPonto(){
+  if(!permitirNavegacaoEditorPonto()) return;
+  document.getElementById('overlayEspelho').classList.remove('show');
+  if(pontoRetornoFolha){
+    if(colabAtualId===pontoRetornoFolha.id && state.mesAtual===pontoRetornoFolha.mes){
+      atualizarDerivadosPontoNoForm();
+      document.getElementById('overlayColab').classList.add('show');
+    }
+    pontoRetornoFolha=null;
+  }
+}
+document.getElementById('btnAjustarPontoFolha').addEventListener('click', ()=>{
+  const dados=analisePonto();
+  const it=dados && dados.itens.find(x=>x.vinculo && x.vinculo.id===colabAtualId);
+  if(!it){ mostrarToast('Não há cartão ponto vinculado a esta pessoa neste mês. Confira a importação e o vínculo no Controle de ponto.'); return; }
+  pontoRetornoFolha={id:colabAtualId,mes:state.mesAtual};
+  document.getElementById('overlayColab').classList.remove('show');
+  abrirEspelho(it.idx,true,true);
+});
+document.getElementById('btnVoltarFolhaPonto').addEventListener('click',fecharEditorPonto);
+
+function itemAtualEditorPonto(){
+  const dados=analisePonto();
+  return dados && dados.itens.find(x=>x.idx===espelhoIdx && state.mesAtual+'|'+x.c.nome===pontoEditorContexto);
+}
+function conferirBaseEditor(it){
+  if(it && assinaturaDiaEditor(it.c,state.mesAtual,pontoEditorIso)===pontoEditorBase) return true;
+  mostrarToast('Os registros deste dia mudaram. Descarte a digitação e confira os dados atualizados.');
+  return false;
+}
+document.getElementById('espTabela').addEventListener('input',e=>{
+  if(!e.target.matches('.ep-hora,#epExtra,#epExtraMotivo,#epExtraFeriado')) return;
+  const horas=e.target.matches('.ep-hora');
+  pontoEditorSujo=horas ? [...document.querySelectorAll('#espTabela .ep-hora')].some(x=>x.value!==x.dataset.inicial) : true;
+  document.getElementById('epDescartar').disabled=!pontoEditorSujo;
+  document.getElementById('epSalvarHorarios').disabled=!horas || !pontoEditorSujo;
+  document.getElementById('epOpcoes').disabled=horas && pontoEditorSujo;
+  if(!horas){
+    document.querySelectorAll('#espTabela .ep-hora,#epOpcoes .folga-chk,#epOpcoes .falta-chk,#epOpcoes .select-motivo,#epOpcoes .cortesia-chk,#epOpcoes .mrc-desfazer').forEach(x=>x.disabled=true);
+  }
+  document.getElementById('epAviso').textContent=pontoEditorSujo?'Há alterações não salvas. Salve esta seção ou descarte a digitação.':'Nenhuma alteração pendente.';
+});
+document.getElementById('espTabela').addEventListener('change',e=>{
+  if(e.target.id!=='epFiltro') return;
+  if(!permitirNavegacaoEditorPonto()){e.target.value=pontoEditorFiltro;return;}
+  pontoEditorFiltro=e.target.value;
+  abrirEspelho(espelhoIdx,true,true);
+});
+document.getElementById('overlayEspelho').addEventListener('click',e=>{
+  const b=e.target.closest('button');
+  if(b && pontoEditorSujo && !['epSalvarHorarios','epSalvarExtra','epDescartar'].includes(b.id)){
+    e.preventDefault();e.stopImmediatePropagation();permitirNavegacaoEditorPonto();
+  }
+},true);
+document.getElementById('espTabela').addEventListener('click',e=>{
+  const dia=e.target.closest('.ep-dia');
+  if(dia){
+    if(!permitirNavegacaoEditorPonto()) return;
+    pontoEditorIso=dia.dataset.dia;abrirEspelho(espelhoIdx,true,true);return;
+  }
+  if(e.target.id==='epDescartar'){
+    pontoEditorSujo=false;abrirEspelho(espelhoIdx,true,true);return;
+  }
+  if(e.target.id!=='epSalvarHorarios' && e.target.id!=='epSalvarExtra') return;
+  const it=itemAtualEditorPonto();
+  if(!conferirBaseEditor(it)) return;
+  try{
+    if(e.target.id==='epSalvarHorarios'){
+      const cels=horariosValidosEditor([...document.querySelectorAll('#espTabela .ep-hora')].map(x=>x.value));
+      const original=it.c.dias.find(d=>d.iso===pontoEditorIso);
+      const efetivo=diaComMarcacoesEditadas(original,state.mesAtual,it.c.nome);
+      if(cels.every(v=>v===null) && pontoDiaTemHorario(efetivo) && !confirm('Remover todos os horários ajustados deste dia? O registro original continuará guardado.')) return;
+      const igual=cels.every((v,i)=>pMin(v)===pMin(original.cels[i]));
+      salvarMarcacaoPonto(state.mesAtual,it.c.nome,pontoEditorIso,igual?null:cels);
+    }else{
+      const txt=document.getElementById('epExtra').value.trim();
+      const feriado=document.getElementById('epExtraFeriado').checked;
+      if(!feriado && txt && !/^(?:\d+(?:[.,]\d+)?|\d{1,2}:[0-5]\d)$/.test(txt)) throw new Error('Informe as horas extras como 2, 2,5 ou 1:30.');
+      const min=feriado?0:minutosDeHoras(txt);
+      if(!Number.isFinite(min)) throw new Error('Informe uma quantidade válida de horas extras.');
+      salvarExtraDiaPonto(state.mesAtual,it.c.nome,pontoEditorIso,min,document.getElementById('epExtraMotivo').value,feriado);
+      invalidarPonto();salvarEstado();
+    }
+    pontoEditorSujo=false;
+    renderLista();renderPonto();abrirEspelho(espelhoIdx,true,true);
+    mostrarToast('Ajuste salvo. A folha foi atualizada.');
+  }catch(err){document.getElementById('epAviso').textContent=err.message;}
+});
+
 function abrirEspelho(idx, modoEdicao, modoMarcacoes){
   const dados = analisePonto();
   if(!dados) return;
   const it = dados.itens.find(x=>x.idx===idx);
   if(!it) return;
   espelhoIdx = idx;
-  espelhoModoEdicao = !!modoEdicao;
-  espelhoModoMarcacoes = !!modoMarcacoes;
+  espelhoModoEdicao = modoEdicao !== false;
+  espelhoModoMarcacoes = espelhoModoEdicao;
   const c = it.c, a = it.a;
 
   document.getElementById('espTitulo').textContent = c.nome;
   document.getElementById('espSub').innerHTML = (c.funcao||'—') + (c.cpf?' · CPF '+c.cpf:'') + (c.folha?' · Folha nº '+c.folha:'') +
     (c.admissao?' · Admissão '+c.admissao:'') + ' · ' + mesLabel(state.mesAtual) +
     (it.vinculo ? ' · <span class="tag-ok">folha: ' + it.vinculo.nome + '</span>' : ' · <span class="tag-sv">sem vínculo na folha</span>') +
-    (espelhoModoEdicao ? ' · <span class="tag-edicao">editando registros ausentes</span>' : '') +
-    (espelhoModoMarcacoes ? ' · <span class="tag-edicao">editando marcações</span>' : '');
+    (espelhoModoEdicao ? ' · <span class="tag-edicao">Ajustes por dia</span>' : '');
 
   const esc = Object.keys(PONTO_DOW_LABEL).map(d=>{
-    const e = c.escala[d];
+    const e = (c.escala || {})[d];
     if(!e || e[0]===null) return PONTO_DOW_LABEL[d]+': folga';
     const partes = [];
     for(let k=0;k<6;k+=2) if(e[k]!==null && e[k+1]!==null) partes.push(pHHMM(e[k])+'–'+pHHMM(e[k+1]));
@@ -13421,6 +14018,7 @@ function abrirEspelho(idx, modoEdicao, modoMarcacoes){
       /* Mesma regra dos documentos impressos: no dia de falta a linha inteira diz
          FALTA, e não o "folga" que o relógio registrou. */
       if(d.tipo === 'falta') return '<td class="mono cel-falta">FALTA</td>';
+      if(d.folgaMarcada) return '<td class="mono fraco">folga</td>';
       if(m.status) return '<td class="mono fraco">'+(m.status==='folga'?'folga':m.status)+'</td>';
       return '<td class="mono vazio">—</td>';
     }).join('');
@@ -13441,17 +14039,22 @@ function abrirEspelho(idx, modoEdicao, modoMarcacoes){
       } else if(d.motivoAtual){
         motivoHtml = '<div class="motivo-aplicado">Motivo: '+MOTIVOS_AUSENCIA[d.motivoAtual]+'</div>';
       } else {
-        motivoHtml = '<div class="motivo-pendente">Sem motivo definido — use ⋮ · Editar registros</div>';
+        motivoHtml = '<div class="motivo-pendente">Sem motivo definido — use Editar ponto por dia</div>';
       }
     }
     /* Folga que era falta: mesma lógica da cortesia — decisão, não correção, e por isso
        visível sempre no dia em que cabe. Ver "FOLGA QUE ERA FALTA". */
-    if(d.podeFalta || d.faltaMarcada){
+    if((d.podeFalta || d.faltaMarcada) && !d.folgaMarcada){
       motivoHtml += '<label class="falta-lbl' + (d.faltaMarcada ? ' ligada' : '') + '">' +
         '<input type="checkbox" class="falta-chk" data-iso="'+d.iso+'"' + (d.faltaMarcada ? ' checked' : '') + '>' +
         '<span>Foi falta, não folga' +
           (d.faltaMarcada ? ' — desconta ' + pHHMM(d.debitoMin) + ' (uma diária)' : '') +
         '</span></label>';
+    }
+    if(d.podeFolga || d.folgaMarcada){
+      motivoHtml += '<label class="cortesia-lbl'+(d.folgaMarcada?' ligada':'')+'">' +
+        '<input type="checkbox" class="folga-chk" data-iso="'+d.iso+'"'+(d.folgaMarcada?' checked':'')+'>' +
+        '<span>Marcar como folga'+(d.folgaMarcada?' — sem desconto de falta; desmarque para desfazer':'')+'</span></label>';
     }
     /* A cortesia é uma decisão, não uma correção: fica visível sempre, sem depender de
        nenhum modo de edição, no dia em que ela cabe. Ver "CORTESIA DO DIA". */
@@ -13465,7 +14068,7 @@ function abrirEspelho(idx, modoEdicao, modoMarcacoes){
     /* O caminho de volta ao relógio fica na própria linha ajustada: quem errou a
        digitação não precisa lembrar qual era o horário original. */
     if(d.marcacaoEditada){
-      motivoHtml += '<div class="motivo-aplicado">Marcações ajustadas à mão' +
+      motivoHtml += '<div class="motivo-aplicado">' + (d.preenchidoEscala ? 'Horários preenchidos pela escala' : 'Marcações ajustadas à mão') +
         (d.editadoPor ? ' por ' + escHtml(d.editadoPor) : '') +
         ' <button type="button" class="mrc-desfazer" data-iso="'+d.iso+'">voltar ao relógio</button></div>';
     }
@@ -13495,19 +14098,23 @@ function abrirEspelho(idx, modoEdicao, modoMarcacoes){
     '<td class="mono">'+pHHMM(a.debitoMin)+'</td>' +
     '<td class="mono">'+pHHMM(a.saldoMin)+'</td>' +
     '<td></td></tr></tfoot></table>';
-  document.getElementById('espTabela').innerHTML = html;
+  document.getElementById('espTabela').innerHTML = espelhoModoEdicao ? renderEditorPonto(it) : html;
+  document.getElementById('overlayEspelho').classList.toggle('ponto-editando',espelhoModoEdicao);
+  document.getElementById('btnVoltarFolhaPonto').hidden = !pontoRetornoFolha;
 
   /* O botão diz o que vai acontecer, não o modo em que se está. E some quando não há
      dia nenhum para editar. */
   const btnMarc = document.getElementById('btnEditarMarcacoes');
-  btnMarc.textContent = espelhoModoMarcacoes ? 'Concluir edição das marcações' : 'Editar marcações';
+  btnMarc.textContent = espelhoModoEdicao ? 'Ver espelho do mês' : 'Editar ponto por dia';
   btnMarc.classList.toggle('btn-verde', espelhoModoMarcacoes);
   btnMarc.style.display = a.dias.length ? '' : 'none';
+  document.getElementById('btnDesfazerPreenchimentoEscala').style.display =
+    preenchimentosEscalaDoColaborador(state.mesAtual,c.nome).length ? '' : 'none';
 
   const qtdAjustados = a.dias.filter(d=> d.marcacaoEditada).length;
   document.getElementById('espRodape').innerHTML =
     '<div class="esp-legenda">(*) Batida lançada manualmente' +
-      (qtdAjustados ? '   (†) Marcação ajustada à mão no sistema — ' + qtdAjustados + ' dia(s)' : '') +
+      (qtdAjustados ? '   (†) Marcação ajustada no sistema — ' + qtdAjustados + ' dia(s)' : '') +
       (a.extraDiaQtd ? '<div style="margin-top:5px;font-weight:700;color:var(--info);">' +
         escHtml(textoExtraLancada(a)) + '</div>' : '') +
       (espelhoModoMarcacoes ? '<br>Digite a hora e saia do campo para gravar. Aceita 730, 7:30 ou 07:30; ' +
@@ -13526,6 +14133,176 @@ function abrirEspelho(idx, modoEdicao, modoMarcacoes){
 
   document.getElementById('overlayEspelho').classList.add('show');
 }
+
+/* Preenchimento individual: usa a mesma apuração do espelho e mantém o bruto intacto. */
+function horariosDaEscalaParaFalta(dia, escala, cfg){
+  const prev = (escala || {})[dia.dow];
+  if(!Array.isArray(prev)) return null;
+  const corte = pTerceiroSabado(dia.dow, dia.dia) ? cfg.saidaFinalSab3Apos
+    : dia.dow === 'dom' ? cfg.saidaFinalDomApos : null;
+  const cels = [];
+  let ultimoFim = -1;
+  for(let k=0;k<6;k+=2){
+    let ini = prev[k], fim = prev[k+1];
+    if(ini == null && fim == null) continue;
+    if(!Number.isInteger(ini) || !Number.isInteger(fim) || ini < 0 || fim > 1439 || fim <= ini || ini < ultimoFim) return null;
+    ultimoFim = fim;
+    if(corte !== null){
+      if(!Number.isInteger(corte)) return null;
+      if(ini >= corte) continue;
+      fim = Math.min(fim, corte);
+    }
+    cels.push(pHHMM(ini), pHHMM(fim));
+  }
+  if(!cels.length) return null;
+  while(cels.length < 6) cels.push(null);
+  return cels;
+}
+
+function faltasParaPreencher(c, mes, cfg, hoje){
+  cfg = Object.assign({}, PONTO_CFG_PADRAO, cfg || {});
+  const analise = analisarColaboradorComCorrecoes(c, mes, cfg);
+  return analise.dias.flatMap(d=>{
+    if(d.tipo !== 'falta' || d.iso >= hoje || d.iso.slice(0,7) !== mes || folgaMarcada(mes,c.nome,d.iso)) return [];
+    const bruto = c.dias.find(x=>x.iso === d.iso);
+    // Nem uma batida do aparelho/QR pode ser substituída, mesmo se um ajuste a ocultou.
+    if(!bruto || pontoDiaTemHorario(bruto) || marcacoesEditadas(mes,c.nome,d.iso)) return [];
+    if((cfg.feriados || []).includes(d.iso)) return [];
+    const status = (bruto.cels || []).map(pStatusCel);
+    // Folga no original continua protegida mesmo quando reclassificada como falta.
+    if(status.some(s=>['folga','licenca','ferias','atestado','afastamento','feriado'].includes(s))) return [];
+    const correcao = pontoCorrecao(mes,c.nome,d.iso);
+    if(correcao && correcao.motivo === 'folga') return [];
+    const cels = horariosDaEscalaParaFalta(d,c.escala,cfg);
+    return cels ? [{iso:d.iso, rotulo:d.rotulo || d.iso, cels}] : [];
+  });
+}
+
+function gravarPreenchimentoEscala(mes, nome, dias, por){
+  if(!dias.length) return;
+  if(dias.some(d=>d.extraEscalaMin != null && (!Number.isInteger(d.extraEscalaMin) || d.extraEscalaMin < 0 || d.extraEscalaMin > 1440))) throw new Error('Informe até 24 horas extras por dia.');
+  const em = new Date().toISOString();
+  if(!state.pontoMarcacoes) state.pontoMarcacoes = {};
+  if(!state.pontoMarcacoes[mes]) state.pontoMarcacoes[mes] = {};
+  const chave = norm(nome);
+  const registros = Object.assign({}, state.pontoMarcacoes[mes][chave] || {});
+  dias.forEach(d=>{ registros[d.iso] = {cels:d.cels.slice(), extraEscalaMin:toNum(d.extraEscalaMin), origem:'escala', por, em}; });
+  state.pontoMarcacoes[mes][chave] = registros;
+  invalidarPonto();
+  salvarEstado();
+}
+
+function preenchimentosEscalaDoColaborador(mes,nome){
+  const registros = (state.pontoMarcacoes && state.pontoMarcacoes[mes] || {})[norm(nome)] || {};
+  return Object.keys(registros).filter(iso=>registros[iso] && registros[iso].origem === 'escala');
+}
+
+function desfazerPreenchimentoEscala(mes,nome,por){
+  const dias = preenchimentosEscalaDoColaborador(mes,nome);
+  if(!dias.length) return 0;
+  const registros = state.pontoMarcacoes[mes][norm(nome)];
+  const removidos = {};
+  dias.forEach(iso=>{ removidos[iso] = registros[iso]; });
+  // Conserva a trilha do desfazimento. Bruto, folgas, QR e edições manuais não mudam.
+  if(!state.pontoHistoricoPreenchimentos) state.pontoHistoricoPreenchimentos = [];
+  state.pontoHistoricoPreenchimentos.push({acao:'desfazer',mes,nome,por,em:new Date().toISOString(),registros:removidos});
+  dias.forEach(iso=>{ delete registros[iso]; });
+  invalidarPonto();
+  salvarEstado();
+  return dias.length;
+}
+
+document.getElementById('btnDesfazerPreenchimentoEscala').addEventListener('click', ()=>{
+  const dados = analisePonto();
+  const it = dados && dados.itens.find(x=>x.idx === espelhoIdx);
+  if(!it) return;
+  const mes = state.mesAtual;
+  const qtd = preenchimentosEscalaDoColaborador(mes,it.c.nome).length;
+  if(!qtd) return;
+  if(!confirm('Desfazer o preenchimento automático de '+qtd+' dia(s) de '+it.c.nome+' em '+mesLabel(mes)+'?\n\nVoltarão a valer os registros anteriores. Batidas por QR e ajustes manuais serão mantidos.')) return;
+  const total = desfazerPreenchimentoEscala(mes,it.c.nome,document.getElementById('usuarioLogado').textContent || '');
+  renderLista(); renderPonto();
+  abrirEspelho(it.idx,espelhoModoEdicao,espelhoModoMarcacoes);
+  mostrarToast('Preenchimento automático desfeito em '+total+' dia(s) de '+it.c.nome+'. Confira o espelho antes de aplicar na folha.');
+});
+
+let preenchimentoEscalaPendente = null;
+function horasExtrasPreenchimento(txt){
+  txt=String(txt||'').trim();
+  if(!txt) return 0;
+  if(!/^(?:\d+(?:[.,]\d+)?|\d{1,2}:[0-5]\d)$/.test(txt)) throw new Error('Informe as horas extras como 2, 1,5 ou 01:30.');
+  const min=txt.includes(':') ? Number(txt.split(':')[0])*60+Number(txt.split(':')[1]) : Math.round(Number(txt.replace(',','.'))*60);
+  if(!Number.isFinite(min) || min > 1440) throw new Error('Informe até 24 horas extras por dia.');
+  return min;
+}
+function renderDiasPreenchimento(c,mes,cfg,hoje){
+  const elegiveis=faltasParaPreencher(c,mes,cfg,hoje);
+  const analise=analisarColaboradorComCorrecoes(c,mes,cfg);
+  return analise.dias.map(d=>{
+    const previsto=elegiveis.find(x=>x.iso===d.iso);
+    const tipo=PONTO_TIPO[d.tipo];
+    const situacao=(tipo ? tipo.rot : d.tipo) + (d.extraMin > 0 ? (d.tipo==='extra'?' ':' · Hora extra ')+pHHMM(d.extraMin) : '');
+    const horarios=d.marc.map(m=>m.min!==null?pHHMM(m.min):'—').join(' / ');
+    const motivo=d.iso>=hoje ? 'Hoje ou data futura: não disponível para preenchimento.' : 'Dia preservado: somente faltas sem batidas ou ajustes e com escala válida podem ser preenchidas.';
+    return '<article class="pre-dia'+(!previsto?' pre-dia-bloqueado':'')+'"><div><label><input type="checkbox" class="preencher-escala-dia" value="'+escHtml(d.iso)+'"'+(previsto?' checked':' disabled')+'><strong>'+escHtml(dataBR(d.iso))+' · '+escHtml(PONTO_DOW_LABEL[d.dow]||d.dow)+'</strong></label>'+
+      '<p><b>Situação atual: '+escHtml(situacao)+'</b></p><p>Registros atuais: '+horarios+'</p>'+
+      '<p>Trabalhado: '+pHHMM(d.trabalhadoMin)+' · Extras atuais: '+pHHMM(d.extraMin)+'</p>'+
+      (previsto?'<p>Preencher com: '+previsto.cels.filter(Boolean).join(' / ')+'</p>':'<p>'+motivo+'</p>')+'</div>'+
+      (previsto?'<div class="campo"><label for="pre-extra-'+d.iso+'">Horas extras a acrescentar</label><input type="text" inputmode="decimal" id="pre-extra-'+d.iso+'" data-extra-escala="'+d.iso+'" placeholder="Ex.: 2 ou 01:30"><p>Opcional. Soma às extras já apuradas e será desfeito junto com este preenchimento.</p></div>':'<div class="sub">Sem alteração</div>')+'</article>';
+  }).join('');
+}
+function abrirPreenchimentoEscala(){
+  const dados = analisePonto();
+  const it = dados && dados.itens.find(x=>x.idx === espelhoIdx);
+  if(!it) return;
+  const mes = state.mesAtual;
+  const dias = faltasParaPreencher(it.c, mes, cfgColaborador(it.vinculo,pontoCfg()), hojeISO());
+  preenchimentoEscalaPendente = {mes, idx:espelhoIdx, nome:it.c.nome, dias};
+  document.getElementById('preencherEscalaPessoa').textContent = it.c.nome + ' · ' + mesLabel(mes);
+  document.getElementById('preencherEscalaDias').innerHTML = renderDiasPreenchimento(it.c,mes,cfgColaborador(it.vinculo,pontoCfg()),hojeISO());
+  document.getElementById('preencherEscalaAviso').textContent = dias.length
+    ? dias.length + ' falta(s) disponível(is). Confira os dias antes de confirmar.'
+    : 'Nenhuma falta elegível para preencher. É necessário um dia anterior a hoje, sem batidas nem ajustes, com escala válida.';
+  document.getElementById('confirmarPreencherEscala').disabled = !dias.length;
+  document.getElementById('overlayPreencherEscala').classList.add('show');
+}
+function fecharPreenchimentoEscala(){
+  preenchimentoEscalaPendente = null;
+  document.getElementById('overlayPreencherEscala').classList.remove('show');
+}
+document.getElementById('btnPreencherAutomaticamente').addEventListener('click', abrirPreenchimentoEscala);
+document.getElementById('fecharPreencherEscala').addEventListener('click', fecharPreenchimentoEscala);
+document.getElementById('cancelarPreencherEscala').addEventListener('click', fecharPreenchimentoEscala);
+document.getElementById('preencherEscalaDias').addEventListener('change', ()=>{
+  document.querySelectorAll('#preencherEscalaDias .preencher-escala-dia').forEach(el=>{
+    const extra=document.getElementById('pre-extra-'+el.value);if(extra) extra.disabled=!el.checked;
+  });
+  document.getElementById('confirmarPreencherEscala').disabled = !document.querySelector('#preencherEscalaDias .preencher-escala-dia:checked');
+});
+document.getElementById('confirmarPreencherEscala').addEventListener('click', ()=>{
+  const p = preenchimentoEscalaPendente;
+  if(!p) return;
+  const dados = analisePonto();
+  const it = dados && dados.itens.find(x=>x.idx === p.idx && x.c.nome === p.nome);
+  if(state.mesAtual !== p.mes || !it){ fecharPreenchimentoEscala(); mostrarToast('O colaborador ou mês mudou. Abra novamente o preenchimento.'); return; }
+  const selecionadas = [...document.querySelectorAll('#preencherEscalaDias input:checked')].map(el=>el.value);
+  const atuais = faltasParaPreencher(it.c,p.mes,cfgColaborador(it.vinculo,pontoCfg()),hojeISO());
+  const dias = p.dias.filter(d=>selecionadas.includes(d.iso));
+  if(!dias.length) return;
+  if(dias.some(d=>!atuais.some(a=>a.iso === d.iso && JSON.stringify(a.cels) === JSON.stringify(d.cels)))){
+    abrirPreenchimentoEscala();
+    document.getElementById('preencherEscalaAviso').textContent = 'Os registros ou a escala mudaram. Confira a lista atualizada e confirme novamente.';
+    return;
+  }
+  try{
+    const registros=dias.map(d=>Object.assign({},d,{extraEscalaMin:horasExtrasPreenchimento(document.getElementById('pre-extra-'+d.iso).value)}));
+    gravarPreenchimentoEscala(p.mes,p.nome,registros,document.getElementById('usuarioLogado').textContent || '');
+  }catch(e){document.getElementById('preencherEscalaAviso').textContent=e.message;return;}
+  fecharPreenchimentoEscala();
+  renderLista(); renderPonto();
+  abrirEspelho(p.idx,espelhoModoEdicao,espelhoModoMarcacoes);
+  mostrarToast(dias.length + ' falta(s) preenchida(s) pela escala de ' + p.nome + '.');
+});
 
 document.getElementById('espTabela').addEventListener('change', (e)=>{
   const sel = e.target.closest('.select-motivo');
@@ -13687,8 +14464,7 @@ document.getElementById('btnSalvarHeDia').addEventListener('click', ()=>{
     : 'Hora extra de ' + dataBR(iso) + ' apagada para ' + marcados.length + ' colaborador(es)');
 });
 
-/* Feriado: não lê o campo de horas. A quantidade é o dobro do que cada um trabalhou, e
-   quem a calcula é a apuração, na hora de ler — ver "FERIADO TRABALHADO". */
+/* Feriado individual segue o mesmo cálculo do calendário geral. */
 document.getElementById('btnFeriadoHeDia').addEventListener('click', ()=>{
   const iso = document.getElementById('heDiaData').value || '';
   const motivo = document.getElementById('heDiaMotivo').value.trim();
@@ -13700,8 +14476,7 @@ document.getElementById('btnFeriadoHeDia').addEventListener('click', ()=>{
   }
   if(!marcados.length){ mostrarToast('Marque pelo menos um colaborador'); return; }
   if(!confirm('Marcar ' + dataBR(iso) + ' como FERIADO TRABALHADO para ' + marcados.length +
-      ' colaborador(es)?\n\nCada um recebe, como hora extra, o DOBRO das horas que trabalhou no ' +
-      'dia — quem cumpriu 4:30 recebe 9:00 de hora extra.\n\n' +
+      ' colaborador(es)?\n\nCada um com jornada apurada recebe horas trabalhadas × valor-hora cadastrado + R$ 70 na verba Feriado trabalhado.\n\n' +
       'Isto SUBSTITUI qualquer hora extra lançada à mão neste dia.')) return;
 
   marcados.forEach(nome=> salvarExtraDiaPonto(state.mesAtual, nome, iso, 0, motivo, true));
@@ -13709,11 +14484,12 @@ document.getElementById('btnFeriadoHeDia').addEventListener('click', ()=>{
   salvarEstado();
   renderLista(); renderPonto();
   document.getElementById('overlayHeDia').classList.remove('show');
-  mostrarToast(dataBR(iso) + ' marcado como feriado — paga o dobro das horas, para ' + marcados.length + ' colaborador(es)');
+  mostrarToast(dataBR(iso) + ' marcado como feriado — horas trabalhadas × valor-hora cadastrado + R$ 70, para ' + marcados.length + ' colaborador(es)');
 });
 
 document.getElementById('btnEditarMarcacoes').addEventListener('click', ()=>{
-  abrirEspelho(espelhoIdx, espelhoModoEdicao, !espelhoModoMarcacoes);
+  if(!permitirNavegacaoEditorPonto()) return;
+  abrirEspelho(espelhoIdx, !espelhoModoEdicao, !espelhoModoEdicao);
 });
 
 /* ---------- folga que era falta ---------- */
@@ -13736,6 +14512,25 @@ document.getElementById('espTabela').addEventListener('change', (e)=>{
                            : 'Dia voltou a ser folga');
 });
 
+/* ---------- falta que era folga ---------- */
+document.getElementById('espTabela').addEventListener('change', (e)=>{
+  const chk = e.target.closest('.folga-chk');
+  if(!chk) return;
+  const dados = analisePonto();
+  const it = dados && dados.itens.find(x=>x.idx === espelhoIdx);
+  if(!it) return;
+  const dia = analisarColaboradorComCorrecoes(it.c,state.mesAtual,pontoCfg()).dias.find(d=>d.iso === chk.dataset.iso);
+  if(!dia || (chk.checked && !dia.podeFolga)){
+    abrirEspelho(espelhoIdx,espelhoModoEdicao,espelhoModoMarcacoes);
+    mostrarToast('O dia mudou ou tem batidas. Confira os registros antes de marcar folga.');
+    return;
+  }
+  salvarFolgaPonto(state.mesAtual,it.c.nome,chk.dataset.iso,chk.checked);
+  renderLista(); renderPonto();
+  abrirEspelho(espelhoIdx,espelhoModoEdicao,espelhoModoMarcacoes);
+  mostrarToast(chk.checked ? 'Dia marcado como folga — sem desconto de falta na apuração' : 'Folga desfeita — classificação anterior restaurada');
+});
+
 /* ---------- cortesia do dia ---------- */
 document.getElementById('espTabela').addEventListener('change', (e)=>{
   const chk = e.target.closest('.cortesia-chk');
@@ -13749,8 +14544,13 @@ document.getElementById('espTabela').addEventListener('change', (e)=>{
   mostrarToast(chk.checked ? 'Pago o dia trabalhado' : 'Marca removida — o dia volta a descontar');
 });
 
-document.getElementById('fecharEspelho').addEventListener('click', ()=> document.getElementById('overlayEspelho').classList.remove('show'));
-fecharAoClicarFora('overlayEspelho');
+document.getElementById('fecharEspelho').addEventListener('click',fecharEditorPonto);
+let pontoCliqueFora=false;
+document.getElementById('overlayEspelho').addEventListener('mousedown',e=>{pontoCliqueFora=e.target.id==='overlayEspelho';});
+document.getElementById('overlayEspelho').addEventListener('click',e=>{
+  if(e.target.id==='overlayEspelho' && pontoCliqueFora) fecharEditorPonto();
+  pontoCliqueFora=false;
+});
 
 document.getElementById('btnVincular').addEventListener('click', ()=>{
   const dados = analisePonto();
@@ -13769,13 +14569,9 @@ document.getElementById('btnAplicarFolha').addEventListener('click', ()=>{
   const dados = analisePonto();
   const it = dados.itens.find(x=>x.idx===espelhoIdx);
   if(!it || !it.vinculo) return;
-  const cfg = pontoCfg();
-  const a = it.a, f = it.vinculo;
+  const f = it.vinculo;
   const lanc = getLancamento(state.mesAtual, f.id);
-  const v = valoresColaborador(a, f.salarioBase, cfg, f);
-  lanc.horaExtra = Math.round(v.vExtra * 100)/100;
-  lanc.feriado   = Math.round(v.vFeriados * 100)/100;
-  lanc.atrasos   = Math.round(v.vDesc * 100)/100;
+  sincronizarPontoNoLancamento(f,lanc,{[f.id]:it});
   lanc.obs = (lanc.obs ? lanc.obs+' · ' : '') + 'ponto ' + mesLabel(state.mesAtual);
   salvarEstado();
   renderLista();
@@ -13785,15 +14581,11 @@ document.getElementById('btnAplicarFolha').addEventListener('click', ()=>{
 document.getElementById('btnAplicarTodos').addEventListener('click', ()=>{
   const dados = analisePonto();
   if(!dados) return;
-  const cfg = pontoCfg();
   let n = 0;
   dados.itens.forEach(it=>{
-    if(!it.vinculo || !it.vinculo.salarioBase) return;
-    const v = valoresColaborador(it.a, it.vinculo.salarioBase, cfg, it.vinculo);
+    if(!it.vinculo || !batePonto(it.vinculo)) return;
     const lanc = getLancamento(state.mesAtual, it.vinculo.id);
-    lanc.horaExtra = Math.round(v.vExtra * 100)/100;
-    lanc.feriado   = Math.round(v.vFeriados * 100)/100;
-    lanc.atrasos   = Math.round(v.vDesc * 100)/100;
+    sincronizarPontoNoLancamento(it.vinculo,lanc,{[it.vinculo.id]:it});
     n++;
   });
   salvarEstado();
@@ -13802,6 +14594,46 @@ document.getElementById('btnAplicarTodos').addEventListener('click', ()=>{
 });
 
 /* ============================= PONTO: REGRAS ============================= */
+function dataFeriadoValida(iso){
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(iso)) return false;
+  const d=new Date(iso+'T12:00:00');
+  return !isNaN(d.getTime()) && d.getFullYear()===Number(iso.slice(0,4)) && d.getMonth()+1===Number(iso.slice(5,7)) && d.getDate()===Number(iso.slice(8,10));
+}
+function atualizarFeriadoGeral(iso, adicionar){
+  if(!dataFeriadoValida(iso)) throw new Error('Informe uma data de feriado válida.');
+  const datas=new Set(pontoCfg().feriados||[]);
+  if(adicionar) datas.add(iso); else datas.delete(iso);
+  state.pontoConfig=Object.assign({},pontoCfg(),{feriados:[...datas].sort()});
+  invalidarPonto();
+  sincronizarFolhaComPonto();
+  salvarEstado();
+}
+function renderFeriadosGerais(){
+  const datas=[...new Set(pontoCfg().feriados||[])].sort();
+  document.getElementById('listaFeriados').innerHTML=datas.length ? datas.map(iso=>
+    '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;"><strong>'+escHtml(dataBR(iso))+'</strong><button type="button" class="btn btn-outline" data-remover-feriado="'+escHtml(iso)+'" aria-label="Remover feriado '+escHtml(dataBR(iso))+'">Remover</button></div>'
+  ).join('') : '<p class="sub">Nenhum feriado cadastrado.</p>';
+}
+document.getElementById('btnFeriados').addEventListener('click',()=>{
+  document.getElementById('feriadoData').value=state.mesAtual+'-01';
+  renderFeriadosGerais();
+  document.getElementById('overlayFeriados').classList.add('show');
+});
+document.getElementById('fecharFeriados').addEventListener('click',()=>document.getElementById('overlayFeriados').classList.remove('show'));
+fecharAoClicarFora('overlayFeriados');
+document.getElementById('adicionarFeriado').addEventListener('click',()=>{
+  try{
+    atualizarFeriadoGeral(document.getElementById('feriadoData').value,true);
+    renderFeriadosGerais();renderPonto();renderLista();
+    mostrarToast('Feriado cadastrado — folha do mês atual recalculada');
+  }catch(e){mostrarToast(e.message);}
+});
+document.getElementById('listaFeriados').addEventListener('click',e=>{
+  const b=e.target.closest('[data-remover-feriado]');if(!b)return;
+  atualizarFeriadoGeral(b.dataset.removerFeriado,false);
+  renderFeriadosGerais();renderPonto();renderLista();
+  mostrarToast('Feriado removido — folha do mês atual recalculada');
+});
 document.getElementById('btnRegras').addEventListener('click', ()=>{
   const cfg = pontoCfg();
   document.getElementById('rTolAtraso').value = cfg.tolAtraso;
@@ -13905,8 +14737,8 @@ document.getElementById('btnExportarPonto').addEventListener('click', ()=>{
 
   const valores = [['HORAS E REMUNERAÇÃO — ' + mesLabel(mes)],
     ['Hora extra a ' + fmtMoeda(cfg.valorHoraExtra) + ' por hora (valor geral)'],
-    ['Feriado e domingo trabalhados não geram pagamento adicional — só recebe quem tem valor por fora cadastrado; ver as três últimas colunas'], [],
-    ['Colaborador','Função','Salário base','Horas extras','R$ hora extra','Feriados','R$ feriados','Domingos','R$ domingos','Horas devidas','R$ desconto','Total com salário','Valor h. extra aplicado','Valor feriado aplicado','Valor domingo aplicado']];
+    ['Feriado trabalhado: horas trabalhadas × valor-hora cadastrado + R$ 70 por dia. Domingo: valor individual cadastrado.'], [],
+    ['Colaborador','Função','Salário base','Horas extras','R$ hora extra','Feriados','R$ feriados','Domingos','R$ domingos','Horas devidas','R$ desconto','Total com salário','Valor h. extra aplicado','Adicional fixo por feriado (além das horas)','Valor domingo aplicado']];
   dados.itens.forEach(it=>{
     const base = it.vinculo ? (it.vinculo.salarioBase||0) : 0;
     const v = valoresColaborador(it.a, base, cfg, it.vinculo);
@@ -13954,6 +14786,9 @@ document.getElementById('btnEspelhoPDF').addEventListener('click', async ()=>{
 
 /* Desenha o espelho de um colaborador a partir da página atual. Isolado do botão
    para a emissão em lote reaproveitar exatamente o mesmo documento. */
+function diaFeriadoNoDocumento(d){
+  return !!(d.feriado || d.tipo === 'feriado' || d.feriadoDobra);
+}
 function desenharEspelho(doc, it, dados, logoDataURL){
   /* A folha A4 sobrava mais de 240pt na vertical com a tabela apertada, então as
      linhas ganharam altura e corpo maior. A margem menor abriu espaço para o 3º
@@ -14008,8 +14843,8 @@ function desenharEspelho(doc, it, dados, logoDataURL){
      invade a linha do dia seguinte. */
   const cols = [
     ['Dia', 65, 'esq'], ['Ent.1', 30], ['Saí.1', 30], ['Ent.2', 30], ['Saí.2', 30], ['Ent.3', 30], ['Saí.3', 30],
-    ['Trab.', 27], ['H. extra', 38], ['Atraso', 31], ['Devidas', 36], ['Saldo', 30],
-    ['Situação', 140, 'esq']
+    ['Trab.', 27], ['H. extra', 38], ['Atraso', 31], ['Devidas', 36], ['Saldo', 36],
+    ['Situação', 134, 'esq']
   ];
   const desenharCabecalho = ()=>{
     doc.setFont('helvetica','bold'); doc.setFontSize(8); doc.setFillColor(1,109,60); doc.setTextColor(255);
@@ -14067,7 +14902,7 @@ function desenharEspelho(doc, it, dados, logoDataURL){
         : (d.extraMin ? pHHMM(d.extraMin) + (d.extraDiaMin ? '‡' : '') : '—'),
       d.atrasoMin?pHHMM(d.atrasoMin):'—',
       d.debitoMin?pHHMM(d.debitoMin):'—',
-      d.saldoMin?pHHMM(d.saldoMin):'—',
+      diaFeriadoNoDocumento(d)?'Feriado':(d.saldoMin?pHHMM(d.saldoMin):'—'),
       tipo
     ];
     let x = m + 4;
@@ -14108,7 +14943,7 @@ function desenharEspelho(doc, it, dados, logoDataURL){
   const cortesias = a.dias.filter(d=> d.cortesiaDia);
   doc.text('(*) Batida lançada manualmente' +
     (ajustados.length
-      ? '     (†) Marcação ajustada à mão no sistema — ' + ajustados.length + ' dia(s)' +
+      ? '     (†) Marcação ajustada no sistema — ' + ajustados.length + ' dia(s)' +
         (ajustados[0].editadoPor ? ', por ' + ajustados[0].editadoPor : '')
       : ''), m, yr);
   yr += 11;
@@ -15076,7 +15911,7 @@ function botaoBaixaSg(r){
 let revisaoSg = null;
 let revisaoSgOrigem = null;
 
-function htmlRevisaoSg(r){
+function htmlRevisaoSg(r, detalhar = false){
   const pago = pagoDoRecebimento(r);
   const troco = toNum(r.troco);
   const notas = notasCompraDe(r);
@@ -15091,14 +15926,18 @@ function htmlRevisaoSg(r){
   const formaTroco = (FORMAS_RECEBIMENTO.find(f=>f.chave === r.trocoForma)||{}).rotulo || r.trocoForma || '—';
   return '<dl class="rec-revisao-dados">' +
     linha('Cliente', nomeCliente(r.clienteId)) + linha('Data do lançamento', dataBR(r.data)) +
-    linha('Notinhas', notas.length ? notas.map(fmtMoeda).join(' + ') : 'Sem detalhamento individual neste registro') +
+    linha('Notinhas', notas.length ? (detalhar ? notas.map((v,i)=> 'Notinha '+(i+1)+': '+fmtMoeda(v)).join('\n') + '\nSoma de '+notas.length+' notinha(s): '+fmtMoeda(r2(notas.reduce((s,v)=>s+v,0))) : notas.map(fmtMoeda).join(' + ')) : 'Sem detalhamento individual neste registro') +
     linha('Total da conta', fmtMoeda(toNum(r.total))) + pagamentos +
     linha('Troco devolvido', fmtMoeda(troco) + (troco > 0 ? ' em '+formaTroco : '')) +
     linha('Notinha branca', fmtMoeda(notinhaDe(r))) + linha('Pagamento líquido', fmtMoeda(pago)) +
     linha(diferenca < 0 ? 'Pago a mais' : 'Falta pagar', fmtMoeda(Math.abs(diferenca))) +
     linha('Observações', r.obs || 'Nenhuma') + linha('Registrado por', r.usuario || 'Não informado') +
     linha('Registrado em', r.criadoEm ? new Date(r.criadoEm).toLocaleString('pt-BR') : 'Não informado') +
-    (r.alteradoEm ? linha('Última correção', new Date(r.alteradoEm).toLocaleString('pt-BR')) : '') + '</dl>';
+    (r.alteradoEm ? linha('Última correção', new Date(r.alteradoEm).toLocaleString('pt-BR')) : '') +
+    (detalhar ? linha('Situação', situacaoRecebimento(r).rot) +
+      linha('Baixa no SG', baixaSgFeita(r) ? 'Baixado em '+new Date(r.sgBaixadoEm).toLocaleString('pt-BR') : 'Pendente') +
+      (baixaSgFeita(r) ? linha('Baixado por', r.sgBaixadoPor || 'Não informado') : '') +
+      linha('Identificador do lançamento', r.id) : '') + '</dl>';
 }
 
 function alternarBaixaSg(id){
@@ -17986,7 +18825,7 @@ function renderLancamentos(){
     lista.map(r=>{
       const sit = situacaoRecebimento(r);
       const dif = r2(toNum(r.total) - pagoDoRecebimento(r));
-      return '<tr>' +
+      return '<tr data-detalhe-rec="'+escHtml(String(r.id))+'" style="cursor:pointer;">' +
         celulaDataHora(r.data, r.criadoEm) +
         '<td class="esq"><span class="rec-cli-nome nome-cli">'+escHtml(nomeCliente(r.clienteId))+'</span>' +
           (r.obs ? '<div class="rec-mini">'+escHtml(r.obs)+'</div>' : '') + '</td>' +
@@ -17999,10 +18838,44 @@ function renderLancamentos(){
         '<td class="esq rec-mini">'+escHtml(r.usuario||'—')+
           (r.alteradoEm ? '<div class="rec-mini">corrigido em '+new Date(r.alteradoEm).toLocaleDateString('pt-BR')+'</div>' : '') + '</td>' +
         '<td><div class="rec-acoes-linha">' +
+          '<button type="button" class="btn btn-outline btn-sm" data-ver-rec="'+escHtml(String(r.id))+'" aria-haspopup="dialog">Ver detalhes</button>' +
           (baixaSgFeita(r) ? '<span class="rec-mini">Bloqueado após baixa no SG</span>' : '<button class="btn btn-vermelho btn-sm" data-excluir-rec="'+r.id+'">Excluir</button>') +
         '</div></td></tr>';
     }).join('') + '</tbody></table>';
 }
+
+let detalheRecOrigem = null;
+function abrirDetalheRec(id, origem){
+  const r = (state.recebimentos||[]).find(x=>String(x.id) === String(id));
+  if(!r){ mostrarToast('O lançamento não existe mais'); return; }
+  detalheRecOrigem = origem;
+  document.getElementById('detalheRecConteudo').innerHTML = htmlRevisaoSg(r, true);
+  document.getElementById('overlayDetalheRec').classList.add('show');
+  document.getElementById('fecharDetalheRec').focus();
+}
+function fecharDetalheRec(){
+  document.getElementById('overlayDetalheRec').classList.remove('show');
+  if(detalheRecOrigem && detalheRecOrigem.isConnected) detalheRecOrigem.focus();
+  detalheRecOrigem = null;
+}
+document.getElementById('lanCorpo').addEventListener('click', e=>{
+  if(e.target.closest('button,a,input,select,textarea') && !e.target.closest('[data-ver-rec]')) return;
+  const tr = e.target.closest('[data-detalhe-rec]');
+  if(tr) abrirDetalheRec(tr.dataset.detalheRec, tr.querySelector('[data-ver-rec]'));
+});
+['fecharDetalheRec','concluirDetalheRec'].forEach(id=>document.getElementById(id).addEventListener('click', fecharDetalheRec));
+document.getElementById('overlayDetalheRec').addEventListener('click', e=>{
+  if(e.target === e.currentTarget) fecharDetalheRec();
+});
+document.getElementById('overlayDetalheRec').addEventListener('keydown', e=>{
+  if(e.key === 'Escape'){ e.preventDefault(); e.stopPropagation(); fecharDetalheRec(); }
+  if(e.key === 'Tab'){
+    const primeiro = document.getElementById('fecharDetalheRec');
+    const ultimo = document.getElementById('concluirDetalheRec');
+    if(e.shiftKey && document.activeElement === primeiro){ e.preventDefault(); ultimo.focus(); }
+    else if(!e.shiftKey && document.activeElement === ultimo){ e.preventDefault(); primeiro.focus(); }
+  }
+});
 
 buscaComEspera('lanBusca', renderLancamentos);
 document.getElementById('lanFiltro').addEventListener('change', renderLancamentos);
