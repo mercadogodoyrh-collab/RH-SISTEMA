@@ -868,6 +868,16 @@
   #overlayEspelho{z-index:55;}
   #overlayEspelho [hidden]{display:none!important;}
   #overlayPreencherEscala{z-index:60;}
+  #overlayVisaoPonto{z-index:61;}
+  #overlayVisaoPonto .modal{width:96vw;max-width:1500px;}
+  .vp-tabela{overflow:auto;max-height:65vh;border:1px solid var(--cinza-borda);border-radius:12px;}
+  .vp-tabela table{width:100%;min-width:1020px;border-collapse:collapse;font-size:13px;}
+  .vp-tabela th{position:sticky;top:0;background:var(--verde-claro,#edf4ed);z-index:1;padding:12px 8px;}
+  .vp-tabela td{padding:10px 8px;border-bottom:1px solid var(--cinza-borda);text-align:center;}
+  .vp-tabela td:first-child,.vp-tabela td:nth-child(2){text-align:left;}
+  .vp-tabela input{width:19px;height:19px;cursor:pointer;}
+  .vp-tabela input:disabled{cursor:not-allowed;opacity:.45;}
+  .vp-tabela tbody tr:nth-child(even){background:rgba(120,140,120,.06);}
   .pre-dia{display:grid;grid-template-columns:minmax(0,1fr) 200px;gap:16px;padding:16px;border:1px solid var(--cinza-borda);border-radius:12px;margin:12px 0;}
   .pre-dia label{display:flex;align-items:center;gap:10px;}
   .pre-dia p{font-size:13px;margin:8px 0;color:var(--texto-fraco);}
@@ -897,6 +907,9 @@
   .ep-painel h4{font-size:14px;margin:0 0 10px;}
   .ep-nota{font-size:12px;color:var(--texto-fraco);line-height:1.6;}
   .ep-horarios{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0;}
+  .ep-importar{margin:16px 0;padding:14px;border:1px solid var(--cinza-borda);border-radius:10px;min-width:0;}
+  .ep-importar label{display:block;font-size:13px;font-weight:700;margin-bottom:8px;}
+  .ep-importar select{width:100%;min-width:0;box-sizing:border-box;}
   .ep-par{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
   .ep-par label{font-size:12px;color:var(--texto-fraco);}
   .ep-hora{display:block;width:100%;min-width:0;box-sizing:border-box;margin-top:5px;padding:11px 10px;border:1px solid var(--cinza-borda);border-radius:10px;background:var(--md-surface-container-lowest);color:var(--texto);font-size:17px;font-variant-numeric:tabular-nums;}
@@ -4682,6 +4695,7 @@
     <div class="sub" id="espSub"></div>
     <div class="ep-topo">
       <button type="button" class="btn btn-outline" id="btnEditarMarcacoes">Ver espelho do mês</button>
+      <button type="button" class="btn btn-verde" id="btnVisaoAmpliadaPonto">Visão ampliada</button>
       <button type="button" class="btn btn-outline" id="btnVoltarFolhaPonto" hidden>Voltar à folha</button>
       <span>Correções salvas atualizam a folha automaticamente.</span>
     </div>
@@ -4705,6 +4719,16 @@
   </div>
 </div>
 
+<div class="overlay" id="overlayVisaoPonto">
+  <div class="modal">
+    <button type="button" class="modal-close" id="fecharVisaoPonto" aria-label="Fechar visão ampliada">✕</button>
+    <h2>Visão ampliada do ponto</h2><p id="visaoPontoPessoa"></p>
+    <p class="sub">Marque as opções diretamente em cada linha. Cada alteração é salva e atualiza a folha. Opções indisponíveis ficam bloqueadas para preservar os registros.</p>
+    <div class="vp-tabela" id="visaoPontoTabela"></div>
+    <p id="visaoPontoAviso" role="status">Escolha o dia e marque a opção desejada.</p>
+    <div class="acoes-modal"><button type="button" class="btn btn-verde" id="concluirVisaoPonto">Concluir</button></div>
+  </div>
+</div>
 <div class="overlay" id="overlayPreencherEscala">
   <div class="modal largo">
     <button class="modal-close" id="fecharPreencherEscala" aria-label="Fechar preenchimento">✕</button>
@@ -8515,6 +8539,7 @@ function desenharFichaPontoCompacta(doc, it, x0, x1, yIni, yLimite){
   const marca = (d, i)=>{
     const m = d.marc[i];
     if(m.min !== null) return pHHMM(m.min) + (m.manual ? '*' : '') + (d.marcacaoEditada ? '†' : '');
+    if(d.atestadoMedico)return '—';
     if(d.tipo === 'falta') return 'FALTA';
     return m.status ? (m.status.length > 4 ? m.status.slice(0,4) : m.status) : '—';
   };
@@ -8583,7 +8608,7 @@ function desenharFichaPontoCompacta(doc, it, x0, x1, yIni, yLimite){
            mais pesa na folha. Ver "FOLGA QUE ERA FALTA". */
         /* Com FALTA escrito na linha inteira, esta coluna não repete a palavra: mostra
            o que o dia custou, que é a informação que ainda faltava. */
-        (diaFeriadoNoDocumento(d) ? {t:'Feriado', b:true}
+        (d.atestadoMedico ? {t:'Atestado',b:true} : diaFeriadoNoDocumento(d) ? {t:'Feriado', b:true}
           : d.tipo === 'falta'
           ? {t:'-' + pHHMM(d.debitoMin), c: VERMELHO}
           : {t: d.atrasoMin ? pHHMM(d.atrasoMin) : (d.saidaAntMin ? '-' + pHHMM(d.saidaAntMin) : '—'),
@@ -8594,7 +8619,7 @@ function desenharFichaPontoCompacta(doc, it, x0, x1, yIni, yLimite){
         /* Negrito acompanha a cor — menos o cinza do "pago", que é informação de apoio
            e não pode competir com os números que a pessoa está conferindo. */
         doc.setFont('helvetica', (v.b || v.c) ? 'bold' : 'normal');
-        doc.setFontSize(CORPO);
+        doc.setFontSize(v.t==='Atestado'?Math.min(CORPO,6.8):CORPO);
         tinta(v.c);
         doc.text(relCortar(doc, String(v.t), cols[i][1] - 3), x, yy + LINHA - 3.4);
         x += cols[i][1];
@@ -9478,7 +9503,8 @@ function salvarCorrecaoPonto(mes, nomePonto, iso, motivo){
   if(!state.pontoCorrecoes[mes]) state.pontoCorrecoes[mes] = {};
   const chave = norm(nomePonto);
   if(!state.pontoCorrecoes[mes][chave]) state.pontoCorrecoes[mes][chave] = {};
-  if(motivo) state.pontoCorrecoes[mes][chave][iso] = { motivo };
+  const anterior=state.pontoCorrecoes[mes][chave][iso]||{};
+  if(motivo || anterior.atestadoMedico) state.pontoCorrecoes[mes][chave][iso] = Object.assign({},anterior,{motivo:motivo||null});
   else delete state.pontoCorrecoes[mes][chave][iso];
   invalidarPonto();
   salvarEstado();
@@ -9488,6 +9514,24 @@ function salvarCorrecaoPonto(mes, nomePonto, iso, motivo){
    um horário padrão fixo (07:30 entrada / 18:30 saída) conforme o lado que faltou.
    Em casos de contexto ambíguo (ex.: retorno de intervalo no meio do dia) não preenche —
    apenas justifica a ocorrência, sem inventar um horário. */
+function salvarAtestadoPonto(mes,nome,iso,marcado){
+  if(!state.pontoCorrecoes)state.pontoCorrecoes={};
+  if(!state.pontoCorrecoes[mes])state.pontoCorrecoes[mes]={};
+  const chave=norm(nome);
+  if(!state.pontoCorrecoes[mes][chave])state.pontoCorrecoes[mes][chave]={};
+  const anterior=state.pontoCorrecoes[mes][chave][iso]||{};
+  state.pontoCorrecoes[mes][chave][iso]=Object.assign({},anterior,{atestadoMedico:!!marcado,atestadoPor:document.getElementById('usuarioLogado').textContent||'',atestadoEm:new Date().toISOString()});
+  invalidarPonto();salvarEstado();
+}
+document.getElementById('espTabela').addEventListener('change',e=>{
+  const chk=e.target.closest('.atestado-chk');if(!chk)return;
+  if(!permitirNavegacaoEditorPonto()){chk.checked=!chk.checked;return;}
+  const it=itemAtualEditorPonto();if(!conferirBaseEditor(it))return;
+  const d=it.a.dias.find(x=>x.iso===chk.dataset.iso);
+  if(!d || !d.podeAtestado)return;
+  salvarAtestadoPonto(state.mesAtual,it.c.nome,d.iso,chk.checked);
+  renderLista();renderPonto();abrirEspelho(espelhoIdx,true,true);
+});
 function aplicarPreenchimentoPadrao(diaOriginal, dOrig){
   if(dOrig.entradaMin === null){
     const cels = diaOriginal.cels.slice();
@@ -9822,6 +9866,15 @@ function analisarColaboradorComCorrecoes(c, mes, cfg){
       r.ocorrencias = r.ocorrencias.filter(o=>o.cod !== 'FALTA');
       r.ocorrencias.push({sev:'info',cod:'FOLGA-MARCADA',
         txt:'Dia marcado como folga no sistema' + (fol.por ? ' por '+fol.por : '')});
+    }
+    const atestado=pontoCorrecao(mes,c.nome,diaOriginal.iso);
+    r.podeAtestado=semBatidas && (r.tipo==='falta' || !!(atestado && atestado.atestadoMedico));
+    if(r.podeAtestado && atestado && atestado.atestadoMedico){
+      r.atestadoMedico=true;r.tipo='licenca';r.justificado=true;
+      r.podeFolga=false;r.podeFalta=false;
+      r.debitoMin=0;r.saldoMin=0;r.atrasoMin=0;r.saidaAntMin=0;
+      r.ocorrencias=r.ocorrencias.filter(o=>o.cod!=='FALTA');
+      r.ocorrencias.push({sev:'info',cod:'ATESTADO',txt:'Falta justificada por atestado médico — sem desconto'+(atestado.atestadoPor?' · '+atestado.atestadoPor:'')});
     }
     /* A hora extra combinada com a equipe entra ANTES da cortesia, senão o saldo que a
        cortesia recalcula sairia sem ela. Ver "HORA EXTRA LANÇADA NO DIA". */
@@ -13717,6 +13770,7 @@ function tipoEspelho(d){
 const SITUACAO_ROTULO_UNICO = ['folga','licenca','ferias','falta','sembatida','feriado','justificado'];
 
 function situacaoEspelho(d){
+  if(d.atestadoMedico)return 'Atestado médico';
   const tipoDia = tipoEspelho(d);
   const rotuloUnico = (PONTO_TIPO[tipoDia] || {}).rot || tipoDia;
   if(SITUACAO_ROTULO_UNICO.indexOf(tipoDia) >= 0) return rotuloUnico;
@@ -13788,6 +13842,67 @@ function textoDeclaracaoEspelho(periodo){
 
 let pontoEditorIso = '', pontoEditorFiltro = 'todos', pontoEditorContexto = '', pontoEditorSujo = false;
 let pontoEditorBase = '', pontoRetornoFolha = null;
+let visaoPontoContexto=null;
+function opcoesVisaoPonto(d,ext,geral){
+  return [
+    {id:'folga',nome:'Folga',marcado:!!d.folgaMarcada || d.tipo==='folga',permitido:!!d.podeFolga && !d.atestadoMedico},
+    {id:'falta',nome:'Falta',marcado:!!d.faltaMarcada || d.tipo==='falta',permitido:!!d.podeFalta && !d.folgaMarcada && !d.atestadoMedico},
+    {id:'atestado',nome:'Atestado médico',marcado:!!d.atestadoMedico,permitido:!!d.podeAtestado},
+    {id:'cortesia',nome:'Abonar desconto',marcado:!!d.cortesiaDia,permitido:!!d.podeCortesia && !d.atestadoMedico},
+    {id:'feriado',nome:'Feriado',marcado:geral || !!(ext && ext.feriado),permitido:!geral,nota:geral?'Feriado do calendário geral. Altere em Controle de Ponto → Feriados.':''},
+    {id:'troca',nome:'Trocar feriado por folga',marcado:!!d.feriadoFolga,permitido:!!d.feriado || d.tipo==='feriado'}
+  ];
+}
+function renderVisaoPonto(it){
+  const mes=state.mesAtual,cfg=pontoCfg();
+  document.getElementById('visaoPontoPessoa').textContent=it.c.nome+' · '+mesLabel(mes);
+  const box=document.getElementById('visaoPontoTabela'),top=box.scrollTop,left=box.scrollLeft;
+  const bases={};
+  box.innerHTML='<table><thead><tr><th>Dia</th><th>Situação / registros</th><th>Extras</th><th>Devidas</th><th>Folga</th><th>Falta</th><th>Atestado<br>médico</th><th>Abonar<br>desconto</th><th>Feriado</th><th>Trocar feriado<br>por folga</th></tr></thead><tbody>'+it.a.dias.map(d=>{
+    bases[d.iso]=assinaturaDiaEditor(it.c,mes,d.iso);
+    const opcoes=opcoesVisaoPonto(d,extraDiaPonto(mes,it.c.nome,d.iso),(cfg.feriados||[]).includes(d.iso));
+    return '<tr><td><b>'+escHtml(dataBR(d.iso))+'</b><br>'+escHtml(PONTO_DOW_LABEL[d.dow]||'')+'</td><td>'+escHtml(situacaoEspelho(d))+'<br><small>'+d.marc.map(m=>m.min!==null?pHHMM(m.min):'—').join(' / ')+'</small></td><td>'+pHHMM(d.extraMin)+'</td><td>'+pHHMM(d.debitoMin)+'</td>'+opcoes.map(o=>'<td><input type="checkbox" class="vp-opcao" data-iso="'+d.iso+'" data-opcao="'+o.id+'" aria-label="'+escHtml(o.nome+' em '+dataBR(d.iso))+'" title="'+escHtml(o.nota||(!o.permitido?'Indisponível para a situação atual deste dia.':o.nome))+'"'+(o.marcado?' checked':'')+(!o.permitido?' disabled':'')+'></td>').join('')+'</tr>';
+  }).join('')+'</tbody></table>';
+  visaoPontoContexto={mes,idx:it.idx,nome:it.c.nome,bases};
+  box.scrollTop=top;box.scrollLeft=left;
+}
+function fecharVisaoPonto(){
+  const p=visaoPontoContexto;visaoPontoContexto=null;
+  document.getElementById('overlayVisaoPonto').classList.remove('show');
+  if(p && p.mes===state.mesAtual) abrirEspelho(p.idx,espelhoModoEdicao,espelhoModoMarcacoes);
+}
+document.getElementById('btnVisaoAmpliadaPonto').addEventListener('click',()=>{
+  if(!permitirNavegacaoEditorPonto())return;
+  const it=itemAtualEditorPonto();if(!it)return;
+  renderVisaoPonto(it);document.getElementById('visaoPontoAviso').textContent='Cada alteração é salva automaticamente.';
+  document.getElementById('overlayVisaoPonto').classList.add('show');
+});
+document.getElementById('fecharVisaoPonto').addEventListener('click',fecharVisaoPonto);
+document.getElementById('concluirVisaoPonto').addEventListener('click',fecharVisaoPonto);
+document.getElementById('visaoPontoTabela').addEventListener('change',e=>{
+  const chk=e.target.closest('.vp-opcao'),p=visaoPontoContexto;if(!chk || !p)return;
+  const dados=analisePonto(),it=dados && dados.itens.find(x=>x.idx===p.idx && x.c.nome===p.nome);
+  if(!it || p.mes!==state.mesAtual){fecharVisaoPonto();return;}
+  const iso=chk.dataset.iso,id=chk.dataset.opcao,marcado=chk.checked;
+  const d=it.a.dias.find(x=>x.iso===iso),ext=extraDiaPonto(p.mes,p.nome,iso);
+  const geral=(pontoCfg().feriados||[]).includes(iso);
+  const op=d && opcoesVisaoPonto(d,ext,geral).find(o=>o.id===id);
+  if(!op || !op.permitido || p.bases[iso]!==assinaturaDiaEditor(it.c,p.mes,iso)){
+    renderVisaoPonto(it);document.getElementById('visaoPontoAviso').textContent='O dia mudou. Confira a situação atualizada antes de alterar.';return;
+  }
+  if(id==='falta' && marcado && !confirm('Marcar '+dataBR(iso)+' como falta? O dia passará a gerar desconto na folha.')){chk.checked=false;return;}
+  if(id==='feriado' && marcado && ext && ext.min>0 && !confirm('Marcar feriado substitui a hora extra combinada deste dia pelo pagamento de feriado. Continuar?')){chk.checked=false;return;}
+  const salvar={folga:salvarFolgaPonto,falta:salvarFaltaPonto,atestado:salvarAtestadoPonto,cortesia:salvarCortesiaPonto,troca:salvarFeriadoFolga};
+  if(id==='feriado'){
+    salvarExtraDiaPonto(p.mes,p.nome,iso,0,ext && ext.motivo||'',marcado);invalidarPonto();salvarEstado();
+  }else salvar[id](p.mes,p.nome,iso,marcado);
+  renderLista();renderPonto();
+  const atual=analisePonto().itens.find(x=>x.idx===p.idx && x.c.nome===p.nome);
+  renderVisaoPonto(atual);
+  const foco=document.querySelector('#visaoPontoTabela input[data-iso="'+iso+'"][data-opcao="'+id+'"]');
+  if(foco && !foco.disabled)foco.focus({preventScroll:true});
+  document.getElementById('visaoPontoAviso').textContent=dataBR(iso)+' · '+op.nome+(marcado?' marcado.':' desmarcado.')+' Folha atualizada.';
+});
 
 function permitirNavegacaoEditorPonto(){
   if(!pontoEditorSujo) return true;
@@ -13809,6 +13924,39 @@ function horariosValidosEditor(valores){
     return hora;
   });
 }
+function fontesHorariosDia(it,iso,dados=analisePonto()){
+  if(!it || !iso || iso.slice(0,7)!==state.mesAtual) return [];
+  return ((dados && dados.itens) || []).filter(x=>norm(x.c.nome)!==norm(it.c.nome))
+    .map(x=>{
+      const original=x.c.dias.find(d=>d.iso===iso);
+      if(!original) return null;
+      const efetivo=diaComMarcacoesEditadas(original,state.mesAtual,x.c.nome);
+      const cels=Array.from({length:6},(_,i)=>pMin(efetivo.cels[i])===null?null:pHHMM(pMin(efetivo.cels[i])));
+      return cels.some(v=>v!==null)?{nome:x.c.nome,cels}:null;
+    }).filter(Boolean).sort((a,b)=>a.nome.localeCompare(b.nome,'pt-BR'));
+}
+function renderImportarHorariosDia(it,iso){
+  const fontes=fontesHorariosDia(it,iso);
+  return '<section class="ep-importar"><label for="epImportarOrigem">Importar horários de outro colaborador</label>'+
+    '<p class="ep-nota">Copia as entradas e saídas de '+escHtml(dataBR(iso))+'. Os seis campos abaixo serão substituídos, incluindo os vazios. Confira antes de salvar. Justificativas e valores não são copiados.</p>'+
+    '<select id="epImportarOrigem"'+(!fontes.length?' disabled':'')+'><option value="">'+(fontes.length?'Selecione o colaborador…':'Nenhum outro colaborador com horários neste dia')+'</option>'+
+    fontes.map(f=>'<option value="'+escHtml(f.nome)+'">'+escHtml(f.nome+' — '+f.cels.map(v=>v || '—').join(' / '))+'</option>').join('')+'</select>'+
+    '<div class="ep-acoes"><button type="button" class="btn btn-outline" id="epImportarHorarios" disabled>Importar horários do dia</button></div></section>';
+}
+function importarHorariosDiaEditor(){
+  if(!permitirNavegacaoEditorPonto()) return;
+  const it=itemAtualEditorPonto();
+  if(!conferirBaseEditor(it)) return;
+  const nome=document.getElementById('epImportarOrigem').value;
+  const fonte=fontesHorariosDia(it,pontoEditorIso).find(f=>f.nome===nome);
+  if(!fonte){document.getElementById('epAviso').textContent='Selecione um colaborador com horários neste dia. Se os registros mudaram, reabra o dia para atualizar a lista.';return;}
+  const campos=[...document.querySelectorAll('#espTabela .ep-hora')];
+  campos.forEach((x,i)=>{x.value=fonte.cels[i] || '';});
+  campos[0].dispatchEvent(new Event('input',{bubbles:true}));
+  document.getElementById('epAviso').textContent=pontoEditorSujo
+    ? 'Horários de '+fonte.nome+' em '+dataBR(pontoEditorIso)+' carregados. Confira e clique em Salvar horários do dia.'
+    : 'Os horários deste dia já são iguais aos de '+fonte.nome+'.';
+}
 function renderEditorPonto(it){
   const c = it.c, dias = it.a.dias;
   const contexto = state.mesAtual+'|'+c.nome;
@@ -13820,7 +13968,7 @@ function renderEditorPonto(it){
   const d = lista.find(d=>d.iso===pontoEditorIso);
   const nav = '<nav class="ep-nav" aria-label="Dias do ponto"><label for="epFiltro">Mostrar dias</label><select id="epFiltro">'+
     [['todos','Todos os dias'],['pendencias','Faltas e pendências'],['ajustados','Dias ajustados']].map(([v,t])=>'<option value="'+v+'"'+(v===pontoEditorFiltro?' selected':'')+'>'+t+'</option>').join('')+'</select><div class="ep-dias">'+
-    lista.map(x=>'<button type="button" class="ep-dia" data-dia="'+x.iso+'" aria-pressed="'+(x.iso===pontoEditorIso)+'"><span>'+escHtml(dataBR(x.iso))+' · '+escHtml(PONTO_DOW_LABEL[x.dow] || '')+'</span><small>'+escHtml((PONTO_TIPO[x.tipo] || PONTO_TIPO.ok).rot)+'</small></button>').join('')+'</div></nav>';
+    lista.map(x=>'<button type="button" class="ep-dia" data-dia="'+x.iso+'" aria-pressed="'+(x.iso===pontoEditorIso)+'"><span>'+escHtml(dataBR(x.iso))+' · '+escHtml(PONTO_DOW_LABEL[x.dow] || '')+'</span><small>'+escHtml(x.atestadoMedico?'Atestado médico':(PONTO_TIPO[x.tipo] || PONTO_TIPO.ok).rot)+'</small></button>').join('')+'</div></nav>';
   pontoEditorSujo=false;
   if(!d) return '<div class="ep-editor">'+nav+'<div class="ep-painel">Nenhum dia neste filtro.</div></div>';
   pontoEditorBase=assinaturaDiaEditor(c,state.mesAtual,d.iso);
@@ -13830,6 +13978,7 @@ function renderEditorPonto(it){
   const campos=[0,2,4].map(i=>'<div class="ep-par">'+[i,i+1].map(k=>'<label>'+(k%2?'Saída ':'Entrada ')+(Math.floor(k/2)+1)+
     '<input class="ep-hora" data-pos="'+k+'" value="'+entradas[k]+'" data-inicial="'+entradas[k]+'" placeholder="--:--" inputmode="numeric" maxlength="5" autocomplete="off"></label>').join('')+'</div>').join('');
   let situacao='';
+  if(d.podeAtestado) situacao+='<label class="cortesia-lbl"><input type="checkbox" class="atestado-chk" data-iso="'+d.iso+'"'+(d.atestadoMedico?' checked':'')+'> Atestado médico — justificar falta sem desconto</label><p class="ep-nota">Não preenche horários. Desmarque para voltar à situação anterior.</p>';
   if(d.feriado || d.tipo==='feriado') situacao+=checkboxFeriadoFolga(d)+'<p class="ep-nota">Substitui as horas pagas do feriado e os R$ 70 por uma folga a combinar. Desmarque para voltar ao pagamento.</p>';
   if(d.podeFolga || d.folgaMarcada) situacao+='<label class="cortesia-lbl"><input type="checkbox" class="folga-chk" data-iso="'+d.iso+'"'+(d.folgaMarcada?' checked':'')+'> Marcar como folga — sem desconto de falta</label>';
   if((d.podeFalta || d.faltaMarcada) && !d.folgaMarcada) situacao+='<label class="falta-lbl"><input type="checkbox" class="falta-chk" data-iso="'+d.iso+'"'+(d.faltaMarcada?' checked':'')+'> Foi falta — descontar o dia</label>';
@@ -13839,9 +13988,9 @@ function renderEditorPonto(it){
   if(d.podeCortesia) situacao+='<label class="cortesia-lbl"><input type="checkbox" class="cortesia-chk" data-iso="'+d.iso+'"'+(d.cortesiaDia?' checked':'')+'> Pago o dia trabalhado — não descontar as horas devidas</label>';
   const ext=extraDiaPonto(state.mesAtual,c.nome,d.iso);
   return '<div class="ep-editor">'+nav+'<article class="ep-painel"><h3>'+escHtml(dataBR(d.iso))+' · '+escHtml(PONTO_DOW_LABEL[d.dow] || '')+'</h3>'+
-    '<p><span class="pill '+(PONTO_TIPO[d.tipo] || PONTO_TIPO.ok).cls+'">'+escHtml((PONTO_TIPO[d.tipo] || PONTO_TIPO.ok).rot)+'</span> · Trabalhado '+pHHMM(d.trabalhadoMin)+' · Extras '+pHHMM(d.extraMin)+' · Horas devidas '+pHHMM(d.debitoMin)+'</p>'+
+    '<p><span class="pill '+(PONTO_TIPO[d.tipo] || PONTO_TIPO.ok).cls+'">'+escHtml(d.atestadoMedico?'Atestado médico':(PONTO_TIPO[d.tipo] || PONTO_TIPO.ok).rot)+'</span> · Trabalhado '+pHHMM(d.trabalhadoMin)+' · Extras '+pHHMM(d.extraMin)+' · Horas devidas '+pHHMM(d.debitoMin)+'</p>'+
     '<p class="ep-nota">Escala: '+((c.escala || {})[d.dow] || []).map(v=>v==null?'—':pHHMM(v)).join(' / ')+'<br>Registro original: '+escHtml((original.cels || []).map(v=>pMin(v)!==null?pHHMM(pMin(v)):String(v || '—')).join(' / '))+'</p>'+
-    '<h4>Horários do dia</h4><div class="ep-horarios">'+campos+'</div><div class="ep-acoes"><button type="button" class="btn btn-primary" id="epSalvarHorarios" disabled>Salvar horários do dia</button><button type="button" class="btn btn-outline" id="epDescartar" disabled>Descartar digitação</button></div><p id="epAviso" class="ep-aviso" role="status">Os horários só mudam quando você salva. Campo vazio remove a marcação daquele horário.</p>'+
+    renderImportarHorariosDia(it,d.iso)+'<h4>Horários do dia</h4><div class="ep-horarios">'+campos+'</div><div class="ep-acoes"><button type="button" class="btn btn-primary" id="epSalvarHorarios" disabled>Salvar horários do dia</button><button type="button" class="btn btn-outline" id="epDescartar" disabled>Descartar digitação</button></div><p id="epAviso" class="ep-aviso" role="status">Os horários só mudam quando você salva. Campo vazio remove a marcação daquele horário.</p>'+
     '<fieldset class="ep-opcoes" id="epOpcoes"><section><h4>Situação e justificativa</h4><p class="ep-nota">Estas opções são salvas ao alterar.</p>'+(situacao || '<p class="ep-nota">Nenhuma decisão pendente. Dias com batidas não são convertidos em folga.</p>')+'</section>'+
     '<section><h4>Hora extra combinada neste dia</h4><div class="campo-row"><div class="campo"><label for="epExtra">Quantidade de horas</label><input id="epExtra" value="'+(ext && !ext.feriado ? pHHMM(ext.min):'')+'" placeholder="Ex.: 2 ou 1:30"></div><div class="campo"><label for="epExtraMotivo">Motivo</label><input id="epExtraMotivo" value="'+escHtml(ext ? ext.motivo || '':'')+'"></div></div><label><input type="checkbox" id="epExtraFeriado"'+(ext && ext.feriado?' checked':'')+'> Feriado trabalhado: horas trabalhadas × valor-hora cadastrado + R$ 70</label><div class="ep-acoes"><button type="button" class="btn btn-outline" id="epSalvarExtra">Salvar hora extra do dia</button></div><p class="ep-nota">A quantidade soma às extras apuradas. O feriado é pago na verba própria da folha: horas trabalhadas × valor-hora cadastrado + R$ 70, sem dobrar horas extras. Zero ou vazio remove a hora extra combinada.</p></section>'+
     '<section><h4>Conferência e histórico</h4>'+ocorrenciasEspelho(d).map(o=>'<p class="ep-nota">'+escHtml(o.txt)+'</p>').join('')+
@@ -13896,12 +14045,18 @@ document.getElementById('espTabela').addEventListener('input',e=>{
   document.getElementById('epDescartar').disabled=!pontoEditorSujo;
   document.getElementById('epSalvarHorarios').disabled=!horas || !pontoEditorSujo;
   document.getElementById('epOpcoes').disabled=horas && pontoEditorSujo;
+  document.getElementById('epImportarOrigem').disabled=pontoEditorSujo;
+  document.getElementById('epImportarHorarios').disabled=pontoEditorSujo || !document.getElementById('epImportarOrigem').value;
   if(!horas){
     document.querySelectorAll('#espTabela .ep-hora,#epOpcoes .folga-chk,#epOpcoes .falta-chk,#epOpcoes .select-motivo,#epOpcoes .cortesia-chk,#epOpcoes .mrc-desfazer').forEach(x=>x.disabled=true);
   }
   document.getElementById('epAviso').textContent=pontoEditorSujo?'Há alterações não salvas. Salve esta seção ou descarte a digitação.':'Nenhuma alteração pendente.';
 });
 document.getElementById('espTabela').addEventListener('change',e=>{
+  if(e.target.id==='epImportarOrigem'){
+    document.getElementById('epImportarHorarios').disabled=pontoEditorSujo || !e.target.value;
+    return;
+  }
   if(e.target.id!=='epFiltro') return;
   if(!permitirNavegacaoEditorPonto()){e.target.value=pontoEditorFiltro;return;}
   pontoEditorFiltro=e.target.value;
@@ -13914,6 +14069,7 @@ document.getElementById('overlayEspelho').addEventListener('click',e=>{
   }
 },true);
 document.getElementById('espTabela').addEventListener('click',e=>{
+  if(e.target.id==='epImportarHorarios'){importarHorariosDiaEditor();return;}
   const dia=e.target.closest('.ep-dia');
   if(dia){
     if(!permitirNavegacaoEditorPonto()) return;
@@ -14241,7 +14397,7 @@ function renderDiasPreenchimento(c,mes,cfg,hoje){
   return analise.dias.map(d=>{
     const previsto=elegiveis.find(x=>x.iso===d.iso);
     const tipo=PONTO_TIPO[d.tipo];
-    const situacao=(tipo ? tipo.rot : d.tipo) + (d.extraMin > 0 ? (d.tipo==='extra'?' ':' · Hora extra ')+pHHMM(d.extraMin) : '');
+    const situacao=(d.atestadoMedico?'Atestado médico':tipo ? tipo.rot : d.tipo) + (d.extraMin > 0 ? (d.tipo==='extra'?' ':' · Hora extra ')+pHHMM(d.extraMin) : '');
     const horarios=d.marc.map(m=>m.min!==null?pHHMM(m.min):'—').join(' / ');
     const motivo=d.iso>=hoje ? 'Hoje ou data futura: não disponível para preenchimento.' : 'Dia preservado: somente faltas sem batidas ou ajustes e com escala válida podem ser preenchidas.';
     return '<article class="pre-dia'+(!previsto?' pre-dia-bloqueado':'')+'"><div><label><input type="checkbox" class="preencher-escala-dia" value="'+escHtml(d.iso)+'"'+(previsto?' checked':' disabled')+'><strong>'+escHtml(dataBR(d.iso))+' · '+escHtml(PONTO_DOW_LABEL[d.dow]||d.dow)+'</strong></label>'+
@@ -14873,7 +15029,7 @@ function desenharEspelho(doc, it, dados, logoDataURL){
     ? pHHMM(d.marc[i].min) + (d.marc[i].manual ? '*' : '') + (d.marcacaoEditada ? '†' : '')
     /* Ver a nota do `marca()` na ficha compacta: no dia de falta a linha inteira diz
        FALTA, em vez de repetir o "folga" que o relógio registrou. */
-    : (d.tipo === 'falta' ? 'FALTA'
+    : (d.atestadoMedico ? '—' : d.tipo === 'falta' ? 'FALTA'
         : (d.marc[i].status ? statusCurto(d.marc[i].status) : '—'));
 
   a.dias.forEach(d=>{
