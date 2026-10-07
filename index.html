@@ -3729,10 +3729,12 @@
     </select>
     <div class="spacer"></div>
     <button class="btn btn-outline" id="btnBalancoMarcar">Pagar todos os pendentes</button>
+    <button class="btn btn-outline" id="btnAtualizarBalanco">Atualizar pagamentos</button>
     <button class="btn btn-outline" id="btnExportarBalanco">Exportar balanço</button>
   </div>
   <main>
     <div class="kpis" id="balKpis"></div>
+    <p id="balAvisoSync" class="campo-nota" role="status"></p>
     <div id="balCorpo"></div>
   </main>
 </div>
@@ -5378,7 +5380,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '03/10/2026 · Feriados: horas trabalhadas + R$ 70';
+const VERSAO_SISTEMA = '07/10/2026 · Sincronização econômica do RH';
 
 /* Cópia do sistema guardada no navegador, para ele ABRIR sem internet — ver sw.js, que
    precisa estar publicado na mesma pasta deste arquivo. Só em https (o Pages) ou no
@@ -5426,6 +5428,7 @@ function mostrarApp(session){
   travarRh();   /* entrar no sistema não abre o RH: ele pede a senha de novo */
   document.getElementById('usuarioLogado').textContent = NOMES_USUARIO[email] || email || '';
   liberarAnimacoes();
+  ligarAtualizacaoRh();
   conectarBanco();
 }
 
@@ -5454,6 +5457,8 @@ function soltarAnimacoesAgora(){
 }
 
 function mostrarLogin(aviso){
+  pararAtualizacaoRh();
+  emailLogado='';
   document.getElementById('appConteudo').style.display = 'none';
   document.getElementById('overlayLogin').classList.add('show');
   const erroBox = document.getElementById('loginErro');
@@ -5754,6 +5759,8 @@ window.addEventListener('pagehide', ()=>{ if(cacheTimer){ clearTimeout(cacheTime
 let nuvemTimer = null;     /* debounce do envio */
 let nuvemEnviando = false; /* evita envios simultâneos */
 let nuvemRefazer = false;  /* houve alteração durante um envio em andamento */
+let nuvemPendente = false; /* alteração local ainda sem confirmação do banco */
+let rhRevisaoLocal = 0;    /* invalida leituras iniciadas antes de uma edição */
 let nuvemUltima = null;    /* horário do último envio confirmado */
 let nuvemErro = null;      /* mensagem do último erro */
 let bancoPronto = false;   /* só envia depois que a carga inicial terminar */
@@ -5800,6 +5807,8 @@ function salvarEstado(){
   if(bancoPronto) sincronizarFolhaComPonto();
   gravarCache();
   if(!bancoPronto) return;   /* durante a carga inicial só o cache é atualizado */
+  nuvemPendente = true;
+  rhRevisaoLocal++;
   if(nuvemEnviando){ nuvemRefazer = true; return; }
   statusNuvem('pendente');
   clearTimeout(nuvemTimer);
@@ -5830,15 +5839,22 @@ function estadoParaNuvem(){
 }
 
 async function enviarParaNuvem(){
+  /* Um timeout disparado continua tendo um id: sem limpar este marcador, toda
+     releitura do RH ficava bloqueada depois da primeira gravação. */
+  clearTimeout(nuvemTimer); nuvemTimer = null;
+  nuvemPendente = true;
   if(!db){ statusNuvem('erro','Sem conexão'); nuvemErro='Biblioteca do Supabase não carregou'; return; }
   if(nuvemEnviando){ nuvemRefazer = true; return; }
   nuvemEnviando = true;
+  const revisaoEnviada = rhRevisaoLocal;
   statusNuvem('pendente');
   try{
     const { error } = await db.rpc('rh_salvar_estado', { p_estado: estadoParaNuvem() });
     if(error) throw error;
+    nuvemPendente = revisaoEnviada !== rhRevisaoLocal || nuvemRefazer;
     nuvemUltima = new Date();
-    statusNuvem('ok');
+    statusNuvem(nuvemPendente ? 'pendente' : 'ok');
+    avisarAlteracaoRh();
   }catch(e){
     /* Aqui mora o 403 de 24/08/2026: gravação recusada porque a sessão era a do Estoque.
        Antes isso virava "Sem conexão" e mandava a equipe caçar problema de internet. */
@@ -5921,6 +5937,7 @@ function formularioAberto(){
    Na primeira carga a tela volta para hoje, sem filtro. Numa reconexão, não: a pessoa
    está trabalhando, e ser arrancada do dia ou da aba em que está é perder o fio. */
 function instalarEstadoDoBanco(data, primeiraCarga){
+  medirRespostaRh(data);
   RH_CAIXA_LOCAL.forEach(k=>{ if(Array.isArray(state[k]) && state[k].length) data[k] = state[k]; });
   if(!primeiraCarga){
     RH_TELA_LOCAL.forEach(k=>{ if(state[k] === undefined) delete data[k]; else data[k] = state[k]; });
@@ -6194,8 +6211,8 @@ document.getElementById('btnOfflineTentar').addEventListener('click', async ()=>
       no envio, a marcação feita na outra máquina sumia sem deixar rastro. É o mesmo
       problema que as tabelas do caixa resolveram lá atrás; aqui ele continuava de pé.
 
-   A releitura fecha as duas: quando a janela volta ao foco e quando se troca de tela, o
-   estado do banco é buscado e adotado. Não é sincronismo de verdade — dois lançamentos
+   A releitura ocorre por aviso leve de gravação, com conferência de segurança a
+   cada 15 minutos apenas nas telas do RH. Não é sincronismo transacional — dois lançamentos
    ao mesmo tempo na mesma folha continuam sendo o último que gravou —, mas a janela de
    risco cai de "o dia inteiro" para "os segundos entre olhar e mexer".
 
@@ -6209,9 +6226,82 @@ const RH_TELA_LOCAL  = ['abaAtual','mesAtual','pontoAba','balcMes','balLojaMes',
 const RH_CAIXA_LOCAL = ['clientes','recebimentos','retiradas','aberturas','produtos',
                         'vendas','suprimentos','notinhasAvulsas'];
 const RH_ESPERA_LEITURA = 25000;   /* nunca duas leituras seguidas dentro disto */
+const RH_CONFERENCIA_SEGURANCA = 15*60*1000;
+const RH_LIMITE_AUTO_DIA = 8*1024*1024; /* orçamento estimado por navegador; não é cota da conta */
+const RH_CONSUMO_KEY = 'rh_consumo_sync_v1';
 
 let rhRelendo = false;
 let rhUltimaLeitura = 0;
+let rhUltimaTentativa = 0;
+let rhAvisos = 0, rhAvisosLidos = 0;
+let rhCanal = null, rhAvisoTimer = null;
+let rhAvisoEnvioPendente = false, rhAvisoEnviando = false;
+let rhUltimoAvisoEnvio = 0;
+let rhConsumoMemoria = null;
+
+function consumoAutomaticoRh(){
+  const dia=hojeISO();
+  try{
+    const salvo=JSON.parse(localStorage.getItem(RH_CONSUMO_KEY) || 'null');
+    if(salvo && salvo.dia===dia && Number.isFinite(salvo.bytes) && salvo.bytes>=0 && Number.isFinite(salvo.tamanho) && salvo.tamanho>0) rhConsumoMemoria=salvo;
+  }catch(e){}
+  if(!rhConsumoMemoria || rhConsumoMemoria.dia!==dia)
+    rhConsumoMemoria={dia,bytes:0,tamanho:rhConsumoMemoria && rhConsumoMemoria.tamanho || 512*1024};
+  return rhConsumoMemoria;
+}
+function guardarConsumoRh(c){
+  rhConsumoMemoria=c;
+  try{localStorage.setItem(RH_CONSUMO_KEY,JSON.stringify(c));}catch(e){}
+}
+function medirRespostaRh(data,reservado=0){
+  const c=consumoAutomaticoRh();
+  const tamanho=new TextEncoder().encode(JSON.stringify(data)).length+1024;
+  c.tamanho=c.medido?Math.max(c.tamanho,tamanho):tamanho;
+  c.medido=true;
+  if(reservado) c.bytes+=Math.max(0,tamanho-reservado);
+  guardarConsumoRh(c);
+}
+function avisoSincronizacaoRh(texto){
+  const el=document.getElementById('balAvisoSync');
+  if(el) el.textContent=texto;
+}
+function receberAvisoRh(){
+  /* O aviso nunca contém nome, salário, pagamento ou outros dados do RH.
+     Não é uma fonte de dados: apenas pede uma leitura autenticada e limitada. */
+  rhAvisos++;
+  avisoSincronizacaoRh('Há uma atualização para conferir. Aguarde a sincronização antes de conferir ou registrar outro pagamento.');
+  clearTimeout(rhAvisoTimer);
+  rhAvisoTimer=setTimeout(()=>{rhAvisoTimer=null;atualizarRhAutomaticamente();},800);
+}
+function ligarAtualizacaoRh(){
+  if(!db || rhCanal || !emailLogado) return;
+  try{
+    rhCanal=db.channel('rh-invalidacao-v1',{config:{broadcast:{self:false,ack:true}}})
+      .on('broadcast',{event:'alterado'},receberAvisoRh);
+    rhCanal.subscribe(status=>{
+      if(status==='SUBSCRIBED') receberAvisoRh(); /* reconexão pode ter perdido avisos */
+    });
+  }catch(e){rhCanal=null;} /* a conferência limitada cobre indisponibilidade do canal */
+}
+async function avisarAlteracaoRh(novo=true){
+  if(novo) rhAvisoEnvioPendente=true;
+  if(!rhAvisoEnvioPendente || rhAvisoEnviando || Date.now()-rhUltimoAvisoEnvio<5000) return;
+  ligarAtualizacaoRh();
+  if(!rhCanal) return;
+  rhAvisoEnviando=true;rhUltimoAvisoEnvio=Date.now();rhAvisoEnvioPendente=false;
+  try{
+    const resultado=await rhCanal.send({type:'broadcast',event:'alterado',payload:{}});
+    if(resultado!=='ok') rhAvisoEnvioPendente=true;
+  }catch(e){rhAvisoEnvioPendente=true;}
+  finally{rhAvisoEnviando=false;}
+}
+function pararAtualizacaoRh(){
+  rhRevisaoLocal++;
+  clearTimeout(rhAvisoTimer);rhAvisoTimer=null;
+  const canal=rhCanal;rhCanal=null;
+  if(canal && db) Promise.resolve(db.removeChannel(canal)).catch(()=>{});
+  rhAvisoEnvioPendente=false;
+}
 
 /* Só o que é DADO entra na comparação: se a tela e o caixa entrassem, a assinatura
    mudaria a cada clique e a tela se redesenharia à toa. */
@@ -6224,28 +6314,51 @@ function assinaturaRh(o){
   return JSON.stringify(dados);
 }
 
-function rhPodeReler(){
+function rhPodeReler(manual=false){
   if(!db || !bancoPronto || rhRelendo) return false;
+  if(!rhLiberado || !abaProtegida(state.abaAtual) || document.hidden || navigator.onLine===false) return false;
   /* Tem coisa minha para subir: a minha é a mais nova, e reler agora a jogaria fora. */
-  if(nuvemEnviando || nuvemTimer) return false;
+  if(nuvemEnviando || nuvemTimer || nuvemPendente) return false;
   /* Janela aberta é alguém no meio de um lançamento. Trocar o estado por baixo de um
      formulário aberto é perder o que a pessoa está digitando. */
   if(document.querySelector('.overlay.show')) return false;
-  return Date.now() - rhUltimaLeitura >= RH_ESPERA_LEITURA;
+  if(Date.now()-rhUltimaTentativa<RH_ESPERA_LEITURA) return false;
+  return manual || rhAvisos!==rhAvisosLidos || Date.now()-rhUltimaLeitura>=RH_CONFERENCIA_SEGURANCA;
 }
 
-async function relerEstadoRh(){
-  if(!rhPodeReler()) return;
+async function relerEstadoRh(manual=false){
+  manual=manual===true; /* eventos de focus não podem virar leitura manual */
+  if(!rhPodeReler(manual)) return false;
+  let reservado=0;
+  if(!manual){
+    const c=consumoAutomaticoRh();
+    reservado=Math.ceil(c.tamanho*1.2);
+    if(c.bytes+reservado>RH_LIMITE_AUTO_DIA){
+      avisoSincronizacaoRh('Atualização automática pausada para economizar dados. Os pagamentos podem estar desatualizados. Clique em Atualizar pagamentos antes de conferir ou pagar.');
+      return false;
+    }
+    c.bytes+=reservado;guardarConsumoRh(c);
+  }
   rhRelendo = true;
+  rhUltimaTentativa=Date.now();
+  const revisaoLida = rhRevisaoLocal;
+  const avisosLidos = rhAvisos;
+  avisoSincronizacaoRh('Conferindo pagamentos com o banco…');
   try{
-    const { data, error } = await db.rpc('rh_carregar_estado');
+    const { data, error } = await comTempoLimite(db.rpc('rh_carregar_estado'), 20000);
     if(error) throw error;
-    if(!data || !Array.isArray(data.funcionarios) || !data.funcionarios.length) return;
-    rhUltimaLeitura = Date.now();
-    if(assinaturaRh(data) === assinaturaRh(state)) return;   /* ninguém mexeu lá fora */
+    if(data) medirRespostaRh(data,reservado);
+    if(!data || !Array.isArray(data.funcionarios) || !data.funcionarios.length) throw new Error('Resposta do RH indisponível');
     /* A guarda é refeita aqui: a busca leva alguns segundos e nesse meio-tempo a pessoa
        pode ter aberto um lançamento ou mexido em alguma coisa. */
-    if(nuvemEnviando || nuvemTimer || document.querySelector('.overlay.show')) return;
+    if(nuvemEnviando || nuvemTimer || nuvemPendente || revisaoLida !== rhRevisaoLocal || document.querySelector('.overlay.show')){
+      avisoSincronizacaoRh('Atualização adiada para preservar o lançamento aberto. Conclua ou feche a janela para conferir os pagamentos.');
+      return false;
+    }
+    rhUltimaLeitura = Date.now();
+    rhAvisosLidos=avisosLidos;
+    avisoSincronizacaoRh('Conferido com o banco às '+new Date().toLocaleTimeString('pt-BR')+'.');
+    if(assinaturaRh(data) === assinaturaRh(state)) return true;   /* ninguém mexeu lá fora */
     RH_TELA_LOCAL.forEach(k=>{ if(state[k] === undefined) delete data[k]; else data[k] = state[k]; });
     RH_CAIXA_LOCAL.forEach(k=>{ if(state[k] !== undefined) data[k] = state[k]; });
     state = data;
@@ -6254,9 +6367,10 @@ async function relerEstadoRh(){
     nuvemUltima = new Date();
     statusNuvem('ok');
     mostrarToast('Atualizado com o que foi lançado nos outros computadores');
+    return true;
   }catch(e){
-    /* Silencioso de propósito: sem conexão o sistema segue com a cópia local, e um aviso
-       a cada troca de tela viraria ruído. O chip da nuvem já mostra a situação. */
+    avisoSincronizacaoRh('Não foi possível conferir os pagamentos. A tela mostra a última cópia recebida; tente Atualizar pagamentos quando a conexão voltar.');
+    return false;
   }finally{
     rhRelendo = false;
   }
@@ -6266,6 +6380,25 @@ async function relerEstadoRh(){
    alguma coisa — é aí que o dado precisa estar novo. */
 window.addEventListener('focus', relerEstadoRh);
 document.addEventListener('visibilitychange', ()=>{ if(!document.hidden) relerEstadoRh(); });
+/* Cobre telas deixadas abertas e retoma envios que falharam. Não troca o estado
+   enquanto há formulário aberto ou alterações locais aguardando confirmação. */
+async function atualizarRhAutomaticamente(){
+  if(!db || !bancoPronto || document.hidden || navigator.onLine === false) return;
+  ligarAtualizacaoRh();
+  avisarAlteracaoRh(false);
+  if(nuvemPendente){
+    if(!nuvemEnviando && !nuvemTimer) await enviarParaNuvem();
+    return;
+  }
+  await relerEstadoRh();
+}
+/* Este relógio é local: sem aviso ou conferência vencida, não consulta o banco. */
+setInterval(atualizarRhAutomaticamente, 30000);
+window.addEventListener('online', atualizarRhAutomaticamente);
+document.getElementById('btnAtualizarBalanco').addEventListener('click',async()=>{
+  if(nuvemPendente || nuvemEnviando || nuvemTimer){mostrarToast('Aguarde o envio das alterações deste computador.');return;}
+  if(!await relerEstadoRh(true)) mostrarToast('A atualização não foi concluída. Confira o aviso no balanço ou tente novamente em alguns segundos.');
+});
 
 /* Avisa se o usuário fechar a página com algo ainda não enviado. */
 window.addEventListener('beforeunload', (e)=>{
@@ -6273,7 +6406,7 @@ window.addEventListener('beforeunload', (e)=>{
      está no localStorage), mas recomeça a espera — e foi apertando F5 que a tela ficou
      vazia por meia hora em 12/09/2026. */
   const filaCaixa = (typeof caixaFila !== 'undefined') ? caixaFila.length : 0;
-  if(nuvemEnviando || nuvemTimer || filaCaixa || temRascunhoRec()){ e.preventDefault(); e.returnValue = ''; }
+  if(nuvemEnviando || nuvemTimer || nuvemPendente || filaCaixa || temRascunhoRec()){ e.preventDefault(); e.returnValue = ''; }
 });
 
 /* --------- modal do banco de dados --------- */
@@ -6314,6 +6447,8 @@ document.getElementById('btnBaixarNuvem').addEventListener('click', async ()=>{
     /* Mesma guarda da abertura: o caixa daqui fica na tela até a leitura das tabelas. */
     RH_CAIXA_LOCAL.forEach(k=>{ if(Array.isArray(state[k]) && state[k].length) data[k] = state[k]; });
     state = data;
+    nuvemPendente = false;
+    rhRevisaoLocal++;
     if(!state.mesAtual) state.mesAtual = mesAtualPadrao();
     if(typeof zerarTelaCaixa === 'function') zerarTelaCaixa();
     gravarCache(); reconstruirTela();
