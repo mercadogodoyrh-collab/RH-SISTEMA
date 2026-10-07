@@ -1074,8 +1074,15 @@
   .nota-rodape{font-size:11.5px;color:var(--texto-fraco);line-height:1.6;margin:10px 2px;}
   /* Aba Balanço mensal */
   .bal-tabela tbody tr{cursor:default;}
-  .bal-tabela-scroll{overflow-x:auto;}
-  .bal-tabela th{white-space:normal;}
+  #viewBalanco > .toolbar,#viewBalanco > main{max-width:none;width:100%;box-sizing:border-box;}
+  #viewBalanco .kpis{grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr));}
+  #viewBalanco .kpi{min-width:0;}
+  #viewBalanco .kpi-val{overflow-wrap:anywhere;}
+  .bal-tabela-scroll{max-width:100%;overflow-x:auto;padding-bottom:8px;}
+  #viewBalanco .bal-tabela{table-layout:fixed;width:100%;min-width:1080px;}
+  #viewBalanco .bal-tabela th,#viewBalanco .bal-tabela td{white-space:normal;max-width:none;box-sizing:border-box;}
+  #viewBalanco .bal-tabela td:first-child,#viewBalanco .bal-chave{overflow-wrap:anywhere;}
+  #viewBalanco .bal-tabela .tag-sv{white-space:normal;overflow-wrap:anywhere;}
   .bal-tabela tbody tr:hover{background:transparent;}
   /* Modalidades de pagamento na ficha do colaborador */
   .mod-lista{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
@@ -3570,6 +3577,7 @@
     </div>
     <button class="btn btn-outline btn-valores btn-valores-geral" title="Mostrar ou ocultar o valor de todos os colaboradores"></button>
     <button class="btn btn-primary" id="btnImportarPonto">Importar cartão ponto</button>
+    <button type="button" class="btn btn-outline" id="btnAdminRegistroPonto" title="Abrir a administração do Registro de Ponto em outra aba">Administração do ponto ↗</button>
     <button class="btn btn-outline" id="btnHeDia">Hora extra do dia</button>
     <button class="btn btn-outline" id="btnFeriados">Feriados</button>
     <button class="btn btn-outline" id="btnRegras">Parâmetros de apuração</button>
@@ -10925,7 +10933,8 @@ function renderBalanco(){
       '</td>';
   };
 
-  let html = '<div class="bal-tabela-scroll"><table class="tabela-ponto valores bal-tabela"><thead><tr>' +
+  let html = '<div class="bal-tabela-scroll" role="region" aria-label="Dados do balanço mensal; em telas pequenas, role para os lados" tabindex="0"><table class="tabela-ponto valores bal-tabela">'+
+    '<colgroup>'+[18,8,7,8,7,8,8,8,10,7,11].map(largura=>'<col style="width:'+largura+'%">').join('')+'</colgroup><thead><tr>' +
     '<th class="esq">Colaborador</th><th>Total da folha</th><th>Desconto INSS</th><th>Conta mercado<br>(notinhas)</th><th>Outros descontos</th>' +
     '<th>PIX</th><th>Dinheiro</th><th>Líquido a pagar</th>' +
     '<th class="esq">Chave PIX</th><th>Situação</th><th>Pagamento</th>' +
@@ -13567,6 +13576,11 @@ document.getElementById('confirmarImportacaoPonto').addEventListener('click', ()
   trocarAba('ponto');
   mostrarToast(plano.resumo.adicionados + ' dia(s) importado(s). Horários existentes preservados.');
 });
+function abrirAdministracaoRegistroPonto(){
+  if(!rhLiberado){pedirSenhaRh(abrirAdministracaoRegistroPonto,'rh');return;}
+  window.open('https://mercadogodoyrh-collab.github.io/registroponto/?admin&origem=rh','_blank','noopener,noreferrer');
+}
+document.getElementById('btnAdminRegistroPonto').addEventListener('click',abrirAdministracaoRegistroPonto);
 document.getElementById('btnImportarPonto').addEventListener('click', ()=> document.getElementById('filePonto').click());
 document.getElementById('filePonto').addEventListener('change', function(e){
   const file = e.target.files[0];
