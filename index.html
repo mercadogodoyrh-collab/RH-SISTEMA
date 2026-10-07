@@ -1074,6 +1074,8 @@
   .nota-rodape{font-size:11.5px;color:var(--texto-fraco);line-height:1.6;margin:10px 2px;}
   /* Aba Balanço mensal */
   .bal-tabela tbody tr{cursor:default;}
+  .bal-tabela-scroll{overflow-x:auto;}
+  .bal-tabela th{white-space:normal;}
   .bal-tabela tbody tr:hover{background:transparent;}
   /* Modalidades de pagamento na ficha do colaborador */
   .mod-lista{display:flex;flex-direction:column;gap:8px;margin-bottom:10px;}
@@ -1115,7 +1117,7 @@
   .bal-pagar.nada:hover{filter:none;}
   .bal-pg-nota{font-size:10px;color:var(--texto-fraco);line-height:1.35;margin-top:4px;
     white-space:normal;}
-  /* A coluna do pagamento é a última de dez: sem um teto ela empurra a tabela para fora
+  /* A coluna do pagamento é a última de onze: sem um teto ela empurra a tabela para fora
      da tela nos monitores do escritório. */
   .bal-tabela td:last-child, .bal-tabela th:last-child{max-width:132px;}
   .bal-pg-nota.alerta{color:var(--vermelho);font-weight:700;}
@@ -10743,6 +10745,7 @@ function apurarBalanco(mes){
     .sort((a,b)=> a.f.nome.localeCompare(b.f.nome,'pt-BR'))
     .map(r=>{
       const forma = formaPagamentoDe(r.f);
+      const descontosMercado = contaMercadoDoMes(mes,r.l);
       const total = r2(r.liquido);
       let pix = 0, dinheiro = 0;
       if(forma === 'dinheiro'){
@@ -10781,29 +10784,27 @@ function apurarBalanco(mes){
         confPix, confDin, situacao, valorPago,
         pagamento: pg, pagoPixVal: pagoPix, pagoDinVal: pagoDin, pagoNtaVal: pagoNta,
         pago: situacao === 'pago',
-        /* São três coisas diferentes e o balanço não pode misturá-las:
-           · CONTAS DESCONTADAS — notinhas do mercado e vales. Dinheiro que a
-             pessoa já levou e por isso não sai do caixa agora. Conta mercado e
-             "desconto" são dois campos para lançar a mesma coisa, então somam.
-           · INSS — retido e recolhido, não é conta de ninguém.
-           · ATRASO — não é desconto: é hora não trabalhada, então abate o próprio
-             total da folha, e não a coluna de contas.
-           Com essa separação vale sempre:
-             total da folha − INSS − contas descontadas = PIX + dinheiro. */
+        /* Separa a baixa das notinhas dos vales e demais descontos. A regra
+           histórica já conferida de julho/2026 é a mesma do fechamento mensal.
+           INSS fica separado; atrasos já estão abatidos do bruto exibido. */
         inss:    toNum(r.l.inss),
+        contaMercado: descontosMercado.conta,
+        outrosDescontos: r2(descontosMercado.outros + toNum(r.l.adiantamento)),
         contas:  toNum(r.l.contaMercado) + toNum(r.l.desconto) + toNum(r.l.adiantamento),
         atrasos: toNum(r.l.atrasos),
         bruto:   r2(r.total - toNum(r.l.atrasos))
       };
     });
 
-  const tot = {pagamento:0, inss:0, contas:0, atrasos:0, bruto:0,
+  const tot = {pagamento:0, inss:0, contas:0, contaMercado:0, outrosDescontos:0, atrasos:0, bruto:0,
                pago:0, aPagar:0, pix:0, dinheiro:0, notinha:0,
                qtdPagas:0, qtdParciais:0, qtdAbertas:0, pessoas: linhas.length};
   linhas.forEach(li=>{
     tot.pagamento += li.total;
     tot.inss      += li.inss;
     tot.contas    += li.contas;
+    tot.contaMercado += li.contaMercado;
+    tot.outrosDescontos += li.outrosDescontos;
     tot.atrasos   += li.atrasos;
     tot.bruto     += li.bruto;
     tot.pix       += li.pix;
@@ -10838,16 +10839,17 @@ function renderBalanco(){
   const t = bal.tot;
   document.getElementById('balMes').textContent = mesLabel(bal.mes);
 
-  /* Os quatro números do mês, na ordem em que a conta acontece — cada um é uma
-     grandeza distinta, e os três primeiros fecham exatamente no quarto:
-       total da folha − INSS − contas descontadas = saída de caixa.
+  /* Os números do mês, na ordem em que a conta acontece — cada um é uma
+     grandeza distinta:
+       total da folha − INSS − conta mercado − outros descontos = saída de caixa.
      Depois deles vem só a quebra da saída de caixa: quanto já saiu, quanto falta,
      e por onde sai. Nenhum KPI repete o outro. */
   document.getElementById('balKpis').innerHTML = [
     ['Total da folha', fmtMoeda(t.bruto), 'kpi-info',
       t.pessoas + ' colaborador(es)' + (t.atrasos ? ' · já sem ' + fmtMoeda(t.atrasos) + ' de atrasos' : '')],
     ['(−) Desconto de INSS', fmtMoeda(t.inss), 'kpi-alerta', 'retido e recolhido pela empresa'],
-    ['(−) Contas descontadas', fmtMoeda(t.contas), t.contas ? 'kpi-alerta' : '', 'notinhas do mercado e vales'],
+    ['(−) Conta mercado (notinhas)', fmtMoeda(t.contaMercado), t.contaMercado ? 'kpi-alerta' : '', 'descontado na folha · valor para baixa no SG'],
+    ['(−) Outros descontos', fmtMoeda(t.outrosDescontos), t.outrosDescontos ? 'kpi-alerta' : '', 'vales, adiantamentos e demais descontos'],
     ['(=) Saída de caixa', fmtMoeda(t.pagamento), 'kpi-info', 'a pagar aos colaboradores'],
     ['Já pago', fmtMoeda(t.pago), t.pago ? 'kpi-ok' : '', t.qtdPagas + ' confirmado(s)' +
       (t.qtdParciais ? ' · ' + t.qtdParciais + ' parcial(is)' : '')],
@@ -10923,16 +10925,16 @@ function renderBalanco(){
       '</td>';
   };
 
-  let html = '<table class="tabela-ponto valores bal-tabela"><thead><tr>' +
-    '<th class="esq">Colaborador</th><th>Total da folha</th><th>Desconto INSS</th><th>Contas descontadas</th>' +
+  let html = '<div class="bal-tabela-scroll"><table class="tabela-ponto valores bal-tabela"><thead><tr>' +
+    '<th class="esq">Colaborador</th><th>Total da folha</th><th>Desconto INSS</th><th>Conta mercado<br>(notinhas)</th><th>Outros descontos</th>' +
     '<th>PIX</th><th>Dinheiro</th><th>Líquido a pagar</th>' +
     '<th class="esq">Chave PIX</th><th>Situação</th><th>Pagamento</th>' +
     '</tr></thead><tbody>';
 
-  const soma = {bruto:0, pagamento:0, inss:0, contas:0, pix:0, dinheiro:0};
+  const soma = {bruto:0, pagamento:0, inss:0, contaMercado:0, outrosDescontos:0, pix:0, dinheiro:0};
   visiveis.forEach(li=>{
     soma.bruto += li.bruto; soma.pagamento += li.total;
-    soma.inss += li.inss; soma.contas += li.contas;
+    soma.inss += li.inss; soma.contaMercado += li.contaMercado; soma.outrosDescontos += li.outrosDescontos;
     soma.pix += li.pix; soma.dinheiro += li.dinheiro;
 
     const chave = li.pix
@@ -10943,7 +10945,7 @@ function renderBalanco(){
     html += '<tr>' +
       '<td class="esq"><div class="tp-nome">'+li.f.nome+'</div>' +
         '<div class="tp-func">'+(li.f.funcao||'—')+'</div></td>' +
-      cel(li.bruto) + cel(li.inss) + cel(li.contas) +
+      cel(li.bruto) + cel(li.inss) + cel(li.contaMercado,'col-destaque') + cel(li.outrosDescontos) +
       celModalidade(li.pix, li.pagoPixVal, !!li.pagamento) +
       celModalidade(li.dinheiro, li.pagoDinVal, !!li.pagamento) +
       '<td><b>'+fmtMoeda(li.total)+'</b></td>' +
@@ -10960,18 +10962,19 @@ function renderBalanco(){
   html += '</tbody><tfoot><tr class="linha-total">' +
     '<td class="esq">'+rotuloTotal+'</td>' +
     '<td>'+fmtMoeda(soma.bruto)+'</td>' +
-    '<td>'+fmtMoeda(soma.inss)+'</td><td>'+fmtMoeda(soma.contas)+'</td>' +
+    '<td>'+fmtMoeda(soma.inss)+'</td><td>'+fmtMoeda(soma.contaMercado)+'</td><td>'+fmtMoeda(soma.outrosDescontos)+'</td>' +
     '<td>'+fmtMoeda(soma.pix)+'</td><td>'+fmtMoeda(soma.dinheiro)+'</td>' +
     '<td>'+fmtMoeda(soma.pagamento)+'</td>' +
-    '<td colspan="3"></td></tr></tfoot></table>' +
+    '<td colspan="3"></td></tr></tfoot></table></div>' +
     '<div class="nota-rodape">' +
     '<b>A conta do mês:</b> total da folha ' + fmtMoeda(t.bruto) + ' − INSS ' + fmtMoeda(t.inss) +
-      ' − contas descontadas ' + fmtMoeda(t.contas) + ' = <b>' + fmtMoeda(t.pagamento) + '</b> de saída de caixa, ' +
+      ' − conta mercado ' + fmtMoeda(t.contaMercado) + ' − outros descontos ' + fmtMoeda(t.outrosDescontos) + ' = <b>' + fmtMoeda(t.pagamento) + '</b> de saída de caixa, ' +
       'sendo ' + fmtMoeda(t.pix) + ' em PIX e ' + fmtMoeda(t.dinheiro) + ' em dinheiro. ' +
       'Já saiu ' + fmtMoeda(t.pago) + '; falta ' + fmtMoeda(t.aPagar) + '. ' +
       (t.notinha > 0.004 ? 'Do que já saiu, ' + fmtMoeda(t.notinha) + ' foram em <b>notinha branca</b>, ' +
                            'retirados nos caixas da frente. ' : '') +
-    '<b>Contas descontadas</b> são as notinhas do mercado e os vales — o que a pessoa já levou. ' +
+    '<b>Baixa no SG:</b> use apenas a coluna <b>Conta mercado (notinhas)</b>, que mostra o valor descontado na folha. Se o desconto foi parcial, o restante das notinhas continua em débito. ' +
+    '<b>Outros descontos</b> reúne vales, adiantamentos e demais descontos. ' +
     (t.atrasos ? 'Os ' + fmtMoeda(t.atrasos) + ' de atraso não entram aí: hora não trabalhada não é conta, ' +
                  'então já vem abatida do total da folha acima. ' : '') +
     'O INSS é retido à parte e não é conta de ninguém. ' +
@@ -11611,7 +11614,8 @@ document.getElementById('btnExportarBalanco').addEventListener('click', ()=>{
     ['RESUMO'],
     ['Total da folha (já sem atrasos)', r2(t.bruto)],
     ['(−) Desconto de INSS', r2(t.inss)],
-    ['(−) Contas descontadas (notinhas do mercado e vales)', r2(t.contas)],
+    ['(−) Conta mercado (notinhas) — baixa no SG', r2(t.contaMercado)],
+    ['(−) Outros descontos (vales, adiantamentos e demais)', r2(t.outrosDescontos)],
     ['(=) Saída de caixa', r2(t.pagamento)],
     ['Já pago', r2(t.pago)],
     ['Ainda a pagar', r2(t.aPagar)],
@@ -11620,13 +11624,13 @@ document.getElementById('btnExportarBalanco').addEventListener('click', ()=>{
     ['Atrasos abatidos da folha', r2(t.atrasos)],
     ['Colaboradores', t.pessoas], [],
     ['DETALHAMENTO'],
-    ['Colaborador','Função','Total da folha','Desconto INSS','Contas descontadas',
+    ['Colaborador','Função','Total da folha','Desconto INSS','Conta mercado (notinhas) — baixa no SG','Outros descontos',
      'PIX','Dinheiro','Líquido a pagar','Chave PIX','Situação','Pago em',
      'Pago (PIX)','Pago (dinheiro)','Pago (notinha branca)']];
 
   const SIT_XLS = {pago:'PAGO', parcial:'PARCIAL', apagar:'A PAGAR', nada:'—'};
   bal.linhas.forEach(li=>{
-    linhas.push([li.f.nome, li.f.funcao||'', r2(li.bruto), r2(li.inss), r2(li.contas),
+    linhas.push([li.f.nome, li.f.funcao||'', r2(li.bruto), r2(li.inss), r2(li.contaMercado), r2(li.outrosDescontos),
       r2(li.pix), r2(li.dinheiro), r2(li.total),
       li.pix ? chavePixDe(li.f) : '',
       SIT_XLS[li.situacao],
@@ -11635,14 +11639,14 @@ document.getElementById('btnExportarBalanco').addEventListener('click', ()=>{
       li.pagamento ? dataBR(li.pagamento.data) : '',
       r2(li.pagoPixVal), r2(li.pagoDinVal), r2(li.pagoNtaVal)]);
   });
-  linhas.push(['TOTAL DA FOLHA','', r2(t.bruto), r2(t.inss), r2(t.contas),
+  linhas.push(['TOTAL DA FOLHA','', r2(t.bruto), r2(t.inss), r2(t.contaMercado), r2(t.outrosDescontos),
     r2(t.pix), r2(t.dinheiro), r2(t.pagamento), '', '', '',
     r2(bal.linhas.reduce((s,li)=> s + li.pagoPixVal, 0)),
     r2(bal.linhas.reduce((s,li)=> s + li.pagoDinVal, 0)),
     r2(t.notinha)]);
 
   const ws = XLSX.utils.aoa_to_sheet(linhas);
-  ws['!cols'] = [{wch:34},{wch:20},{wch:15},{wch:15},{wch:21},{wch:13},{wch:13},{wch:16},{wch:30},{wch:11},
+  ws['!cols'] = [{wch:34},{wch:20},{wch:15},{wch:15},{wch:38},{wch:22},{wch:13},{wch:13},{wch:16},{wch:30},{wch:11},
                  {wch:12},{wch:13},{wch:15},{wch:20}];
   const wb = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(wb, ws, 'Balanço');
