@@ -5391,7 +5391,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '19/10/2026 · Atualizacao automatica do caixa';
+const VERSAO_SISTEMA = '19/10/2026 · Baixa SG sincronizada v2';
 
 /* Cópia do sistema guardada no navegador, para ele ABRIR sem internet — ver sw.js, que
    precisa estar publicado na mesma pasta deste arquivo. Só em https (o Pages) ou no
@@ -15847,6 +15847,7 @@ function aplicarFilaSobreCaixa(pendentes){
    a tela ficou vazia, a luz mudava de cor lá no canto, e ninguém sabia se o lançamento
    tinha sumido. O aviso diz com todas as letras o que está acontecendo. */
 let caixaUltimaLeitura = 0;
+let caixaUltimaAplicada = '';
 let caixaUltimaLida = '';    /* texto da última leitura instalada — ver LEITURA IGUAL À ANTERIOR */
 let caixaUltimoErro = null;
 /* `tipo`: true (ou 'erro') pinta de vermelho; 'offline' pinta de azul, que é o aviso do
@@ -15903,7 +15904,7 @@ async function carregarCaixa(avisar){
        o mesmo que da última vez e não há nada deste computador na fila, não há o que
        instalar. A primeira leitura da sessão instala sempre. */
     const lida = JSON.stringify(respostas);
-    if(caixaUltimaLeitura && lida === caixaUltimaLida && !pendentesNaSaida.length && !caixaFila.length){
+    if(caixaUltimaLeitura && lida === caixaUltimaLida && assinaturaCaixa() === caixaUltimaAplicada && !pendentesNaSaida.length && !caixaFila.length){
       caixaUltimaLeitura = Date.now();
       caixaUltimoErro = null;
       if(modoOffline) atualizarFaixaOffline();
@@ -15924,6 +15925,7 @@ async function carregarCaixa(avisar){
        releitura de 30 segundos. */
     if(pendentesNaSaida.length) escoando.then(ok=>{ if(ok) setTimeout(()=> carregarCaixa(false), 400); });
     unificarCartoesAntigos();
+    caixaUltimaAplicada = assinaturaCaixa();
     gravarCache();
     /* "Primeira" é a primeira leitura BOA do banco nesta sessão. Sem internet na abertura,
        `caixaCarregado` já nasce true (vale o cache), e a abertura do dia só pode ser
@@ -15993,6 +15995,29 @@ async function migrarCaixaAntigo(legado){
   }
 }
 
+function aplicarEventoCaixa(payload){
+  try{
+    const tipo=Object.keys(CAIXA_TABELAS).find(t=>CAIXA_TABELAS[t].tabela===payload.table);
+    const linha=payload.eventType==='DELETE'?payload.old:payload.new;
+    if(!tipo || !linha || linha.id==null || !caixaCarregado){agendarLeituraCaixa();return;}
+    const id=String(linha.id);
+    // Nunca sobrescreve um lancamento deste computador ainda aguardando envio.
+    if(caixaFila.some(p=>p.tipo===tipo&&String(p.id)===id)){agendarLeituraCaixa();return;}
+    if(payload.eventType!=='DELETE' && (!linha.dados || String(linha.dados.id)!==id)){agendarLeituraCaixa();return;}
+    const lista=state[tipo]||[];
+    const pos=lista.findIndex(r=>String(r.id)===id);
+    if(payload.eventType==='DELETE'){if(pos>=0)lista.splice(pos,1);}
+    else if(pos>=0)lista[pos]=linha.dados;
+    else lista.push(linha.dados);
+    state[tipo]=lista;
+    caixaGravacoes++; // Invalida uma leitura iniciada antes deste evento.
+    caixaUltimaLida='';
+    descartarIndiceCaixa();
+    gravarCache();
+    renderCaixaAtual();
+  }finally{agendarLeituraCaixa();}
+}
+
 let caixaLeituraPendente = false;
 let caixaRealtimeLigado = false;
 function agendarLeituraCaixa(){
@@ -16014,7 +16039,7 @@ function ligarAtualizacaoCaixa(){
     caixaCanal = db.channel('caixa-administrativo');
     Object.keys(CAIXA_TABELAS).forEach(t=>{
       caixaCanal = caixaCanal.on('postgres_changes',
-        {event:'*', schema:'public', table:CAIXA_TABELAS[t].tabela}, agendarLeituraCaixa);
+        {event:'*', schema:'public', table:CAIXA_TABELAS[t].tabela}, aplicarEventoCaixa);
     });
     caixaCanal.subscribe(status=>{
       caixaRealtimeLigado = status === 'SUBSCRIBED';
