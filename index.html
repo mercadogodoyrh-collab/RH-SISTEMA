@@ -3386,8 +3386,8 @@
   <button class="chip-nuvem" id="chipNuvem" title="Situação da sincronização com o banco de dados">
     <span class="luz" id="nuvemLuz"></span><span id="nuvemTxt">Conectando…</span>
   </button>
-  <span class="uso-banco" id="usoBanco" hidden>
-    <span class="ub-trilho"><span class="ub-barra" id="usoBancoBarra"></span></span><span id="usoBancoTxt"></span>
+  <span class="uso-banco" id="usoBanco" hidden aria-label="Conferência dos recebimentos">
+    <span class="ub-sinal" aria-hidden="true" style="width:7px;height:7px;flex:none;border-radius:50%;background:#a76c00"></span><span id="usoBancoTxt"></span>
   </span>
   <span id="usuarioLogado" style="font-size:12.5px;color:var(--texto-fraco);"></span>
   <button class="btn btn-outline" id="btnLogout" title="Sair">Sair</button>
@@ -5391,7 +5391,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '19/10/2026 · Baixa SG sincronizada v2';
+const VERSAO_SISTEMA = '19/10/2026 · Conferencia automatica v3.1';
 
 /* Cópia do sistema guardada no navegador, para ele ABRIR sem internet — ver sw.js, que
    precisa estar publicado na mesma pasta deste arquivo. Só em https (o Pages) ou no
@@ -5440,6 +5440,7 @@ function mostrarApp(session){
   document.getElementById('usuarioLogado').textContent = NOMES_USUARIO[email] || email || '';
   liberarAnimacoes();
   ligarAtualizacaoRh();
+  ligarConferenciaRecebimentos();
   conectarBanco();
 }
 
@@ -6116,56 +6117,45 @@ function tentarSincronizar(){
   return sincronizandoPromessa;
 }
 
-/* ===================== MONITOR DE ARMAZENAMENTO =====================
-   O plano gratuito do Supabase dá 500 MB de banco e 1 GB de arquivos. Passou disso, o
-   banco pode ficar só leitura — e aí nem o caixa grava. Este monitor lê o tamanho real
-   (RPC `rh_uso_armazenamento`, só para quem tem acesso ao RH) ao conectar e depois a
-   cada 30 minutos. Falha de leitura não avisa nada: o chip da nuvem já cuida da conexão,
-   e o monitor fica com a última leitura (ou escondido) até a próxima dar certo.
-   Se um dia o plano mudar, é só trocar os limites aqui. */
-const LIMITE_BANCO_BYTES    = 500 * 1024 * 1024;
-const LIMITE_ARQUIVOS_BYTES = 1024 * 1024 * 1024;
-let usoBancoLido = 0;
-
 function formatarBytes(b){
   if(b >= 1024*1024*1024) return (b/1024/1024/1024).toLocaleString('pt-BR',{maximumFractionDigits:2}) + ' GB';
   if(b >= 1024*1024)      return (b/1024/1024).toLocaleString('pt-BR',{maximumFractionDigits:1}) + ' MB';
   return Math.round(b/1024).toLocaleString('pt-BR') + ' KB';
 }
 
-async function atualizarUsoBanco(forcar){
-  if(!db || navigator.onLine === false) return;
-  if(!forcar && Date.now() - usoBancoLido < 30*60*1000) return;
-  try{
-    const { data, error } = await comTempoLimite(db.rpc('rh_uso_armazenamento'), 15000);
-    if(error || !data) return;
-    usoBancoLido = Date.now();
-    const banco = Number(data.banco_bytes) || 0;
-    const arq   = Number(data.arquivos_bytes) || 0;
-    const pBanco = banco / LIMITE_BANCO_BYTES * 100;
-    const pArq   = arq / LIMITE_ARQUIVOS_BYTES * 100;
-    const pct = Math.max(pBanco, pArq);   /* o que estourar primeiro é o que manda */
-    const umaCasa = n => n.toLocaleString('pt-BR',{maximumFractionDigits:1});
-    const el = document.getElementById('usoBanco');
-    el.classList.toggle('aviso', pct >= 70 && pct < 90);
-    el.classList.toggle('erro',  pct >= 90);
-    document.getElementById('usoBancoBarra').style.width = Math.min(100, Math.max(pct, 2)) + '%';
-    document.getElementById('usoBancoTxt').textContent = (pct < 10 ? umaCasa(pct) : Math.round(pct)) + '%';
-    const maiores = (data.maiores || []).slice(0,3)
-      .map(t => '  • ' + t.tabela + ': ' + formatarBytes(Number(t.bytes)||0)).join('\n');
-    el.title = 'Armazenamento do Supabase (plano gratuito)\n'
-      + 'Banco: ' + formatarBytes(banco) + ' de 500 MB (' + umaCasa(pBanco) + '%)\n'
-      + 'Arquivos: ' + formatarBytes(arq) + ' de 1 GB (' + umaCasa(pArq) + '%)\n'
-      + (maiores ? 'Maiores tabelas (RH e estoque juntos):\n' + maiores + '\n' : '')
-      + 'Lido às ' + new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})
-      + (pct >= 90 ? '\n\nQUASE CHEIO: acima de 100% o banco pode ficar só leitura.'
-        : pct >= 70 ? '\n\nAtenção: já passou de 70% do plano.' : '');
-    el.hidden = false;
-  }catch(e){
-    /* silencioso de propósito — ver comentário acima */
-  }
+// Estado baseado na ultima leitura real dos recebimentos, sem franquia de nuvem.
+let ultimaConferenciaRecebimentos=0;
+function atualizarUsoBanco(){
+  const chip=document.getElementById('usoBanco');
+  if(!chip)return;
+  const fila=typeof caixaFila==='undefined'?0:caixaFila.length;
+  const idade=ultimaConferenciaRecebimentos?Math.max(0,Math.floor((Date.now()-ultimaConferenciaRecebimentos)/1000)):null;
+  const falhou=typeof conferenciaRecFalhas!=='undefined'&&conferenciaRecFalhas>=2;
+  const offline=navigator.onLine===false;
+  const atrasado=idade!==null&&idade>45;
+  let texto;
+  if(offline)texto='Sem internet';
+  else if(falhou||atrasado)texto='Conferência atrasada';
+  else if(idade===null)texto='Aguardando conferência';
+  else texto='Caixa conferido há '+(idade<60?idade+' s':Math.floor(idade/60)+' min');
+  if(fila)texto+=' · '+fila+' pendente(s) de envio';
+  chip.classList.toggle('erro',offline||falhou);
+  chip.classList.toggle('aviso',!offline&&!falhou&&(atrasado||fila>0||idade===null));
+  chip.querySelector('.ub-sinal').style.background=(offline||falhou)?'#b3261e':(atrasado||fila||idade===null)?'#a76c00':'#087f62';
+  document.getElementById('usoBancoTxt').textContent=texto;
+  chip.title='Conferência automática dos recebimentos no servidor do mercado.\n'+
+    (ultimaConferenciaRecebimentos?'Última leitura concluída: '+new Date(ultimaConferenciaRecebimentos).toLocaleTimeString('pt-BR'):'Ainda não houve leitura concluída nesta sessão.')+
+    '\nLançamentos aguardando envio neste computador: '+fila+'.\nEste indicador não mede espaço em disco nem confirma backups.';
+  chip.hidden=false;
 }
-setInterval(()=> atualizarUsoBanco(false), 5*60*1000);
+function registrarConferenciaRecebimentos(){
+  ultimaConferenciaRecebimentos=Date.now();
+  atualizarUsoBanco();
+}
+setInterval(atualizarUsoBanco,5000);
+window.addEventListener('online',atualizarUsoBanco);
+window.addEventListener('offline',atualizarUsoBanco);
+
 
 function conexaoRestabelecida(){
   esconderCarregando();
@@ -15906,6 +15896,7 @@ async function carregarCaixa(avisar){
     const lida = JSON.stringify(respostas);
     if(caixaUltimaLeitura && lida === caixaUltimaLida && assinaturaCaixa() === caixaUltimaAplicada && !pendentesNaSaida.length && !caixaFila.length){
       caixaUltimaLeitura = Date.now();
+      registrarConferenciaRecebimentos();
       caixaUltimoErro = null;
       if(modoOffline) atualizarFaixaOffline();
       else avisoCaixa(null);
@@ -15940,6 +15931,7 @@ async function carregarCaixa(avisar){
        lançamento, o pedido sai daqui — depois de ler o banco, não antes. */
     if(primeira) pedirAberturaDoDia(state.caixaDia || hojeISO());
     caixaUltimaLeitura = Date.now();
+      registrarConferenciaRecebimentos();
     caixaUltimoErro = null;
     if(modoOffline) atualizarFaixaOffline();
     else avisoCaixa(null);
@@ -16029,6 +16021,60 @@ function agendarLeituraCaixa(){
     caixaLeituraPendente = false;
     carregarCaixa(true);
   }, 250);
+}
+
+// Conferencia independente: um canal conectado nao garante que todos os avisos chegaram.
+let conferenciaRecTimer=null,conferenciaRecLendo=false,conferenciaRecFalhas=0;
+async function conferirRecebimentosAutomaticamente(){
+  if(!db || !emailLogado || !caixaCarregado || document.hidden || navigator.onLine===false || conferenciaRecLendo)return;
+  conferenciaRecLendo=true;
+  const marca=caixaGravacoes;
+  const usuario=emailLogado;
+  const pendentes=caixaFila.filter(p=>p.tipo==='recebimentos').slice();
+  try{
+    const linhas=await comTempoLimite(lerTabelaInteira(CAIXA_TABELAS.recebimentos.tabela),20000);
+    if(usuario!==emailLogado || marca!==caixaGravacoes)return;
+    const lista=linhas.map(r=>r.dados).filter(Boolean);
+    // Uma alteracao ainda nao enviada continua prevalecendo neste computador.
+    pendentes.concat(caixaFila.filter(p=>p.tipo==='recebimentos')).forEach(p=>{
+      const i=lista.findIndex(r=>String(r.id)===String(p.id));
+      if(p.acao==='apagar'){if(i>=0)lista.splice(i,1);}
+      else if(p.obj){if(i>=0)lista[i]=p.obj;else lista.push(p.obj);}
+    });
+    const mudou=JSON.stringify(state.recebimentos||[])!==JSON.stringify(lista);
+    if(mudou){
+      state.recebimentos=lista;
+      caixaGravacoes++;
+      caixaUltimaLida='';
+      descartarIndiceCaixa();
+      gravarCache();
+      renderCaixaAtual();
+    }
+    // A aba visivel pode diferir do estado restaurado pelo RH. Atualiza a fila real.
+    const view=document.getElementById('viewRecLancar');
+    if(view && getComputedStyle(view).display!=='none'){
+      const assinatura=JSON.stringify(lista.filter(r=>!baixaSgFeita(r)));
+      const alvo=document.getElementById('recUltimos');
+      if(alvo.dataset.conferencia!==assinatura){renderUltimosRec();alvo.dataset.conferencia=assinatura;}
+    }
+    conferenciaRecFalhas=0;
+    registrarConferenciaRecebimentos();
+  }catch(e){
+    conferenciaRecFalhas++;
+    atualizarUsoBanco();
+    if(conferenciaRecFalhas>=2){
+      statusNuvem('erro','Atualizacao pendente');
+      avisoCaixa('A conferência automática dos recebimentos não respondeu. Os dados desta tela podem estar desatualizados. Tentando novamente.',true);
+    }
+  }finally{conferenciaRecLendo=false;}
+}
+function ligarConferenciaRecebimentos(){
+  if(conferenciaRecTimer)return;
+  // Nao depende de caixaUltimaLeitura, que outras consultas tambem atualizam.
+  conferenciaRecTimer=setInterval(conferirRecebimentosAutomaticamente,10000);
+  window.addEventListener('online',conferirRecebimentosAutomaticamente);
+  window.addEventListener('focus',conferirRecebimentosAutomaticamente);
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)conferirRecebimentosAutomaticamente();});
 }
 
 let caixaAtualizacaoLigada = false;
