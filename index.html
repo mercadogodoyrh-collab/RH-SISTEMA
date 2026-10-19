@@ -5391,7 +5391,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '10/10/2026 · Recibo de pagamento avulso';
+const VERSAO_SISTEMA = '19/10/2026 · Atualizacao automatica do caixa';
 
 /* Cópia do sistema guardada no navegador, para ele ABRIR sem internet — ver sw.js, que
    precisa estar publicado na mesma pasta deste arquivo. Só em https (o Pages) ou no
@@ -15866,7 +15866,8 @@ function qtdCaixaNaTela(){
 /* Devolve true quando leu e instalou, false quando a leitura falhou, e undefined quando
    não chegou a ler (outra leitura em andamento, ou leitura descartada e reagendada). */
 async function carregarCaixa(avisar){
-  if(!db || caixaLendo) return;
+  if(!db) return;
+  if(caixaLendo){ caixaLeituraPendente = true; return; }
   caixaLendo = true;
   try{
     /* A LEITURA NÃO ESPERA MAIS A FILA ESVAZIAR. Esperava, e em 12/09/2026 isso deixou a
@@ -15966,6 +15967,7 @@ async function carregarCaixa(avisar){
     return false;
   }finally{
     caixaLendo = false;
+    if(caixaLeituraPendente) agendarLeituraCaixa();
   }
 }
 
@@ -15991,9 +15993,17 @@ async function migrarCaixaAntigo(legado){
   }
 }
 
+let caixaLeituraPendente = false;
+let caixaRealtimeLigado = false;
 function agendarLeituraCaixa(){
-  clearTimeout(caixaTimerLeitura);
-  caixaTimerLeitura = setTimeout(()=> carregarCaixa(true), 400);
+  caixaLeituraPendente = true;
+  if(caixaLendo || caixaTimerLeitura) return;
+  caixaTimerLeitura = setTimeout(()=>{
+    caixaTimerLeitura = null;
+    if(!caixaLeituraPendente) return;
+    caixaLeituraPendente = false;
+    carregarCaixa(true);
+  }, 250);
 }
 
 let caixaAtualizacaoLigada = false;
@@ -16006,10 +16016,23 @@ function ligarAtualizacaoCaixa(){
       caixaCanal = caixaCanal.on('postgres_changes',
         {event:'*', schema:'public', table:CAIXA_TABELAS[t].tabela}, agendarLeituraCaixa);
     });
-    caixaCanal.subscribe();
-  }catch(e){ /* sem realtime o sistema continua: a releitura periódica cobre */ }
-  setInterval(()=> carregarCaixa(true), 30000);
-  window.addEventListener('focus', ()=> carregarCaixa(true));
+    caixaCanal.subscribe(status=>{
+      caixaRealtimeLigado = status === 'SUBSCRIBED';
+      // A reconexao precisa buscar tambem as alteracoes ocorridas durante a queda.
+      if(caixaRealtimeLigado) agendarLeituraCaixa();
+    });
+  }catch(e){ caixaRealtimeLigado = false; }
+  // Realtime entrega imediatamente; a consulta periodica cobre avisos perdidos.
+  setInterval(()=>{
+    if(document.hidden || navigator.onLine === false) return;
+    const intervalo = caixaRealtimeLigado ? 30000 : 10000;
+    if(Date.now() - caixaUltimaLeitura >= intervalo) agendarLeituraCaixa();
+  }, 5000);
+  window.addEventListener('focus', agendarLeituraCaixa);
+  window.addEventListener('online', agendarLeituraCaixa);
+  document.addEventListener('visibilitychange', ()=>{
+    if(!document.hidden) agendarLeituraCaixa();
+  });
 }
 function hojeISO(){
   const d = new Date();
