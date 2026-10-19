@@ -38,7 +38,16 @@ const LIBS = [
   'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js'
 ];
-const IMAGENS = [new URL('assets/logo.jpg', ESCOPO).href];
+const MANIFESTO = new URL('manifest.webmanifest', ESCOPO).href;
+const ARQUIVOS_APP = [
+  'assets/logo.jpg',
+  'assets/icons/godoy-v1-32.png',
+  'assets/icons/godoy-v1-180.png',
+  'assets/icons/godoy-v1-192.png',
+  'assets/icons/godoy-v1-512.png',
+  'assets/icons/godoy-v1-maskable-512.png',
+  'manifest.webmanifest'
+].map(caminho=>new URL(caminho, ESCOPO).href);
 
 self.addEventListener('install', (e)=>{
   e.waitUntil((async ()=>{
@@ -48,7 +57,7 @@ self.addEventListener('install', (e)=>{
       fetch(PAGINA, {cache: 'no-cache'})
         .then(r=> r.ok ? Promise.resolve(semRedirecionamento(r)).then(limpa=> c.put(PAGINA, limpa)) : null)
         .catch(()=>{}),
-      ...IMAGENS.map(u=> fetch(u).then(r=> r.ok ? c.put(u, r) : null).catch(()=>{})),
+      ...ARQUIVOS_APP.map(u=> fetch(u).then(r=> r.ok ? c.put(u, r) : null).catch(()=>{})),
       /* A página carrega essas bibliotecas por <script> comum, sem CORS: a resposta é
          "opaca" e é assim mesmo que ela precisa ser guardada para servir de volta. */
       ...LIBS.map(u=> fetch(u, {mode: 'no-cors'}).then(r=> c.put(u, r)).catch(()=>{}))
@@ -73,7 +82,7 @@ self.addEventListener('fetch', (e)=>{
     e.respondWith(paginaRedePrimeiro(req));
   }else if(LIBS.indexOf(url) >= 0){
     e.respondWith(cachePrimeiro(req, url));
-  }else if(url.startsWith(new URL('assets/', ESCOPO).href)){
+  }else if(url === MANIFESTO || url.startsWith(new URL('assets/', ESCOPO).href)){
     e.respondWith(cacheAtualizandoPorTras(req, url));
   }else if(url.startsWith('https://fonts.googleapis.com/')){
     /* A folha da fonte (Google Sans Flex, redesenho de 12/09/2026): guardada e renovada

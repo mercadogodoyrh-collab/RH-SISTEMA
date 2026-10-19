@@ -3079,7 +3079,7 @@
   @media(max-width:600px){
     .pa-cabecalho{align-items:stretch;flex-direction:column;}
     .pa-campos{grid-template-columns:minmax(0,1fr);}
-    .pa-registro{flex-direction:column;}.pa-registro-valor{display:flex;justify-content:space-between;align-items:center;}
+    .pa-registro{flex-direction:column;}.pa-registro-valor{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;}
     .pa-acoes .btn{flex:1;white-space:normal;}
     #overlayAvulso .pa-modal{padding:24px 18px;}
   }
@@ -3552,6 +3552,7 @@
       <div class="pa-acoes"><button type="submit" class="btn btn-primary">Revisar pagamento</button></div>
     </form>
     <div id="paRevisao" hidden></div>
+    <div id="paReciboAcoes" class="pa-acoes" hidden><button type="button" class="btn btn-primary" id="paImprimirRecibo">Imprimir recibo</button></div>
     <p id="paErro" role="alert" class="pa-erro"></p>
     <div id="paConfirmacao" class="pa-acoes" hidden><button type="button" class="btn btn-outline" id="paVoltar">Voltar e corrigir</button><button type="button" class="btn btn-primary" id="paConfirmar">Confirmar pagamento</button></div>
   </div>
@@ -5390,7 +5391,7 @@ const ESTADO_INICIAL = {"funcionarios": [{"id": "f_anacarolinadasilva", "nome": 
    navegador guarda o arquivo em cache, este número é o jeito de conferir quem já está na
    versão nova: aparece no rodapé do menu e na janela do banco de dados. Se um computador
    mostrar versão antiga, é só forçar a recarga com Ctrl+F5. */
-const VERSAO_SISTEMA = '07/10/2026 · Sincronização econômica do RH';
+const VERSAO_SISTEMA = '10/10/2026 · Recibo de pagamento avulso';
 
 /* Cópia do sistema guardada no navegador, para ele ABRIR sem internet — ver sw.js, que
    precisa estar publicado na mesma pasta deste arquivo. Só em https (o Pages) ou no
@@ -5400,8 +5401,8 @@ if('serviceWorker' in navigator && (location.protocol === 'https:' || location.h
   window.addEventListener('load', ()=>{ navigator.serviceWorker.register('sw.js').catch(()=>{}); });
 }
 
-const SUPABASE_URL  = 'https://vieafcgghboxwhultile.supabase.co';
-const SUPABASE_KEY  = 'sb_publishable_HaMcgvr_2xmWYotvzetmVA_yscPz2eT';
+const SUPABASE_URL  = "https://ecology-scenic-lamps-tongue.trycloudflare.com";
+const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzkyNDEwNjEzLCJleHAiOjE5NTAwOTA2MTN9.Xb31aY4BNVUiL40sZELvNBvoltDVcJlQ_l7j8Livw1I';
 const LS_KEY = 'rh_sistema_v3';   /* cache local */
 /* O Sistema de Estoque está publicado no MESMO endereço (mercadogodoyrh-collab.github.io)
    e usa o MESMO banco. O Supabase guarda quem está logado no armazenamento do navegador
@@ -11045,7 +11046,7 @@ function renderPagamentosAvulsos(){
   const lista=pagamentosAvulsos().filter(p=>(!mes||p.data.slice(0,7)===mes)&&(!busca||p.nome.toLocaleLowerCase('pt-BR').includes(busca)))
     .slice().sort((a,b)=>b.data.localeCompare(a.data)||b.criadoEm.localeCompare(a.criadoEm));
   document.getElementById('paContagem').textContent=lista.length+' pagamento(s)'+(mes?' em '+mesLabel(mes):' · todos os meses');
-  document.getElementById('paLista').innerHTML=lista.length?lista.map(p=>'<article class="pa-registro"><div><h3>'+escHtml(p.nome)+'</h3><p>Período: '+dataBR(p.inicio)+' a '+dataBR(p.fim)+'</p><small>Pagamento em '+dataBR(p.data)+' · '+escHtml(PA_FORMAS[p.forma]||p.forma)+'</small></div><div class="pa-registro-valor"><strong>'+fmtMoeda(p.total)+'</strong><button type="button" class="btn btn-outline" data-pa-ver="'+escHtml(p.id)+'">Ver detalhes</button></div></article>').join(''):'<div class="ini-vazio">'+(busca||mes?'Nenhum pagamento encontrado com esses filtros.':'Nenhum pagamento avulso registrado. Clique em “Novo pagamento avulso” para começar.')+'</div>';
+  document.getElementById('paLista').innerHTML=lista.length?lista.map(p=>'<article class="pa-registro"><div><h3>'+escHtml(p.nome)+'</h3><p>Período: '+dataBR(p.inicio)+' a '+dataBR(p.fim)+'</p><small>Pagamento em '+dataBR(p.data)+' · '+escHtml(PA_FORMAS[p.forma]||p.forma)+'</small></div><div class="pa-registro-valor"><strong>'+fmtMoeda(p.total)+'</strong><button type="button" class="btn btn-outline" data-pa-ver="'+escHtml(p.id)+'">Ver detalhes</button><button type="button" class="btn btn-outline" data-pa-recibo="'+escHtml(p.id)+'">Imprimir recibo</button></div></article>').join(''):'<div class="ini-vazio">'+(busca||mes?'Nenhum pagamento encontrado com esses filtros.':'Nenhum pagamento avulso registrado. Clique em “Novo pagamento avulso” para começar.')+'</div>';
 }
 function paValor(texto){
   const s=String(texto||'').trim();
@@ -11080,6 +11081,54 @@ function htmlPagamentoAvulso(p){
   ].map(([k,v])=>'<div><dt>'+escHtml(k)+'</dt><dd>'+escHtml(v)+'</dd></div>').join('')+'</dl>'+
     '<p class="campo-nota">'+(p.forma==='dinheiro'?'Gera uma retirada no caixa administrativo na data do pagamento.':p.forma==='notinha'?'Gera uma notinha branca para conferência nos caixas da frente.':'Pagamento por PIX, sem retirada da gaveta do caixa administrativo.')+'</p>';
 }
+/* O recibo usa o lançamento salvo, inclusive para colaboradores já desligados. */
+function htmlReciboPagamentoAvulso(p){
+  const e=escHtml;
+  return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8">'+
+    '<meta name="viewport" content="width=device-width,initial-scale=1">'+
+    '<title>Recibo de pagamento avulso - '+e(p.nome)+' - '+e(dataBR(p.data))+'</title>'+
+    '<style>@page{size:A4;margin:18mm}*{box-sizing:border-box}body{margin:0;padding:24px;font:14px/1.6 Arial,sans-serif;color:#111;background:#eee}'+
+    'main{max-width:720px;margin:20px auto;background:#fff;padding:36px;border:1px solid #bbb;overflow-wrap:anywhere}'+
+    'header{border-bottom:2px solid #222;padding-bottom:16px;margin-bottom:24px}h1{font-size:22px;margin:6px 0}p{margin:12px 0}'+
+    '.referencia{font-size:11px;color:#444}table{width:100%;border-collapse:collapse;margin:24px 0}th,td{padding:10px;border-bottom:1px solid #bbb;text-align:left}'+
+    'th:last-child,td:last-child{text-align:right;white-space:nowrap}tfoot{font-weight:bold;font-size:17px}.obs{white-space:pre-wrap}'+
+    '.assinatura{margin-top:55px;border-top:1px solid #222;text-align:center;padding-top:8px;break-inside:avoid}'+
+    '.confirmacao{break-inside:avoid}.acoes{text-align:center}button{padding:12px 24px;font:inherit;cursor:pointer}'+
+    '@media print{body{padding:0;background:#fff}main{max-width:none;margin:0;padding:0;border:0}.acoes{display:none}thead{display:table-header-group}tr{break-inside:avoid}}'+
+    '</style></head><body><div class="acoes"><button type="button" id="imprimir">Imprimir / salvar em PDF</button></div><main>'+
+    '<header><strong>'+e(state.empresa||'Empresa')+'</strong><h1>Recibo de pagamento avulso</h1>'+
+    '<div class="referencia">Identificação do pagamento: '+e(p.id)+'</div></header>'+
+    '<p><strong>Colaborador:</strong> '+e(p.nome)+'</p>'+
+    '<p><strong>Período trabalhado:</strong> '+e(dataBR(p.inicio))+' a '+e(dataBR(p.fim))+'<br>'+
+    '<strong>Data do pagamento:</strong> '+e(dataBR(p.data))+'<br>'+
+    '<strong>Forma de pagamento:</strong> '+e(PA_FORMAS[p.forma]||p.forma)+'</p>'+
+    '<table><thead><tr><th>Descrição</th><th>Valor</th></tr></thead><tbody>'+
+    '<tr><td>Salário do período</td><td>'+e(fmtMoeda(p.salario))+'</td></tr>'+
+    '<tr><td>Horas extras</td><td>'+e(fmtMoeda(p.extras))+'</td></tr></tbody>'+
+    '<tfoot><tr><td>Total recebido</td><td>'+e(fmtMoeda(p.total))+'</td></tr></tfoot></table>'+
+    (p.obs?'<p class="obs"><strong>Observações:</strong> '+e(p.obs)+'</p>':'')+
+    '<section class="confirmacao"><p>Eu, '+e(p.nome)+', declaro ter recebido de '+e(state.empresa||'Empresa')+
+    ' a importância de <strong>'+e(fmtMoeda(p.total))+'</strong>, em '+e(dataBR(p.data))+
+    ', referente às verbas e ao período discriminados neste recibo.</p>'+
+    '<p>Local: __________________________ &nbsp; Data da assinatura: ____/____/________</p>'+
+    '<div class="assinatura">'+e(p.nome)+'<br>Assinatura do colaborador</div></section></main></body></html>';
+}
+function imprimirReciboPagamentoAvulso(id){
+  const p=pagamentosAvulsos().find(p=>p.id===id);
+  if(!p){mostrarToast('Pagamento não encontrado. Abra novamente o histórico.');return;}
+  const janela=window.open('','_blank');
+  if(!janela){mostrarToast('Permita a abertura de janelas neste navegador para imprimir o recibo.');return;}
+  try{
+    janela.document.open();
+    janela.document.write(htmlReciboPagamentoAvulso(p));
+    janela.document.close();
+    const imprimir=()=>{janela.focus();janela.print();};
+    janela.document.getElementById('imprimir').addEventListener('click',imprimir);
+    // Mantém a prévia disponível para reimprimir ou salvar em PDF após cancelar.
+    if(janela.document.readyState==='complete') imprimir();
+    else janela.addEventListener('load',imprimir,{once:true});
+  }catch(e){mostrarToast('Não foi possível abrir a impressão do recibo. Tente novamente.');}
+}
 function abrirPagamentoAvulso(id){
   paRevisando=null; document.getElementById('paErro').textContent='';
   const p=id?pagamentosAvulsos().find(p=>p.id===id):null;
@@ -11087,6 +11136,8 @@ function abrirPagamentoAvulso(id){
   document.getElementById('paForm').hidden=!!p;
   document.getElementById('paRevisao').hidden=!p;
   document.getElementById('paConfirmacao').hidden=true;
+  document.getElementById('paReciboAcoes').hidden=!p;
+  document.getElementById('paImprimirRecibo').dataset.paRecibo=p?p.id:'';
   if(p) document.getElementById('paRevisao').innerHTML=htmlPagamentoAvulso(p);
   else{
     document.getElementById('paForm').reset();
@@ -11156,6 +11207,7 @@ document.getElementById('paNovo').addEventListener('click',()=>abrirPagamentoAvu
 document.getElementById('paFechar').addEventListener('click',fecharPagamentoAvulso);
 document.getElementById('paForm').addEventListener('submit',revisarPagamentoAvulso);
 document.getElementById('paConfirmar').addEventListener('click',confirmarPagamentoAvulso);
+document.getElementById('paImprimirRecibo').addEventListener('click',e=>imprimirReciboPagamentoAvulso(e.currentTarget.dataset.paRecibo));
 document.getElementById('paVoltar').addEventListener('click',()=>{
   if(paSalvando) return;
   paRevisando=null;document.getElementById('paForm').hidden=false;document.getElementById('paRevisao').hidden=true;
@@ -11169,7 +11221,11 @@ document.getElementById('paVoltar').addEventListener('click',()=>{
 document.getElementById('paBusca').addEventListener('input',renderPagamentosAvulsos);
 document.getElementById('paMes').addEventListener('change',renderPagamentosAvulsos);
 document.getElementById('paTodos').addEventListener('click',()=>{document.getElementById('paMes').value='';renderPagamentosAvulsos();});
-document.getElementById('paLista').addEventListener('click',e=>{const b=e.target.closest('[data-pa-ver]');if(b) abrirPagamentoAvulso(b.dataset.paVer);});
+document.getElementById('paLista').addEventListener('click',e=>{
+  const recibo=e.target.closest('[data-pa-recibo]');
+  if(recibo){imprimirReciboPagamentoAvulso(recibo.dataset.paRecibo);return;}
+  const b=e.target.closest('[data-pa-ver]');if(b) abrirPagamentoAvulso(b.dataset.paVer);
+});
 document.getElementById('overlayAvulso').addEventListener('keydown',e=>{
   if(e.key==='Escape'){e.preventDefault();fecharPagamentoAvulso();}
   if(e.key==='Tab'){
@@ -17587,6 +17643,42 @@ function renderUltimosRec(){
     }).join('') + '</tbody></table>';
 }
 
+/* Compara os dados financeiros, sem depender de observação, operador ou baixa no SG.
+   Uma edição ignora o próprio registro, mas continua avisando se coincidir com outro.
+   A conferência inclui o cache offline e ocorre antes de qualquer gravação. */
+function recebimentosRepetidos(dados, nome, ignorarId){
+  const campos = ['total', 'troco', 'notinha', ...FORMAS_RECEBIMENTO.map(f=>f.chave), ...FORMAS_ANTIGAS];
+  const nomeNormalizado = norm(nome);
+  const idsCliente = new Set((state.clientes||[])
+    .filter(c=> nomeNormalizado && norm(c.nome) === nomeNormalizado).map(c=>String(c.id)));
+  if(dados.clienteId != null) idsCliente.add(String(dados.clienteId));
+  return (state.recebimentos||[]).filter(r=>{
+    if(ignorarId != null && String(r.id) === String(ignorarId)) return false;
+    if(!idsCliente.has(String(r.clienteId)) || r.data !== dados.data) return false;
+    if(!campos.every(c=> r2(toNum(r[c])) === r2(toNum(dados[c])))) return false;
+    return r2(toNum(dados.troco)) === 0 || (r.trocoForma||'') === (dados.trocoForma||'');
+  });
+}
+
+function confirmarRecebimentoRepetido(dados, nome, ignorarId){
+  const repetidos = recebimentosRepetidos(dados, nome, ignorarId);
+  if(!repetidos.length) return true;
+  const existente = repetidos[0];
+  const formas = FORMAS_RECEBIMENTO.filter(f=>r2(toNum(dados[f.chave])) !== 0)
+    .map(f=>f.rotulo + ': ' + fmtMoeda(toNum(dados[f.chave]))).join('\n');
+  return confirm('ATENÇÃO: POSSÍVEL LANÇAMENTO REPETIDO\n\n' +
+    'Já existe um recebimento de ' + nome + ' em ' + dataBR(dados.data) +
+    ' com o mesmo total, formas de pagamento e troco.\n\n' +
+    'Total da conta: ' + fmtMoeda(dados.total) + '\n' + formas +
+    (dados.troco ? '\nTroco: ' + fmtMoeda(dados.troco) : '') +
+    (dados.notinha ? '\nNotinha branca: ' + fmtMoeda(dados.notinha) : '') +
+    '\nRegistro existente: ' + existente.id +
+    (existente.usuario ? '\nLançado por: ' + existente.usuario : '') +
+    '\n\nDuplicar este recebimento pode causar diferença no caixa.\n' +
+    'Cancelar mantém os dados para conferência, sem gravar.\n' +
+    'Registrar mesmo assim?');
+}
+
 function salvarRecebimento(){
   garantirBaseRecebimentos();
   if(recEditandoId != null){
@@ -17676,7 +17768,6 @@ function salvarRecebimento(){
   let novoCadastro = false;
   if(!cli){
     cli = { id: novoIdRec('c_'), nome: nome, telefone: '', obs: '', criadoEm: new Date().toISOString() };
-    state.clientes.push(cli);
     novoCadastro = true;
   }
 
@@ -17719,7 +17810,14 @@ function salvarRecebimento(){
   dados.notasCompra = (recNotasCompra.length > 0 &&
                        somaNotasCompra() === total) ? recNotasCompra.slice() : null;
 
-  if(novoCadastro) salvarNoCaixa('clientes', cli);
+  if(!confirmarRecebimentoRepetido(dados, cli.nome, recEditandoId)){
+    aviso.textContent = 'Possível lançamento repetido. Nada foi gravado. Confira o recebimento existente no histórico.';
+    return;
+  }
+  if(novoCadastro){
+    state.clientes.push(cli);
+    salvarNoCaixa('clientes', cli);
+  }
   recUltimoRegistroNome = cli.nome;
 
   if(recEditandoId){
